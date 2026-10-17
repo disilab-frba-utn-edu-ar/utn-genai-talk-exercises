@@ -2,8 +2,8 @@
 
 **Nombre / grupo:**
 **Agente y modelo usados:**
-**Iteración elegida:**
-**Carpeta de la spec:** `specs/00X-...`
+**Iteración elegida:** <!-- 1 a 5 de iteraciones.md -->
+**Carpeta de la spec:** `specs/00X-...` <!-- la 001-reservar-sesion es el ejemplo; la tuya arranca en 002 -->
 
 ## Bitácora de validación humana (✋)
 
@@ -18,6 +18,12 @@
 ### Preguntas de `clarify` y tus respuestas
 
 -
+
+### Casos borde de `iteraciones.md`: qué decidiste
+
+| Caso borde | Decisión | ¿Dónde quedó? (spec / clarify / plan / no se trató) |
+|---|---|---|
+| | | |
 
 ## Sobre el método
 

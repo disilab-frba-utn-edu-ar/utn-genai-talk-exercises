@@ -1,11 +1,11 @@
 # Ejercicio 2 — Escribir una skill y conectar un MCP
 
 > **Charla:** bloque 2.1.3 *Skills* (el mismo pedido, eso es una skill, una
-> skill por dentro, cómo el agente la encuentra, cuándo nace una skill) y 2.1.1
-> *Context engineering* (las palancas: skills y MCP entran al contexto solo
-> cuando se usan).
+> skill por dentro, una skill no es un script, cómo el agente la encuentra,
+> cuándo nace una skill) y 2.1.1 *Context engineering* (las palancas: skills y
+> MCP entran al contexto solo cuando se usan).
 >
-> **Duración estimada:** 1 a 1,5 horas.
+> **Duración estimada:** 1 a 1,5 horas (+30 minutos si hacés la parte C).
 > **Requisito:** ejercicio 1 hecho; los hooks siguen registrando todo, y los
 > vas a usar para comprobar que la skill y el MCP se activaron.
 
@@ -29,9 +29,9 @@ npm run logs:limpiar    # medí solo este ejercicio
 ### A.1 El problema
 
 En el ejercicio 1 le explicaste al agente, dentro del prompt, varias reglas del
-proyecto: dónde van los tests, qué código HTTP devolver, que la lógica vaya a
-`lib/`, que no toque `data/`... Si mañana le pedís otro endpoint, **se lo vas
-a tener que repetir**. Ese es el momento en que nace una skill.
+proyecto: en qué capa va cada cosa, dónde van los tests, qué código HTTP
+devolver, que no toque `data/`... Si mañana le pedís otro endpoint, **se lo
+vas a tener que repetir**. Ese es el momento en que nace una skill.
 
 ### A.2 Escribila
 
@@ -43,7 +43,7 @@ Creá la skill en la carpeta que lee tu agente:
 | Cline | `.claude/skills/nuevo-endpoint/SKILL.md` (Cline también lee `.claude/skills/`; o `.cline/skills/`) |
 | Codex | `.agents/skills/nuevo-endpoint/SKILL.md` |
 
-> Mirá las skills que ya tiene el repo (`.claude/skills/shadcn/`,
+> Mirá las skills que ya tiene el repo (por ejemplo
 > `.claude/skills/speckit-specify/`) como referencia de formato.
 
 Tiene que tener las dos partes que vimos en la charla:
@@ -59,42 +59,56 @@ description: <qué trabajo hace + en qué momento usarla>
 
 Recordá: «Ayuda con la API» no dispara nunca. La `description` tiene que
 **nombrar el trabajo y nombrar el momento**, con las palabras que vos vas a
-usar al pedirlo (endpoint, ruta, API, handler, `app/api`...).
+usar al pedirlo (endpoint, ruta, API, handler, `server/routes`, Express...).
 
 **Abajo, el criterio** (markdown común). Cómo lo hacemos *nosotros*. Como
 mínimo tiene que cubrir:
 
-- [ ] **Antes de escribir, preguntá**: ¿quién lo consume? ¿qué pasa si falla?
-      ¿qué valida?
-- [ ] **Dónde va cada cosa**: rutas en `app/api/<recurso-en-plural>/...`
-      (principio VI de la constitution), lógica pura en `lib/`, tipos en
-      `lib/types.ts`.
-- [ ] **Next.js de esta versión**: este repo usa Next 16 y tiene cambios
-      respecto de lo que el modelo conoce (ver `AGENTS.md`). Indicá que antes
-      de escribir un route handler lea la guía en `node_modules/next/dist/docs/`
-      (por ejemplo, cómo se reciben los `params` de una ruta dinámica).
-- [ ] **Contrato de errores**: `400` validación, `404` no existe, `409`
-      conflicto; cuerpo `{ "error": "<mensaje en español>" }`.
-- [ ] **TDD** (principio I): primero el test en `tests/unit/...`, verlo
-      fallar, después implementar.
-- [ ] **No se negocia**: no escribir en `data/` desde los tests; IDs con
-      `crypto.randomUUID()` (principio VII).
-- [ ] **Nunca cerrar sin un caso borde** y sin correr `npm test` y `npm run lint`.
+- [ ] **Antes de escribir, preguntá**: ¿quién lo consume (una pantalla del
+      client, la mentora, el colectivo)? ¿qué pasa si falla? ¿qué valida?
+      ¿devuelve algún dato personal?
+- [ ] **Dónde va cada cosa** (principio II): la ruta en
+      `server/routes/` (solo HTTP: parsear, validar forma, mapear errores a
+      status), el caso de uso en `server/services/`, el acceso a los JSON en
+      `server/repositories/`, las reglas puras en `server/domain/` (sin `fs`,
+      sin `express`), los tipos en `shared/types.ts` y, si una pantalla lo
+      consume, la función de fetch en `client/src/api/` (principio VI).
+- [ ] **Contrato de API** (principio III): bajo `/api`, recursos en plural y
+      kebab-case (`/api/tipos-asesoria`, `/api/sesiones/:id`), JSON, errores
+      `400` validación · `404` no existe · `409` conflicto de estado, con
+      cuerpo `{ "error": "<mensaje en español>" }`.
+- [ ] **Convenciones del dominio**: nombres de entidades y campos en español
+      (`mentoraId`, `horaInicio`, `estado`); IDs UUID v4 con
+      `crypto.randomUUID()` para lo que crean los usuarios; habilidades y tipos
+      de asesoría se identifican por su **código snake_case** (principio V).
+- [ ] **Privacidad** (principio IV): el `contacto` de la mentora no sale
+      **nunca**; los datos de contacto del colectivo solo a quien corresponde.
+      El servicio devuelve una **vista pública explícita** (elegir campos, no
+      hacer `{ ...sesion }`) y hay un test que verifica que el dato privado
+      **no** está en la respuesta.
+- [ ] **TDD con supertest** (principio I): primero el test en
+      `tests/server/api/` (y en `tests/server/domain/` si hay lógica nueva),
+      verlo fallar, después implementar. Los tests de API usan la app de
+      Express sin levantar el puerto y un **`DATA_DIR` temporal**: nunca leen
+      ni escriben `data/`. Indicá que mire cómo lo hacen los tests existentes.
+- [ ] **Nunca cerrar sin un caso borde** (id inexistente, id mal formado,
+      campo faltante) y sin correr `npm test`, `npm run lint` y
+      `npm run typecheck`.
 
 Opcional (recordá *«una skill no es un script»*): si hay un paso
-determinístico, como chequear que el endpoint responde, ponelo en
-`nuevo-endpoint/scripts/` y hacé que la skill lo invoque.
+determinístico, como chequear que el endpoint responde con el server
+levantado, ponelo en `nuevo-endpoint/scripts/` y hacé que la skill lo invoque.
 
 ### A.3 ¿Se dispara?
 
 1. Sesión nueva. Preguntale al agente: **"¿Cuándo usarías la skill
    nuevo-endpoint?"** Si la respuesta no coincide con lo que querías, mejorá la
    `description`.
-2. Sesión nueva. Pedile, **sin nombrar la skill**:
+2. Sesión nueva. Pedile, **sin nombrar la skill** y sin agregar nada más:
 
    ```text
-   Necesito un endpoint para obtener el detalle de un turno por su id:
-   GET /api/bookings/[id]. Si no existe, 404.
+   Necesito un endpoint para obtener el detalle de una sesión por su id:
+   GET /api/sesiones/:id. Si no existe, 404.
    ```
 
 3. Revisá el log: `npm run logs:timeline`. ¿Aparece la skill? (En Claude Code
@@ -104,6 +118,19 @@ determinístico, como chequear que el endpoint responde, ponelo en
 Si no se activó, **no le digas que la use**: cambiá la `description` y probá
 de nuevo en una sesión limpia. Anotá cuántos intentos te llevó.
 
+> **Decisión de producto para este endpoint: no devuelve `contactoNombre` ni
+> `contactoEmail`.** El pedido no lo dice a propósito: queremos ver si la skill
+> (o la constitution) alcanza para que el agente lo resuelva solo. ¿Por qué?
+> El principio IV dice que los datos de contacto del colectivo solo se
+> muestran *a la mentora de esa sesión*. La app no tiene login, así que el
+> servidor no tiene forma de saber quién pide `GET /api/sesiones/:id`: un UUID
+> en una URL **no es una credencial** (se comparte, queda en el historial, en
+> logs). Ante la duda, el endpoint público devuelve la vista pública: mentora
+> (nombre), tipo de asesoría, colectivo, proyecto, fecha, horario y estado.
+> Revelar el contacto "a quien corresponde" es una feature en sí misma (ver la
+> iteración 5 del ejercicio 3). Si tu agente lo devolvió, no lo corrijas a
+> mano: mejorá la skill y repetí.
+
 ---
 
 ## Parte B — Conectar un MCP: el navegador
@@ -111,7 +138,7 @@ de nuevo en una sesión limpia. Anotá cuántos intentos te llevó.
 Vas a conectar el servidor MCP de **Playwright**
 ([`@playwright/mcp`](https://github.com/microsoft/playwright-mcp)): le da al
 agente herramientas para abrir un navegador, navegar, hacer clic, completar
-formularios y sacar capturas. No necesita API key.
+formularios, mirar las requests de red y sacar capturas. No necesita API key.
 
 ### B.1 Conectalo
 
@@ -170,24 +197,64 @@ Cline no tiene configuración de MCP por proyecto. En el panel de Cline:
 
 ### B.2 Usalo
 
-Levantá la app en otra terminal (`npm run dev`) y pedile al agente:
+Levantá la app en otra terminal (`npm run dev`: client en
+http://localhost:5173, API en http://localhost:3001) y pedile al agente:
 
 ```text
-Con el navegador, entrá a http://localhost:3000 y reservá un turno como
-cliente: elegí un profesional y un servicio y confirmá. Después verificá con el
-endpoint GET /api/bookings/[id] que hiciste antes que el turno quedó guardado
-con los datos correctos. Sacá una captura de la pantalla de confirmación y
-contame cualquier problema de usabilidad que encuentres.
+Con el navegador, entrá a http://localhost:5173 y reservá una sesión de
+mentoría como si fueras un colectivo: filtrá las mentoras por una habilidad,
+elegí una mentora, un tipo de asesoría, un día y un horario, completá los
+datos del colectivo (colectivo, proyecto, nombre y email de contacto) y
+confirmá. Después verificá con el endpoint GET /api/sesiones/:id que hiciste
+antes que la sesión quedó guardada con los datos correctos. Revisá también las
+requests de red: ¿alguna respuesta de la API incluye el email de una mentora?
+Sacá una captura de la pantalla de confirmación y contame cualquier problema
+de usabilidad o accesibilidad que encuentres (por ejemplo, ¿se puede hacer
+todo con teclado? ¿se ve bien a 375px de ancho?).
 ```
 
-Al terminar, **revertí los cambios en `data/bookings.json`** que generó la
-reserva (`git checkout -- data/bookings.json`).
+Al terminar, **regenerá los datos de ejemplo** para descartar la reserva que
+hizo el agente: `npm run seed` (`data/sesiones.json` no se versiona, así que
+`git checkout` no sirve acá).
 
 ### B.3 Mirá lo que pasó
 
 `npm run logs:resumen` muestra una sección **Herramientas MCP**. Las tools de
 MCP aparecen con nombres como `mcp__playwright__browser_navigate` (Claude
 Code y Codex) o `use_mcp_tool` (Cline).
+
+---
+
+## Parte C (opcional) — Una skill que se dispara por el archivo: códigos de habilidad
+
+En el TP *Código a Voluntad* cada habilidad tiene un **código único
+normalizado**, y este proyecto hereda la regla (principio V):
+"Desarrollo Web React" → `desarrollo_web_react`. Es el tercer camino de
+disparo de la charla: **la extensión**. Igual que *«al editar un `.py` se
+carga la skill de nomenclatura en Python»*, acá queremos que al tocar un
+archivo `.ts` que maneja habilidades o tipos de asesoría se cargue la skill
+`codigos-de-habilidad`.
+
+1. Creá `.claude/skills/codigos-de-habilidad/SKILL.md` (o la carpeta de tu
+   agente). En Claude Code, además de la `description`, el encabezado acepta
+   el campo `paths` con globs de archivos que activan la skill (es propio de
+   Claude Code, no del estándar; revisá la documentación de tu versión).
+   Pensá bien el glob: ¿`**/*.ts`? ¿o solo los archivos de habilidades y
+   tipos de asesoría?
+2. Separá **script** de **criterio** (*«una skill no es un script»*):
+   - **Script** (`scripts/normalizar.mjs`): los pasos fijos. Minúsculas, sacar
+     tildes y diéresis, `ñ` → `n`, todo lo que no sea letra o número pasa a
+     `_`, colapsar `_` repetidos, sin `_` al principio ni al final.
+     `"  Diseño UX/UI "` → `diseno_ux_ui`, `"Node.js"` → `node_js`.
+   - **Criterio** (el `SKILL.md`): lo que hay que decidir. ¿Qué pasa si el
+     código normalizado **ya existe** ("React" y "react " colisionan: se
+     reutiliza, no se duplica)? ¿Y si dos habilidades distintas colapsan al
+     mismo código (`"C#"` → `c`, igual que `"C"`)? ¿Se puede cambiar el código
+     de una habilidad que ya usan mentoras y tipos de asesoría? Cuándo
+     frenar y preguntarle al humano.
+3. Probalo sin nombrarla: *"Agregá la habilidad 'Accesibilidad Web (WCAG)'
+   al catálogo y asociala al tipo de asesoría de revisión de código."* ¿Se
+   cargó? ¿Corrió el script o normalizó "a ojo"?
 
 ---
 
@@ -202,38 +269,54 @@ Respondé en [`RESPUESTAS.md`](./RESPUESTAS.md) con evidencia del log.
 2. ¿En qué momento de la sesión el agente cargó la skill (antes o después de
    leer código)? Mostralo con la línea de tiempo.
 3. Elegí **dos** reglas de tu skill y mostrá en el diff que el agente las
-   cumplió. ¿Alguna la ignoró? ¿Por qué creés que pasó?
-4. Compará este pedido (2 líneas + skill) con el prompt del ejercicio 1 (25
+   cumplió (por ejemplo: la capa en la que puso cada cosa, el test con
+   `DATA_DIR` temporal). ¿Alguna la ignoró? ¿Por qué creés que pasó?
+4. **Privacidad.** ¿La respuesta de `GET /api/sesiones/:id` incluye
+   `contactoEmail`? Si no, ¿lo decidió por tu skill, por la constitution o
+   por casualidad (buscá en el log qué leyó antes de escribir el servicio)?
+   ¿Hay un test que lo verifique? Revisá también `GET /api/sesiones` (que ya
+   existía): ¿es coherente con tu endpoint?
+5. Compará este pedido (2 líneas + skill) con el prompt del ejercicio 1 (~30
    líneas). ¿Qué parte del prompt del ejercicio 1 ya no hace falta escribir?
-5. La charla dice: *«la skill entra con su descripción y el cuerpo solo cuando
+   ¿Qué parte **sí** sigue haciendo falta, porque es propia de cada pedido?
+6. La charla dice: *«la skill entra con su descripción y el cuerpo solo cuando
    se usa»*. ¿Por qué eso importa para la ventana de contexto? ¿Qué pasaría si
-   todo el criterio estuviera en `AGENTS.md`?
+   todo el criterio estuviera en `AGENTS.md` o en la constitution?
 
 ### MCP
 
-6. ¿Qué herramientas del MCP usó el agente y cuántas veces cada una? ¿Cuál
+7. ¿Qué herramientas del MCP usó el agente y cuántas veces cada una? ¿Cuál
    devolvió las salidas más grandes (mirá `output` en el log)?
-7. ¿Encontró algún problema real en la app usando el navegador que no se veía
-   con los tests? ¿Qué no pudo verificar?
-8. En el semáforo de herramientas de la charla, ¿de qué color es un navegador
-   controlado por el agente? ¿Qué permisos le diste y cuáles no le darías en un
-   proyecto real?
-9. Abrí la lista de herramientas del servidor (`/mcp` o el panel de MCP).
-   ¿Cuántas expone? ¿Conviene tener muchos MCP conectados todo el tiempo? ¿Qué
-   le cuesta eso al contexto?
+8. ¿Encontró algún problema real en la app usando el navegador que no se veía
+   con los tests (usabilidad, accesibilidad, un dato privado en la red)? ¿Qué
+   no pudo verificar?
+9. En el semáforo de herramientas de la charla, ¿de qué color es un navegador
+   controlado por el agente? Tené en cuenta que en B.2 **creó** una sesión.
+   ¿Qué permisos le diste y cuáles no le darías en un proyecto real (por
+   ejemplo, contra la app en producción)?
+10. Abrí la lista de herramientas del servidor (`/mcp` o el panel de MCP).
+    ¿Cuántas expone? ¿Conviene tener muchos MCP conectados todo el tiempo?
+    ¿Qué le cuesta eso al contexto?
 
 ### Juntando todo
 
-10. Skill y MCP: uno aporta *criterio*, el otro *herramientas*. Proponé una
+11. Skill y MCP: uno aporta *criterio*, el otro *herramientas*. Proponé una
     skill para este repo que **use** el MCP de Playwright (por ejemplo,
-    "verificar un flujo contra los escenarios de una spec"). Escribí solo el
-    encabezado y 5-6 líneas de criterio.
+    "verificar un flujo de reserva contra los escenarios de una spec").
+    Escribí solo el encabezado y 5-6 líneas de criterio.
+
+### Parte C (si la hiciste)
+
+12. ¿Se disparó la skill `codigos-de-habilidad` al editar el archivo? Mostralo
+    con el log. ¿Qué glob usaste en `paths` y por qué no `**/*.ts`? ¿Qué
+    decidiste dejar en el script y qué en el criterio?
 
 ## Entrega
 
-- La skill (`SKILL.md` y, si hiciste, `scripts/`) commiteada.
+- La skill `nuevo-endpoint` (`SKILL.md` y, si hiciste, `scripts/`) commiteada.
 - La configuración del MCP (`.mcp.json` o `.codex/config.toml`; en Cline, una
   captura de la configuración).
-- El endpoint `GET /api/bookings/[id]` con sus tests.
+- El endpoint `GET /api/sesiones/:id` con sus tests.
 - La captura de pantalla que sacó el agente.
 - `RESPUESTAS.md` completo.
+- Opcional: la skill `codigos-de-habilidad`.

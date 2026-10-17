@@ -27,10 +27,16 @@ perfecta: es **cómo usaste el método** y **dónde pusiste tu criterio**.
 
 1. `.specify/memory/constitution.md` — la constitution del proyecto. Es el
    contexto permanente que el agente tiene que respetar en cada etapa.
-2. `specs/001-reserva-turno-cliente/` — una feature ya hecha con SDD. Mirá la
-   forma de `spec.md`, `plan.md` y `tasks.md`: es el formato que vas a producir.
-3. `chats/2026-04-21-implementacion-reserva-turno.md` — el resumen de la sesión
-   en la que se implementó esa feature.
+   Fijate en las restricciones de dominio y en los principios I (test-first),
+   II (capas) y IV (privacidad): son los que más se ponen a prueba en las
+   iteraciones.
+2. `specs/001-reservar-sesion/` — **la base de este proyecto se construyó con
+   este mismo flujo**: la reserva de sesiones que ya funciona salió de esa
+   spec. Mirá la forma de `spec.md` (intención, escenarios, requisitos,
+   criterios medibles; sin tecnología), `plan.md`, `research.md`,
+   `data-model.md`, `contracts/api.md` y `tasks.md`: es el formato que vas a
+   producir. Comparar la spec con el código que hoy existe en `server/` y
+   `client/` es la mejor forma de entender qué aporta cada etapa.
 
 ## 1. Elegí la feature
 
@@ -39,11 +45,14 @@ iteración que te asigne el docente o, si no hay asignación:
 
 | Iteración | Tamaño | Recomendada para |
 |---|---|---|
-| 2 — Cancelación de turno | Chica | Primera vez con SDD |
-| 3 — Bloqueos de agenda | Media | **Opción por defecto** (`data/blocked-slots.json` ya existe) |
-| 4 — "Cualquier profesional disponible" | Media | Quien ya terminó otra |
-| 1 — Nuevo flujo de reserva | Grande | Grupos de 2-3 |
-| 5 — Panel de administración | Grande | Grupos de 2-3 |
+| 1 — Cancelar una sesión | Chica | Primera vez con SDD |
+| 2 — Cupo mensual de horas por mentora | Chica a media | Primera vez con SDD |
+| 3 — Ausencias en la agenda | Media | **Opción por defecto** |
+| 4 — "Cualquier mentora disponible" | Media | Quien ya terminó otra |
+| 5 — Solicitudes de sesión y revelado de contacto | Grande | Grupos de 2-3 |
+
+Antes de escribir la spec, leé los **casos borde para pensar** de tu
+iteración: son las decisiones de negocio que la spec tiene que tomar.
 
 ## 2. Prepará Spec Kit para tu agente
 
@@ -97,10 +106,11 @@ Pasale al agente la iteración elegida **con tus palabras**, no copiando el
 texto de `iteraciones.md` entero. Ejemplo para la iteración 3:
 
 ```text
-/speckit-specify Los profesionales necesitan bloquear su agenda (feriados,
-reuniones, vacaciones). Un bloqueo puede ser de día completo o de una franja
-horaria. Los horarios bloqueados no tienen que aparecer como disponibles
-cuando un cliente reserva. Los bloqueos viven en data/blocked-slots.json.
+/speckit-specify Las mentoras necesitan cargar ausencias en su agenda
+(vacaciones, parciales, feriados, una reunión puntual). Una ausencia puede ser
+de uno o varios días completos o de una franja horaria de un día. Los horarios
+afectados no tienen que ofrecerse cuando un colectivo reserva. El motivo de la
+ausencia es privado: el colectivo solo ve que no hay horario.
 ```
 
 ✋ **Revisá `spec.md` antes de seguir.** Chequeá que tenga las cuatro partes de
@@ -120,8 +130,13 @@ criterio de negocio. No aceptes la "opción recomendada" sin pensarla.
 
 Corré `plan`. Revisá `plan.md`, `research.md`, `data-model.md` y `contracts/`.
 
-✋ Verificá que el plan respete la constitution (¿TDD? ¿UUID? ¿shadcn? ¿rutas
-REST como dice el principio VI?). Si no la respeta, frená y corregilo.
+✋ Verificá que el plan respete la constitution y que el *Constitution Check*
+del `plan.md` no sea un trámite: ¿TDD con tests en `tests/server/domain`,
+`tests/server/api` (con `DATA_DIR` temporal) y `tests/client`? ¿la regla nueva
+vive en `server/domain/` sin IO? ¿rutas en plural y kebab-case, errores
+`{ error }` con 400/404/409? ¿UUID v4? ¿ningún dato privado en endpoints
+públicos? ¿el fetch en `client/src/api/` y estados cargando/error/vacío? Si no
+la respeta, frená y corregilo.
 
 ### 3.4 Tasks — trabajo chico y revisable
 
@@ -141,8 +156,9 @@ cada una) para revisar sobre la marcha.
 ```bash
 npm test
 npm run lint
+npm run typecheck
 npm run build
-npm run dev      # probalo a mano en http://localhost:3000
+npm run dev      # probalo a mano en http://localhost:5173
 ```
 
 Si en el ejercicio 2 conectaste el MCP de Playwright, pedile al agente que
@@ -161,15 +177,20 @@ implement  → ¿existe un plan para esto?  si no, no avanza
 ```
 
 Escribí un hook `PreToolUse` (en el agente que uses) que **bloquee** cualquier
-edición de archivos dentro de `app/`, `components/` o `lib/` si la feature
-activa (`.specify/feature.json`) **no tiene `tasks.md`**. Pistas:
+edición de archivos dentro de `server/`, `client/src/` o `shared/` si la
+feature activa (`.specify/feature.json`, que apunta a la carpeta de
+`specs/`) **no tiene `tasks.md`**. Pistas:
 
 - Partí de `scripts/agent-logs/log-hook.mjs`: ya sabe leer el JSON del evento.
 - En Claude Code (y en Codex, que copia el mismo contrato), un hook bloquea saliendo con **código 2** y
   explicando el motivo por `stderr` (el agente lo recibe como feedback).
 - En Cline, el hook bloquea imprimiendo `{"cancel": true, "errorMessage": "..."}`.
 - Probalo: borrá temporalmente `tasks.md` y pedile al agente que edite un
-  componente. Tiene que aparecer el bloqueo en el log.
+  componente o un servicio. Tiene que aparecer el bloqueo en el log.
+- Variante más exigente (el otro extremo del flujo): que bloquee la edición de
+  `plan.md` si `spec.md` todavía tiene marcas `[NEEDS CLARIFICATION]`, o que
+  no deje editar código de `server/` sin que antes exista un test nuevo en
+  `tests/` en la misma sesión (TDD forzado por el harness).
 
 ## 5. Entrega
 
@@ -185,9 +206,13 @@ activa (`.specify/feature.json`) **no tiene `tasks.md`**. Pistas:
 1. ¿Cuántas veces corregiste la `spec.md` antes de aprobarla? Mostrá un
    ejemplo concreto de algo que el agente asumió y que vos cambiaste.
 2. ¿Qué preguntas hizo `clarify`? ¿Alguna era una decisión de negocio que el
-   agente **no** debería haber tomado solo?
+   agente **no** debería haber tomado solo? De los *casos borde para pensar*
+   de tu iteración en `iteraciones.md`, ¿cuáles cubrió la spec, cuáles
+   preguntó `clarify` y cuáles no aparecieron nunca?
 3. ¿El `plan.md` respetó la constitution? Citá un principio que el agente
-   aplicó y, si existió, uno que ignoró o interpretó mal.
+   aplicó y, si existió, uno que ignoró o interpretó mal. ¿Tu feature
+   necesitó **enmendar** la constitution (por ejemplo, un estado nuevo de
+   sesión)? Si fue así, ¿lo propuso el agente o lo detectaste vos?
 4. En la charla: *«un malentendido en la spec que no se frena llega al
    código»*. ¿Encontraste en la implementación algo que venía de un error de
    la spec, el plan o las tasks? ¿En qué etapa lo detectaste?
@@ -197,7 +222,9 @@ activa (`.specify/feature.json`) **no tiene `tasks.md`**. Pistas:
 5. Comparando con el ejercicio 1: ¿cuántas llamadas a herramientas y cuánto
    tiempo llevó cada etapa? ¿Qué etapa fue la más "cara"?
 6. Durante `implement`, ¿el agente releyó `spec.md`/`plan.md`/`tasks.md`? ¿Con
-   qué frecuencia? ¿Qué dice eso sobre cómo usa el contexto?
+   qué frecuencia? ¿Qué dice eso sobre cómo usa el contexto? Si hiciste el
+   ejercicio 2, ¿se disparó la skill `nuevo-endpoint` al crear los endpoints
+   nuevos, o el plan ya traía todo ese criterio?
 7. ¿Los tests se escribieron y corrieron **antes** que la implementación (TDD,
    principio I)? Demostralo con la línea de tiempo del log.
 

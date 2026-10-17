@@ -1,54 +1,84 @@
-# BarberApp — Ejercicios de desarrollo con agentes de IA
+# Mentorías a Voluntad — Ejercicios de desarrollo con agentes de IA
 
-Ejercicios prácticos de la charla **«El proceso del diseño empleando IA
-Generativa»** (UTN). Se trabaja sobre **BarberApp**, una app de turnos para una
-barbería hecha con Next.js 16, TypeScript, shadcn/ui y Vitest, con los datos en
-archivos JSON (`data/`).
+Proyecto de práctica de la charla **«El proceso del diseño empleando IA
+Generativa»** (UTN FRBA). Es un sistema hermano del TP **Código a Voluntad**:
+acá, personas mentoras **donan horas de asesoramiento** y los colectivos
+(fundaciones, ONGs, asambleas, asociaciones barriales) **reservan sesiones**
+para destrabar sus proyectos de software.
 
-Los ejercicios funcionan con **Claude Code**, **Codex CLI** o **Cline**.
-
-| # | Ejercicio | Tema de la charla | Duración |
-|---|---|---|---|
-| 1 | [Observar al agente con hooks](ejercicios/01-observabilidad-con-hooks/README.md) | Ciclo agéntico · herramientas · harness | 45-60 min |
-| 2 | [Escribir una skill y conectar un MCP](ejercicios/02-skill-y-mcp/README.md) | Skills · context engineering | 1-1,5 h |
-| 3 | [Implementar una feature con SDD](ejercicios/03-sdd/README.md) | Spec-Driven Development | 2-3 h |
-
-Los ejercicios se encadenan: los hooks del ejercicio 1 quedan activos y sus
-logs son la evidencia con la que se responden las preguntas de los tres.
+La base del proyecto se construyó con **Spec-Driven Development**: la
+constitution está en `.specify/memory/constitution.md` y la spec, el plan y las
+tareas de la primera feature en [`specs/001-reservar-sesion/`](specs/001-reservar-sesion/).
 
 ## Arrancar
 
-Requisitos: Node.js 20+, git y uno de los agentes.
+Requisitos: Node.js 20+ y git.
 
 ```bash
 npm install
-npm test        # tests unitarios (Vitest)
-npm run dev     # http://localhost:3000
+npm run dev     # API en :3001 · web en http://localhost:5173
 ```
 
-## Comandos útiles
+`npm run dev` genera sesiones de ejemplo la primera vez. Para volver a los datos
+iniciales: `npm run seed`.
+
+## Ejercicios
+
+Funcionan con **Claude Code**, **Codex CLI** o **Cline**. Ver
+[`ejercicios/README.md`](ejercicios/README.md).
+
+| # | Ejercicio | Tema de la charla |
+|---|---|---|
+| 1 | [Observar al agente con hooks](ejercicios/01-observabilidad-con-hooks/README.md) | Ciclo agéntico · herramientas · harness |
+| 2 | [Escribir una skill y conectar un MCP](ejercicios/02-skill-y-mcp/README.md) | Skills · context engineering |
+| 3 | [Implementar una feature con SDD](ejercicios/03-sdd/README.md) | Spec-Driven Development |
+
+## Stack
+
+| Capa | Tecnología |
+|---|---|
+| Cliente | Vite + React 19 + React Router · CSS plano |
+| Servidor | Express 5 + TypeScript (tsx) en capas: routes → services → repositories → domain |
+| Datos | Archivos JSON en `data/` |
+| Tests | Vitest · supertest · Testing Library |
+
+## Comandos
 
 | Comando | Qué hace |
 |---|---|
-| `npm test` / `npm run lint` / `npm run build` | Validación local |
-| `npm run logs:resumen` | Resumen de la última sesión del agente (herramientas, comandos, archivos) |
-| `npm run logs:resumen -- --todas` | Resumen de todas las sesiones registradas |
-| `npm run logs:timeline` | Resumen + línea de tiempo paso a paso |
-| `npm run logs:limpiar` | Borra `logs/agent-actions.jsonl` |
+| `npm run dev` | Levanta API y web con recarga en caliente |
+| `npm test` | Tests de dominio, API y cliente |
+| `npm run lint` / `npm run typecheck` | ESLint y TypeScript |
+| `npm run build` y `npm start` | Compila el cliente y lo sirve desde Express en :3001 |
+| `npm run seed` | Regenera `data/sesiones.json` con sesiones en los próximos días |
+| `npm run logs:resumen` / `logs:timeline` / `logs:limpiar` | Logs de los agentes (ejercicios) |
+
+## API
+
+| Método | Ruta | |
+|---|---|---|
+| GET | `/api/health` | Health check |
+| GET | `/api/habilidades` · `/api/tipos-asesoria` · `/api/colectivos` | Catálogos |
+| GET | `/api/mentoras?habilidad=<codigo>` | Mentoras (sin datos de contacto) |
+| GET | `/api/mentoras/:id` | Una mentora |
+| GET | `/api/mentoras/:id/disponibilidad?tipoAsesoriaId=<id>` | Días y horarios libres de los próximos 14 días |
+| GET | `/api/sesiones?mentoraId=&fecha=` | Sesiones (sin datos de contacto) |
+| POST | `/api/sesiones` | Reservar una sesión |
+
+Contrato completo: [`specs/001-reservar-sesion/contracts/api.md`](specs/001-reservar-sesion/contracts/api.md).
 
 ## Mapa del repo
 
 ```
-app/, components/, lib/     ← la aplicación
-data/                        ← "base de datos" en JSON
-tests/                       ← tests unitarios y e2e
-specs/001-…/                 ← ejemplo de una feature hecha con SDD
-.specify/                    ← Spec Kit (constitution, templates, scripts)
-.claude/settings.json        ← hooks de Claude Code
-.codex/hooks.json            ← hooks de Codex
-.clinerules/hooks/           ← hooks de Cline (un script por evento)
-.claude/skills/, .agents/skills/  ← skills (Claude/Cline y Codex)
-scripts/agent-logs/          ← logger común de los hooks + resumen
-ejercicios/                  ← consignas, prompts y plantillas de respuesta
-AGENTS.md / CLAUDE.md        ← instrucciones permanentes para el agente
+client/src/        ← React: pages/, components/, api/ (único lugar con fetch), hooks/
+server/            ← Express: routes/ → services/ → repositories/ → domain/
+shared/types.ts    ← tipos compartidos
+data/              ← "base de datos" en JSON
+tests/             ← server/domain · server/api · client
+specs/001-…/       ← la feature base hecha con SDD (ejemplo)
+.specify/          ← Spec Kit (constitution, templates, scripts)
+.claude/ .codex/ .clinerules/  ← hooks de logs para cada agente
+scripts/           ← seed y logger de los hooks
+ejercicios/        ← consignas, prompts y plantillas de respuesta
+AGENTS.md / CLAUDE.md  ← instrucciones permanentes para los agentes
 ```

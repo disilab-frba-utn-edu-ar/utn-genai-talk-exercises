@@ -1,149 +1,281 @@
-# Ejercicio: Extensión del gestor de turnos — BarberApp
+# Backlog de producto — Mentorías a Voluntad
 
 ## Contexto de producto
 
-BarberApp es un sistema de turnos para una barbería. Actualmente el cliente debe elegir primero al profesional y luego el servicio. El negocio detectó que los clientes prefieren saber qué quieren hacerse antes de elegir quién se lo hace.
+Mentorías a Voluntad es una extensión del ecosistema **Código a Voluntad**
+centrada en el asesoramiento. Personas mentoras con experiencia en desarrollo
+de software donan horas, y los colectivos (fundaciones, ONGs, asambleas,
+asociaciones barriales) reservan sesiones para destrabar sus proyectos: una
+revisión de código, una charla de arquitectura, ayuda para elegir dónde
+publicar su sitio.
 
-El ejercicio consiste en implementar las siguientes iteraciones de producto.
+Hoy el producto hace una sola cosa: un colectivo elige una mentora, un tipo de
+asesoría, un día y un horario libre, deja sus datos de contacto y la sesión
+queda **confirmada**. Esa feature se construyó con el mismo flujo que vas a
+usar (ver `specs/001-reservar-sesion/`).
+
+Las iteraciones de abajo están **ordenadas de menor a mayor tamaño**. Cada una
+tiene el problema, la solución vista desde el negocio, las APIs que
+**sugerimos** (el diseño final lo decidís en el plan, respetando la
+constitution) y casos borde para pensar **antes** de escribir la spec. Los
+casos borde no tienen una respuesta "correcta": son decisiones que la spec
+tiene que tomar explícitamente (o que `clarify` te tiene que preguntar).
+
+> **Por defecto: iteración 3 — Ausencias en la agenda.**
 
 ---
 
-## Iteración 1 — Nuevo flujo de reserva
+## Iteración 1 — Cancelar una sesión · *Chica*
 
 ### Problema
-El flujo actual obliga al cliente a elegir profesional antes de saber qué servicios puede hacerse. Esto genera fricción y abandono.
+Si a un colectivo le surge algo, no tiene cómo avisar que no va a ir. La
+mentora reserva un rato de su tiempo libre que nadie usa, y ese horario no se
+libera para otros colectivos que lo necesitaban.
 
 ### Solución
-Rediseñar el flujo de reserva en pasos secuenciales:
+Al confirmar una reserva, el colectivo recibe un enlace a su sesión. Desde ahí
+puede ver el detalle y cancelarla indicando un motivo (opcional), **siempre que
+falten al menos 24 horas** para el inicio. Pasado ese límite, la opción de
+cancelar no está disponible y se muestra un mensaje que explica por qué. Una
+sesión cancelada libera el horario: vuelve a ofrecerse a otros colectivos.
 
-**Paso 1 — ¿Qué querés hacerte?**
-El cliente selecciona uno o más servicios. Ve el nombre, precio y duración de cada uno. Al seleccionar varios, se muestra el precio total y la duración total acumulada.
-
-**Paso 2 — ¿Qué día?**
-Se muestra un calendario. Solo son seleccionables los días en los que al menos un profesional que ofrece todos los servicios elegidos tiene disponibilidad.
-
-**Paso 3 — ¿A qué hora?**
-Se muestran los horarios disponibles para el día elegido. Cada slot tiene la duración exacta de la suma de servicios seleccionados.
-
-**Paso 4 — ¿Con quién?**
-Se muestran solo los profesionales que pueden realizar todos los servicios seleccionados y tienen ese slot libre. Si solo hay uno disponible, se puede preseleccionar automáticamente.
-
-**Paso 5 — Confirmación**
-El cliente ingresa su nombre y teléfono. Ve el resumen completo antes de confirmar: servicios, profesional, día, hora y precio total.
-
-### APIs involucradas
+### APIs involucradas (sugeridas)
 
 ```
-GET /api/services
-→ Lista todos los servicios disponibles
+GET /api/sesiones/:id
+→ Detalle de una sesión (si lo hiciste en el ejercicio 2, ya existe)
 
-GET /api/availability?date=YYYY-MM-DD&serviceIds=svc-1,svc-4
-→ Devuelve los slots disponibles por profesional para esa fecha y esos servicios
+PATCH /api/sesiones/:id
+body: { "estado": "cancelada", "motivo": "Se suspendió la asamblea" }
+→ Cancela la sesión. 409 si ya estaba cancelada o faltan menos de 24 h.
+```
 
-POST /api/bookings
+### Casos borde para pensar
+- ¿Qué pasa si faltan exactamente 24 horas? ¿Contra qué hora se compara: la
+  del servidor o la de Argentina?
+- Cancelar una sesión que ya está cancelada, o que ya pasó.
+- ¿Quién puede cancelar? Sin login, cualquiera que tenga el enlace. ¿Es
+  aceptable para esta iteración? Escribilo como supuesto en la spec.
+- ¿La mentora se entera? (Hoy no hay notificaciones: ¿entra en esta iteración
+  o queda afuera explícitamente?)
+- El motivo, ¿lo ve alguien más además de la mentora?
+
+---
+
+## Iteración 2 — Cupo mensual de horas por mentora · *Chica a media*
+
+### Problema
+Las mentoras son voluntarias. Algunas, las más visibles, reciben muchas más
+reservas de las que pueden sostener y terminan quemadas o dejando la
+plataforma. Quieren decidir cuántas horas donan por mes.
+
+### Solución
+Cada mentora tiene un **cupo mensual de horas** (por ejemplo, 6 h). Las
+sesiones confirmadas del mes consumen cupo; las canceladas no. Cuando el cupo
+se agota, la mentora deja de ofrecer horarios en ese mes. En la lista de
+mentoras y en su perfil, el colectivo ve cuánto le queda ("Le quedan 2 h este
+mes") o "Sin cupo este mes". Por ahora el cupo se carga junto con los datos de
+la mentora: no hace falta una pantalla para editarlo.
+
+### APIs involucradas (sugeridas)
+
+```
+GET /api/mentoras  ·  GET /api/mentoras/:id
+→ Agregan las horas disponibles en el mes en curso
+
+GET /api/mentoras/:id/disponibilidad?tipoAsesoriaId=revision_de_codigo&dias=14
+→ No ofrece horarios de meses en los que el cupo no alcanza
+
+POST /api/sesiones
+→ 409 si la sesión excede el cupo del mes de su fecha
+```
+
+### Casos borde para pensar
+- Le quedan 30 minutos y el tipo de asesoría dura 60: ¿se permite pasarse?
+- ¿"Mes" es mes calendario o los próximos 30 días? Una sesión el 31 y otra el
+  1, ¿consumen del mismo cupo?
+- Una mentora sin cupo definido: ¿sin límite o cupo cero?
+- La mentora baja su cupo cuando ya tiene más horas reservadas que el nuevo
+  valor: ¿se cancelan sesiones? (Spoiler: probablemente no.)
+- Dos colectivos reservan al mismo tiempo las últimas horas del mes.
+
+---
+
+## Iteración 3 — Ausencias en la agenda · *Media* · **Por defecto**
+
+### Problema
+La disponibilidad de una mentora es semanal y fija ("los martes de 18 a 21"),
+pero la vida no: vacaciones, parciales, un feriado, un evento de su propia
+asamblea. Hoy los colectivos pueden reservarle en días en los que no va a
+estar, y la sesión termina suspendiéndose a último momento.
+
+### Solución
+La mentora puede registrar **ausencias**: uno o varios días completos (por
+ejemplo, vacaciones del 10 al 24 de enero) o una franja horaria de un día
+puntual (el jueves de 18 a 19:30). Puede agregar un motivo, que es **privado**:
+el colectivo solo ve que ese horario no está disponible. Los horarios
+afectados dejan de ofrecerse en el flujo de reserva. La mentora puede ver sus
+ausencias próximas y eliminar una si cambia de planes.
+
+### APIs involucradas (sugeridas)
+
+```
+GET /api/mentoras/:id/ausencias?desde=2026-11-01&hasta=2026-11-30
+→ Ausencias de la mentora en el rango
+
+POST /api/mentoras/:id/ausencias
 body: {
-  "professionalId": "prof-1",
-  "serviceIds": ["svc-1", "svc-4"],
-  "clientName": "Juan Pérez",
-  "clientPhone": "11-4523-1234",
-  "date": "2026-04-25",
-  "startTime": "10:00"
+  "fechaDesde": "2026-11-20",
+  "fechaHasta": "2026-11-20",
+  "horaInicio": "18:00",
+  "horaFin": "19:30",
+  "motivo": "Reunión de la cooperativa"
 }
+→ Crea una ausencia. Para días completos, horaInicio y horaFin van en null.
+
+DELETE /api/mentoras/:id/ausencias/:ausenciaId
+→ Elimina una ausencia
+
+GET /api/mentoras/:id/disponibilidad?tipoAsesoriaId=...&dias=14
+→ Ya existe: ahora descuenta las ausencias
 ```
+
+### Casos borde para pensar
+- La mentora atiende de 09:00 a 13:00, carga una ausencia de 10:00 a 11:00 y
+  el tipo de asesoría dura 90 minutos: ¿qué horarios quedan?
+- Ya hay una **sesión confirmada** dentro del período de la ausencia: ¿se
+  rechaza la ausencia (409), se acepta y se avisa, se cancela la sesión?
+  Es una decisión de negocio, no técnica.
+- Ausencias en el pasado, `fechaHasta` anterior a `fechaDesde`, `horaFin`
+  anterior a `horaInicio`, una franja que abarca varios días.
+- Dos ausencias que se superponen entre sí: ¿error o se aceptan?
+- Un rango de vacaciones que incluye días en los que la mentora igual no
+  atiende (domingos).
+- El motivo no puede aparecer en la disponibilidad ni en ningún endpoint
+  público (principio IV, por extensión). ¿Cómo lo testeás?
+- Sin login: ¿cualquiera puede cargar ausencias de cualquier mentora? Para la
+  iteración es aceptable, pero anotalo como supuesto.
 
 ---
 
-## Iteración 2 — Cancelación de turno
+## Iteración 4 — "Cualquier mentora disponible" · *Media*
 
 ### Problema
-Los clientes no tienen forma de cancelar un turno sin llamar a la barbería.
+Muchos colectivos no conocen a nadie del ambiente: saben qué necesitan
+("que alguien revise nuestro código") pero no a quién elegir. Además, la carga
+se concentra en las mentoras que aparecen primero en la lista, mientras otras
+esperan sin reservas.
 
 ### Solución
-Al confirmar un turno, el cliente recibe un enlace directo a su turno (`/booking/[id]`). Desde esa pantalla puede ver el detalle y cancelar el turno, siempre que falten más de 2 horas para el horario reservado. Si ya pasó ese límite, el botón de cancelar no está disponible y se muestra un mensaje explicativo.
+Un segundo camino de reserva: el colectivo elige primero el **tipo de
+asesoría**, después el día y el horario, y la opción **"Cualquier mentora
+disponible"**. Solo se ofrecen horarios en los que al menos una mentora que
+puede dar ese tipo está libre. Al confirmar, el sistema asigna entre las
+mentoras posibles a la de **menor carga**, y el colectivo ve en la
+confirmación quién le tocó. El camino actual (elegir mentora) sigue
+existiendo.
 
-### APIs involucradas
-
-```
-GET /api/bookings/[id]
-→ Devuelve el detalle de un turno específico
-
-PATCH /api/bookings/[id]
-body: { "status": "cancelled" }
-→ Cancela el turno
-```
-
----
-
-## Iteración 3 — Bloqueos de agenda
-
-### Problema
-Los profesionales a veces no trabajan en sus horarios habituales (feriados, reuniones, vacaciones) y no hay forma de reflejarlo en el sistema. Los clientes pueden reservar en esas franjas.
-
-### Solución
-El sistema soporta bloqueos de agenda por profesional. Un bloqueo puede ser de día completo o de una franja horaria específica. Los slots bloqueados no aparecen como disponibles en el flujo de reserva.
-
-Los datos de bloqueos se almacenan en `data/blocked-slots.json`.
-
-### APIs involucradas
+### APIs involucradas (sugeridas)
 
 ```
-GET /api/blocked-slots?professionalId=prof-1&date=2026-04-30
-→ Devuelve los bloqueos activos para ese profesional y fecha
+GET /api/tipos-asesoria/:id/disponibilidad?dias=14
+→ [{ fecha, horarios: [{ inicio, fin }] }] con al menos una mentora libre
 
-POST /api/blocked-slots
+POST /api/sesiones
 body: {
-  "professionalId": "prof-2",
-  "date": "2026-05-01",
-  "startTime": "13:00",
-  "endTime": "15:00",
-  "reason": "Capacitación"
+  "tipoAsesoriaId": "revision_de_codigo",
+  "colectivoId": "…",
+  "proyecto": "Sitio de la biblioteca popular",
+  "contactoNombre": "Ana",
+  "contactoEmail": "ana@ejemplo.org",
+  "fecha": "2026-11-12",
+  "horaInicio": "18:00"
 }
-→ Crea un nuevo bloqueo de agenda
+→ Sin mentoraId: el sistema elige y devuelve la sesión con la mentora asignada
 ```
 
-> Para bloqueos de día completo, `startTime` y `endTime` se envían como `null`.
+### Casos borde para pensar
+- ¿Qué es "carga"? ¿Cantidad de sesiones o de horas? ¿De la semana, del mes,
+  del día?
+- Empate de carga: el criterio tiene que ser **determinístico** (si no, no se
+  puede testear). ¿Cuál elegís y por qué?
+- El horario estaba libre al consultarlo pero, al confirmar, otra reserva ya
+  ocupó a la única mentora disponible.
+- Si hiciste la iteración 2 o la 3: ¿el cupo y las ausencias se respetan en
+  la asignación?
+- ¿El colectivo puede rechazar la mentora asignada?
 
 ---
 
-## Iteración 4 — "Cualquier profesional disponible"
+## Iteración 5 — Solicitudes de sesión y revelado de contacto · *Grande*
 
 ### Problema
-Muchos clientes no tienen preferencia por un profesional en particular y deben igualmente elegir uno. Esto es una fricción innecesaria.
+Hoy toda reserva queda confirmada al instante. Las mentoras quieren saber de
+qué se trata **antes** de comprometer su tiempo: a veces el proyecto no encaja
+con lo que saben. Y los colectivos necesitan escribirle a la mentora antes de
+la sesión (mandarle el repositorio, contexto), pero el email de la mentora es
+privado y nunca se muestra.
 
 ### Solución
-En el paso 4 del flujo de reserva, agregar la opción "Me da igual". Al elegirla, el sistema asigna automáticamente el profesional disponible con menor carga de turnos ese día. El cliente ve en la confirmación quién le fue asignado.
+Inspirada en las postulaciones de Código a Voluntad, pero al revés: acá el
+colectivo **solicita** y la mentora decide.
 
-### APIs involucradas
+- Al reservar, la sesión queda **pendiente** y el horario queda tomado de forma
+  provisoria.
+- La mentora ve sus solicitudes pendientes y las **acepta** o las **rechaza**
+  (con un motivo opcional). Rechazar libera el horario.
+- Recién cuando la sesión está **confirmada**, el colectivo puede ver el email
+  de la mentora **en el detalle de esa sesión**, y la mentora el contacto del
+  colectivo. Nunca antes, nunca en otro lado.
+- Si la mentora no responde hasta 48 horas antes del horario, la solicitud
+  vence sola y el horario se libera (cierre automático).
+
+### APIs involucradas (sugeridas)
 
 ```
-POST /api/bookings
-body: {
-  "serviceIds": ["svc-1"],
-  "clientName": "Ana García",
-  "clientPhone": "11-1234-5678",
-  "date": "2026-04-28",
-  "startTime": "10:00"
-}
-→ Sin professionalId: el sistema elige y devuelve el turno con el profesional asignado
+POST /api/sesiones
+→ Ahora crea la sesión con estado "pendiente"
+
+GET /api/mentoras/:id/solicitudes?estado=pendiente
+→ Solicitudes que la mentora tiene que responder
+
+PATCH /api/sesiones/:id
+body: { "estado": "confirmada" }  |  { "estado": "rechazada", "motivo": "…" }
+→ La mentora responde. 409 si la solicitud ya no está pendiente.
+
+GET /api/sesiones/:id/contacto
+→ Datos de contacto de la contraparte, solo si la sesión está confirmada
 ```
+
+### Casos borde para pensar
+- Sin login, ¿cómo sabe el sistema que quien pide el contacto es el colectivo
+  de **esa** sesión y no cualquiera con el id? (¿Un código secreto en el enlace
+  que recibe al reservar? ¿Alcanza?) Esta es la decisión más importante de la
+  iteración.
+- Los estados cambian: `pendiente | confirmada | rechazada | cancelada | vencida`.
+  La constitution dice "dos sesiones **confirmadas** no se superponen":
+  ¿una pendiente bloquea el horario? Si sí, **hay que enmendar la
+  constitution** (y eso también es parte del método).
+- Dos solicitudes pendientes para el mismo horario de la misma mentora.
+- La mentora acepta una solicitud cuyo horario ya pasó o ya venció.
+- ¿El vencimiento automático corre "solo" o se evalúa cada vez que se consulta?
+  (Pista: el dominio no hace IO; el reloj es una dependencia.)
 
 ---
 
-## Iteración 5 — Panel de administración
+## Más ideas para el backlog (sin desarrollar)
 
-### Problema
-La barbería no tiene una vista interna de los turnos del día. Tienen que depender de los datos crudos.
+Si terminaste, o para discutir en clase. Todas vienen de conceptos del TP,
+llevados al asesoramiento:
 
-### Solución
-Una pantalla en `/admin` que muestra los turnos del día actual agrupados por profesional. Cada turno muestra el cliente, los servicios, el horario y el estado. Desde esta pantalla se puede marcar un turno como completado una vez que el cliente fue atendido.
-
-### APIs involucradas
-
-```
-GET /api/bookings?date=2026-04-21
-→ Devuelve todos los turnos del día, que se agrupan por profesional en el cliente
-
-PATCH /api/bookings/[id]
-body: { "status": "completed" }
-→ Marca el turno como completado (solo si ya pasó el horario del turno)
-```
+- **Mis sesiones del colectivo**: un panel con las sesiones próximas y pasadas
+  de un colectivo. ¿Cómo se identifica el colectivo sin login?
+- **Valoraciones mutuas**: después de la sesión, el colectivo valora si le
+  sirvió y la mentora si el colectivo llegó preparado. ¿Quién ve qué?
+- **Logros**: "10 horas donadas", "5 colectivos acompañados". ¿Se calculan o
+  se guardan?
+- **Huella IA**: al reservar, el colectivo declara si el proyecto usa IA
+  generativa, y en la sesión la mentora registra si usaron agentes para
+  resolver el problema.
+- **Notificaciones internas**: avisos a la mentora cuando le reservan, cancelan
+  o le llega una solicitud.

@@ -53,8 +53,26 @@ Requisitos: **Node.js 20+**, **git** y uno de los tres agentes instalado.
 ```bash
 git clone <url-del-repo> && cd sdd-exercise
 npm install
+npm run seed      # genera data/sesiones.json con sesiones de ejemplo (no se versiona)
 npm test          # tienen que pasar todos los tests
+npm run dev       # opcional: client en http://localhost:5173, API en http://localhost:3001
 ```
+
+El proyecto es **Mentorías a Voluntad**: una extensión del ecosistema *Código
+a Voluntad* donde personas mentoras donan horas de asesoramiento y los
+colectivos (fundaciones, ONGs, asambleas, asociaciones barriales) reservan
+sesiones para destrabar sus proyectos. Es un repo full stack liviano:
+
+```
+client/   Vite + React + TypeScript (pantallas: /, /mentoras/:id, /confirmacion)
+server/   Express + TypeScript en capas: routes → services → repositories → domain
+shared/   tipos compartidos (shared/types.ts)
+data/     archivos JSON (mentoras, habilidades, tipos de asesoría, colectivos, sesiones)
+tests/    Vitest: tests/server/domain, tests/server/api (supertest), tests/client
+```
+
+Antes de seguir, leé `.specify/memory/constitution.md`: el agente la va a
+tener que respetar y vos la vas a usar para juzgar lo que hizo.
 
 Después, activá los hooks según tu agente:
 
@@ -168,32 +186,44 @@ citar evidencia del log** (una línea del JSONL o un fragmento del resumen).
 3. **TDD de verdad.** El prompt pide escribir los tests, correrlos y verlos
    fallar antes de implementar. Usando la línea de tiempo, ¿lo cumplió? Mostrá
    el orden: edición del test → `npm test` (falla) → edición de
-   `lib/bookings.ts` → `npm test` (pasa).
+   `server/domain/...` → `npm test` (pasa). Ojo: un test que falla porque *no
+   compila* (la función todavía no existe) no es lo mismo que un test que
+   falla porque *la regla no se cumple*. ¿Cuál de los dos viste?
 4. **Comandos de terminal.** Listá todos los comandos que ejecutó. ¿Alguno no
    lo pediste vos? ¿Alguno te generó dudas al aprobarlo? Clasificá cada uno con
    el semáforo de la charla (verde: lectura · amarillo: validación local ·
    rojo: escritura/producción).
 5. **Errores y reintentos.** ¿Alguna herramienta falló (`PostToolUseFailure` o
    un `output` con error)? ¿Qué hizo el agente después?
-6. **El resultado.** Corré vos `npm test` y `npm run lint`. ¿Coinciden con lo
-   que el agente te dijo al final (mirá el evento `Stop`/`TaskComplete`)? ¿Hizo
-   algo que el prompt prohibía (tocar `data/` o tests existentes)?
+6. **El resultado.** Corré vos `npm test`, `npm run lint` y `npm run typecheck`
+   (este último el prompt no lo pidió). ¿Coinciden con lo que el agente te dijo
+   al final (mirá el evento `Stop`/`TaskComplete`)? ¿Hizo algo que el prompt
+   prohibía (tocar `data/` o tests existentes, correr `npm run seed`)? ¿Respetó
+   las capas de la constitution (principio II): la función quedó en
+   `server/domain/` **sin IO** y la ruta no habla directo con el repositorio?
 
 ### Parte B — Lo que pensás
 
 7. **Contexto.** Cada `output` del log volvió al modelo como contexto. Sumá
    aproximadamente el tamaño de las salidas: ¿qué herramienta "llenó" más la
-   ventana? ¿Había lecturas que se podían evitar?
+   ventana? ¿Había lecturas que se podían evitar? (Por ejemplo: ¿leyó
+   `data/sesiones.json` entero para entender el formato, en lugar de
+   `shared/types.ts`?)
 8. **Comparar.** Juntate con alguien que haya usado **otro agente** (o el mismo
    con otro modelo) y comparen los resúmenes. ¿Qué diferencias de estrategia
    ven con el mismo prompt?
 9. **Hooks como control.** Este hook solo *observa*. Proponé **un** hook que
-   *bloquee* algo en este proyecto (por ejemplo, que no deje editar `data/`).
+   *bloquee* algo en este proyecto (por ejemplo, que no deje editar `data/`, o
+   que no deje que un archivo de `server/domain/` importe `fs` o `express`).
    ¿En qué evento lo pondrías y por qué tiene que ser un hook y no una
-   instrucción en `AGENTS.md`?
-10. **Riesgos.** El log guarda prompts, comandos y salidas. ¿Qué datos
-    sensibles podrían terminar ahí en un proyecto real? ¿Debería versionarse?
-    (Pista: mirá el `.gitignore`).
+   instrucción en `AGENTS.md` o en la constitution?
+10. **Riesgos.** El log guarda prompts, comandos y salidas. Buscá en tu log
+    si aparece algún email (`grep -c "@" logs/agent-actions.jsonl` es un buen
+    comienzo): ¿de dónde salió? El principio IV de la constitution dice que
+    los datos de contacto nunca salen por la API… pero el agente puede leer
+    `data/` directamente. ¿Qué datos sensibles podrían terminar en el log en
+    un proyecto real (por ejemplo, en el TP con MongoDB)? ¿Debería
+    versionarse? (Pista: mirá el `.gitignore`).
 
 ## Entrega
 
