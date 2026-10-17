@@ -1,0 +1,63 @@
+[
+  {
+    "id": "revision_de_codigo",
+    "nombre": "Revisión de código",
+    "descripcion": "Una mirada externa sobre un PR o un módulo: legibilidad, errores y próximos pasos.",
+    "duracionMinutos": 30,
+    "habilidades": [
+      "desarrollo_web_react",
+      "node_js_express",
+      "testing_unitario",
+      "git_y_github"
+    ]
+  },
+  {
+    "id": "arquitectura",
+    "nombre": "Charla de arquitectura",
+    "descripcion": "Pensar juntas cómo organizar el sistema antes de escribir código.",
+    "duracionMinutos": 60,
+    "habilidades": [
+      "node_js_express",
+      "bases_de_datos_mongodb",
+      "devops_docker"
+    ]
+  },
+  {
+    "id": "despliegue",
+    "nombre": "Puesta en producción",
+    "descripcion": "Llevar el sistema a un servidor: Docker, variables de entorno, dominios.",
+    "duracionMinutos": 45,
+    "habilidades": [
+      "devops_docker"
+    ]
+  },
+  {
+    "id": "estrategia_de_testing",
+    "nombre": "Estrategia de testing",
+    "descripcion": "Qué testear, cómo y con qué herramientas para no romper lo que funciona.",
+    "duracionMinutos": 45,
+    "habilidades": [
+      "testing_e2e_cypress",
+      "testing_unitario"
+    ]
+  },
+  {
+    "id": "auditoria_de_accesibilidad",
+    "nombre": "Auditoría de accesibilidad",
+    "descripcion": "Recorrer la app con teclado y lector de pantalla y priorizar arreglos.",
+    "duracionMinutos": 30,
+    "habilidades": [
+      "accesibilidad_web",
+      "diseno_ux"
+    ]
+  },
+  {
+    "id": "primeros_pasos_git",
+    "nombre": "Primeros pasos con Git",
+    "descripcion": "Para equipos que recién arrancan: repositorio, ramas y pull requests.",
+    "duracionMinutos": 30,
+    "habilidades": [
+      "git_y_github"
+    ]
+  }
+]

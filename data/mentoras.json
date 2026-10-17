@@ -1,0 +1,173 @@
+[
+  {
+    "id": "8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e01",
+    "nombre": "Valentina Ríos",
+    "pronombres": "ella",
+    "github": "valerios",
+    "presentacion": "Frontend hace 8 años. Me encanta ayudar a equipos chicos a ordenar sus componentes y empezar a testear.",
+    "habilidades": [
+      "desarrollo_web_react",
+      "testing_unitario",
+      "accesibilidad_web"
+    ],
+    "disponibilidad": {
+      "lunes": {
+        "inicio": "18:00",
+        "fin": "21:00"
+      },
+      "martes": null,
+      "miercoles": {
+        "inicio": "18:00",
+        "fin": "21:00"
+      },
+      "jueves": null,
+      "viernes": null,
+      "sabado": null,
+      "domingo": null
+    },
+    "contacto": {
+      "email": "valentina.rios@example.org"
+    }
+  },
+  {
+    "id": "8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e02",
+    "nombre": "Marto",
+    "pronombres": "él",
+    "github": "marto-dev",
+    "presentacion": "Backend con Node y Mongo. Si tu API crece sin orden, charlemos de capas y modelado.",
+    "habilidades": [
+      "node_js_express",
+      "bases_de_datos_mongodb",
+      "git_y_github"
+    ],
+    "disponibilidad": {
+      "lunes": null,
+      "martes": {
+        "inicio": "09:00",
+        "fin": "12:00"
+      },
+      "miercoles": null,
+      "jueves": {
+        "inicio": "09:00",
+        "fin": "12:00"
+      },
+      "viernes": null,
+      "sabado": {
+        "inicio": "10:00",
+        "fin": "13:00"
+      },
+      "domingo": null
+    },
+    "contacto": {
+      "email": "marto@example.org"
+    }
+  },
+  {
+    "id": "8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e03",
+    "nombre": "Lu Fernández",
+    "pronombres": "elle",
+    "presentacion": "Infraestructura y despliegues baratos. Docker, un servidor y listo: sin vueltas.",
+    "habilidades": [
+      "devops_docker",
+      "seguridad_web",
+      "node_js_express"
+    ],
+    "disponibilidad": {
+      "lunes": {
+        "inicio": "10:00",
+        "fin": "13:00"
+      },
+      "martes": null,
+      "miercoles": null,
+      "jueves": null,
+      "viernes": {
+        "inicio": "14:00",
+        "fin": "18:00"
+      },
+      "sabado": null,
+      "domingo": null
+    },
+    "contacto": {
+      "email": "lu.fernandez@example.org"
+    }
+  },
+  {
+    "id": "8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e04",
+    "nombre": "Camila Sosa",
+    "pronombres": "ella",
+    "github": "camisosa",
+    "presentacion": "QA de oficio. Te ayudo a armar una estrategia de testing que el equipo realmente sostenga.",
+    "habilidades": [
+      "testing_e2e_cypress",
+      "testing_unitario"
+    ],
+    "disponibilidad": {
+      "lunes": null,
+      "martes": {
+        "inicio": "14:00",
+        "fin": "18:00"
+      },
+      "miercoles": null,
+      "jueves": {
+        "inicio": "14:00",
+        "fin": "18:00"
+      },
+      "viernes": null,
+      "sabado": null,
+      "domingo": null
+    },
+    "contacto": {
+      "email": "camila.sosa@example.org"
+    }
+  },
+  {
+    "id": "8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e05",
+    "nombre": "Guada",
+    "presentacion": "Diseñadora UX. Hago auditorías de accesibilidad y acompaño los primeros prototipos.",
+    "habilidades": [
+      "diseno_ux",
+      "accesibilidad_web"
+    ],
+    "disponibilidad": {
+      "lunes": null,
+      "martes": null,
+      "miercoles": {
+        "inicio": "10:00",
+        "fin": "12:00"
+      },
+      "jueves": null,
+      "viernes": null,
+      "sabado": {
+        "inicio": "09:00",
+        "fin": "12:00"
+      },
+      "domingo": null
+    },
+    "contacto": {
+      "email": "guada@example.org"
+    }
+  },
+  {
+    "id": "8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e06",
+    "nombre": "Rocío Paz",
+    "pronombres": "ella",
+    "github": "rociopaz",
+    "presentacion": "Este cuatrimestre estoy sin horarios fijos. Dejo mi perfil para cuando vuelva a tener lugar.",
+    "habilidades": [
+      "git_y_github",
+      "desarrollo_web_react"
+    ],
+    "disponibilidad": {
+      "lunes": null,
+      "martes": null,
+      "miercoles": null,
+      "jueves": null,
+      "viernes": null,
+      "sabado": null,
+      "domingo": null
+    },
+    "contacto": {
+      "email": "rocio.paz@example.org"
+    }
+  }
+]

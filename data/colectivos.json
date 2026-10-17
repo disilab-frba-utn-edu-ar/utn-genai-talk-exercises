@@ -1,0 +1,25 @@
+[
+  {
+    "id": "c0e1a2b3-0000-4000-8000-000000000001",
+    "nombre": "Fundación Huerta Viva",
+    "tipo": "fundacion",
+    "ubicacion": "CABA"
+  },
+  {
+    "id": "c0e1a2b3-0000-4000-8000-000000000002",
+    "nombre": "Asamblea Barrial Parque Patricios",
+    "tipo": "asamblea",
+    "ubicacion": "CABA"
+  },
+  {
+    "id": "c0e1a2b3-0000-4000-8000-000000000003",
+    "nombre": "Libros Libres",
+    "tipo": "ong",
+    "ubicacion": "Córdoba"
+  },
+  {
+    "id": "c0e1a2b3-0000-4000-8000-000000000004",
+    "nombre": "Asociación Vecinal Villa Crespo",
+    "tipo": "asociacion_barrial"
+  }
+]

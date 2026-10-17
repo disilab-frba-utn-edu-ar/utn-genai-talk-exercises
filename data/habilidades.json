@@ -1,0 +1,52 @@
+[
+  {
+    "id": "desarrollo_web_react",
+    "titulo": "Desarrollo Web React",
+    "descripcion": "Componentes, estado y hooks para interfaces web con React."
+  },
+  {
+    "id": "node_js_express",
+    "titulo": "Node.js y Express",
+    "descripcion": "APIs HTTP con Node.js y Express: rutas, middlewares y manejo de errores."
+  },
+  {
+    "id": "bases_de_datos_mongodb",
+    "titulo": "Bases de datos MongoDB",
+    "descripcion": "Modelado documental, consultas y aggregation framework."
+  },
+  {
+    "id": "testing_e2e_cypress",
+    "titulo": "Testing E2E con Cypress",
+    "descripcion": "Pruebas de punta a punta de flujos web."
+  },
+  {
+    "id": "testing_unitario",
+    "titulo": "Testing unitario",
+    "descripcion": "Tests de dominio y servicios con Jest o Vitest."
+  },
+  {
+    "id": "devops_docker",
+    "titulo": "DevOps con Docker",
+    "descripcion": "Imágenes, contenedores y despliegue en servidores de bajo costo."
+  },
+  {
+    "id": "accesibilidad_web",
+    "titulo": "Accesibilidad web",
+    "descripcion": "WCAG, navegación por teclado y lectores de pantalla."
+  },
+  {
+    "id": "diseno_ux",
+    "titulo": "Diseño UX",
+    "descripcion": "Investigación con usuarios, flujos y prototipos."
+  },
+  {
+    "id": "git_y_github",
+    "titulo": "Git y GitHub",
+    "descripcion": "Ramas, pull requests y flujos de trabajo en equipo."
+  },
+  {
+    "id": "seguridad_web",
+    "titulo": "Seguridad web",
+    "descripcion": "OWASP, sanitización de entradas y autenticación."
+  }
+]
