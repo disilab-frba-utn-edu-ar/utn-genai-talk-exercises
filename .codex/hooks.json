@@ -1,0 +1,91 @@
+{
+  "description": "Registra cada acción del agente en logs/agent-actions.jsonl (ejercicio 1)",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/agent-logs/log-hook.mjs\" codex",
+            "commandWindows": "node scripts/agent-logs/log-hook.mjs codex",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/agent-logs/log-hook.mjs\" codex",
+            "commandWindows": "node scripts/agent-logs/log-hook.mjs codex",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/agent-logs/log-hook.mjs\" codex",
+            "commandWindows": "node scripts/agent-logs/log-hook.mjs codex",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/agent-logs/log-hook.mjs\" codex",
+            "commandWindows": "node scripts/agent-logs/log-hook.mjs codex",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/agent-logs/log-hook.mjs\" codex",
+            "commandWindows": "node scripts/agent-logs/log-hook.mjs codex",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/agent-logs/log-hook.mjs\" codex",
+            "commandWindows": "node scripts/agent-logs/log-hook.mjs codex",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/agent-logs/log-hook.mjs\" codex",
+            "commandWindows": "node scripts/agent-logs/log-hook.mjs codex",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

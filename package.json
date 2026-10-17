@@ -10,7 +10,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "logs:resumen": "node scripts/agent-logs/resumen.mjs",
+    "logs:timeline": "node scripts/agent-logs/resumen.mjs --timeline",
+    "logs:limpiar": "node -e \"require('fs').rmSync('logs/agent-actions.jsonl',{force:true})\""
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

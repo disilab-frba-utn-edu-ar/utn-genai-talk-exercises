@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BarberApp — Ejercicios de desarrollo con agentes de IA
 
-## Getting Started
+Ejercicios prácticos de la charla **«El proceso del diseño empleando IA
+Generativa»** (UTN). Se trabaja sobre **BarberApp**, una app de turnos para una
+barbería hecha con Next.js 16, TypeScript, shadcn/ui y Vitest, con los datos en
+archivos JSON (`data/`).
 
-First, run the development server:
+Los ejercicios funcionan con **Claude Code**, **Codex CLI** o **Cline**.
+
+| # | Ejercicio | Tema de la charla | Duración |
+|---|---|---|---|
+| 1 | [Observar al agente con hooks](ejercicios/01-observabilidad-con-hooks/README.md) | Ciclo agéntico · herramientas · harness | 45-60 min |
+| 2 | [Escribir una skill y conectar un MCP](ejercicios/02-skill-y-mcp/README.md) | Skills · context engineering | 1-1,5 h |
+| 3 | [Implementar una feature con SDD](ejercicios/03-sdd/README.md) | Spec-Driven Development | 2-3 h |
+
+Los ejercicios se encadenan: los hooks del ejercicio 1 quedan activos y sus
+logs son la evidencia con la que se responden las preguntas de los tres.
+
+## Arrancar
+
+Requisitos: Node.js 20+, git y uno de los agentes.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm test        # tests unitarios (Vitest)
+npm run dev     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Comandos útiles
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Comando | Qué hace |
+|---|---|
+| `npm test` / `npm run lint` / `npm run build` | Validación local |
+| `npm run logs:resumen` | Resumen de la última sesión del agente (herramientas, comandos, archivos) |
+| `npm run logs:resumen -- --todas` | Resumen de todas las sesiones registradas |
+| `npm run logs:timeline` | Resumen + línea de tiempo paso a paso |
+| `npm run logs:limpiar` | Borra `logs/agent-actions.jsonl` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Mapa del repo
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/, components/, lib/     ← la aplicación
+data/                        ← "base de datos" en JSON
+tests/                       ← tests unitarios y e2e
+specs/001-…/                 ← ejemplo de una feature hecha con SDD
+.specify/                    ← Spec Kit (constitution, templates, scripts)
+.claude/settings.json        ← hooks de Claude Code
+.codex/hooks.json            ← hooks de Codex
+.clinerules/hooks/           ← hooks de Cline (un script por evento)
+.claude/skills/, .agents/skills/  ← skills (Claude/Cline y Codex)
+scripts/agent-logs/          ← logger común de los hooks + resumen
+ejercicios/                  ← consignas, prompts y plantillas de respuesta
+AGENTS.md / CLAUDE.md        ← instrucciones permanentes para el agente
+```

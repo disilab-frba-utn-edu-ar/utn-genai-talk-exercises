@@ -47,40 +47,41 @@ iteración que te asigne el docente o, si no hay asignación:
 
 ## 2. Prepará Spec Kit para tu agente
 
-Spec Kit se instala con [`uv`](https://docs.astral.sh/uv/). Los comandos del
-repo vienen preparados para **Claude Code con PowerShell**; si usás otro agente
-u otro sistema operativo, reinicializalo para tu combinación:
+Las etapas de Spec Kit ya están instaladas como **skills** en
+`.claude/skills/speckit-*`, con scripts de **PowerShell** (`.specify/scripts/powershell/`).
+
+| Tu entorno | Qué hacer |
+|---|---|
+| Claude Code o Cline en **Windows** | Nada: ya está listo (Cline también lee `.claude/skills/`). |
+| Claude Code o Cline en **macOS / Linux** | Reinicializar con scripts `sh` (ver abajo). |
+| Codex (cualquier SO) | Reinicializar para Codex: sus skills van en `.agents/skills/`. |
+
+Spec Kit se instala con [`uv`](https://docs.astral.sh/uv/):
 
 ```bash
-# Claude Code (Windows) → ya está listo, no hace falta nada.
+# Claude Code / Cline en macOS o Linux
+uvx --from git+https://github.com/github/spec-kit.git specify init --here --ai claude --ai-skills --script sh
 
-# Claude Code en macOS / Linux
-uvx --from git+https://github.com/github/spec-kit.git specify init --here --ai claude --script sh
-
-# Codex
-uvx --from git+https://github.com/github/spec-kit.git specify init --here --ai codex --script sh   # o --script ps en Windows
-
-# Cline
-uvx --from git+https://github.com/github/spec-kit.git specify init --here --ai cline --script sh   # ver nota abajo
+# Codex (usá --script ps en Windows)
+uvx --from git+https://github.com/github/spec-kit.git specify init --here --ai codex --ai-skills --script sh
 ```
 
-> ⚠️ `specify init --here` puede pisar archivos existentes. **Antes de correrlo
-> hacé commit** y, al terminar, revisá con `git status` / `git diff`. Si la
-> constitution cambió, restaurala con
-> `git checkout -- .specify/memory/constitution.md`.
+> ⚠️ `specify init --here` escribe sobre el repo. **Hacé commit antes** y al
+> terminar revisá `git status` / `git diff`. Si te pisó la constitution,
+> restaurala con `git checkout -- .specify/memory/constitution.md`. Si algún
+> flag cambió de nombre, mirá `specify init --help`.
 
-<!-- NOTA-AGENTES -->
-
-Cómo se invocan las etapas en cada agente:
+Cómo se invoca cada etapa (son skills, así que también podés pedirlo en
+lenguaje natural: *"usá la skill speckit-specify para …"*):
 
 | Etapa | Claude Code | Codex | Cline |
 |---|---|---|---|
-| Specify | `/speckit-specify <descripción>` | `$speckit-specify <descripción>` o "usá la skill speckit-specify" | `/speckit.specify <descripción>` (workflow) |
-| Clarify | `/speckit-clarify` | `$speckit-clarify` | `/speckit.clarify` |
-| Plan | `/speckit-plan` | `$speckit-plan` | `/speckit.plan` |
-| Tasks | `/speckit-tasks` | `$speckit-tasks` | `/speckit.tasks` |
-| Analyze (opcional) | `/speckit-analyze` | `$speckit-analyze` | `/speckit.analyze` |
-| Implement | `/speckit-implement` | `$speckit-implement` | `/speckit.implement` |
+| Specify | `/speckit-specify <descripción>` | `$speckit-specify <descripción>` | "Usá la skill speckit-specify: <descripción>" |
+| Clarify | `/speckit-clarify` | `$speckit-clarify` | "Usá la skill speckit-clarify" |
+| Plan | `/speckit-plan` | `$speckit-plan` | "Usá la skill speckit-plan" |
+| Tasks | `/speckit-tasks` | `$speckit-tasks` | "Usá la skill speckit-tasks" |
+| Analyze (opcional) | `/speckit-analyze` | `$speckit-analyze` | "Usá la skill speckit-analyze" |
+| Implement | `/speckit-implement` | `$speckit-implement` | "Usá la skill speckit-implement" |
 
 ## 3. Recorré el flujo (con ✋ entre cada paso)
 
@@ -164,7 +165,7 @@ edición de archivos dentro de `app/`, `components/` o `lib/` si la feature
 activa (`.specify/feature.json`) **no tiene `tasks.md`**. Pistas:
 
 - Partí de `scripts/agent-logs/log-hook.mjs`: ya sabe leer el JSON del evento.
-- En Claude Code y Codex, un hook bloquea saliendo con **código 2** y
+- En Claude Code (y en Codex, que copia el mismo contrato), un hook bloquea saliendo con **código 2** y
   explicando el motivo por `stderr` (el agente lo recibe como feedback).
 - En Cline, el hook bloquea imprimiendo `{"cancel": true, "errorMessage": "..."}`.
 - Probalo: borrá temporalmente `tasks.md` y pedile al agente que edite un

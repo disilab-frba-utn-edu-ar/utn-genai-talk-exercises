@@ -47,9 +47,15 @@ function count(items) {
   return [...map.entries()].sort((a, b) => b[1] - a[1])
 }
 
+// Muestra las rutas relativas a la raíz del repo para que el resumen sea legible.
+function relative(text) {
+  const root = process.cwd().replaceAll("\\", "/") + "/"
+  return text.replaceAll("\\", "/").startsWith(root) ? text.replaceAll("\\", "/").slice(root.length) : text
+}
+
 function inputField(entry, ...names) {
   const input = typeof entry.input === "object" && entry.input ? entry.input : {}
-  for (const name of names) if (input[name]) return String(input[name])
+  for (const name of names) if (input[name]) return relative(String(input[name]))
   return undefined
 }
 

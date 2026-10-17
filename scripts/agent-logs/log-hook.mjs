@@ -59,7 +59,7 @@ function normalize(payload) {
   const tool = payload.tool_name ?? nested.toolName ?? nested.tool ?? undefined
   const input = payload.tool_input ?? nested.parameters ?? undefined
   const output = payload.tool_response ?? nested.result ?? undefined
-  const prompt = payload.prompt ?? nested.prompt ?? undefined
+  const prompt = payload.prompt ?? nested.prompt ?? nested.taskMetadata?.initialTask ?? undefined
 
   return {
     ts: new Date().toISOString(),
@@ -71,8 +71,9 @@ function normalize(payload) {
     tool,
     input: truncate(input),
     output: truncate(output),
+    error: truncate(payload.error ?? undefined),
     success: nested.success ?? undefined,
-    durationMs: nested.executionTimeMs ?? undefined,
+    durationMs: payload.duration_ms ?? nested.executionTimeMs ?? undefined,
     prompt: truncate(prompt),
     lastMessage: truncate(payload.last_assistant_message ?? undefined),
     source: payload.source ?? undefined,
