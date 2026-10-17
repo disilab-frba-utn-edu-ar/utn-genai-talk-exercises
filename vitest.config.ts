@@ -1,36 +1,28 @@
-import { defineConfig } from "vitest/config"
+import { fileURLToPath } from "node:url"
 import react from "@vitejs/plugin-react"
-import path from "path"
+import { defineConfig } from "vitest/config"
+
+const alias = { "@shared": fileURLToPath(new URL("./shared", import.meta.url)) }
 
 export default defineConfig({
   plugins: [react()],
+  resolve: { alias },
   test: {
-    environment: "jsdom",
     globals: true,
-    setupFiles: ["./tests/setup.ts"],
-    exclude: ["**/node_modules/**", "**/tests/e2e/**"],
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "lcov"],
-      include: ["lib/**", "components/**", "app/**"],
-      exclude: [
-        "app/api/**",
-        "app/layout.tsx",
-        "app/page.tsx",
-        "app/booking/**",
-        "components/ui/**",
-        "**/*.test.*",
-        "**/*.d.ts",
-      ],
-      thresholds: {
-        lines: 80,
-        branches: 80,
+    projects: [
+      {
+        extends: true,
+        test: { name: "server", environment: "node", include: ["tests/server/**/*.test.ts"] },
       },
-    },
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "."),
-    },
+      {
+        extends: true,
+        test: {
+          name: "client",
+          environment: "jsdom",
+          include: ["tests/client/**/*.test.tsx"],
+          setupFiles: ["tests/client/setup.ts"],
+        },
+      },
+    ],
   },
 })
