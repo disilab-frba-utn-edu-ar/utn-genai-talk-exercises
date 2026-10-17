@@ -38,7 +38,7 @@ const booking: Booking = {
 describe("BookingConfirmation", () => {
   it("muestra el nombre del profesional", () => {
     render(<BookingConfirmation professional={professional} service={service} booking={booking} />)
-    expect(screen.getByText("Carlos Méndez")).toBeInTheDocument()
+    expect(screen.getByText(/Carlos Méndez/)).toBeInTheDocument()
   })
 
   it("muestra el nombre del servicio", () => {

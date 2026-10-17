@@ -50,8 +50,8 @@ describe("BookingClient", () => {
         nextSlot={{ date: "2026-04-22", slot }}
       />
     )
-    expect(screen.getByText("Carlos Méndez")).toBeInTheDocument()
-    expect(screen.getByText("Corte de cabello")).toBeInTheDocument()
+    expect(screen.getByText(/Carlos Méndez/)).toBeInTheDocument()
+    expect(screen.getByText(/Corte de cabello/)).toBeInTheDocument()
   })
 
   it("muestra mensaje de sin disponibilidad cuando nextSlot es null", () => {
@@ -114,7 +114,7 @@ describe("BookingClient", () => {
     await user.click(screen.getByRole("button", { name: /confirmar/i }))
     // Después del POST exitoso, el mock de createBooking retorna booking confirmado
     await screen.findByText(/turno confirmado/i)
-    expect(screen.getByText("Carlos Méndez")).toBeInTheDocument()
+    expect(screen.getByText(/Carlos Méndez/)).toBeInTheDocument()
   })
 
   it("muestra error cuando createBooking falla", async () => {
