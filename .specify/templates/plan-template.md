@@ -31,22 +31,16 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Verify compliance with the 14 principles before proceeding:
+Verify compliance with the 8 principles before proceeding:
 
 - [ ] **I. Test-First** — Tests escritos y en rojo antes de implementar
-- [ ] **II. shadcn UI** — Componentes visuales usan primitivos shadcn; skill `shadcn` consultada antes de agregar nuevos componentes
-- [ ] **III. Atómico** — Cada componente tiene responsabilidad única; lógica en hooks/servicios
-- [ ] **IV. API Express** — Fetch encapsulado en servicios; no fetch directo desde componentes
-- [ ] **V. Performance** — Requests con timeout ≤1000ms y manejo de estados loading/error/empty
-- [ ] **VI. Rutas** — Rutas en kebab-case siguiendo convención App Router
-- [ ] **VII. UUID** — IDs generados en servidor como UUID v4, no enteros secuenciales
-- [ ] **VIII. Zero Trust** — Validación de inputs de usuario y datos de APIs externas
-- [ ] **IX. Renderizado Next.js** — RSC por defecto; `"use client"` solo cuando imprescindible; cliente no conoce origen de datos
-- [ ] **X. Responsive** — Mobile-first; verificado en 375px / 768px / 1280px; sin scroll horizontal
-- [ ] **XI. Middleware-First** — Datos cargados antes del render; `notFound()` → 404; error no manejado → 500 via `error.tsx`
-- [ ] **XII. Lint** — Código pasa ESLint y Prettier sin errores; sin `@ts-ignore` / `eslint-disable` sin justificación
-- [ ] **XIII. UX Skills** — Skills `ui-ux-pro-max` y `web-design-guidelines` consultadas antes de diseñar/implementar vistas
-- [ ] **XIV. React Best Practices** — Skill `vercel-react-best-practices` consultada para patrones React no triviales
+- [ ] **II. Capas** — routes → services → repositories → domain; el dominio no hace IO
+- [ ] **III. Contrato de API** — JSON, recursos en plural kebab-case, errores `{ error }` en español, 400/404/409
+- [ ] **IV. Privacidad** — Ningún endpoint público expone datos de contacto
+- [ ] **V. Identificadores** — Entidades con UUID v4 generado en servidor; catálogos con código snake_case normalizado
+- [ ] **VI. Frontend liviano** — Componentes chicos; fetch solo en `client/src/api/`; estados loading/error/vacío
+- [ ] **VII. Accesible y responsive** — Teclado, labels, contraste; usable en 375px sin scroll horizontal
+- [ ] **VIII. Calidad** — `npm run lint` y `npm run typecheck` sin errores
 
 ## Project Structure
 
