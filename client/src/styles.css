@@ -528,6 +528,20 @@ code {
   margin-inline: -0.25rem;
 }
 
+/* Centrado con márgenes auto (no justify-content): si los días desbordan y
+   hay scroll horizontal, el primero no queda cortado a la izquierda. */
+.dia:first-child {
+  margin-left: auto;
+}
+
+.dia:last-child {
+  margin-right: auto;
+}
+
+.horarios {
+  justify-content: center;
+}
+
 .dia {
   display: flex;
   flex: none;

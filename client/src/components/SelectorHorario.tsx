@@ -9,7 +9,7 @@ type Props = {
 
 export default function SelectorHorario({ horarios, seleccionado, onSeleccionar }: Props) {
   return (
-    <div className="chips" role="group" aria-label="Horarios libres">
+    <div className="chips horarios" role="group" aria-label="Horarios libres">
       {horarios.map((horario) => (
         <Chip key={horario.inicio} activo={seleccionado === horario.inicio} onClick={() => onSeleccionar(horario.inicio)}>
           {horario.inicio} – {horario.fin}
