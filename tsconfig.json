@@ -15,11 +15,11 @@
     "isolatedModules": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
+    "types": ["node", "vite/client", "vitest/globals", "@testing-library/jest-dom"],
     "baseUrl": ".",
     "paths": {
       "@shared/*": ["shared/*"]
     }
   },
-  "include": ["shared", "server", "client/src", "tests", "vite.config.ts", "vitest.config.ts"]
+  "include": ["shared", "server", "client/src", "ejercicios", "tests", "vite.config.ts", "vitest.config.ts"]
 }

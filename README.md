@@ -24,14 +24,16 @@ iniciales: `npm run seed`.
 
 ## Ejercicios
 
-Funcionan con **Claude Code**, **Codex CLI** o **Cline**. Ver
-[`ejercicios/README.md`](ejercicios/README.md).
+Funcionan con **Claude Code**, **Codex CLI** o **Cline**. Las consignas están en
+`ejercicios/` (JSON) y se leen en la app: `npm run dev` →
+http://localhost:5173/ejercicios. Las respuestas se guardan desde ahí en
+`ejercicios/<ejercicio>/respuestas.json`.
 
 | # | Ejercicio | Tema de la charla |
 |---|---|---|
-| 1 | [Observar al agente con hooks](ejercicios/01-observabilidad-con-hooks/README.md) | Ciclo agéntico · herramientas · harness |
-| 2 | [Escribir una skill y conectar un MCP](ejercicios/02-skill-y-mcp/README.md) | Skills · context engineering |
-| 3 | [Implementar una feature con SDD](ejercicios/03-sdd/README.md) | Spec-Driven Development |
+| 1 | [Observar al agente con hooks](http://localhost:5173/ejercicios/01-observabilidad-con-hooks) | Ciclo agéntico · herramientas · harness |
+| 2 | [Escribir una skill y conectar un MCP](http://localhost:5173/ejercicios/02-skill-y-mcp) | Skills · context engineering |
+| 3 | [Implementar una feature con SDD](http://localhost:5173/ejercicios/03-sdd) | Spec-Driven Development |
 
 ## Stack
 
@@ -79,6 +81,6 @@ specs/001-…/       ← la feature base hecha con SDD (ejemplo)
 .specify/          ← Spec Kit (constitution, templates, scripts)
 .claude/ .codex/ .clinerules/  ← hooks de logs para cada agente
 scripts/           ← seed y logger de los hooks
-ejercicios/        ← consignas, prompts y plantillas de respuesta
+ejercicios/        ← consignas en JSON + su visor (/ejercicios), fuera del producto
 AGENTS.md / CLAUDE.md  ← instrucciones permanentes para los agentes
 ```
