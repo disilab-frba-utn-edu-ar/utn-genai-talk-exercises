@@ -1,8 +1,7 @@
 /* Mentorías a Voluntad — estilos globales.
    CSS plano con variables (Principio VI). Sistema de diseño "papel + terminal"
    de la charla: fondo papel, tinta oscura, acento naranja, Sora para títulos e
-   IBM Plex Sans para el resto. Modo oscuro según el sistema (paleta de las
-   divisorias de bloque). */
+   IBM Plex Sans para el resto. Solo tema claro. */
 
 :root {
   --fondo: #f3efe6; /* papel */
@@ -33,23 +32,6 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --fondo: #14120e;
-    --superficie: #1c1a15;
-    --texto: #f3efe6;
-    --texto-suave: #b3ab9e;
-    --linea: #f3efe6;
-    --linea-suave: color-mix(in srgb, #f3efe6 18%, transparent);
-    --grilla: color-mix(in srgb, #f3efe6 6%, transparent);
-    --acento-texto: #f0674b;
-    --acento-suave: color-mix(in srgb, #e8482b 20%, transparent);
-    --invertido: #14120e;
-    --error: #ff8a80;
-    --error-suave: color-mix(in srgb, #ff8a80 14%, transparent);
-    color-scheme: dark;
-  }
-}
 
 *,
 *::before,
@@ -396,28 +378,13 @@ code {
   box-shadow: 6px 6px 0 var(--acento);
 }
 
-.mentora-cabecera {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.avatar {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 3rem;
-  height: 3rem;
-  border-radius: var(--radio-chico);
-  background: var(--texto);
-  color: var(--invertido);
-  font-family: var(--fuente-titulos);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
 .mentora-nombre {
-  font-size: 1.35rem;
+  font-size: 1.75rem;
+  transition: color 0.2s var(--ease);
+}
+
+.mentora:hover .mentora-nombre {
+  color: var(--acento);
 }
 
 .mentora-meta {
@@ -453,11 +420,15 @@ code {
   margin-bottom: 2.5rem;
 }
 
+.reserva-pagina {
+  max-width: 48rem;
+  margin-inline: auto;
+}
+
 .reserva {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  max-width: 48rem;
 }
 
 .paso {
