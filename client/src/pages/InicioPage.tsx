@@ -17,8 +17,10 @@ export default function InicioPage() {
   return (
     <>
       <section className="portada">
-        <p className="sobretitulo">Para colectivos</p>
-        <h1>Encontrá a alguien que te ayude a destrabar tu proyecto</h1>
+        <p className="sobretitulo prompt">Para colectivos</p>
+        <h1>
+          Encontrá a alguien que te ayude a <span className="acento">destrabar</span> tu proyecto
+        </h1>
         <p className="bajada">
           Personas con experiencia en desarrollo donan horas de mentoría. Elegí según lo que necesitás y reservá una
           sesión gratuita.
