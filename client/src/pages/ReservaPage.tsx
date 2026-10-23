@@ -96,7 +96,7 @@ export default function ReservaPage() {
   }
 
   return (
-    <>
+    <div className="reserva-pagina">
       <Link to="/" className="volver">
         <span aria-hidden="true">←</span> Todas las mentoras
       </Link>
@@ -146,6 +146,6 @@ export default function ReservaPage() {
           </Paso>
         )}
       </div>
-    </>
+    </div>
   )
 }

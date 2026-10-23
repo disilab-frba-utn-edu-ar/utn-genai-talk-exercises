@@ -6,29 +6,16 @@ type Props = {
   habilidades: Habilidad[]
 }
 
-const iniciales = (nombre: string) =>
-  nombre
-    .split(" ")
-    .slice(0, 2)
-    .map((parte) => parte[0])
-    .join("")
-    .toUpperCase()
-
 export default function MentoraCard({ mentora, habilidades }: Props) {
   const titulo = (id: string) => habilidades.find((h) => h.id === id)?.titulo ?? id
 
   return (
     <article className="tarjeta mentora">
-      <div className="mentora-cabecera">
-        <span className="avatar" aria-hidden="true">
-          {iniciales(mentora.nombre)}
-        </span>
-        <div>
-          <h2 className="mentora-nombre">{mentora.nombre}</h2>
-          <p className="mentora-meta">
-            {[mentora.pronombres, mentora.github && `@${mentora.github}`].filter(Boolean).join(" · ")}
-          </p>
-        </div>
+      <div>
+        <h2 className="mentora-nombre">{mentora.nombre}</h2>
+        <p className="mentora-meta">
+          {[mentora.pronombres, mentora.github && `@${mentora.github}`].filter(Boolean).join(" · ")}
+        </p>
       </div>
       <p className="mentora-presentacion">{mentora.presentacion}</p>
       <ul className="etiquetas" aria-label="Habilidades">
