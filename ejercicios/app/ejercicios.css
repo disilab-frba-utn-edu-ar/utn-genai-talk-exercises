@@ -1,0 +1,243 @@
+/* Visor de ejercicios: solo lo que no está en client/src/styles.css (usa sus variables). */
+
+/* Lectura a 56rem; solo "Preguntas y respuestas" usa todo el ancho para las dos columnas. */
+.ejercicio-cabecera,
+.ejercicio-pagina .paso:not(.paso-ancho) {
+  width: 100%;
+  max-width: 56rem;
+  margin-inline: auto;
+}
+
+.ejercicio-cabecera {
+  margin-bottom: 1.5rem;
+}
+
+.ejercicio-cabecera .chip {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.paso {
+  scroll-margin-top: 1rem;
+}
+
+.documento {
+  margin-top: 2.5rem;
+  padding: 1.35rem;
+}
+
+/* ── Markdown de las consignas ──────────────────────────── */
+
+/* break-word (no anywhere): las tablas hacen scroll en vez de partir palabras. */
+.markdown {
+  overflow-wrap: break-word;
+}
+
+.markdown > :first-child {
+  margin-top: 0;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4 {
+  margin: 2rem 0 0.75rem;
+  font-family: var(--fuente-titulos);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.markdown h1 {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+}
+
+.markdown h2 {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--linea-suave);
+  font-size: 1.45rem;
+}
+
+.markdown h3 {
+  font-size: 1.15rem;
+}
+
+.markdown h4 {
+  font-size: 1rem;
+}
+
+.markdown blockquote {
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  border-left: 4px solid var(--acento);
+  background: var(--acento-suave);
+  border-radius: 0 var(--radio-chico) var(--radio-chico) 0;
+}
+
+.markdown blockquote p {
+  margin: 0.4rem 0;
+}
+
+.markdown :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--grilla);
+  border: 1px solid var(--linea-suave);
+}
+
+.markdown table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.9375rem;
+}
+
+.markdown th,
+.markdown td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--linea-suave);
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown th {
+  background: var(--grilla);
+}
+
+.markdown li {
+  margin-block: 0.25rem;
+}
+
+.markdown li:has(> input[type="checkbox"]) {
+  list-style: none;
+}
+
+.markdown details {
+  margin: 0.75rem 0;
+  padding: 0.6rem 1rem;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--fondo);
+}
+
+.markdown summary {
+  cursor: pointer;
+}
+
+.markdown hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid var(--linea-suave);
+}
+
+.enlace-repo {
+  border-bottom: 1px dashed var(--texto-suave);
+}
+
+/* Bloques de código con botón de copiar (estética terminal). */
+.codigo {
+  position: relative;
+  margin: 1rem 0;
+}
+
+.codigo pre {
+  margin: 0;
+  padding: 2.6rem 1rem 1rem;
+  overflow-x: auto;
+  border-radius: var(--radio-chico);
+  background: var(--texto);
+  color: var(--invertido);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.boton-copiar {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.7rem;
+  border: 1.5px solid var(--invertido);
+  border-radius: var(--radio-chico);
+  background: transparent;
+  color: var(--invertido);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton-copiar:hover {
+  border-color: var(--acento);
+  background: var(--acento);
+  color: var(--texto);
+}
+
+/* El prompt (u otro anexo) dentro de la consigna, justo donde se lo nombra. */
+.anexo-en-linea {
+  margin: 0.75rem 0 1.25rem;
+  padding: 1rem 1.15rem;
+  border: 2px solid var(--acento);
+  border-radius: var(--radio);
+  background: var(--fondo);
+}
+
+.anexo-en-linea .markdown h1 {
+  font-size: 1.15rem;
+}
+
+/* ── Respuestas ─────────────────────────────────────────── */
+
+/* Preguntas a la izquierda, respuestas a la derecha (apiladas en pantallas chicas). */
+.responder {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 60rem) {
+  .responder {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  /* El editor acompaña el scroll de las preguntas. */
+  .responder-respuestas {
+    position: sticky;
+    top: 1rem;
+  }
+
+  .responder-respuestas .editor-respuestas {
+    height: calc(100vh - 8rem);
+    min-height: 0;
+  }
+}
+
+
+.editor-respuestas {
+  width: 100%;
+  min-height: 24rem;
+  padding: 1rem;
+  border: none;
+  border-radius: var(--radio-chico);
+  background: var(--texto);
+  color: var(--invertido);
+  caret-color: var(--acento);
+  font-family: var(--fuente-codigo);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.respuestas-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+}
+
+.respuestas-estado {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}

@@ -8,13 +8,13 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ["client/**/*.{ts,tsx}", "tests/client/**/*.{ts,tsx}"],
+    files: ["client/**/*.{ts,tsx}", "ejercicios/app/**/*.{ts,tsx}", "tests/client/**/*.{ts,tsx}"],
     languageOptions: { globals: globals.browser },
     plugins: { "react-hooks": reactHooks },
     rules: reactHooks.configs.recommended.rules,
   },
   {
-    files: ["server/**/*.ts", "tests/server/**/*.ts", "scripts/**/*.mjs", "*.config.{js,ts}"],
+    files: ["server/**/*.ts", "ejercicios/vite-plugin.ts", "tests/server/**/*.ts", "scripts/**/*.mjs", "*.config.{js,ts}"],
     languageOptions: { globals: globals.node },
   },
   {
