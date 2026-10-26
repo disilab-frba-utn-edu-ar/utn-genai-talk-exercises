@@ -40,6 +40,21 @@ function truncate(value) {
   return `${text.slice(0, MAX_CHARS)}… [+${text.length - MAX_CHARS} caracteres]`
 }
 
+// Cline 3.x ejecuta los hooks de .clinerules/hooks/ pero manda el evento con otro
+// nombre (hookName en snake_case). Lo llevamos al vocabulario de Claude Code para
+// que el log y logs:resumen traten igual a todos los agentes.
+const CLINE_EVENTS = {
+  agent_start: "TaskStart",
+  agent_resume: "TaskResume",
+  agent_end: "TaskComplete",
+  agent_abort: "TaskCancel",
+  agent_error: "TaskError",
+  prompt_submit: "UserPromptSubmit",
+  tool_call: "PreToolUse",
+  tool_result: "PostToolUse",
+  session_shutdown: "SessionEnd",
+}
+
 // Cada agente manda un payload con forma distinta. Lo llevamos a un formato común.
 function normalize(payload) {
   // Cline anida los datos del evento bajo una clave con el nombre del hook
@@ -55,7 +70,8 @@ function normalize(payload) {
     payload.preCompact ??
     {}
 
-  const event = eventArg ?? payload.hook_event_name ?? payload.hookName ?? "desconocido"
+  const rawEvent = eventArg ?? payload.hook_event_name ?? payload.hookName ?? "desconocido"
+  const event = CLINE_EVENTS[rawEvent] ?? rawEvent
   const tool = payload.tool_name ?? nested.toolName ?? nested.tool ?? undefined
   const input = payload.tool_input ?? nested.parameters ?? undefined
   const output = payload.tool_response ?? nested.result ?? undefined
