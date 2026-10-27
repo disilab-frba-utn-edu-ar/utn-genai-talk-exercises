@@ -10,8 +10,10 @@ export default defineConfig({
     alias: { "@shared": fileURLToPath(new URL("./shared", import.meta.url)) },
   },
   server: {
+    // Solo este equipo: ni la web ni la API se abren a la red del aula.
+    host: "127.0.0.1",
     port: 5173,
-    proxy: { "/api": "http://localhost:3001" },
+    proxy: { "/api": "http://127.0.0.1:3001" },
   },
   build: {
     outDir: "../dist",

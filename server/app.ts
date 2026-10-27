@@ -1,23 +1,29 @@
 import { existsSync } from "node:fs"
 import { join } from "node:path"
 import express, { type ErrorRequestHandler } from "express"
-import { DEFAULT_DATA_DIR } from "./config"
+import { DEFAULT_DATA_DIR, DEFAULT_LOGS_DIR, REPO_DIR } from "./config"
 import { crearRepositorios } from "./repositories"
+import { crearRepositorioLogs } from "./repositories/logs-agentes"
 import { rutasCatalogos } from "./routes/catalogos"
 import { rutasMentoras } from "./routes/mentoras"
+import { rutasMetricasAgentes } from "./routes/metricas-agentes"
 import { rutasSesiones } from "./routes/sesiones"
 import { crearServicioCatalogos } from "./services/catalogos"
 import { ErrorDeNegocio } from "./services/errores"
 import { crearServicioMentoras } from "./services/mentoras"
+import { crearServicioMetricas, type OpcionesMetricas } from "./services/metricas-agentes"
 import { crearServicioSesiones } from "./services/sesiones"
 
 type Opciones = {
   dataDir?: string
+  /** Logs de los agentes que lee el dashboard de Métricas (no es parte del producto). */
+  logsDir?: string
+  metricas?: OpcionesMetricas
   /** Permite fijar "ahora" en los tests. */
   reloj?: () => Date
 }
 
-export function createApp({ dataDir = DEFAULT_DATA_DIR, reloj = () => new Date() }: Opciones = {}) {
+export function createApp({ dataDir = DEFAULT_DATA_DIR, logsDir = DEFAULT_LOGS_DIR, metricas, reloj = () => new Date() }: Opciones = {}) {
   const repos = crearRepositorios(dataDir)
   const app = express()
   app.use(express.json())
@@ -29,6 +35,8 @@ export function createApp({ dataDir = DEFAULT_DATA_DIR, reloj = () => new Date()
   api.use(rutasCatalogos(crearServicioCatalogos(repos)))
   api.use("/mentoras", rutasMentoras(crearServicioMentoras(repos, reloj)))
   api.use("/sesiones", rutasSesiones(crearServicioSesiones(repos, reloj)))
+  // Métricas de agentes: separadas del producto (como /ejercicios), solo desde loopback.
+  api.use("/metricas-agentes", rutasMetricasAgentes(crearServicioMetricas(crearRepositorioLogs(logsDir), REPO_DIR, metricas)))
   api.use((_req, res) => {
     res.status(404).json({ error: "Recurso no encontrado" })
   })

@@ -17,11 +17,11 @@ export const HUERTA_VIVA = "c0e1a2b3-0000-4000-8000-000000000001"
  * Crea la app sobre una copia temporal de data/ (Principio I: los tests nunca
  * escriben en data/). `sesiones` reemplaza el contenido de sesiones.json.
  */
-export function crearAppDePrueba(sesiones: Sesion[] = []) {
+export function crearAppDePrueba(sesiones: Sesion[] = [], extra: Partial<Parameters<typeof createApp>[0]> = {}) {
   const dataDir = mkdtempSync(join(tmpdir(), "mentorias-"))
   cpSync(join(process.cwd(), "data"), dataDir, { recursive: true })
   writeFileSync(join(dataDir, "sesiones.json"), JSON.stringify(sesiones), "utf-8")
-  const app = createApp({ dataDir, reloj: () => AHORA })
+  const app = createApp({ dataDir, reloj: () => AHORA, ...extra })
   return { app, api: request(app), dataDir }
 }
 
