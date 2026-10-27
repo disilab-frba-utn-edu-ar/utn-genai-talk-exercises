@@ -14,6 +14,7 @@
 import { appendFileSync, mkdirSync, readFileSync } from "node:fs"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
+import { adelgazar, clasificar } from "./clasificar.mjs"
 
 const [, , agent = "desconocido", eventArg] = process.argv
 
@@ -41,6 +42,20 @@ function truncate(value) {
   const text = typeof value === "string" ? value : JSON.stringify(value)
   if (text.length <= MAX_CHARS) return value
   return `${text.slice(0, MAX_CHARS)}… [+${text.length - MAX_CHARS} caracteres]`
+}
+
+// Las salidas de herramientas se guardan como extracto: la evidencia es qué se hizo, no el volcado completo.
+const OUTPUT_CHARS = Number(process.env.AGENT_LOG_OUTPUT_CHARS ?? 400)
+
+function excerpt(text) {
+  if (!text) return undefined
+  return text.length <= OUTPUT_CHARS ? text : `${text.slice(0, OUTPUT_CHARS)}… [+${text.length - OUTPUT_CHARS} caracteres]`
+}
+
+// Claude agrega bloques <system-reminder> (CLAUDE.md, git status, skills) al prompt: no son lo que escribió la persona.
+function limpiarPrompt(prompt) {
+  if (typeof prompt !== "string") return prompt
+  return prompt.replace(/<system-reminder>[\s\S]*?<\/system-reminder>/g, "").trim()
 }
 
 // Cline 3.x ejecuta los hooks de .clinerules/hooks/ pero manda el evento con otro
@@ -80,6 +95,13 @@ function normalize(payload) {
   const output = payload.tool_response ?? nested.result ?? undefined
   const prompt = payload.prompt ?? nested.prompt ?? nested.taskMetadata?.initialTask ?? undefined
 
+  // Solo lo importante: la llamada (con su input adelgazado) se guarda en PreToolUse y
+  // el resultado en PostToolUse sin repetir el input, con un extracto corto de la salida.
+  const { kind, op, detail } = tool ? clasificar(tool, input) : {}
+  const esResultado = event === "PostToolUse"
+  const outputText = output === undefined || output === null ? undefined : typeof output === "string" ? output : JSON.stringify(output)
+  const sinSalida = kind === "leer" || kind === "escribir" || kind === "skill"
+
   return {
     ts: new Date().toISOString(),
     agent,
@@ -88,12 +110,16 @@ function normalize(payload) {
     turn: payload.turn_id ?? undefined,
     model: payload.model ?? undefined,
     tool,
-    input: truncate(input),
-    output: truncate(output),
+    kind,
+    op,
+    detail: detail || undefined,
+    input: esResultado ? undefined : truncate(adelgazar(input)),
+    output: sinSalida ? undefined : excerpt(outputText),
+    outputChars: esResultado ? outputText?.length : undefined,
     error: truncate(payload.error ?? undefined),
     success: nested.success ?? undefined,
     durationMs: payload.duration_ms ?? nested.executionTimeMs ?? undefined,
-    prompt: truncate(prompt),
+    prompt: truncate(limpiarPrompt(prompt)),
     lastMessage: truncate(payload.last_assistant_message ?? undefined),
     source: payload.source ?? undefined,
     reason: payload.reason ?? undefined,
