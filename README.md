@@ -191,13 +191,14 @@ entregable) y `respuestas.json` (para seguir editándolas).
 | Cliente | Vite + React 19 + React Router · CSS plano |
 | Servidor | Express 5 + TypeScript (tsx) en capas: routes → services → repositories → domain |
 | Datos | Archivos JSON en `data/` |
+| Métricas | SSE (Server-Sent Events) + `fs.watch` con polling de respaldo · gráficos en SVG propio, sin librerías |
 | Tests | Vitest · supertest · Testing Library |
 
 ## Comandos
 
 | Comando | Qué hace |
 |---|---|
-| `npm run dev` | Levanta API y web con recarga en caliente |
+| `npm run dev` | Levanta API (127.0.0.1:3001) y web (127.0.0.1:5173) con recarga en caliente |
 | `npm test` | Tests de dominio, API y cliente |
 | `npm run lint` / `npm run typecheck` | ESLint y TypeScript |
 | `npm run build` y `npm start` | Compila el cliente y lo sirve desde Express en :3001 |
@@ -218,18 +219,51 @@ entregable) y `respuestas.json` (para seguir editándolas).
 
 Contrato completo: [`specs/001-reservar-sesion/contracts/api.md`](specs/001-reservar-sesion/contracts/api.md).
 
+## Métricas de agentes (`/metricas`)
+
+Dashboard en vivo de lo que hacen Claude Code, Codex CLI y Cline, leído de `logs/` (los
+archivos que escriben los hooks). Está **separado del producto** Mentorías, igual que
+`/ejercicios`: la UI vive en `metricas/app/` y el link "Métricas" está siempre en el menú.
+
+- **Qué muestra:** sesiones, prompts, herramientas, fallas ("n/d" si el agente no las reporta),
+  eventos por minuto, acciones por tipo, duraciones p50/p95, archivos leídos y escritos, binarios de
+  shell, subagentes/skills/MCP, línea de tiempo de la sesión, **tokens por minuto (por agente y por
+  tipo), modelo por sesión y cambios de modelo, y costo estimado**. Se puede filtrar por agente,
+  sesión y ventana, y elegir entre los logs actuales y cada carpeta de `logs/archivo/<fecha>`.
+- **Tokens, modelo y costo:** los hooks no los mandan. Salen de la transcripción de cada agente
+  (`~/.claude/projects/…`, `~/.codex/sessions/…`, `~/.cline/data/tasks/…`), ubicada por el
+  `transcript_path` que guarda el hook o por los lugares estándar. Solo se leen modelo, tokens y
+  fechas, nunca el contenido de los mensajes. Los formatos de Codex y Cline son supuestos sin
+  confirmar con logs reales: están anotados en [`specs/003-dashboard-agentes/spec.md`](specs/003-dashboard-agentes/spec.md).
+- **Precios:** [`metricas/precios-modelos.json`](metricas/precios-modelos.json) (USD por millón de
+  tokens, con fecha y fuente oficial). Un modelo que no figura muestra "n/d", nunca 0. Hoy solo
+  están los modelos de Anthropic; para Codex u otros proveedores, sumá el modelo con los precios de
+  la página oficial. Es configuración versionada: no usa variables de entorno.
+- **Privacidad:** no salen del servidor prompts, respuestas, salidas, errores ni argumentos de
+  comandos; las rutas van relativas al repo. El **modo detalle** (toggle en la UI, apagado por
+  defecto) muestra los comandos completos con `sk-…`, `ghp_…`, `Bearer …`, emails y `--token=…`
+  redactados.
+- **Red:** la API y la web escuchan solo en `127.0.0.1`, y el endpoint de métricas además responde
+  403 a cualquier cosa que no sea loopback.
+- **API:** `GET /api/metricas-agentes?origen=&agente=&sesion=&ventana=&detalle=1`,
+  `GET /api/metricas-agentes/origenes` y `GET /api/metricas-agentes/eventos` (SSE).
+- **Hooks:** `log-hook.mjs` guarda también `toolUseId`, `subagent`, `model`, `turn`,
+  `transcriptPath` y las rutas de `apply_patch`; todos son opcionales y los logs viejos siguen
+  funcionando.
+
 ## Mapa del repo
 
 ```
-client/src/        ← React: pages/, components/, api/ (único lugar con fetch), hooks/
+client/src/        ← React: pages/, components/, api/ (único lugar con fetch del producto), hooks/
 server/            ← Express: routes/ → services/ → repositories/ → domain/
 shared/types.ts    ← tipos compartidos
 data/              ← "base de datos" en JSON
-tests/             ← server/domain · server/api · client
+tests/             ← server/{domain,api,repositories,hooks} · client
 specs/001-…/       ← la feature base hecha con SDD (ejemplo)
 .specify/          ← Spec Kit (constitution, templates, scripts)
 .claude/ .codex/ .clinerules/  ← hooks de logs para cada agente
 scripts/           ← seed y logger de los hooks
 ejercicios/        ← consignas en JSON + su visor (/ejercicios), fuera del producto
+metricas/          ← dashboard de métricas de agentes (/metricas) y su tabla de precios, fuera del producto
 AGENTS.md / CLAUDE.md  ← instrucciones permanentes para los agentes
 ```
