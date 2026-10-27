@@ -64,7 +64,7 @@
     "seguí primero la guía [Configurar entorno](/configurar-entorno).",
     "",
     "```powershell",
-    "git clone <url-del-repo>",
+    "git clone https://github.com/disilab-frba-utn-edu-ar/utn-genai-talk-exercises.git",
     "cd utn-genai-talk-exercises",
     "npm install",
     "npm run seed      # genera data/sesiones.json con sesiones de ejemplo (no se versiona)",

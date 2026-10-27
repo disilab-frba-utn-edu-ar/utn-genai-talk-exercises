@@ -51,7 +51,7 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ### 2. Instalar el proyecto
 
 ```powershell
-git clone <url-del-repo>
+git clone https://github.com/disilab-frba-utn-edu-ar/utn-genai-talk-exercises.git
 cd utn-genai-talk-exercises
 npm install
 ```
