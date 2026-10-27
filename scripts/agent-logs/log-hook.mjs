@@ -73,6 +73,10 @@ const CLINE_EVENTS = {
   session_shutdown: "SessionEnd",
 }
 
+// Devuelve el primer valor que exista. Sirve para campos que cada agente nombra distinto
+// o que la documentación no confirma: probamos los nombres posibles y, si no está, queda undefined.
+const primerDefinido = (...valores) => valores.find((valor) => valor !== undefined && valor !== null)
+
 // Cada agente manda un payload con forma distinta. Lo llevamos a un formato común.
 function normalize(payload) {
   // Cline anida los datos del evento bajo una clave con el nombre del hook
@@ -94,6 +98,10 @@ function normalize(payload) {
   const input = payload.tool_input ?? nested.parameters ?? undefined
   const output = payload.tool_response ?? nested.result ?? undefined
   const prompt = payload.prompt ?? nested.prompt ?? nested.taskMetadata?.initialTask ?? undefined
+  // Id de la llamada: empareja cada PreToolUse con su PostToolUse (hay llamadas en paralelo).
+  // Claude y Codex mandan tool_use_id; Cline no lo documenta, así que probamos varios nombres.
+  const toolUseId = primerDefinido(payload.tool_use_id, nested.toolUseId, nested.toolCallId, nested.callId, nested.id)
+  const model = primerDefinido(payload.model, payload.modelId, nested.model, nested.modelId, nested.taskMetadata?.model)
 
   // Solo lo importante: la llamada (con su input adelgazado) se guarda en PreToolUse y
   // el resultado en PostToolUse sin repetir el input, con un extracto corto de la salida.
@@ -107,8 +115,11 @@ function normalize(payload) {
     agent,
     event,
     session: payload.session_id ?? payload.taskId ?? undefined,
-    turn: payload.turn_id ?? undefined,
-    model: payload.model ?? undefined,
+    turn: primerDefinido(payload.turn_id, payload.prompt_id), // Codex: turn_id · Claude: prompt_id
+    model,
+    subagent: payload.agent_type ?? undefined, // solo si el hook corre dentro de un subagente (o con --agent)
+    subagentId: payload.agent_id ?? undefined,
+    toolUseId,
     tool,
     kind,
     op,
@@ -117,7 +128,8 @@ function normalize(payload) {
     output: sinSalida ? undefined : excerpt(outputText),
     outputChars: esResultado ? outputText?.length : undefined,
     error: truncate(payload.error ?? undefined),
-    success: nested.success ?? undefined,
+    success: nested.success ?? undefined, // Cline; en Claude la falla es el evento PostToolUseFailure
+    interrupted: payload.is_interrupt ?? undefined,
     durationMs: payload.duration_ms ?? nested.executionTimeMs ?? undefined,
     prompt: truncate(limpiarPrompt(prompt)),
     lastMessage: truncate(payload.last_assistant_message ?? undefined),
