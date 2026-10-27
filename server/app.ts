@@ -1,9 +1,12 @@
 import { existsSync } from "node:fs"
 import { join } from "node:path"
+import type { TablaPrecios } from "@shared/types"
 import express, { type ErrorRequestHandler } from "express"
 import { DEFAULT_DATA_DIR, DEFAULT_LOGS_DIR, REPO_DIR } from "./config"
 import { crearRepositorios } from "./repositories"
+import preciosModelos from "../metricas/precios-modelos.json"
 import { crearRepositorioLogs } from "./repositories/logs-agentes"
+import { crearRepositorioTranscripciones } from "./repositories/transcripciones-agentes"
 import { rutasCatalogos } from "./routes/catalogos"
 import { rutasMentoras } from "./routes/mentoras"
 import { rutasMetricasAgentes } from "./routes/metricas-agentes"
@@ -36,7 +39,9 @@ export function createApp({ dataDir = DEFAULT_DATA_DIR, logsDir = DEFAULT_LOGS_D
   api.use("/mentoras", rutasMentoras(crearServicioMentoras(repos, reloj)))
   api.use("/sesiones", rutasSesiones(crearServicioSesiones(repos, reloj)))
   // Métricas de agentes: separadas del producto (como /ejercicios), solo desde loopback.
-  api.use("/metricas-agentes", rutasMetricasAgentes(crearServicioMetricas(crearRepositorioLogs(logsDir), REPO_DIR, metricas)))
+  api.use("/metricas-agentes", rutasMetricasAgentes(
+      crearServicioMetricas(crearRepositorioLogs(logsDir), crearRepositorioTranscripciones(metricas?.homeDir), REPO_DIR, metricas?.precios ?? (preciosModelos as TablaPrecios), metricas),
+    ),)
   api.use((_req, res) => {
     res.status(404).json({ error: "Recurso no encontrado" })
   })

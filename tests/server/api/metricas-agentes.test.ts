@@ -15,13 +15,21 @@ function crearLogsDePrueba() {
   return logsDir
 }
 
-function crear(extra: { logsDir?: string; intervaloPollingMs?: number } = {}) {
+/** Un "home" temporal con las transcripciones de las fixtures: los tests nunca leen el ~ real. */
+function crearHomeDePrueba(conTranscripciones = true) {
+  const home = mkdtempSync(join(tmpdir(), "home-"))
+  if (conTranscripciones) cpSync(join(process.cwd(), "tests", "server", "fixtures", "home"), home, { recursive: true })
+  return home
+}
+
+function crear(extra: { logsDir?: string; homeDir?: string; intervaloPollingMs?: number } = {}) {
   const logsDir = extra.logsDir ?? crearLogsDePrueba()
+  const homeDir = extra.homeDir ?? crearHomeDePrueba(false)
   const { app, api } = crearAppDePrueba([], {
     logsDir,
-    metricas: { reloj: () => AHORA_LOGS, intervaloPollingMs: extra.intervaloPollingMs ?? 50, debounceMs: 10 },
+    metricas: { reloj: () => AHORA_LOGS, intervaloPollingMs: extra.intervaloPollingMs ?? 50, debounceMs: 10, homeDir },
   })
-  return { app, api, logsDir }
+  return { app, api, logsDir, homeDir }
 }
 
 describe("GET /api/metricas-agentes", () => {
@@ -80,6 +88,60 @@ describe("GET /api/metricas-agentes", () => {
     const res = await api.get(`/api/metricas-agentes?${consulta}`)
     expect(res.status).toBe(400)
     expect(res.body.error).toMatch(mensaje)
+  })
+})
+
+describe("tokens, modelos y costo", () => {
+  it("sin transcripciones los tokens son n/d (null), no ceros", async () => {
+    const { api } = crear()
+    const m = (await api.get("/api/metricas-agentes")).body as MetricasAgentes
+    expect(m.tokens.disponible).toBe(false)
+    expect(m.tokens.total).toBeNull()
+    expect(m.tokens.costo.usd).toBeNull()
+    expect(m.sesiones.every((s) => s.tokens === null && s.costoUsd === null)).toBe(true)
+  })
+
+  it("lee las transcripciones de Claude, Codex y Cline y calcula el costo con la tabla del repo", async () => {
+    const { api } = crear({ homeDir: crearHomeDePrueba() })
+    const m = (await api.get("/api/metricas-agentes")).body as MetricasAgentes
+    expect(m.tokens.total).toEqual({ entrada: 6060, salida: 1490, cacheLectura: 11300, cacheEscritura: 2900 })
+    expect(m.tokens.costo.usd).toBeCloseTo(0.0157, 10)
+    expect(m.tokens.costo.parcial).toBe(true)
+    const claude = m.sesiones.find((s) => s.agente === "claude")!
+    expect(claude.modelos).toEqual(["claude-sonnet-5-5", "claude-haiku-4-5-20251001", "claude-mystery-1"])
+    expect(claude.cambiosDeModelo).toBe(2)
+    expect(m.tokens.porModelo.find((f) => f.modelo === "gpt-5-codex")?.costoUsd).toBeNull()
+  })
+
+  it("filtra los tokens por agente", async () => {
+    const { api } = crear({ homeDir: crearHomeDePrueba() })
+    const m = (await api.get("/api/metricas-agentes?agente=cline")).body as MetricasAgentes
+    expect(m.tokens.total).toEqual({ entrada: 4000, salida: 500, cacheLectura: 5500, cacheEscritura: 500 })
+  })
+
+  it("usa el transcriptPath que guardó el hook y el modelo que informó (Cline no lo guarda en su archivo)", async () => {
+    const logsDir = mkdtempSync(join(tmpdir(), "metricas-"))
+    const home = crearHomeDePrueba()
+    const tareas = join(home, "otra-carpeta", "tasks", "tarea-9")
+    mkdirSync(tareas, { recursive: true })
+    cpSync(join(home, ".cline", "data", "tasks", "1761584400000", "ui_messages.json"), join(tareas, "ui_messages.json"))
+    mkdirSync(join(logsDir, "cline"))
+    appendFileSync(
+      join(logsDir, "cline", "tarea-9.jsonl"),
+      JSON.stringify({ ts: "2026-10-27T17:03:20Z", agent: "cline", event: "TaskStart", session: "tarea-9", prompt: "x", model: "claude-sonnet-5-5", transcriptPath: join(tareas, "ui_messages.json") }) + "\n",
+    )
+    const { api } = crear({ logsDir, homeDir: home })
+    const m = (await api.get("/api/metricas-agentes")).body as MetricasAgentes
+    expect(m.sesiones[0].modelos).toEqual(["claude-sonnet-5-5"])
+    expect(m.sesiones[0].tokens?.entrada).toBe(4000)
+    expect(m.sesiones[0].costoUsd).not.toBeNull()
+  })
+
+  it("no expone contenido de las transcripciones ni rutas del equipo", async () => {
+    const home = crearHomeDePrueba()
+    const { api } = crear({ homeDir: home })
+    const texto = JSON.stringify((await api.get("/api/metricas-agentes?detalle=1")).body)
+    for (const prohibido of ["CONTENIDO-SECRETO", home, ".claude", ".codex", ".cline", "ui_messages", "transcript"]) expect(texto, prohibido).not.toContain(prohibido)
   })
 })
 
@@ -173,6 +235,25 @@ describe("GET /api/metricas-agentes/eventos (SSE)", () => {
       while (siguiente.kpis.herramientas === 17) siguiente = await sse.siguiente()
       expect(siguiente.kpis.herramientas).toBe(18)
       expect(siguiente.enCurso).toHaveLength(1)
+    } finally {
+      await sse.cerrar()
+    }
+  })
+
+  it("manda un evento nuevo cuando solo crece la transcripción (sin líneas nuevas en el log de los hooks)", async () => {
+    const home = crearHomeDePrueba()
+    const { app } = crear({ homeDir: home })
+    const sse = await conectar(app)
+    try {
+      const inicial = await sse.siguiente()
+      expect(inicial.tokens.total?.salida).toBe(1490)
+      appendFileSync(
+        join(home, ".claude", "projects", "-work-repo", "bb76875c-d528-5a9e-9c40-c1ba18725474.jsonl"),
+        JSON.stringify({ type: "assistant", timestamp: "2026-10-27T17:11:00Z", message: { id: "msg_vivo", model: "claude-sonnet-5-5", usage: { input_tokens: 1, output_tokens: 10 } } }) + "\n",
+      )
+      let siguiente = await sse.siguiente()
+      while (siguiente.tokens.total?.salida === 1490) siguiente = await sse.siguiente()
+      expect(siguiente.tokens.total?.salida).toBe(1500)
     } finally {
       await sse.cerrar()
     }
