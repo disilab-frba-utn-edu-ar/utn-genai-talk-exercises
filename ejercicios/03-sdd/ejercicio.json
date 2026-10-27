@@ -89,7 +89,7 @@
     "",
     "Si de todos modos necesitás reinicializar, Spec Kit se instala con",
     "[`uv`](https://docs.astral.sh/uv/), que no suele venir instalado. Si",
-    "`uvx --version` falla, instalalo primero:",
+    "`uvx --version` falla, instalalo primero (más detalles en el paso 6 de [Configurar entorno](/configurar-entorno)):",
     "",
     "```powershell",
     "# Windows (PowerShell)",

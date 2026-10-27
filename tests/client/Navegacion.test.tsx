@@ -70,19 +70,53 @@ describe("Configurar entorno", () => {
     expect(await screen.findByRole("heading", { level: 1, name: setup.titulo })).toBeInTheDocument()
 
     const pasos = screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)
-    expect(pasos).toEqual(["1. Requisitos", "2. Instalar el proyecto", "3. Instalar un agente", "4. Verificar", "5. Antes del ejercicio 2"])
+    expect(pasos).toEqual([
+      "1. Requisitos",
+      "2. Instalar el proyecto",
+      "3. Instalar un agente",
+      "4. Verificar",
+      "5. Antes del ejercicio 2",
+      "6. Antes del ejercicio 3",
+    ])
 
     for (const comando of [
       "winget install OpenJS.NodeJS.LTS",
       "winget install Git.Git",
       "Set-ExecutionPolicy -Scope CurrentUser RemoteSigned",
       "irm https://claude.ai/install.ps1 | iex",
+      "curl -fsSL https://claude.ai/install.sh | bash",
+      "brew install node@22 git",
+      "nvm install 22",
+      "sudo apt install git",
+      "npm i -g cline",
+      "uv tool install specify-cli",
+      "uv python install 3.12",
       "npm i -g @openai/codex",
       "npm test",
       "npm run dev",
     ]) {
       expect(screen.getAllByText(new RegExp(comando.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), { selector: "code" }).length).toBeGreaterThan(0)
     }
+  })
+
+  it("enlaza a la documentación de Cline, uv y Spec Kit", async () => {
+    renderApp("/configurar-entorno")
+    await screen.findByRole("heading", { level: 1, name: setup.titulo })
+    for (const href of [
+      "https://cline.bot/cli",
+      "https://docs.cline.bot/cline-cli/installation",
+      "https://code.claude.com/docs/en/setup",
+      "https://docs.astral.sh/uv/getting-started/installation/",
+      "https://github.com/github/spec-kit",
+    ]) {
+      expect(screen.getAllByRole("link").some((a) => a.getAttribute("href") === href)).toBe(true)
+    }
+  })
+
+  it("marca como solo Windows lo que no aplica a macOS y Linux", async () => {
+    renderApp("/configurar-entorno")
+    await screen.findByRole("heading", { level: 1, name: setup.titulo })
+    expect(screen.getByText(/Solo Windows:/)).toBeInTheDocument()
   })
 
   it("cada bloque de comandos tiene su botón de copiar", async () => {
