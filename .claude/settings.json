@@ -1,28 +1,28 @@
 {
   "hooks": {
     "SessionStart": [
-      { "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-logs/log-hook.mjs\" claude", "timeout": 10 }] }
+      { "hooks": [{"type": "command", "command": "node", "timeout": 10, "args": ["${CLAUDE_PROJECT_DIR}/scripts/agent-logs/log-hook.mjs", "claude"]}] }
     ],
     "UserPromptSubmit": [
-      { "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-logs/log-hook.mjs\" claude", "timeout": 10 }] }
+      { "hooks": [{"type": "command", "command": "node", "timeout": 10, "args": ["${CLAUDE_PROJECT_DIR}/scripts/agent-logs/log-hook.mjs", "claude"]}] }
     ],
     "PreToolUse": [
-      { "matcher": "*", "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-logs/log-hook.mjs\" claude", "timeout": 10 }] }
+      { "matcher": "*", "hooks": [{"type": "command", "command": "node", "timeout": 10, "args": ["${CLAUDE_PROJECT_DIR}/scripts/agent-logs/log-hook.mjs", "claude"]}] }
     ],
     "PostToolUse": [
-      { "matcher": "*", "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-logs/log-hook.mjs\" claude", "timeout": 10 }] }
+      { "matcher": "*", "hooks": [{"type": "command", "command": "node", "timeout": 10, "args": ["${CLAUDE_PROJECT_DIR}/scripts/agent-logs/log-hook.mjs", "claude"]}] }
     ],
     "PostToolUseFailure": [
-      { "matcher": "*", "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-logs/log-hook.mjs\" claude", "timeout": 10 }] }
+      { "matcher": "*", "hooks": [{"type": "command", "command": "node", "timeout": 10, "args": ["${CLAUDE_PROJECT_DIR}/scripts/agent-logs/log-hook.mjs", "claude"]}] }
     ],
     "SubagentStop": [
-      { "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-logs/log-hook.mjs\" claude", "timeout": 10 }] }
+      { "hooks": [{"type": "command", "command": "node", "timeout": 10, "args": ["${CLAUDE_PROJECT_DIR}/scripts/agent-logs/log-hook.mjs", "claude"]}] }
     ],
     "Stop": [
-      { "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-logs/log-hook.mjs\" claude", "timeout": 10 }] }
+      { "hooks": [{"type": "command", "command": "node", "timeout": 10, "args": ["${CLAUDE_PROJECT_DIR}/scripts/agent-logs/log-hook.mjs", "claude"]}] }
     ],
     "SessionEnd": [
-      { "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-logs/log-hook.mjs\" claude", "timeout": 5 }] }
+      { "hooks": [{"type": "command", "command": "node", "timeout": 5, "args": ["${CLAUDE_PROJECT_DIR}/scripts/agent-logs/log-hook.mjs", "claude"]}] }
     ]
   }
 }

@@ -10,6 +10,7 @@ function destino(href: string): string | null {
   if (/^https?:\/\//.test(href)) return href
   const ejercicio = href.match(/^\.\/(\d{2}-[a-z0-9-]+)\/$/)
   if (ejercicio) return `/ejercicios/${ejercicio[1]}`
+  if (/^\/[a-z-]+$/.test(href)) return href // otra página de la app, por ejemplo /configurar-entorno
   if (href === "./RESPUESTAS.md") return "#respuestas"
   if (/^\.\/[\w-]+\.md$/.test(href)) return `#${href.slice(2)}`
   return null

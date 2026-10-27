@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router"
+import { Link, NavLink, Outlet } from "react-router"
 
 export default function Layout() {
   return (
@@ -15,6 +15,13 @@ export default function Layout() {
             Mentorías <em>a Voluntad</em>
           </span>
         </Link>
+        <nav className="navegacion" aria-label="Principal">
+          <NavLink to="/" end>
+            Mentoras
+          </NavLink>
+          <NavLink to="/ejercicios">Ejercicios</NavLink>
+          <NavLink to="/configurar-entorno">Configurar entorno</NavLink>
+        </nav>
         <p className="encabezado-lema">Horas de experiencia donadas a colectivos que construyen software</p>
       </header>
       <main id="contenido" className="contenido">

@@ -170,6 +170,30 @@ code {
   line-height: 1;
 }
 
+.navegacion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.navegacion a {
+  padding-block: 0.25rem;
+  border-bottom: 2px solid transparent;
+  color: var(--texto-suave);
+  text-decoration: none;
+}
+
+.navegacion a:hover {
+  color: var(--texto);
+}
+
+.navegacion a[aria-current="page"] {
+  border-bottom-color: var(--acento);
+  color: var(--texto);
+}
+
 .encabezado-lema {
   margin: 0;
   font-size: 0.75rem;

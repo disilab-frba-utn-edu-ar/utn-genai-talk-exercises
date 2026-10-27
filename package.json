@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Mentorías a Voluntad: colectivos reservan sesiones con personas mentoras que donan horas de asesoramiento.",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.12"
   },
   "scripts": {
     "predev": "node scripts/seed.mjs --si-falta",
@@ -16,6 +16,7 @@
     "prestart": "node scripts/seed.mjs --si-falta",
     "start": "tsx server/index.ts",
     "seed": "node scripts/seed.mjs",
+    "docs:setup": "node scripts/sync-setup-readme.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
