@@ -94,6 +94,8 @@ export type EntradaLog = {
   subagent?: string
   subagentId?: string
   toolUseId?: string
+  /** Ruta de la transcripción del agente (campo común de los hooks). Nunca sale del servidor. */
+  transcriptPath?: string
   tool?: string
   kind?: string
   op?: string

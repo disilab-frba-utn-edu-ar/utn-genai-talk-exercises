@@ -41,6 +41,12 @@ describe("log-hook: Claude Code (campos de la doc oficial)", () => {
     expect(falla.entrada).toMatchObject({ event: "PostToolUseFailure", toolUseId: "toolu_03", interrupted: true, durationMs: 5, error: "boom" })
   })
 
+  it("guarda la ruta de la transcripción (de ahí salen los tokens y el modelo, no del hook)", () => {
+    const { entrada } = registrar("claude", { session_id: "s1", hook_event_name: "Stop", transcript_path: "/home/u/.claude/projects/x/s1.jsonl" })
+    expect(entrada.transcriptPath).toBe("/home/u/.claude/projects/x/s1.jsonl")
+    expect(registrar("claude", { session_id: "s2", hook_event_name: "Stop" }).entrada.transcriptPath).toBeUndefined()
+  })
+
   it("el turno sale de prompt_id cuando no hay turn_id", () => {
     const { entrada } = registrar("claude", { session_id: "s1", hook_event_name: "UserPromptSubmit", prompt: "hola", prompt_id: "p-1" })
     expect(entrada.turn).toBe("p-1")

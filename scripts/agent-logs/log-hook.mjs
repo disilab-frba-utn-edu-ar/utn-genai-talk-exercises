@@ -120,6 +120,7 @@ function normalize(payload) {
     subagent: payload.agent_type ?? undefined, // solo si el hook corre dentro de un subagente (o con --agent)
     subagentId: payload.agent_id ?? undefined,
     toolUseId,
+    transcriptPath: payload.transcript_path ?? undefined, // el dashboard de Métricas lee de ahí los tokens y el modelo
     tool,
     kind,
     op,
