@@ -2,7 +2,7 @@
 // Cada gráfico es una <figure> con su botón "Ver como tabla" (sirve también a lectores de pantalla).
 import { useId, useState, type ReactNode } from "react"
 import type { AgenteLog } from "@shared/types"
-import { AGENTES, hora } from "./formato"
+import { hora } from "./formato"
 
 export const colorAgente = (agente: AgenteLog) => `var(--agente-${agente})`
 export const colorKind = (kind: string) => `var(--kind-${["leer", "escribir", "ejecutar", "buscar", "skill", "mcp", "pregunta"].includes(kind) ? kind : "otro"})`
@@ -75,14 +75,15 @@ export function GraficoBarras({ filas }: { filas: FilaBarra[] }) {
   )
 }
 
-/** Eventos por tramo de tiempo, apilados por agente. */
-export function GraficoSerie({ puntos }: { puntos: { t: string; porAgente: Partial<Record<AgenteLog, number>> }[] }) {
-  const AGENTES_ORDEN: AgenteLog[] = ["claude", "codex", "cline"]
-  const total = (p: (typeof puntos)[number]) => AGENTES_ORDEN.reduce((n, a) => n + (p.porAgente[a] ?? 0), 0)
+export type SerieDef = { id: string; nombre: string; color: string }
+
+/** Valores por tramo de tiempo, apilados por serie (agente o tipo de token). */
+export function GraficoSerie({ puntos, series, formato = String }: { puntos: { t: string; valores: Record<string, number> }[]; series: SerieDef[]; formato?: (n: number) => string }) {
+  const total = (p: (typeof puntos)[number]) => series.reduce((n, s) => n + (p.valores[s.id] ?? 0), 0)
   const max = Math.max(...puntos.map(total), 1)
   const ancho = 12
   const alto = 120
-  const presentes = AGENTES_ORDEN.filter((a) => puntos.some((p) => p.porAgente[a]))
+  const presentes = series.filter((s) => puntos.some((p) => p.valores[s.id]))
   return (
     <div className="serie">
       <svg viewBox={`0 0 ${puntos.length * ancho} ${alto}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
@@ -90,12 +91,12 @@ export function GraficoSerie({ puntos }: { puntos: { t: string; porAgente: Parti
           let y = alto
           return (
             <g key={p.t}>
-              {AGENTES_ORDEN.map((a) => {
-                const n = p.porAgente[a] ?? 0
+              {series.map((s) => {
+                const n = p.valores[s.id] ?? 0
                 if (!n) return null
                 const h = (n / max) * (alto - 2)
                 y -= h
-                return <rect key={a} x={i * ancho + 1} y={y} width={ancho - 2} height={h} fill={colorAgente(a)} stroke="var(--superficie)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+                return <rect key={s.id} x={i * ancho + 1} y={y} width={ancho - 2} height={h} fill={s.color} stroke="var(--superficie)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
               })}
             </g>
           )
@@ -103,10 +104,10 @@ export function GraficoSerie({ puntos }: { puntos: { t: string; porAgente: Parti
       </svg>
       <div className="serie-ejes">
         <span>{hora(puntos[0].t)}</span>
-        <span>máx. {max} por tramo</span>
+        <span>máx. {formato(max)} por tramo</span>
         <span>{hora(puntos.at(-1)!.t)}</span>
       </div>
-      <Leyenda items={presentes.map((a) => ({ nombre: AGENTES[a], color: colorAgente(a) }))} />
+      <Leyenda items={presentes.map((s) => ({ nombre: s.nombre, color: s.color }))} />
     </div>
   )
 }

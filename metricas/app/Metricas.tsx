@@ -1,12 +1,12 @@
-import type { AgenteLog, FiltrosMetricas, MetricasAgentes, OrigenLogs } from "@shared/types"
+import type { AgenteLog, FiltrosMetricas, MetricasAgentes, OrigenLogs, TokensMetricas } from "@shared/types"
 import { useState } from "react"
 import { Link } from "react-router"
 import { Cargando, ErrorCarga, Vacio } from "../../client/src/components/Estado"
 import Chip from "../../client/src/components/Chip"
 import { useCarga } from "../../client/src/hooks/useCarga"
 import { leerOrigenes } from "./api"
-import { AGENTES, caracteres, duracion, formatoNumero, hora, porcentaje } from "./formato"
-import { colorAgente, colorKind, Figura, GraficoApilado, GraficoBarras, GraficoSerie, Indicador, LineaDeTiempo } from "./graficos"
+import { AGENTES, caracteres, duracion, formatoNumero, hora, porcentaje, usd } from "./formato"
+import { colorAgente, colorKind, Figura, GraficoApilado, GraficoBarras, GraficoSerie, Indicador, LineaDeTiempo, type SerieDef } from "./graficos"
 import "./metricas.css"
 import { useMetricasEnVivo, type Conexion } from "./useMetricasEnVivo"
 
@@ -16,6 +16,15 @@ const VENTANAS = [
   { valor: "60", nombre: "1 h" },
   { valor: "1440", nombre: "24 h" },
 ]
+
+const SERIES_AGENTES: SerieDef[] = (Object.keys(AGENTES) as AgenteLog[]).map((a) => ({ id: a, nombre: AGENTES[a], color: colorAgente(a) }))
+const SERIES_TOKENS: SerieDef[] = [
+  { id: "entrada", nombre: "Entrada", color: "var(--tokens-entrada)" },
+  { id: "salida", nombre: "Salida", color: "var(--tokens-salida)" },
+  { id: "cacheLectura", nombre: "Caché (lectura)", color: "var(--tokens-cache-lectura)" },
+  { id: "cacheEscritura", nombre: "Caché (escritura)", color: "var(--tokens-cache-escritura)" },
+]
+const sumaCache = (t: TokensMetricas) => t.cacheLectura + t.cacheEscritura
 
 const ESTADO_CONEXION: Record<Conexion, string> = {
   envivo: "En vivo",
@@ -134,6 +143,12 @@ function Tablero({ m }: { m: MetricasAgentes }) {
         <Indicador etiqueta="Prompts" valor={formatoNumero(kpis.prompts)} />
         <Indicador etiqueta="Llamadas a herramientas" valor={formatoNumero(kpis.herramientas)} />
         <Indicador etiqueta="Fallas de herramientas" valor={porcentaje(kpis.tasaFallas)} nota={kpis.fallas === null ? "ningún agente lo reporta" : `${kpis.fallas} en total`} />
+        <Indicador
+          etiqueta="Tokens (entrada / salida)"
+          valor={m.tokens.total ? `${formatoNumero(m.tokens.total.entrada)} / ${formatoNumero(m.tokens.total.salida)}` : "n/d"}
+          nota={m.tokens.total ? `caché: ${formatoNumero(sumaCache(m.tokens.total))}` : "sin transcripciones"}
+        />
+        <Indicador etiqueta="Costo estimado" valor={m.tokens.costo.usd === null ? "n/d" : usd(m.tokens.costo.usd)} nota={notaCosto(m)} />
         <Indicador etiqueta="Tiempo activo" valor={duracion(kpis.tiempoActivoMs)} />
         <Indicador etiqueta="Caracteres devueltos al modelo" valor={caracteres(kpis.caracteresDevueltos)} />
       </section>
@@ -155,7 +170,49 @@ function Tablero({ m }: { m: MetricasAgentes }) {
             filas: m.porTiempo.puntos.map((p) => [hora(p.t), p.porAgente.claude ?? 0, p.porAgente.codex ?? 0, p.porAgente.cline ?? 0]),
           }}
         >
-          <GraficoSerie puntos={m.porTiempo.puntos} />
+          <GraficoSerie puntos={m.porTiempo.puntos.map((p) => ({ t: p.t, valores: p.porAgente }))} series={SERIES_AGENTES} />
+        </Figura>
+
+        <Figura
+          titulo={`Tokens por ${paso}, por agente`}
+          ancho
+          vacio={m.tokens.porTiempo.puntos.length === 0}
+          tabla={{
+            columnas: ["Inicio", ...(Object.values(AGENTES) as string[])],
+            filas: m.tokens.porTiempo.puntos.map((p) => [hora(p.t), formatoNumero(p.porAgente.claude ?? 0), formatoNumero(p.porAgente.codex ?? 0), formatoNumero(p.porAgente.cline ?? 0)]),
+          }}
+        >
+          <GraficoSerie puntos={m.tokens.porTiempo.puntos.map((p) => ({ t: p.t, valores: p.porAgente }))} series={SERIES_AGENTES} formato={caracteres} />
+        </Figura>
+
+        <Figura
+          titulo={`Tokens por ${paso}, por tipo`}
+          ancho
+          vacio={m.tokens.porTiempo.puntos.length === 0}
+          tabla={{
+            columnas: ["Inicio", "Entrada", "Salida", "Caché (lectura)", "Caché (escritura)"],
+            filas: m.tokens.porTiempo.puntos.map((p) => [hora(p.t), formatoNumero(p.porTipo.entrada), formatoNumero(p.porTipo.salida), formatoNumero(p.porTipo.cacheLectura), formatoNumero(p.porTipo.cacheEscritura)]),
+          }}
+        >
+          <GraficoSerie puntos={m.tokens.porTiempo.puntos.map((p) => ({ t: p.t, valores: { ...p.porTipo } }))} series={SERIES_TOKENS} formato={caracteres} />
+        </Figura>
+
+        <Figura
+          titulo="Tokens y costo por modelo"
+          vacio={m.tokens.porModelo.length === 0}
+          tabla={{
+            columnas: ["Agente", "Modelo", "Solicitudes", "Entrada", "Salida", "Caché (lectura)", "Caché (escritura)", "Costo"],
+            filas: m.tokens.porModelo.map((f) => [AGENTES[f.agente], f.modelo, f.solicitudes, formatoNumero(f.entrada), formatoNumero(f.salida), formatoNumero(f.cacheLectura), formatoNumero(f.cacheEscritura), f.costoUsd === null ? "n/d" : usd(f.costoUsd)]),
+          }}
+        >
+          <GraficoBarras
+            filas={m.tokens.porModelo.map((f) => ({
+              etiqueta: `${f.modelo} (${AGENTES[f.agente]})`,
+              valor: f.entrada + f.salida + f.cacheLectura + f.cacheEscritura,
+              texto: `${caracteres(f.entrada + f.salida + f.cacheLectura + f.cacheEscritura)} · ${f.costoUsd === null ? "costo n/d" : usd(f.costoUsd)}`,
+              color: colorAgente(f.agente),
+            }))}
+          />
         </Figura>
 
         <Figura
@@ -232,6 +289,24 @@ function Tablero({ m }: { m: MetricasAgentes }) {
         </Figura>
       </div>
 
+      {m.tokens.cambiosDeModelo.length > 0 && (
+        <section className="cambios-modelo" aria-label="Cambios de modelo">
+          <h2>Cambios de modelo</h2>
+          <ul>
+            {m.tokens.cambiosDeModelo.map((c) => (
+              <li key={c.sesion + c.t}>
+                <span className="comando-meta" style={{ borderLeftColor: colorAgente(c.agente) }}>
+                  {hora(c.t)} · {AGENTES[c.agente]} · {c.sesion}
+                </span>
+                <code>
+                  {c.de} → {c.a}
+                </code>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <TablaSesiones m={m} />
 
       {m.comandosRecientes && (
@@ -257,6 +332,14 @@ function Tablero({ m }: { m: MetricasAgentes }) {
   )
 }
 
+function notaCosto(m: MetricasAgentes): string {
+  const { costo, disponible } = m.tokens
+  if (!disponible) return "sin transcripciones"
+  if (costo.parcial) return `parcial: sin precio para ${costo.sinPrecio.join(", ")}`
+  if (costo.usd === null) return `sin precio para ${costo.sinPrecio.join(", ")}`
+  return "estimado a precio de lista"
+}
+
 function TablaSesiones({ m }: { m: MetricasAgentes }) {
   return (
     <section className="sesiones" aria-labelledby="titulo-sesiones">
@@ -265,7 +348,7 @@ function TablaSesiones({ m }: { m: MetricasAgentes }) {
         <table aria-label="Sesiones">
           <thead>
             <tr>
-              {["Sesión", "Agente", "Inicio", "Duración", "Prompts", "Turnos", "Herramientas", "Fallas"].map((c) => (
+              {["Sesión", "Agente", "Inicio", "Duración", "Prompts", "Turnos", "Herramientas", "Fallas", "Modelos", "Tokens (ent. / sal.)", "Costo"].map((c) => (
                 <th key={c} scope="col">
                   {c}
                 </th>
@@ -286,6 +369,9 @@ function TablaSesiones({ m }: { m: MetricasAgentes }) {
                 <td>{s.turnos}</td>
                 <td>{s.herramientas}</td>
                 <td>{s.fallas === null ? "n/d" : s.fallas}</td>
+                <td>{s.modelos.length > 0 ? s.modelos.join(" → ") : "n/d"}</td>
+                <td>{s.tokens ? `${formatoNumero(s.tokens.entrada)} / ${formatoNumero(s.tokens.salida)}` : "n/d"}</td>
+                <td>{s.costoUsd === null ? "n/d" : `${usd(s.costoUsd)}${s.costoParcial ? " (parcial)" : ""}`}</td>
               </tr>
             ))}
           </tbody>

@@ -17,3 +17,9 @@ export function duracion(ms: number): string {
 export const caracteres = (n: number) => (n < 10_000 ? formatoNumero(n) : `${formatoNumero(Math.round(n / 1000))} k`)
 
 export const hora = (iso: string) => new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })
+
+/** Costo en dólares; menos de 1 USD muestra 4 decimales porque las sesiones suelen costar centavos. */
+export function usd(valor: number): string {
+  const decimales = valor < 1 ? 4 : 2
+  return `US$ ${valor.toLocaleString("es-AR", { minimumFractionDigits: decimales, maximumFractionDigits: decimales })}`
+}

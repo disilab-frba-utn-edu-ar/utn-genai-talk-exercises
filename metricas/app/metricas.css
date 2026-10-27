@@ -13,6 +13,10 @@
   --kind-mcp: #008300;
   --kind-pregunta: #6250d6;
   --kind-otro: #8a867c;
+  --tokens-entrada: #6250d6;
+  --tokens-salida: #e87ba4;
+  --tokens-cache-lectura: #008300;
+  --tokens-cache-escritura: #eda100;
 }
 
 .metricas-filtros {
@@ -276,11 +280,13 @@
 }
 
 .sesiones,
-.comandos {
+.comandos,
+.cambios-modelo {
   margin-bottom: 1.5rem;
 }
 
-.comandos ul {
+.comandos ul,
+.cambios-modelo ul {
   display: grid;
   gap: 0.35rem;
   margin: 0;
@@ -296,7 +302,8 @@
   color: var(--texto-suave);
 }
 
-.comandos code {
+.comandos code,
+.cambios-modelo code {
   display: block;
   overflow-wrap: anywhere;
 }
