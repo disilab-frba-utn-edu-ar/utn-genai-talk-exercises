@@ -50,7 +50,7 @@
     "3. `03-sdd/RESPUESTAS.md`, la carpeta `specs/00X-<feature>/` completa, el",
     "   código con sus tests y la salida de `npm run logs:resumen -- --todas`.",
     "",
-    "Los logs (`logs/agent-actions.jsonl`) **no** se commitean: están en",
+    "Los logs (`logs/<agente>/<sesión>.jsonl`) **no** se commitean: están en",
     "`.gitignore`. Comandos útiles: `npm run logs:resumen`, `npm run logs:timeline`,",
     "`npm run logs:limpiar`.",
     ""
