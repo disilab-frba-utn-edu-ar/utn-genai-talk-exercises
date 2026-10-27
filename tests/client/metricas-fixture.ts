@@ -33,9 +33,27 @@ export function metricasDePrueba(extra: Partial<MetricasAgentes> = {}): Metricas
     skills: [{ nombre: "speckit-plan", n: 1 }],
     mcp: [],
     modelos: [{ agente: "codex", modelo: "gpt-5-codex", n: 11 }],
+    tokens: {
+      disponible: true,
+      total: { entrada: 1160, salida: 820, cacheLectura: 4000, cacheEscritura: 2400 },
+      costo: { usd: 0.0157, parcial: true, sinPrecio: ["gpt-5-codex"] },
+      porTiempo: {
+        pasoMin: 1,
+        puntos: [
+          { t: "2026-10-27T17:00:00.000Z", porAgente: { claude: 6450 }, porTipo: { entrada: 150, salida: 300, cacheLectura: 4000, cacheEscritura: 2000 } },
+          { t: "2026-10-27T17:01:00.000Z", porAgente: { claude: 1900, codex: 1200 }, porTipo: { entrada: 1200, salida: 550, cacheLectura: 800, cacheEscritura: 400 } },
+        ],
+      },
+      porModelo: [
+        { agente: "claude", modelo: "claude-sonnet-5-5", solicitudes: 2, entrada: 150, salida: 300, cacheLectura: 4000, cacheEscritura: 2000, costoUsd: 0.0117 },
+        { agente: "claude", modelo: "claude-haiku-4-5-20251001", solicitudes: 1, entrada: 1000, salida: 500, cacheLectura: 0, cacheEscritura: 400, costoUsd: 0.004 },
+        { agente: "codex", modelo: "gpt-5-codex", solicitudes: 2, entrada: 700, salida: 150, cacheLectura: 1800, cacheEscritura: 0, costoUsd: null },
+      ],
+      cambiosDeModelo: [{ sesion: "bb76875c", agente: "claude", t: "2026-10-27T17:01:10.000Z", de: "claude-sonnet-5-5", a: "claude-haiku-4-5-20251001" }],
+    },
     sesiones: [
-      { id: "bb76875c", agente: "claude", inicio: "2026-10-27T17:00:00.000Z", duracionMs: 641_000, activoMs: 41_000, prompts: 2, turnos: 2, herramientas: 10, fallas: 1, interrumpidas: 0, enCurso: false },
-      { id: "019a-cod", agente: "codex", inicio: "2026-10-27T17:01:40.000Z", duracionMs: 22_000, activoMs: 22_000, prompts: 2, turnos: 2, herramientas: 3, fallas: null, interrumpidas: 1, enCurso: false },
+      { id: "bb76875c", agente: "claude", inicio: "2026-10-27T17:00:00.000Z", duracionMs: 641_000, activoMs: 41_000, prompts: 2, turnos: 2, herramientas: 10, fallas: 1, interrumpidas: 0, enCurso: false, tokens: { entrada: 1160, salida: 820, cacheLectura: 4000, cacheEscritura: 2400 }, costoUsd: 0.0157, costoParcial: true, modelos: ["claude-sonnet-5-5", "claude-haiku-4-5-20251001"], cambiosDeModelo: 1 },
+      { id: "019a-cod", agente: "codex", inicio: "2026-10-27T17:01:40.000Z", duracionMs: 22_000, activoMs: 22_000, prompts: 2, turnos: 2, herramientas: 3, fallas: null, interrumpidas: 1, enCurso: false, tokens: null, costoUsd: null, costoParcial: false, modelos: [], cambiosDeModelo: 0 },
     ],
     enCurso: [],
     lineaDeTiempo: {

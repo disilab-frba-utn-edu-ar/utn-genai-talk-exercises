@@ -1,8 +1,9 @@
 // Métricas de agentes: función pura (entradas del log, filtros, ahora) → MetricasAgentes.
 // Sin IO. Define también qué sale del servidor: solo agregados y metadatos (Principio IV, spec 003 FR-002).
 // Nunca se copian prompt, lastMessage, output, el texto de error ni el input crudo al resultado.
-import type { AgenteLog, ConteoMetrica, EntradaLog, FiltrosMetricas, MetricasAgentes, PuntoLineaDeTiempo, SesionMetricas } from "@shared/types"
+import type { AgenteLog, ConteoMetrica, EntradaLog, FiltrosMetricas, MetricasAgentes, PuntoLineaDeTiempo, SesionMetricas, TablaPrecios, TokensDeMetricas, TokensMetricas, UsoTokens } from "@shared/types"
 import { clasificar } from "../../scripts/agent-logs/clasificar.mjs"
+import { costoDe } from "./uso-tokens"
 
 const AGENTES: AgenteLog[] = ["claude", "codex", "cline"]
 const PAUSA_MAX_MS = 5 * 60_000 // una pausa más larga no cuenta como tiempo activo
@@ -26,10 +27,20 @@ const EVENTOS_VIEJOS: Record<string, string> = {
 const CIERRES = new Set(["Stop", "TaskComplete", "TaskCancel", "SessionEnd"])
 
 type Evento = EntradaLog & { t: number; evento: string; agente: AgenteLog; clave: string }
+type UsoConTiempo = UsoTokens & { t: number; clave: string }
 
 type Llamada = { pre: Evento; id?: string }
 
-type Opciones = { raiz: string; origen: string }
+type Opciones = {
+  raiz: string
+  origen: string
+  /** Uso de tokens leído de las transcripciones de los agentes (ver uso-tokens.ts). */
+  usos?: UsoTokens[]
+  precios?: TablaPrecios
+}
+
+const SIN_PRECIOS: TablaPrecios = { moneda: "USD", actualizado: "", fuentes: [], modelos: [] }
+const DESCONOCIDO = "desconocido"
 
 // ── Privacidad ──────────────────────────────────────────────────────────────
 
@@ -129,6 +140,7 @@ function normalizarEntradas(entradas: EntradaLog[]): Evento[] {
 // ── Una sesión ──────────────────────────────────────────────────────────────
 
 type AnalisisSesion = {
+  clave: string
   eventos: Evento[]
   resumen: SesionMetricas
   /** Llamadas con su resultado, para duraciones y fallas. */
@@ -178,6 +190,7 @@ function analizarSesion(eventos: Evento[], ahora: number): AnalisisSesion {
   const turnos = primero.agente === "codex" && turnosIds.size > 0 ? turnosIds.size : prompts + (sinPrompt ? 1 : 0)
 
   return {
+    clave: primero.clave,
     eventos,
     reportaFallas,
     resultados,
@@ -195,6 +208,12 @@ function analizarSesion(eventos: Evento[], ahora: number): AnalisisSesion {
       fallas: reportaFallas ? resultados.filter((r) => r.falla).length : null,
       interrumpidas: interrumpidas.length,
       enCurso: enCurso.length > 0,
+      // Se completan con las transcripciones (completarConTokens); sin ellas son n/d.
+      tokens: null,
+      costoUsd: null,
+      costoParcial: false,
+      modelos: [],
+      cambiosDeModelo: 0,
     },
   }
 }
@@ -216,10 +235,15 @@ function lineaDeTiempo(a: AnalisisSesion): NonNullable<MetricasAgentes["lineaDeT
 
 // ── Eventos por tramo de tiempo ─────────────────────────────────────────────
 
+/** Tramos de 1 minuto, 10 minutos o 1 hora según cuánto abarcan los datos. */
+const pasoPara = (desde: number, hasta: number) => {
+  const rangoMin = (hasta - desde) / 60_000
+  return rangoMin <= 180 ? 1 : rangoMin <= 24 * 60 ? 10 : 60
+}
+
 function porTiempo(eventos: Evento[]): MetricasAgentes["porTiempo"] {
   if (eventos.length === 0) return { pasoMin: 1, puntos: [] }
-  const rangoMin = (eventos.at(-1)!.t - eventos[0].t) / 60_000
-  const pasoMin = rangoMin <= 180 ? 1 : rangoMin <= 24 * 60 ? 10 : 60
+  const pasoMin = pasoPara(eventos[0].t, eventos.at(-1)!.t)
   const paso = pasoMin * 60_000
   const tramos = new Map<number, Partial<Record<AgenteLog, number>>>()
   for (const e of eventos) {
@@ -234,9 +258,97 @@ function porTiempo(eventos: Evento[]): MetricasAgentes["porTiempo"] {
   }
 }
 
+// ── Tokens, modelos y costo ─────────────────────────────────────────────────
+
+const sumar = (a: TokensMetricas, u: UsoTokens): TokensMetricas => ({
+  entrada: a.entrada + u.entrada,
+  salida: a.salida + u.salida,
+  cacheLectura: a.cacheLectura + u.cacheLectura,
+  cacheEscritura: a.cacheEscritura + u.cacheEscritura5m + u.cacheEscritura1h,
+})
+const VACIOS: TokensMetricas = { entrada: 0, salida: 0, cacheLectura: 0, cacheEscritura: 0 }
+const totalDe = (t: TokensMetricas) => t.entrada + t.salida + t.cacheLectura + t.cacheEscritura
+const modeloDe = (u: UsoTokens) => u.modelo ?? DESCONOCIDO
+
+type Costo = { usd: number | null; parcial: boolean; sinPrecio: string[] }
+
+function costoTotal(usos: UsoTokens[], precios: TablaPrecios): Costo {
+  let usd: number | null = null
+  const sinPrecio = new Set<string>()
+  for (const u of usos) {
+    const c = costoDe(u, precios)
+    if (c === null) sinPrecio.add(modeloDe(u))
+    else usd = (usd ?? 0) + c
+  }
+  return { usd, parcial: usd !== null && sinPrecio.size > 0, sinPrecio: [...sinPrecio] }
+}
+
+/** Modelos de una sesión en el orden en que aparecen: de la transcripción si hay, si no de lo que informan los hooks. */
+function modelosDeSesion(a: AnalisisSesion, usos: UsoConTiempo[]) {
+  const puntos = usos.length > 0 ? usos.map((u) => ({ t: u.t, modelo: modeloDe(u) })) : a.eventos.filter((e) => e.model).map((e) => ({ t: e.t, modelo: e.model! }))
+  const conocidos = puntos.filter((p) => p.modelo !== DESCONOCIDO)
+  const cambios: { t: number; de: string; a: string }[] = []
+  conocidos.forEach((p, i) => {
+    if (i > 0 && conocidos[i - 1].modelo !== p.modelo) cambios.push({ t: p.t, de: conocidos[i - 1].modelo, a: p.modelo })
+  })
+  const lista = [...new Set((conocidos.length > 0 ? conocidos : puntos).map((p) => p.modelo))]
+  return { puntos: conocidos.length > 0 ? conocidos : puntos, lista, cambios }
+}
+
+function completarConTokens(a: AnalisisSesion, usos: UsoConTiempo[], precios: TablaPrecios) {
+  const { lista, cambios } = modelosDeSesion(a, usos)
+  const costo = costoTotal(usos, precios)
+  Object.assign(a.resumen, {
+    tokens: usos.length > 0 ? usos.reduce(sumar, VACIOS) : null,
+    costoUsd: costo.usd,
+    costoParcial: costo.parcial,
+    modelos: lista,
+    cambiosDeModelo: cambios.length,
+  })
+  return cambios
+}
+
+function tokensPorTiempo(usos: UsoConTiempo[]): TokensDeMetricas["porTiempo"] {
+  if (usos.length === 0) return { pasoMin: 1, puntos: [] }
+  const ordenados = [...usos].sort((x, y) => x.t - y.t)
+  const pasoMin = pasoPara(ordenados[0].t, ordenados.at(-1)!.t)
+  const paso = pasoMin * 60_000
+  const tramos = new Map<number, { porAgente: Partial<Record<AgenteLog, number>>; porTipo: TokensMetricas }>()
+  for (const u of ordenados) {
+    const tramo = Math.floor(u.t / paso) * paso
+    const fila = tramos.get(tramo) ?? { porAgente: {}, porTipo: VACIOS }
+    fila.porTipo = sumar(fila.porTipo, u)
+    fila.porAgente[u.agente] = (fila.porAgente[u.agente] ?? 0) + totalDe(sumar(VACIOS, u))
+    tramos.set(tramo, fila)
+  }
+  return { pasoMin, puntos: [...tramos.entries()].map(([t, fila]) => ({ t: new Date(t).toISOString(), ...fila })) }
+}
+
+
+function tokensDe(usos: UsoConTiempo[], sesiones: AnalisisSesion[], cambios: Map<string, { t: number; de: string; a: string }[]>, precios: TablaPrecios): TokensDeMetricas {
+  const grupos = new Map<string, UsoConTiempo[]>()
+  for (const u of usos) grupos.set(`${u.agente}\u0000${modeloDe(u)}`, [...(grupos.get(`${u.agente}\u0000${modeloDe(u)}`) ?? []), u])
+  const porModelo = [...grupos.entries()]
+    .map(([clave, lista]) => {
+      const [agente, modelo] = clave.split("\u0000")
+      return { agente: agente as AgenteLog, modelo, solicitudes: lista.length, ...lista.reduce(sumar, VACIOS), costoUsd: costoTotal(lista, precios).usd }
+    })
+    .sort((a, b) => totalDe(b) - totalDe(a))
+  return {
+    disponible: usos.length > 0,
+    total: usos.length > 0 ? usos.reduce(sumar, VACIOS) : null,
+    costo: costoTotal(usos, precios),
+    porTiempo: tokensPorTiempo(usos),
+    porModelo,
+    cambiosDeModelo: sesiones.flatMap((a) =>
+      (cambios.get(a.clave) ?? []).map((c) => ({ sesion: a.resumen.id, agente: a.resumen.agente, t: new Date(c.t).toISOString(), de: c.de, a: c.a })),
+    ),
+  }
+}
+
 // ── Cálculo principal ───────────────────────────────────────────────────────
 
-export function calcularMetricas(entradas: EntradaLog[], filtros: FiltrosMetricas, ahora: Date, { raiz, origen }: Opciones): MetricasAgentes {
+export function calcularMetricas(entradas: EntradaLog[], filtros: FiltrosMetricas, ahora: Date, { raiz, origen, usos = [], precios = SIN_PRECIOS }: Opciones): MetricasAgentes {
   const desde = filtros.ventanaMin ? ahora.getTime() - filtros.ventanaMin * 60_000 : -Infinity
   const visibles = normalizarEntradas(entradas).filter((e) => e.t >= desde && (!filtros.agente || e.agente === filtros.agente))
 
@@ -245,7 +357,18 @@ export function calcularMetricas(entradas: EntradaLog[], filtros: FiltrosMetrica
   const todas = [...porSesion.values()].map((eventos) => analizarSesion(eventos, ahora.getTime()))
   todas.sort((a, b) => b.eventos.at(-1)!.t - a.eventos.at(-1)!.t) // la más reciente primero
 
+  // Uso de tokens: mismos filtros de agente y ventana que los eventos, agrupado por sesión.
+  const usosPorSesion = new Map<string, UsoConTiempo[]>()
+  for (const uso of usos) {
+    const t = Date.parse(uso.ts)
+    if (Number.isNaN(t) || t < desde || (filtros.agente && uso.agente !== filtros.agente)) continue
+    const clave = `${uso.agente}:${uso.sesion}`
+    usosPorSesion.set(clave, [...(usosPorSesion.get(clave) ?? []), { ...uso, t, clave }])
+  }
+  const cambiosPorSesion = new Map(todas.map((a) => [a.clave, completarConTokens(a, (usosPorSesion.get(a.clave) ?? []).sort((x, y) => x.t - y.t), precios)]))
+
   const elegidas = filtros.sesion ? todas.filter((a) => a.resumen.id === filtros.sesion) : todas
+  const usosElegidos = elegidas.flatMap((a) => usosPorSesion.get(a.clave) ?? [])
   const eventos = elegidas.flatMap((a) => a.eventos)
   const llamadas = eventos.filter(esPre)
   const resultados = elegidas.flatMap((a) => a.resultados)
@@ -304,11 +427,11 @@ export function calcularMetricas(entradas: EntradaLog[], filtros: FiltrosMetrica
       (e) => objetivos(e)[0]?.split(" ")[0].replace(/^.*[/\\]([^/\\]+)[/\\]SKILL\.md$/, "$1") ?? "(sin nombre)",
     ),
     mcp: contar(llamadas.filter((e) => kindDe(e) === "mcp"), (e) => e.tool ?? "mcp"),
-    modelos: contar(eventos.filter((e) => e.model), (e) => `${e.agente}\u0000${e.model}`).map(({ nombre, n }) => ({
-      agente: nombre.split("\u0000")[0] as AgenteLog,
-      modelo: nombre.split("\u0000")[1],
-      n,
-    })),
+    modelos: contar(
+      elegidas.flatMap((a) => modelosDeSesion(a, usosPorSesion.get(a.clave) ?? []).puntos.map((p) => ({ agente: a.resumen.agente, modelo: p.modelo }))),
+      (p) => `${p.agente}\u0000${p.modelo}`,
+    ).map(({ nombre, n }) => ({ agente: nombre.split("\u0000")[0] as AgenteLog, modelo: nombre.split("\u0000")[1], n })),
+    tokens: tokensDe(usosElegidos, elegidas, cambiosPorSesion, precios),
     sesiones: todas.slice(0, MAX_SESIONES).map((a) => a.resumen),
     enCurso: elegidas.flatMap((a) =>
       a.pendientes.map((e) => ({

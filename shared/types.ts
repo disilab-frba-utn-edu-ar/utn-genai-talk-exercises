@@ -139,6 +139,12 @@ export type SesionMetricas = {
   fallas: number | null
   interrumpidas: number
   enCurso: boolean
+  /** null: no se encontró la transcripción del agente (n/d, nunca 0). */
+  tokens: TokensMetricas | null
+  costoUsd: number | null
+  costoParcial: boolean
+  modelos: string[]
+  cambiosDeModelo: number
 }
 
 export type PuntoLineaDeTiempo = {
@@ -181,8 +187,63 @@ export type MetricasAgentes = {
   sesiones: SesionMetricas[]
   enCurso: { agente: AgenteLog; sesion: string; herramienta: string; kind: string; desdeMs: number }[]
   lineaDeTiempo: { sesion: string; agente: AgenteLog; duracionMs: number; puntos: PuntoLineaDeTiempo[] } | null
+  tokens: TokensDeMetricas
   /** Solo con `detalle`: comandos más recientes con secretos redactados. */
   comandosRecientes?: { ts: string; agente: AgenteLog; comando: string }[]
 }
 
 export type OrigenDisponible = { id: OrigenLogs; nombre: string }
+
+// ── Tokens, modelos y costo (spec 003, C7) ─────────────────────────────────
+
+/** Tokens de una solicitud al modelo, ya normalizados: `entrada` no incluye lo que vino de la caché. */
+export type UsoTokens = {
+  ts: string
+  agente: AgenteLog
+  /** Id de sesión tal como figura en el log de los hooks. */
+  sesion: string
+  modelo?: string
+  entrada: number
+  salida: number
+  cacheLectura: number
+  cacheEscritura5m: number
+  cacheEscritura1h: number
+}
+
+/** Precios en USD por millón de tokens (metricas/precios-modelos.json). */
+export type PreciosPorTramo = {
+  entrada: number
+  salida: number
+  cacheLectura?: number
+  cacheEscritura5m?: number
+  cacheEscritura1h?: number
+}
+
+export type PrecioModelo = PreciosPorTramo & {
+  id: string
+  nombre: string
+  proveedor: string
+  /** Si el prompt (entrada + caché) supera este tamaño, rige `superior`. */
+  umbralPrompt?: number
+  superior?: PreciosPorTramo
+}
+
+export type TablaPrecios = {
+  moneda: string
+  actualizado: string
+  fuentes: { proveedor: string; url: string; consultado: string | null; nota?: string }[]
+  modelos: PrecioModelo[]
+}
+
+export type TokensMetricas = { entrada: number; salida: number; cacheLectura: number; cacheEscritura: number }
+
+export type TokensDeMetricas = {
+  /** Hay transcripciones legibles; si no, todo es "n/d". */
+  disponible: boolean
+  total: TokensMetricas | null
+  /** `usd` es null si ningún modelo tiene precio; `parcial` si faltan precios de algunos. */
+  costo: { usd: number | null; parcial: boolean; sinPrecio: string[] }
+  porTiempo: { pasoMin: number; puntos: { t: string; porAgente: Partial<Record<AgenteLog, number>>; porTipo: TokensMetricas }[] }
+  porModelo: (TokensMetricas & { agente: AgenteLog; modelo: string; solicitudes: number; costoUsd: number | null })[]
+  cambiosDeModelo: { sesion: string; agente: AgenteLog; t: string; de: string; a: string }[]
+}

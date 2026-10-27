@@ -1,6 +1,8 @@
 import { readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
-import type { EntradaLog, FiltrosMetricas } from "@shared/types"
+import type { EntradaLog, FiltrosMetricas, TablaPrecios, UsoTokens } from "@shared/types"
+import precios from "../../../metricas/precios-modelos.json"
+import { crearParserCodex, usoDeLineaClaude, usosDeCline } from "../../../server/domain/uso-tokens"
 import { binarioDe, calcularMetricas, percentil, redactar, rutaPublica } from "../../../server/domain/metricas-agentes"
 
 const FIXTURES = join(process.cwd(), "tests", "server", "fixtures", "logs")
@@ -14,8 +16,24 @@ function fixture(agente: string): EntradaLog[] {
   )
 }
 const TODAS = [...fixture("claude"), ...fixture("codex"), ...fixture("cline")]
-const calcular = (entradas: EntradaLog[] = TODAS, filtros: FiltrosMetricas = {}, ahora = AHORA) =>
-  calcularMetricas(entradas, filtros, ahora, { raiz: RAIZ, origen: "actual" })
+const calcular = (entradas: EntradaLog[] = TODAS, filtros: FiltrosMetricas = {}, ahora = AHORA, usos: UsoTokens[] = []) =>
+  calcularMetricas(entradas, filtros, ahora, { raiz: RAIZ, origen: "actual", usos, precios: precios as TablaPrecios })
+
+/** Los usos de tokens de las tres transcripciones de fixtures/home (se parsean igual que en producción). */
+function usosDeFixtures(): UsoTokens[] {
+  const HOME = join(FIXTURES, "..", "home")
+  const jsonl = (ruta: string) => readFileSync(join(HOME, ruta), "utf-8").split("\n").filter(Boolean).map((l) => JSON.parse(l))
+  const vistos = new Set<string>()
+  const claude = jsonl(".claude/projects/-work-repo/bb76875c-d528-5a9e-9c40-c1ba18725474.jsonl")
+    .map((l) => usoDeLineaClaude(l, "bb76875c-d528-5a9e-9c40-c1ba18725474"))
+    .filter((r) => r && !vistos.has(r.id) && vistos.add(r.id))
+    .map((r) => r!.uso)
+  const parsear = crearParserCodex("019a-codex-sesion-1")
+  const codex = jsonl(".codex/sessions/2026/10/27/rollout-2026-10-27T17-01-40-019a-codex-sesion-1.jsonl").map(parsear).filter(Boolean) as UsoTokens[]
+  const cline = usosDeCline(JSON.parse(readFileSync(join(HOME, ".cline/data/tasks/1761584400000/ui_messages.json"), "utf-8")), "1761584400000")
+  return [...claude, ...codex, ...cline]
+}
+const USOS = usosDeFixtures()
 
 describe("calcularMetricas: KPIs y sesiones", () => {
   it("sin entradas devuelve el estado vacío", () => {
@@ -329,5 +347,97 @@ describe("rutaPublica y binarioDe", () => {
     ["$(curl x)", ["(otro)"]],
   ])("binarioDe(%s)", (comando, esperado) => {
     expect(binarioDe(comando)).toEqual(esperado)
+  })
+})
+
+describe("calcularMetricas: tokens, modelos y costo", () => {
+  const m = () => calcular(TODAS, {}, AHORA, USOS)
+
+  it("sin transcripciones los tokens son n/d (null), nunca 0", () => {
+    const sin = calcular()
+    expect(sin.tokens).toMatchObject({ disponible: false, total: null, costo: { usd: null, parcial: false, sinPrecio: [] }, porModelo: [], cambiosDeModelo: [] })
+    expect(sin.sesiones.every((s) => s.tokens === null && s.costoUsd === null)).toBe(true)
+  })
+
+  it("suma entrada, salida y caché de los tres agentes (la respuesta repetida de Claude cuenta una vez)", () => {
+    expect(m().tokens.total).toEqual({ entrada: 6060, salida: 1490, cacheLectura: 11300, cacheEscritura: 2900 })
+    expect(m().tokens.disponible).toBe(true)
+  })
+
+  it("serie por tramo y por agente, con el desglose por tipo", () => {
+    const { porTiempo } = m().tokens
+    expect(porTiempo.pasoMin).toBe(1)
+    expect(porTiempo.puntos[0]).toMatchObject({ t: "2026-10-27T17:00:00.000Z", porAgente: { claude: 6450 } })
+    const total = porTiempo.puntos.reduce((n, p) => n + Object.values(p.porAgente).reduce((a, b) => a + (b ?? 0), 0), 0)
+    expect(total).toBe(6060 + 1490 + 11300 + 2900)
+    const porTipo = porTiempo.puntos.reduce((n, p) => n + p.porTipo.salida, 0)
+    expect(porTipo).toBe(1490)
+  })
+
+  it("desglosa por sesión: tokens, modelos usados y cambios de modelo", () => {
+    const { sesiones } = m()
+    const claude = sesiones.find((s) => s.agente === "claude")!
+    expect(claude.tokens).toEqual({ entrada: 1160, salida: 820, cacheLectura: 4000, cacheEscritura: 2400 })
+    expect(claude.modelos).toEqual(["claude-sonnet-5-5", "claude-haiku-4-5-20251001", "claude-mystery-1"])
+    expect(claude.cambiosDeModelo).toBe(2)
+    const codex = sesiones.find((s) => s.agente === "codex")!
+    expect(codex.modelos).toEqual(["gpt-5-codex", "gpt-5.1-codex"])
+    expect(codex.cambiosDeModelo).toBe(1)
+    const cline = sesiones.find((s) => s.agente === "cline")!
+    expect(cline.modelos).toEqual(["desconocido"])
+    expect(cline.cambiosDeModelo).toBe(0)
+  })
+
+  it("lista cada cambio de modelo dentro de una sesión", () => {
+    expect(m().tokens.cambiosDeModelo.filter((c) => c.agente === "claude")).toEqual([
+      { sesion: "bb76875c", agente: "claude", t: "2026-10-27T17:01:10.000Z", de: "claude-sonnet-5-5", a: "claude-haiku-4-5-20251001" },
+      { sesion: "bb76875c", agente: "claude", t: "2026-10-27T17:10:35.000Z", de: "claude-haiku-4-5-20251001", a: "claude-mystery-1" },
+    ])
+  })
+
+  it("el costo se calcula por modelo con la tabla; sin precio es n/d y el total queda parcial", () => {
+    const { porModelo, costo } = m().tokens
+    const fila = (modelo: string) => porModelo.find((f) => f.modelo === modelo)!
+    expect(fila("claude-sonnet-5-5")).toMatchObject({ agente: "claude", solicitudes: 2, entrada: 150, salida: 300, cacheLectura: 4000, cacheEscritura: 2000 })
+    expect(fila("claude-sonnet-5-5").costoUsd).toBeCloseTo(0.0117, 10)
+    expect(fila("claude-haiku-4-5-20251001").costoUsd).toBeCloseTo(0.004, 10)
+    for (const sinPrecio of ["claude-mystery-1", "gpt-5-codex", "gpt-5.1-codex", "desconocido"]) expect(fila(sinPrecio).costoUsd, sinPrecio).toBeNull()
+    expect(costo.usd).toBeCloseTo(0.0157, 10)
+    expect(costo.parcial).toBe(true)
+    expect(costo.sinPrecio.sort()).toEqual(["claude-mystery-1", "desconocido", "gpt-5-codex", "gpt-5.1-codex"])
+  })
+
+  it("el costo por sesión es n/d si ningún modelo de la sesión tiene precio", () => {
+    const { sesiones } = m()
+    const codex = sesiones.find((s) => s.agente === "codex")!
+    expect(codex.costoUsd).toBeNull()
+    expect(codex.costoParcial).toBe(false)
+    const claude = sesiones.find((s) => s.agente === "claude")!
+    expect(claude.costoUsd).toBeCloseTo(0.0157, 10)
+    expect(claude.costoParcial).toBe(true)
+  })
+
+  it("si todos los modelos tienen precio el total no es parcial", () => {
+    const soloSonnet = USOS.filter((u) => u.modelo === "claude-sonnet-5-5")
+    const { costo } = calcular(TODAS, {}, AHORA, soloSonnet).tokens
+    expect(costo).toMatchObject({ parcial: false, sinPrecio: [] })
+    expect(costo.usd).toBeCloseTo(0.0117, 10)
+  })
+
+  it("los filtros de agente, sesión y ventana también valen para los tokens", () => {
+    expect(calcular(TODAS, { agente: "codex" }, AHORA, USOS).tokens.total).toEqual({ entrada: 900, salida: 170, cacheLectura: 1800, cacheEscritura: 0 })
+    expect(calcular(TODAS, { sesion: "17615844" }, AHORA, USOS).tokens.total?.entrada).toBe(4000)
+    expect(calcular(TODAS, { ventanaMin: 8 }, AHORA, USOS).tokens.total).toEqual({ entrada: 10, salida: 20, cacheLectura: 0, cacheEscritura: 0 })
+  })
+
+  it("el modelo de los hooks alcanza para saber qué modelo usó una sesión sin transcripción", () => {
+    const m2 = calcular(TODAS) // sin usos: Codex informa `model` en cada evento del hook
+    expect(m2.sesiones.find((s) => s.agente === "codex")!.modelos).toEqual(["gpt-5-codex"])
+    expect(m2.sesiones.find((s) => s.agente === "claude")!.modelos).toEqual([])
+  })
+
+  it("privacidad: nada del contenido de las transcripciones sale en el snapshot", () => {
+    const texto = JSON.stringify(calcular(TODAS, { detalle: true }, AHORA, USOS))
+    for (const prohibido of ["CONTENIDO-SECRETO", "/home/", ".claude/projects", ".codex/sessions", "ui_messages"]) expect(texto, prohibido).not.toContain(prohibido)
   })
 })
