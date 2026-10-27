@@ -1,8 +1,9 @@
 // Acceso a los logs de los agentes (logs/<agente>/<sesión>.jsonl, que escribe scripts/agent-logs/log-hook.mjs).
 // Lectura incremental: por archivo se recuerda hasta dónde se leyó y solo se agrega lo nuevo.
-import { closeSync, existsSync, openSync, readdirSync, readSync, statSync } from "node:fs"
+import { existsSync, readdirSync } from "node:fs"
 import { join } from "node:path"
 import type { EntradaLog, OrigenDisponible, OrigenLogs } from "@shared/types"
+import { crearSeguidor } from "./lectura-incremental"
 
 const ARCHIVO = "archivo" // logs/archivo/<fecha>: lo que mueve npm run logs:limpiar
 
@@ -12,7 +13,7 @@ export type LectorLogs = {
   entradas(): EntradaLog[]
 }
 
-type EstadoArchivo = { offset: number; resto: Buffer; entradas: EntradaLog[] }
+type EstadoArchivo = { seguidor: ReturnType<typeof crearSeguidor>; entradas: EntradaLog[] }
 
 function listarJsonl(dir: string, saltar: string[] = []): string[] {
   if (!existsSync(dir)) return []
@@ -26,41 +27,15 @@ function listarJsonl(dir: string, saltar: string[] = []): string[] {
   return archivos
 }
 
-function leerDesde(ruta: string, desde: number, hasta: number): Buffer {
-  const fd = openSync(ruta, "r")
-  try {
-    const buffer = Buffer.alloc(hasta - desde)
-    readSync(fd, buffer, 0, buffer.length, desde)
-    return buffer
-  } finally {
-    closeSync(fd)
-  }
-}
-
 function crearLector(dir: string, saltar: string[]): LectorLogs {
   const archivos = new Map<string, EstadoArchivo>()
 
-  function leerArchivo(ruta: string, estado: EstadoArchivo): boolean {
-    let size: number
-    try {
-      size = statSync(ruta).size
-    } catch {
-      return false
-    }
-    let cambio = false
-    if (size < estado.offset) {
-      Object.assign(estado, { offset: 0, resto: Buffer.alloc(0), entradas: [] })
-      cambio = true
-    }
-    if (size === estado.offset) return cambio
-
-    // Se trabaja con bytes: un carácter multibyte puede quedar partido entre dos lecturas.
-    const datos = Buffer.concat([estado.resto, leerDesde(ruta, estado.offset, size)])
-    estado.offset = size
-    const corte = datos.lastIndexOf(0x0a)
-    estado.resto = datos.subarray(corte + 1)
-    for (const texto of datos.subarray(0, corte + 1).toString("utf-8").split("\n")) {
-      if (!texto.trim()) continue
+  function leerArchivo(estado: EstadoArchivo): boolean {
+    const lectura = estado.seguidor.leer()
+    if (!lectura) return false
+    let cambio = lectura.reinicio
+    if (lectura.reinicio) estado.entradas = []
+    for (const texto of lectura.lineas) {
       try {
         estado.entradas.push(JSON.parse(texto) as EntradaLog)
         cambio = true
@@ -82,9 +57,9 @@ function crearLector(dir: string, saltar: string[]): LectorLogs {
         }
       }
       for (const ruta of presentes) {
-        const estado = archivos.get(ruta) ?? { offset: 0, resto: Buffer.alloc(0), entradas: [] }
+        const estado = archivos.get(ruta) ?? { seguidor: crearSeguidor(ruta), entradas: [] }
         archivos.set(ruta, estado)
-        cambio = leerArchivo(ruta, estado) || cambio
+        cambio = leerArchivo(estado) || cambio
       }
       return cambio
     },
