@@ -134,3 +134,80 @@ export function Indicador({ etiqueta, valor, nota }: { etiqueta: string; valor: 
     </div>
   )
 }
+
+export type Segmento = { nombre: string; valor: number; color: string }
+
+/** Una barra al 100 % por fila, partida en segmentos; la leyenda nombra cada segmento. */
+export function GraficoApilado({ filas }: { filas: { etiqueta: string; color: string; segmentos: Segmento[] }[] }) {
+  const nombres = new Map<string, string>()
+  for (const f of filas) for (const s of f.segmentos) nombres.set(s.nombre, s.color)
+  return (
+    <>
+      <ul className="apilado">
+        {filas.map((f) => {
+          const total = f.segmentos.reduce((n, s) => n + s.valor, 0)
+          return (
+            <li key={f.etiqueta}>
+              <span className="barra-etiqueta">
+                <span className="leyenda-color" style={{ background: f.color }} aria-hidden="true" />
+                {f.etiqueta}
+              </span>
+              <span className="apilado-barra" aria-hidden="true">
+                {f.segmentos.map((s) => (
+                  <span key={s.nombre} style={{ width: `${(s.valor / total) * 100}%`, background: s.color }} title={`${s.nombre}: ${s.valor}`} />
+                ))}
+              </span>
+              <span className="barra-valor">{total}</span>
+            </li>
+          )
+        })}
+      </ul>
+      <Leyenda items={[...nombres].map(([nombre, color]) => ({ nombre, color }))} />
+    </>
+  )
+}
+
+export type DatosLinea = { duracionMs: number; puntos: { t: number; tipo: "herramienta" | "prompt" | "fin"; kind?: string; falla?: boolean }[] }
+
+/** Una línea de tiempo con un carril por tipo de acción; los prompts cruzan todos los carriles y las fallas son marcas más altas. */
+export function LineaDeTiempo({ datos }: { datos: DatosLinea }) {
+  const carriles = [...new Set(datos.puntos.flatMap((p) => (p.tipo === "herramienta" ? [p.kind ?? "otro"] : [])))]
+  const ancho = 1000
+  const alto = 22
+  const x = (t: number) => (datos.duracionMs === 0 ? 0 : (t / datos.duracionMs) * ancho)
+  return (
+    <div className="tabla-scroll">
+      <div className="linea">
+        <ul className="linea-carriles" aria-hidden="true">
+          {carriles.map((c) => (
+            <li key={c} style={{ height: alto }}>
+              <span className="leyenda-color" style={{ background: colorKind(c) }} />
+              {c}
+            </li>
+          ))}
+        </ul>
+        <svg viewBox={`0 0 ${ancho} ${Math.max(carriles.length, 1) * alto}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          {carriles.map((c, i) => (
+            <line key={c} x1="0" x2={ancho} y1={i * alto + alto} y2={i * alto + alto} stroke="var(--linea-suave)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+          ))}
+          {datos.puntos.map((p, i) => {
+            if (p.tipo === "herramienta") {
+              const fila = carriles.indexOf(p.kind ?? "otro")
+              return (
+                <line key={i} x1={x(p.t)} x2={x(p.t)} y1={fila * alto + (p.falla ? 1 : 5)} y2={fila * alto + alto - 3} stroke={p.falla ? "var(--error)" : colorKind(p.kind ?? "otro")} strokeWidth={p.falla ? 4 : 3} vectorEffect="non-scaling-stroke" />
+              )
+            }
+            return (
+              <line key={i} x1={x(p.t)} x2={x(p.t)} y1="0" y2={carriles.length * alto} stroke="var(--texto)" strokeWidth="1.5" strokeDasharray={p.tipo === "prompt" ? "4 3" : undefined} vectorEffect="non-scaling-stroke" />
+            )
+          })}
+        </svg>
+      </div>
+      <p className="serie-ejes">
+        <span>0 s</span>
+        <span>Línea punteada: prompt · línea llena: fin de turno · marca roja alta: falla</span>
+        <span>{Math.round(datos.duracionMs / 1000)} s</span>
+      </p>
+    </div>
+  )
+}

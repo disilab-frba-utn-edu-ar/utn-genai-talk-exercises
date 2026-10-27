@@ -6,7 +6,7 @@ import Chip from "../../client/src/components/Chip"
 import { useCarga } from "../../client/src/hooks/useCarga"
 import { leerOrigenes } from "./api"
 import { AGENTES, caracteres, duracion, formatoNumero, hora, porcentaje } from "./formato"
-import { colorAgente, colorKind, Figura, GraficoBarras, GraficoSerie, Indicador } from "./graficos"
+import { colorAgente, colorKind, Figura, GraficoApilado, GraficoBarras, GraficoSerie, Indicador, LineaDeTiempo } from "./graficos"
 import "./metricas.css"
 import { useMetricasEnVivo, type Conexion } from "./useMetricasEnVivo"
 
@@ -119,6 +119,13 @@ function SinLogs() {
 
 function Tablero({ m }: { m: MetricasAgentes }) {
   const { kpis } = m
+  const totalPorAgente = new Map<AgenteLog, number>()
+  for (const a of m.acciones) totalPorAgente.set(a.agente, (totalPorAgente.get(a.agente) ?? 0) + a.n)
+  const usos = [
+    ...m.subagentes.map((u) => ({ etiqueta: u.nombre, tipo: "subagente", kind: "otro", valor: u.n })),
+    ...m.skills.map((u) => ({ etiqueta: u.nombre, tipo: "skill", kind: "skill", valor: u.n })),
+    ...m.mcp.map((u) => ({ etiqueta: u.nombre, tipo: "mcp", kind: "mcp", valor: u.n })),
+  ]
   const paso = m.porTiempo.pasoMin === 1 ? "minuto" : m.porTiempo.pasoMin === 10 ? "10 minutos" : "hora"
   return (
     <>
@@ -165,6 +172,63 @@ function Tablero({ m }: { m: MetricasAgentes }) {
           tabla={{ columnas: ["Herramienta", "Fallas"], filas: m.fallasPorHerramienta.map((f) => [f.nombre, f.n]) }}
         >
           <GraficoBarras filas={m.fallasPorHerramienta.map((f) => ({ etiqueta: f.nombre, valor: f.n, color: "var(--error)" }))} />
+        </Figura>
+
+        <Figura
+          titulo="Acciones por tipo y agente"
+          vacio={m.acciones.length === 0}
+          tabla={{ columnas: ["Agente", "Tipo", "Llamadas", "Del agente"], filas: m.acciones.map((a) => [AGENTES[a.agente], a.kind, a.n, porcentaje(a.n / (totalPorAgente.get(a.agente) ?? 1))]) }}
+        >
+          <GraficoApilado
+            filas={(Object.keys(AGENTES) as AgenteLog[])
+              .filter((a) => totalPorAgente.has(a))
+              .map((a) => ({
+                etiqueta: AGENTES[a],
+                color: colorAgente(a),
+                segmentos: m.acciones.filter((x) => x.agente === a).map((x) => ({ nombre: x.kind, valor: x.n, color: colorKind(x.kind) })),
+              }))}
+          />
+        </Figura>
+
+        <Figura
+          titulo="Duración por tipo de acción (p50 / p95)"
+          vacio={m.duraciones.length === 0}
+          tabla={{ columnas: ["Tipo", "Llamadas", "p50", "p95"], filas: m.duraciones.map((d) => [d.kind, d.n, duracion(d.p50Ms), duracion(d.p95Ms)]) }}
+        >
+          <GraficoBarras filas={m.duraciones.map((d) => ({ etiqueta: d.kind, valor: d.p95Ms, texto: `${duracion(d.p50Ms)} / ${duracion(d.p95Ms)}`, color: colorKind(d.kind) }))} />
+        </Figura>
+
+        <Figura titulo="Archivos leídos" vacio={m.archivosLeidos.length === 0} tabla={{ columnas: ["Archivo", "Lecturas"], filas: m.archivosLeidos.map((a) => [a.nombre, a.n]) }}>
+          <GraficoBarras filas={m.archivosLeidos.map((a) => ({ etiqueta: a.nombre, valor: a.n, color: colorKind("leer") }))} />
+        </Figura>
+
+        <Figura titulo="Archivos escritos" vacio={m.archivosEscritos.length === 0} tabla={{ columnas: ["Archivo", "Escrituras"], filas: m.archivosEscritos.map((a) => [a.nombre, a.n]) }}>
+          <GraficoBarras filas={m.archivosEscritos.map((a) => ({ etiqueta: a.nombre, valor: a.n, color: colorKind("escribir") }))} />
+        </Figura>
+
+        <Figura titulo="Binarios de shell" vacio={m.binarios.length === 0} tabla={{ columnas: ["Comando", "Veces"], filas: m.binarios.map((b) => [b.nombre, b.n]) }}>
+          <GraficoBarras filas={m.binarios.map((b) => ({ etiqueta: b.nombre, valor: b.n, color: colorKind("ejecutar") }))} />
+        </Figura>
+
+        <Figura titulo="Subagentes, skills y MCP" vacio={usos.length === 0} tabla={{ columnas: ["Nombre", "Tipo", "Usos"], filas: usos.map((u) => [u.etiqueta, u.tipo, u.valor]) }}>
+          <GraficoBarras filas={usos.map((u) => ({ etiqueta: u.etiqueta, valor: u.valor, texto: `${u.valor} · ${u.tipo}`, color: colorKind(u.kind) }))} />
+        </Figura>
+
+        <Figura
+          titulo={m.lineaDeTiempo ? `Línea de tiempo de la sesión ${m.lineaDeTiempo.sesion} (${AGENTES[m.lineaDeTiempo.agente]})` : "Línea de tiempo de la sesión"}
+          ancho
+          vacio={!m.lineaDeTiempo || m.lineaDeTiempo.puntos.length === 0}
+          tabla={{
+            columnas: ["Segundo", "Evento", "Tipo", "Resultado"],
+            filas: (m.lineaDeTiempo?.puntos ?? []).map((p) => [
+              Math.round(p.t / 1000),
+              p.tipo === "prompt" ? "prompt" : p.tipo === "fin" ? "fin de turno" : "herramienta",
+              p.kind ?? "",
+              p.falla ? "falló" : "",
+            ]),
+          }}
+        >
+          {m.lineaDeTiempo && <LineaDeTiempo datos={m.lineaDeTiempo} />}
         </Figura>
       </div>
 

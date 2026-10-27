@@ -864,6 +864,12 @@ code {
   }
 }
 
+@media (max-width: 80rem) {
+  .encabezado-lema {
+    display: none;
+  }
+}
+
 /* Encabezado: una fila desde 64rem; en pantallas chicas las zonas se apilan. */
 @media (max-width: 64rem) {
   .encabezado {
