@@ -32,6 +32,7 @@ export default function Layout() {
           </NavLink>
           <NavLink to="/ejercicios">Ejercicios</NavLink>
           <NavLink to="/configurar-entorno">Configurar entorno</NavLink>
+          <NavLink to="/metricas">Métricas</NavLink>
         </nav>
         <p className="encabezado-lema">Horas de experiencia donadas a colectivos que construyen software</p>
       </header>

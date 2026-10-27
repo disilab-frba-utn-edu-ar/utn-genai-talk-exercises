@@ -8,7 +8,7 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ["client/**/*.{ts,tsx}", "ejercicios/app/**/*.{ts,tsx}", "tests/client/**/*.{ts,tsx}"],
+    files: ["client/**/*.{ts,tsx}", "ejercicios/app/**/*.{ts,tsx}", "metricas/app/**/*.{ts,tsx}", "tests/client/**/*.{ts,tsx}"],
     languageOptions: { globals: globals.browser },
     plugins: { "react-hooks": reactHooks },
     rules: reactHooks.configs.recommended.rules,

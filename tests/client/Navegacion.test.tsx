@@ -19,6 +19,15 @@ function renderApp(ruta: string) {
 
 describe("Navegación principal", () => {
   it.each(["/", "/ejercicios", "/configurar-entorno", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
+    "%s: el encabezado siempre muestra el link a Métricas",
+    async (ruta) => {
+      renderApp(ruta)
+      const nav = await screen.findByRole("navigation", { name: "Principal" })
+      expect(within(nav).getByRole("link", { name: "Métricas" })).toHaveAttribute("href", "/metricas")
+    },
+  )
+
+  it.each(["/", "/ejercicios", "/configurar-entorno", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
     "%s: el encabezado tiene los links a Ejercicios y Configurar entorno",
     async (ruta) => {
       renderApp(ruta)
