@@ -29,6 +29,7 @@ function jsonlEn(ruta, raiz = true) {
 const EVENTOS_VIEJOS = { agent_start: "TaskStart", agent_end: "TaskComplete", agent_abort: "TaskCancel", prompt_submit: "UserPromptSubmit", tool_call: "PreToolUse", tool_result: "PostToolUse" }
 
 const files = jsonlEn(logPath)
+
 if (files.length === 0) {
   console.log(`No hay logs todavía (${logPath}). ¿Están configurados los hooks?`)
   process.exit(0)
@@ -44,8 +45,7 @@ const entries = files
       return null
     }
   })
-  .filter(Boolean)
-  // Logs escritos antes de normalizar los eventos de Cline 3.x traen nombres en snake_case.
+  .filter(Boolean)  // Logs escritos antes de normalizar los eventos de Cline 3.x traen nombres en snake_case.
   .map((entry) => ({ ...entry, event: EVENTOS_VIEJOS[entry.event] ?? entry.event }))
   .filter((entry) => !agente || entry.agent === agente)
   .sort((a, b) => String(a.ts).localeCompare(String(b.ts)))
