@@ -1,8 +1,8 @@
 /* Visor de ejercicios: solo lo que no está en client/src/styles.css (usa sus variables). */
 
-/* Lectura a 56rem; solo "Preguntas y respuestas" usa todo el ancho para las dos columnas. */
+/* Lectura a 56rem. */
 .ejercicio-cabecera,
-.ejercicio-pagina .paso:not(.paso-ancho) {
+.ejercicio-pagina .paso {
   width: 100%;
   max-width: 56rem;
   margin-inline: auto;
@@ -188,34 +188,45 @@
 
 /* ── Respuestas ─────────────────────────────────────────── */
 
-/* Preguntas a la izquierda, respuestas a la derecha (apiladas en pantallas chicas). */
-.responder {
-  display: grid;
-  gap: 1.5rem;
+/* Cada pregunta en un desplegable, con su recuadro de respuesta adentro. */
+.respuestas .markdown h3 {
+  margin-top: 1.75rem;
 }
 
-@media (min-width: 60rem) {
-  .responder {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
-  }
-
-  /* El editor acompaña el scroll de las preguntas. */
-  .responder-respuestas {
-    position: sticky;
-    top: 1rem;
-  }
-
-  .responder-respuestas .editor-respuestas {
-    height: calc(100vh - 8rem);
-    min-height: 0;
-  }
+.pregunta {
+  margin: 0.6rem 0;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--fondo);
 }
 
+.pregunta summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.pregunta[open] summary {
+  border-bottom: 1px solid var(--linea-suave);
+}
+
+.pregunta-cuerpo {
+  padding: 0.75rem 1rem 1rem;
+}
+
+.pregunta .editor-respuestas {
+  min-height: 10rem;
+  margin-top: 0.5rem;
+}
 
 .editor-respuestas {
   width: 100%;
-  min-height: 24rem;
+  min-height: 8rem;
   padding: 1rem;
   border: none;
   border-radius: var(--radio-chico);
@@ -228,16 +239,68 @@
   resize: vertical;
 }
 
+/* Pegado abajo mientras se ven las preguntas: se puede guardar en cualquier momento. */
 .respuestas-acciones {
+  position: sticky;
+  bottom: 0.75rem;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem 1rem;
   margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 2px solid var(--texto);
+  border-radius: var(--radio);
+  background: var(--fondo);
+  box-shadow: 3px 3px 0 var(--texto);
 }
 
 .respuestas-estado {
   margin: 0;
   font-size: 0.875rem;
   color: var(--texto-suave);
+}
+
+/* ── Temporizador ───────────────────────────────────────── */
+
+/* Fijo arriba a la derecha mientras se scrollea la consigna. */
+.temporizador {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  width: fit-content;
+  max-width: 100%;
+  /* Alineado al borde derecho de la columna de lectura (56rem). */
+  margin: 0 max(0px, calc((100% - 56rem) / 2)) 1.5rem auto;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--texto);
+  border-radius: var(--radio);
+  background: var(--fondo);
+  box-shadow: 3px 3px 0 var(--texto);
+}
+
+.temporizador-etiqueta {
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+.temporizador-tiempo {
+  font-family: var(--fuente-codigo);
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.temporizador[data-terminado="true"] {
+  border-color: var(--acento);
+}
+
+.temporizador .boton {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.875rem;
 }

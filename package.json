@@ -22,7 +22,7 @@
     "typecheck": "tsc --noEmit",
     "logs:resumen": "node scripts/agent-logs/resumen.mjs",
     "logs:timeline": "node scripts/agent-logs/resumen.mjs --timeline",
-    "logs:limpiar": "node -e \"require('fs').rmSync('logs/agent-actions.jsonl',{force:true})\""
+    "logs:limpiar": "node scripts/agent-logs/limpiar.mjs"
   },
   "dependencies": {
     "express": "^5.3.0",

@@ -40,3 +40,4 @@ yarn-error.log*
 # Mentorías a Voluntad
 /dist/
 /data/sesiones.json
+/data/ausencias.json

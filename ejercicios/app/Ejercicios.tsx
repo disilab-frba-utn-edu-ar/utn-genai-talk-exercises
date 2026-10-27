@@ -6,12 +6,13 @@ import { conAnexosEnLinea, ejercicios, introduccion, partirConsigna, type Anexo 
 import "./ejercicios.css"
 import Markdown from "./Markdown"
 import Respuestas from "./Respuestas"
+import Temporizador from "./Temporizador"
 
-type PropsSeccion = { numero: number; id: string; titulo: string; ancha?: boolean; children: ReactNode }
+type PropsSeccion = { numero: number; id: string; titulo: string; children: ReactNode }
 
-function Seccion({ numero, id, titulo, ancha = false, children }: PropsSeccion) {
+function Seccion({ numero, id, titulo, children }: PropsSeccion) {
   return (
-    <section id={id} className={ancha ? "paso paso-ancho" : "paso"} aria-labelledby={`titulo-${id}`}>
+    <section id={id} className="paso" aria-labelledby={`titulo-${id}`}>
       <h2 id={`titulo-${id}`} className="paso-titulo">
         <span className="paso-numero" aria-hidden="true">
           {numero}
@@ -80,7 +81,7 @@ function EjercicioPage() {
   const ejercicio = ejercicios.find((e) => e.id === id)
   if (!ejercicio) return <NoEncontradaPage />
 
-  const { antes, preguntas, despues } = partirConsigna(ejercicio)
+  const { antes, despues } = partirConsigna(ejercicio)
   const enLinea = ejercicio.anexos.filter((a) => a.insertarDespuesDe)
   const consigna = (lineas: string[]) => <Consigna lineas={lineas} anexos={enLinea} />
 
@@ -93,13 +94,7 @@ function EjercicioPage() {
     {
       id: "respuestas",
       titulo: "Preguntas y respuestas",
-      ancha: true,
-      contenido: (
-        <div className="responder">
-          <div className="responder-preguntas">{consigna(preguntas)}</div>
-          <Respuestas ejercicio={ejercicio} />
-        </div>
-      ),
+      contenido: <Respuestas ejercicio={ejercicio} />,
     },
     ...(despues.length > 0
       ? [{ id: "despues", titulo: despues[0].replace(/^#+\s*/, ""), contenido: consigna(despues) }]
@@ -121,9 +116,12 @@ function EjercicioPage() {
         </nav>
       </div>
 
+      {/* Fuera de la cabecera para quedar fijo mientras se scrollea la consigna. */}
+      <Temporizador key={ejercicio.id} id={ejercicio.id} minutos={ejercicio.minutos} />
+
       <div className="reserva">
         {secciones.map((s, i) => (
-          <Seccion key={s.id} numero={i + 1} id={s.id} titulo={s.titulo} ancha={s.ancha}>
+          <Seccion key={s.id} numero={i + 1} id={s.id} titulo={s.titulo}>
             {s.contenido}
           </Seccion>
         ))}
