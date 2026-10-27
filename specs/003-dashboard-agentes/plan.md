@@ -34,6 +34,14 @@ metricas/app/                           ← UI separada del producto (como ejerc
 - **Detalle**: parámetro `detalle=1` que manda el toggle de la UI; sin env vars nuevas.
 - **Red**: `server/index.ts` escucha en `127.0.0.1`; `vite.config.ts` usa `server.host` y proxy `127.0.0.1`.
 
+## Tokens, modelos y costo (C7)
+
+- `server/domain/uso-tokens.ts` (puro): parsers de línea de Claude y Codex, parser del array de Cline, normalización a `UsoTokens` y cálculo de costo con la tabla de precios inyectada. Solo toma modelo, tokens y timestamp.
+- `server/repositories/transcripciones-agentes.ts` (IO): ubica y lee de forma incremental las transcripciones (por `transcriptPath` o por los lugares estándar, dentro de las raíces permitidas) y reutiliza la lectura por offset de `lectura-incremental.ts`.
+- `metricas/precios-modelos.json`: tabla de precios; el servicio la inyecta al dominio.
+- El dominio suma `tokens` (total, por tiempo, por modelo), `modelos` y los campos de sesión (`modelos`, `cambiosDeModelo`, `tokens`, `costoUsd`).
+- El hook guarda `transcriptPath` (opcional).
+
 ## Fases
 
-C0 specs · C1 hook y clasificar · C2 dominio · C3 repositorio, servicio y rutas · C4 cliente MVP · C5 gráficos restantes · C6 verificación, README y consigna 01.
+C0 specs · C1 hook y clasificar · C2 dominio · C3 repositorio, servicio y rutas · C4 cliente MVP · C5 gráficos restantes · C6 verificación, README y consigna 01 · C7 tokens, modelos y costo (fuentes, fixtures, parsers, repositorio, API y UI).

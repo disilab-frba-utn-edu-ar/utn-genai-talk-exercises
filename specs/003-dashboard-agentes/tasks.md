@@ -10,3 +10,10 @@ TDD (Constitución I): cada test se ve fallar antes de implementar.
 - [ ] C4 Test de cliente (estados, SSE → polling, filtros) → `metricas/app/` MVP, ruta `/metricas` y link
 - [ ] C5 Gráficos restantes y "Ver como tabla"
 - [ ] C6 Capturas 375/768/1280/1920 (sin commitear), README y consigna 01
+- [ ] C7a Fixtures de transcripciones (Claude real, Codex y Cline documentados) y `precios-modelos.json`
+- [ ] C7b Hook: `transcriptPath`
+- [ ] C7c Test del dominio de tokens, modelos y costo → `uso-tokens.ts` y `metricas-agentes.ts`
+- [ ] C7d Test del repositorio de transcripciones → `transcripciones-agentes.ts`
+- [ ] C7e Test de API (tokens en el snapshot, SSE al crecer la transcripción) → servicio y rutas
+- [ ] C7f Test de cliente → KPIs, series de tokens, tabla de modelos y costo, columnas en sesiones
+- [ ] C7g README y consigna 01

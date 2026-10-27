@@ -1,0 +1,38 @@
+{
+  "comentario": "Precios en USD por millón de tokens. Es configuración versionada: se edita acá, no con variables de entorno. Un modelo que no figura en esta tabla muestra el costo como n/d (nunca 0). Agregar un modelo: sumar un objeto a `modelos` con su `id` (sin fecha) y los precios del proveedor. `umbralPrompt` y `superior` (opcionales) son para modelos con otro precio cuando el prompt supera ese tamaño.",
+  "moneda": "USD",
+  "actualizado": "2026-10-27",
+  "fuentes": [
+    {
+      "proveedor": "Anthropic",
+      "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "consultado": "2026-10-27"
+    },
+    {
+      "proveedor": "OpenAI (Codex)",
+      "url": "https://developers.openai.com/api/docs/pricing",
+      "consultado": null,
+      "nota": "No se pudo consultar al armar la tabla (el entorno de desarrollo no llega a ese sitio). Los modelos de OpenAI quedan sin precio hasta que alguien los cargue desde la página oficial."
+    }
+  ],
+  "modelos": [
+    { "id": "claude-fable-5-1", "nombre": "Claude Fable 5.1", "proveedor": "Anthropic", "entrada": 10, "salida": 50, "cacheEscritura5m": 12.5, "cacheEscritura1h": 20, "cacheLectura": 0.25 },
+    { "id": "claude-opus-5-5", "nombre": "Claude Opus 5.5", "proveedor": "Anthropic", "entrada": 4, "salida": 20, "cacheEscritura5m": 5, "cacheEscritura1h": 8, "cacheLectura": 0.2 },
+    { "id": "claude-sonnet-5-5", "nombre": "Claude Sonnet 5.5", "proveedor": "Anthropic", "entrada": 2, "salida": 10, "cacheEscritura5m": 2.5, "cacheEscritura1h": 4, "cacheLectura": 0.1 },
+    {
+      "id": "claude-haiku-5-5",
+      "nombre": "Claude Haiku 5.5",
+      "proveedor": "Anthropic",
+      "entrada": 0.1,
+      "salida": 0.5,
+      "cacheEscritura5m": 0.125,
+      "cacheEscritura1h": 0.2,
+      "cacheLectura": 0.01,
+      "umbralPrompt": 100000,
+      "superior": { "entrada": 0.5, "salida": 2.5, "cacheEscritura5m": 0.625, "cacheEscritura1h": 1, "cacheLectura": 0.05 }
+    },
+    { "id": "claude-opus-4-5", "nombre": "Claude Opus 4.5", "proveedor": "Anthropic", "entrada": 5, "salida": 25, "cacheEscritura5m": 6.25, "cacheEscritura1h": 10, "cacheLectura": 0.5 },
+    { "id": "claude-sonnet-4-5", "nombre": "Claude Sonnet 4.5", "proveedor": "Anthropic", "entrada": 3, "salida": 15, "cacheEscritura5m": 3.75, "cacheEscritura1h": 6, "cacheLectura": 0.3 },
+    { "id": "claude-haiku-4-5", "nombre": "Claude Haiku 4.5", "proveedor": "Anthropic", "entrada": 1, "salida": 5, "cacheEscritura5m": 1.25, "cacheEscritura1h": 2, "cacheLectura": 0.1 }
+  ]
+}

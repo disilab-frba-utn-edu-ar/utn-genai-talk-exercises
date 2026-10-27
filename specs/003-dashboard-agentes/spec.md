@@ -47,6 +47,12 @@
 1. **Given** el toggle apagado (por defecto), **Then** no se ve ningún comando completo, solo binarios.
 2. **Given** el toggle encendido, **Then** ve los comandos recientes con `sk-…`, `ghp_…`, `Bearer …`, emails y `--token=…` redactados.
 
+### User Story 5 — Tokens, modelos y costo (P2, pedido posterior de Luciano)
+
+1. **Given** transcripciones locales de los agentes, **Then** ve el uso de tokens (entrada, salida y caché si existe) por minuto y por agente, y el total por sesión.
+2. **Given** una sesión, **Then** ve qué modelo usó cada agente y si cambió de modelo dentro de la sesión.
+3. **Given** una tabla de precios versionada en el repo, **Then** ve el costo estimado por modelo y el total. Si un modelo no está en la tabla, el costo es "n/d", nunca 0; si falta el precio de algunos modelos, el total se marca como parcial.
+
 ## Requirements
 
 - **FR-001**: Los datos no reportados por un agente son `null` ("n/d"), nunca 0.
@@ -56,6 +62,9 @@
 - **FR-005**: Tiempo real con SSE, disparado por `fs.watch` con respaldo de polling.
 - **FR-006**: Sin librerías de gráficos: SVG propio, accesible, con tabla alternativa.
 - **FR-007**: Compatible con logs viejos (eventos en snake_case de Cline, sin `toolUseId`).
+- **FR-008**: Los hooks no mandan tokens: salen de las transcripciones locales de cada agente (ver "Fuentes de tokens"). De esos archivos solo se extraen modelo, tokens y timestamps; nunca el contenido de los mensajes (FR-002 se extiende a ellos).
+- **FR-009**: Los archivos se ubican por la ruta `transcript_path` que guarda el hook (campo opcional `transcriptPath`) o, si no está, por los lugares estándar de cada agente. Solo se leen archivos bajo `~/.claude`, `~/.codex`, `~/.cline` y el `globalStorage` de VS Code; la ruta nunca sale del servidor.
+- **FR-010**: Precios en `metricas/precios-modelos.json` (USD por millón de tokens), con fecha de actualización y fuente oficial anotadas. Es configuración versionada: no hay variables de entorno nuevas. El costo es una estimación a precio de lista de la API.
 
 ## Supuestos sobre los payloads (no confirmados con logs reales)
 
@@ -70,7 +79,19 @@ Fuente: Claude Code, la doc oficial (code.claude.com/docs/en/hooks), confirmada.
 | Duración | `duration_ms` en Post/PostToolUseFailure (doc oficial, opcional) | Sin dato: se calcula emparejando Pre/Post por `toolUseId` | `postToolUse.executionTimeMs` |
 | Éxito/falla | Evento `PostToolUseFailure`, `error`, `is_interrupt` | Sin evento de falla: `null` | `postToolUse.success` |
 | Rutas de `apply_patch` | n/a | Texto del parche en el input (`input`/`patch`/`command`), con líneas `*** Add/Update/Delete File: <ruta>` (**supuesto**) | n/a |
-| Tokens y costo | No | No | No |
+| Tokens y costo | No (sale de la transcripción) | No (sale del rollout) | No (sale de `ui_messages.json`) |
+
+### Fuentes de tokens y modelo (C7)
+
+| Agente | Fuente | Estado |
+|---|---|---|
+| Claude Code | `transcript_path` (campo común de los hooks, doc oficial). JSONL: líneas `type: "assistant"` con `timestamp`, `message.id`, `message.model` y `message.usage` (`input_tokens`, `output_tokens`, `cache_read_input_tokens`, `cache_creation_input_tokens`, y `cache_creation.ephemeral_5m/1h_input_tokens`) | **Confirmado con el transcript real de una sesión** (el contenido del archivo no está en la doc; la doc solo dice que `transcript_path` es la ruta y que se escribe de forma asíncrona). Cada `message.id` se repite en una línea por bloque de contenido con el mismo `usage`: se deduplica por id. `input_tokens` no incluye caché. Los subagentes tienen su propio archivo: no se cuentan |
+| Codex CLI | `~/.codex/sessions/AAAA/MM/DD/rollout-<fecha>-<session_id>.jsonl` (y `archived_sessions/`). Eventos `event_msg` con `payload.type: "token_count"` y `payload.info.{total_token_usage,last_token_usage}`; el modelo viene del `turn_context` activo (`payload.model`) | `TokenUsage` (`input_tokens`, `cached_input_tokens`, `output_tokens`, `reasoning_output_tokens`, `total_tokens`), `TokenUsageInfo` y `TurnContextItem.model` **confirmados en el código fuente de Codex** (`codex-rs/protocol/src/protocol.rs`). **Supuestos** (guías de terceros, sin log real): la ruta de los archivos, los tipos `event_msg`/`turn_context`, que `cached_input_tokens` está incluido en `input_tokens` (se resta para obtener la entrada no cacheada) y que los reintentos repiten el mismo `token_count` (se ignoran los repetidos). Los archivos `.jsonl.zst` no se leen |
+| Cline | `~/.cline/data/tasks/<taskId>/ui_messages.json` o el `globalStorage` de `saoudrizwan.claude-dev` de VS Code. Array JSON de mensajes `{ts, type, say, text}`; en `say: "api_req_started"` el `text` es un JSON con los tokens | Ubicación del archivo **confirmada solo por una guía de terceros**. **Supuestos** sin confirmar: los nombres `tokensIn`, `tokensOut`, `cacheWrites`, `cacheReads` (se leen también variantes) y que `tokensIn` no incluye la caché. El modelo no figura en ese archivo: se toma del campo `model` de los hooks si existe; si no, "desconocido" y sin costo |
+
+Si la fuente no se encuentra o cambia de formato, esa sesión muestra "n/d" en tokens y costo (nunca 0) y el resto del dashboard sigue funcionando.
+
+**Precios.** Anthropic: confirmados en la página oficial (consultada el 2026-10-27). OpenAI: **no se pudo consultar** la página oficial desde el entorno de desarrollo, así que no hay precios de modelos de OpenAI (ni de otros proveedores que use Cline): su costo es "n/d" hasta que se agreguen a la tabla desde la fuente oficial.
 
 Si el nombre de un campo cambia, el hook lo ignora sin romper: el campo queda `undefined` y el dashboard muestra "n/d".
 
