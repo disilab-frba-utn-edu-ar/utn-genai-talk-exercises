@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Registra cada evento de hook de un agente de código en logs/agent-actions.jsonl.
+// Registra cada evento de hook de un agente de código en logs/<agente>/<sesión>.jsonl
+// (una carpeta por provider y un archivo por sesión).
 //
 // Uso (lo invocan los hooks, no hace falta correrlo a mano):
 //   node scripts/agent-logs/log-hook.mjs <agente> [evento]
@@ -19,7 +20,9 @@ const [, , agent = "desconocido", eventArg] = process.argv
 const scriptDir = dirname(fileURLToPath(import.meta.url))
 const projectDir = resolve(scriptDir, "..", "..")
 const logDir = process.env.AGENT_LOG_DIR ?? join(projectDir, "logs")
-const logFile = join(logDir, "agent-actions.jsonl")
+
+// Los ids de sesión vienen del agente: se limpian para usarlos como nombre de archivo.
+const safeName = (value) => String(value ?? "").replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 120) || "sin-sesion"
 
 // Límite de caracteres para entradas/salidas de herramientas: el objetivo es
 // observar qué hace el agente, no duplicar archivos enteros en el log.
@@ -109,8 +112,9 @@ try {
   const entry = normalize(payload)
   if (process.env.AGENT_LOG_RAW === "1") entry.raw = payload
 
-  mkdirSync(logDir, { recursive: true })
-  appendFileSync(logFile, JSON.stringify(entry) + "\n", "utf-8")
+  const agentDir = join(logDir, safeName(agent))
+  mkdirSync(agentDir, { recursive: true })
+  appendFileSync(join(agentDir, `${safeName(entry.session)}.jsonl`), JSON.stringify(entry) + "\n", "utf-8")
 } catch (error) {
   // Nunca interrumpir al agente por un problema del logger.
   process.stderr.write(`[agent-logs] no se pudo registrar el evento: ${error}\n`)

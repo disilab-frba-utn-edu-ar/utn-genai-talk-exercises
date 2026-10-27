@@ -1,27 +1,38 @@
 #!/usr/bin/env node
-// Resume logs/agent-actions.jsonl para responder las preguntas de los ejercicios.
+// Resume los logs de logs/<agente>/<sesión>.jsonl para responder las preguntas de los ejercicios.
 //
 // Uso:
 //   npm run logs:resumen                 → resumen de la última sesión con actividad
 //   npm run logs:resumen -- --todas      → resumen de todas las sesiones
+//   npm run logs:resumen -- --agente cline → solo las sesiones de ese provider (claude | codex | cline)
 //   npm run logs:resumen -- --timeline   → además, la línea de tiempo completa
-//   npm run logs:resumen -- --archivo logs/archivo/<archivo>.jsonl → lee un log archivado por logs:limpiar
+//   npm run logs:resumen -- --archivo logs/archivo/<fecha> → lee logs archivados por logs:limpiar (carpeta o archivo .jsonl)
 
-import { existsSync, readFileSync } from "node:fs"
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs"
 import { join } from "node:path"
 
 const argv = process.argv.slice(2)
 const args = new Set(argv)
-const archivo = argv.includes("--archivo") ? argv[argv.indexOf("--archivo") + 1] : undefined
-const logFile = archivo ?? join(process.env.AGENT_LOG_DIR ?? join(process.cwd(), "logs"), "agent-actions.jsonl")
+const valorDe = (flag) => (argv.includes(flag) ? argv[argv.indexOf(flag) + 1] : undefined)
+const archivo = valorDe("--archivo")
+const agente = valorDe("--agente")
+const logPath = archivo ?? process.env.AGENT_LOG_DIR ?? join(process.cwd(), "logs")
 
-if (!existsSync(logFile)) {
-  console.log(`No hay logs todavía (${logFile}). ¿Están configurados los hooks?`)
+// Devuelve todos los .jsonl bajo una ruta, sin entrar en logs/archivo salvo que se pida con --archivo.
+function jsonlEn(ruta, raiz = true) {
+  if (!existsSync(ruta)) return []
+  if (statSync(ruta).isFile()) return ruta.endsWith(".jsonl") ? [ruta] : []
+  return readdirSync(ruta).flatMap((nombre) => (raiz && nombre === "archivo" && !archivo ? [] : jsonlEn(join(ruta, nombre), false)))
+}
+
+const files = jsonlEn(logPath)
+if (files.length === 0) {
+  console.log(`No hay logs todavía (${logPath}). ¿Están configurados los hooks?`)
   process.exit(0)
 }
 
-const entries = readFileSync(logFile, "utf-8")
-  .split("\n")
+const entries = files
+  .flatMap((file) => readFileSync(file, "utf-8").split("\n"))
   .filter(Boolean)
   .map((line) => {
     try {
@@ -31,6 +42,8 @@ const entries = readFileSync(logFile, "utf-8")
     }
   })
   .filter(Boolean)
+  .filter((entry) => !agente || entry.agent === agente)
+  .sort((a, b) => String(a.ts).localeCompare(String(b.ts)))
 
 const sessions = new Map()
 for (const entry of entries) {
@@ -39,7 +52,8 @@ for (const entry of entries) {
   sessions.get(key).push(entry)
 }
 
-const keys = [...sessions.keys()]
+// Ordenadas por su último evento, así "la última" es la más reciente aunque venga de otro provider.
+const keys = [...sessions.keys()].sort((a, b) => String(sessions.get(a).at(-1).ts).localeCompare(String(sessions.get(b).at(-1).ts)))
 // Algunos agentes abren sesiones sin prompts ni herramientas (solo SessionStart/SessionEnd): no cuentan como "la última".
 const conActividad = keys.filter((key) => sessions.get(key).some((e) => e.event === "UserPromptSubmit" || e.event === "PreToolUse"))
 const selected = args.has("--todas") ? keys : (conActividad.length ? conActividad : keys).slice(-1)
