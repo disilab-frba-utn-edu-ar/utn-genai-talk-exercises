@@ -105,12 +105,13 @@ describe("tokens, modelos y costo", () => {
     const { api } = crear({ homeDir: crearHomeDePrueba() })
     const m = (await api.get("/api/metricas-agentes")).body as MetricasAgentes
     expect(m.tokens.total).toEqual({ entrada: 6060, salida: 1490, cacheLectura: 11300, cacheEscritura: 2900 })
-    expect(m.tokens.costo.usd).toBeCloseTo(0.0157, 10)
+    expect(m.tokens.costo.usd).toBeCloseTo(0.01875, 10)
     expect(m.tokens.costo.parcial).toBe(true)
     const claude = m.sesiones.find((s) => s.agente === "claude")!
     expect(claude.modelos).toEqual(["claude-sonnet-5-5", "claude-haiku-4-5-20251001", "claude-mystery-1"])
     expect(claude.cambiosDeModelo).toBe(2)
-    expect(m.tokens.porModelo.find((f) => f.modelo === "gpt-5-codex")?.costoUsd).toBeNull()
+    expect(m.tokens.porModelo.find((f) => f.modelo === "gpt-5-codex")?.costoUsd).toBeCloseTo(0.0026, 10)
+    expect(m.tokens.porModelo.find((f) => f.modelo === "desconocido")?.costoUsd).toBeNull()
   })
 
   it("filtra los tokens por agente", async () => {

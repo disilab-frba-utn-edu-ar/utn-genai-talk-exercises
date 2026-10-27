@@ -112,6 +112,7 @@ describe("precios y costo", () => {
     expect(TABLA.moneda).toBe("USD")
     expect(TABLA.fuentes[0]).toMatchObject({ proveedor: "Anthropic", url: "https://platform.claude.com/docs/en/about-claude/pricing" })
     for (const m of TABLA.modelos) expect(m.entrada).toBeGreaterThan(0)
+    for (const m of TABLA.modelos) expect(TABLA.fuentes.map((f) => f.proveedor), m.id).toContain(m.proveedor)
   })
 
   it("calcula el costo con entrada, salida y los dos tipos de escritura de caché", () => {
@@ -128,9 +129,48 @@ describe("precios y costo", () => {
     expect(buscarPrecio("claude-sonnet-4-5-6", TABLA)).toBeUndefined()
   })
 
+  it("entiende las fechas de OpenAI, el prefijo de proveedor y los puntos que usa Cline", () => {
+    expect(buscarPrecio("gpt-5-2025-08-07", TABLA)?.id).toBe("gpt-5")
+    expect(buscarPrecio("gpt-5.1-codex", TABLA)?.id).toBe("gpt-5.1-codex")
+    expect(buscarPrecio("anthropic/claude-sonnet-4.5", TABLA)?.id).toBe("claude-sonnet-4-5")
+    expect(buscarPrecio("openai/gpt-5-codex", TABLA)?.id).toBe("gpt-5-codex")
+    expect(buscarPrecio("GPT-5-Codex", TABLA)?.id).toBe("gpt-5-codex")
+  })
+
+  it("no confunde modelos con el mismo comienzo", () => {
+    expect(buscarPrecio("gpt-5-codex-mini", TABLA)).toBeUndefined()
+    expect(buscarPrecio("gpt-5-mini", TABLA)?.id).toBe("gpt-5-mini")
+    expect(buscarPrecio("gpt-5.1-codex-mini", TABLA)?.id).toBe("gpt-5.1-codex-mini")
+    expect(buscarPrecio("gemini-2.5-flash-lite", TABLA)?.id).toBe("gemini-2.5-flash-lite")
+    expect(buscarPrecio("gemini-2.5-flash", TABLA)?.id).toBe("gemini-2.5-flash")
+  })
+
   it("un modelo que no está en la tabla (o no informa modelo) tiene costo n/d, nunca 0", () => {
-    expect(costoDe(uso({ modelo: "gpt-5-codex", entrada: 1000 }), TABLA)).toBeNull()
+    expect(costoDe(uso({ modelo: "gpt-5.3-codex", entrada: 1000 }), TABLA)).toBeNull() // precio sin confirmar: no se cargó
+    expect(costoDe(uso({ modelo: "modelo-inventado", entrada: 1000 }), TABLA)).toBeNull()
     expect(costoDe(uso({ modelo: undefined, entrada: 1000 }), TABLA)).toBeNull()
+  })
+
+  it("incluye los modelos de OpenAI (Codex) y Gemini con su fuente oficial", () => {
+    expect(TABLA.fuentes.map((f) => f.proveedor)).toEqual(expect.arrayContaining(["Anthropic", "OpenAI", "Google"]))
+    for (const f of TABLA.fuentes) {
+      expect(f.url).toMatch(/^https:\/\//)
+      expect(f.consultado).toBe("2026-10-27")
+    }
+    expect(costoDe(uso({ modelo: "gpt-5-codex", entrada: 1e6, cacheLectura: 1e6, salida: 1e6 }), TABLA)).toBeCloseTo(1.25 + 0.125 + 10, 10)
+    expect(costoDe(uso({ modelo: "gpt-5.2-codex", entrada: 1e6, salida: 1e6 }), TABLA)).toBeCloseTo(1.75 + 14, 10)
+    expect(costoDe(uso({ modelo: "gemini-2.5-pro", entrada: 100_000, salida: 10_000 }), TABLA)).toBeCloseTo((100_000 * 1.25 + 10_000 * 10) / 1e6, 10)
+    expect(costoDe(uso({ modelo: "gemini-2.5-pro", entrada: 300_000, salida: 10_000 }), TABLA)).toBeCloseTo((300_000 * 2.5 + 10_000 * 15) / 1e6, 10) // prompt de más de 200 mil
+    expect(costoDe(uso({ modelo: "gemini-2.5-flash", entrada: 1000, cacheLectura: 500 }), TABLA)).toBeNull() // sin precio de caché confirmado
+  })
+
+  it("el precio superior de gpt-5.5 rige desde los 272 mil tokens de prompt", () => {
+    expect(costoDe(uso({ modelo: "gpt-5.5", entrada: 100_000, salida: 1000 }), TABLA)).toBeCloseTo((100_000 * 5 + 1000 * 30) / 1e6, 10)
+    expect(costoDe(uso({ modelo: "gpt-5.5", entrada: 300_000, salida: 1000 }), TABLA)).toBeCloseTo((300_000 * 10 + 1000 * 45) / 1e6, 10)
+  })
+
+  it("los modelos sin precio confirmado en la fuente oficial no figuran en la tabla", () => {
+    for (const id of ["gpt-5.3-codex", "gpt-5.1-codex-max", "gpt-5.5-pro", "gemini-3.8-flash"]) expect(buscarPrecio(id, TABLA), id).toBeUndefined()
   })
 
   it("si falta el precio de un tipo de token que se usó, no se inventa: n/d", () => {

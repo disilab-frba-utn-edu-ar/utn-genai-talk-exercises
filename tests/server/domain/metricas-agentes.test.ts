@@ -404,16 +404,21 @@ describe("calcularMetricas: tokens, modelos y costo", () => {
     expect(fila("claude-sonnet-5-5")).toMatchObject({ agente: "claude", solicitudes: 2, entrada: 150, salida: 300, cacheLectura: 4000, cacheEscritura: 2000 })
     expect(fila("claude-sonnet-5-5").costoUsd).toBeCloseTo(0.0117, 10)
     expect(fila("claude-haiku-4-5-20251001").costoUsd).toBeCloseTo(0.004, 10)
-    for (const sinPrecio of ["claude-mystery-1", "gpt-5-codex", "gpt-5.1-codex", "desconocido"]) expect(fila(sinPrecio).costoUsd, sinPrecio).toBeNull()
-    expect(costo.usd).toBeCloseTo(0.0157, 10)
+    for (const sinPrecio of ["claude-mystery-1", "desconocido"]) expect(fila(sinPrecio).costoUsd, sinPrecio).toBeNull()
+    expect(fila("gpt-5-codex").costoUsd).toBeCloseTo(0.0026, 10) // (200+500)*1.25 + (800+1000)*0.125 + 150*10, por millón
+    expect(fila("gpt-5.1-codex").costoUsd).toBeCloseTo(0.00045, 10)
+    expect(costo.usd).toBeCloseTo(0.0157 + 0.00305, 10)
     expect(costo.parcial).toBe(true)
-    expect(costo.sinPrecio.sort()).toEqual(["claude-mystery-1", "desconocido", "gpt-5-codex", "gpt-5.1-codex"])
+    expect(costo.sinPrecio.sort()).toEqual(["claude-mystery-1", "desconocido"])
   })
 
   it("el costo por sesión es n/d si ningún modelo de la sesión tiene precio", () => {
     const { sesiones } = m()
+    const cline = sesiones.find((s) => s.agente === "cline")!
+    expect(cline.costoUsd).toBeNull() // su modelo no se conoce
+    expect(cline.costoParcial).toBe(false)
     const codex = sesiones.find((s) => s.agente === "codex")!
-    expect(codex.costoUsd).toBeNull()
+    expect(codex.costoUsd).toBeCloseTo(0.00305, 10)
     expect(codex.costoParcial).toBe(false)
     const claude = sesiones.find((s) => s.agente === "claude")!
     expect(claude.costoUsd).toBeCloseTo(0.0157, 10)

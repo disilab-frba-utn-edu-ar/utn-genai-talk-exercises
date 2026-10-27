@@ -146,10 +146,14 @@ export function usosDeCline(mensajes: unknown, sesion: string, modelo?: string):
 
 // ── Precios ─────────────────────────────────────────────────────────────────
 
-/** El id de la tabla coincide con el modelo, con o sin sufijo de fecha (`-20251001`) o `-latest`. */
+/** Cline y OpenRouter mandan ids como "anthropic/claude-sonnet-4.5": sin prefijo de proveedor, en minúsculas y con guiones. */
+const normalizarModelo = (id: string) => id.toLowerCase().replace(/^[a-z0-9_-]+\//, "").replaceAll(".", "-")
+
+/** El id de la tabla coincide con el modelo, con o sin fecha (`-20251001`, `-2025-08-07`) o `-latest`. */
 export function buscarPrecio(modelo: string | undefined, tabla: TablaPrecios): PrecioModelo | undefined {
   if (!modelo) return undefined
-  return tabla.modelos.find((m) => new RegExp(`^${m.id.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")}(-\\d{8}|-latest)?$`).test(modelo))
+  const buscado = normalizarModelo(modelo)
+  return tabla.modelos.find((m) => new RegExp(`^${normalizarModelo(m.id).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(-\\d{8}|-\\d{4}-\\d{2}-\\d{2}|-latest)?$`).test(buscado))
 }
 
 /** Costo estimado en USD a precio de lista; null si el modelo o algún tipo de token usado no tiene precio (nunca 0). */

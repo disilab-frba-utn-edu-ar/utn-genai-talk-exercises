@@ -236,9 +236,11 @@ archivos que escriben los hooks). Está **separado del producto** Mentorías, ig
   fechas, nunca el contenido de los mensajes. Los formatos de Codex y Cline son supuestos sin
   confirmar con logs reales: están anotados en [`specs/003-dashboard-agentes/spec.md`](specs/003-dashboard-agentes/spec.md).
 - **Precios:** [`metricas/precios-modelos.json`](metricas/precios-modelos.json) (USD por millón de
-  tokens, con fecha y fuente oficial). Un modelo que no figura muestra "n/d", nunca 0. Hoy solo
-  están los modelos de Anthropic; para Codex u otros proveedores, sumá el modelo con los precios de
-  la página oficial. Es configuración versionada: no usa variables de entorno.
+  tokens, con fecha y link de la fuente oficial de cada proveedor: Anthropic, OpenAI y Google).
+  Un modelo que no figura muestra "n/d", nunca 0: solo se cargaron precios confirmados en la
+  fuente oficial (la nota de cada fuente dice qué quedó afuera y por qué). Para agregar un modelo
+  (por ejemplo, otro que uses en Cline), sumalo con los precios de la página oficial. Es
+  configuración versionada: no usa variables de entorno.
 - **Privacidad:** no salen del servidor prompts, respuestas, salidas, errores ni argumentos de
   comandos; las rutas van relativas al repo. El **modo detalle** (toggle en la UI, apagado por
   defecto) muestra los comandos completos con `sk-…`, `ghp_…`, `Bearer …`, emails y `--token=…`

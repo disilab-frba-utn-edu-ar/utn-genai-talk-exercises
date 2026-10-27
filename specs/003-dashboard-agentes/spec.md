@@ -91,7 +91,7 @@ Fuente: Claude Code, la doc oficial (code.claude.com/docs/en/hooks), confirmada.
 
 Si la fuente no se encuentra o cambia de formato, esa sesión muestra "n/d" en tokens y costo (nunca 0) y el resto del dashboard sigue funcionando.
 
-**Precios.** Anthropic: confirmados en la página oficial (consultada el 2026-10-27). OpenAI: **no se pudo consultar** la página oficial desde el entorno de desarrollo, así que no hay precios de modelos de OpenAI (ni de otros proveedores que use Cline): su costo es "n/d" hasta que se agreguen a la tabla desde la fuente oficial.
+**Precios.** Anthropic: confirmados en la página oficial (consultada el 2026-10-27). OpenAI (GPT-5, GPT-5.x y sus variantes Codex) y Google (Gemini 2.5): las páginas oficiales no se pueden abrir desde el entorno de desarrollo (error de DNS), así que los valores se tomaron del contenido de esas páginas que devuelve la búsqueda restringida a los dominios oficiales, y solo se cargaron los que coinciden entre la página de cada modelo y la de precios. Quedaron afuera, por no poder confirmarse, gpt-5.3-codex (dos tablas sin aclarar el tramo), gpt-5.1-codex-max, los modelos Pro, los Gemini con precio promocional que cambia de fecha y los 3.x en preview. Otros modelos habituales en Cline (DeepSeek, Qwen, Grok, etc.) tampoco se cargaron: su costo es "n/d" hasta que se agreguen desde la fuente oficial. La fecha y el link de cada fuente están en `metricas/precios-modelos.json`.
 
 Si el nombre de un campo cambia, el hook lo ignora sin romper: el campo queda `undefined` y el dashboard muestra "n/d".
 
