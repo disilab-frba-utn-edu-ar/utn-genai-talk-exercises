@@ -10,6 +10,7 @@
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs"
 import { join } from "node:path"
+import { clasificar } from "./clasificar.mjs"
 
 const argv = process.argv.slice(2)
 const args = new Set(argv)
@@ -25,7 +26,10 @@ function jsonlEn(ruta, raiz = true) {
   return readdirSync(ruta).flatMap((nombre) => (raiz && nombre === "archivo" && !archivo ? [] : jsonlEn(join(ruta, nombre), false)))
 }
 
+const EVENTOS_VIEJOS = { agent_start: "TaskStart", agent_end: "TaskComplete", agent_abort: "TaskCancel", prompt_submit: "UserPromptSubmit", tool_call: "PreToolUse", tool_result: "PostToolUse" }
+
 const files = jsonlEn(logPath)
+
 if (files.length === 0) {
   console.log(`No hay logs todavía (${logPath}). ¿Están configurados los hooks?`)
   process.exit(0)
@@ -41,7 +45,8 @@ const entries = files
       return null
     }
   })
-  .filter(Boolean)
+  .filter(Boolean)  // Logs escritos antes de normalizar los eventos de Cline 3.x traen nombres en snake_case.
+  .map((entry) => ({ ...entry, event: EVENTOS_VIEJOS[entry.event] ?? entry.event }))
   .filter((entry) => !agente || entry.agent === agente)
   .sort((a, b) => String(a.ts).localeCompare(String(b.ts)))
 
@@ -59,6 +64,7 @@ const conActividad = keys.filter((key) => sessions.get(key).some((e) => e.event 
 const selected = args.has("--todas") ? keys : (conActividad.length ? conActividad : keys).slice(-1)
 
 const PRE_EVENTS = new Set(["PreToolUse"])
+const FIN_EVENTS = new Set(["Stop", "TaskComplete"])
 
 function count(items) {
   const map = new Map()
@@ -69,24 +75,43 @@ function count(items) {
 // Muestra las rutas relativas a la raíz del repo para que el resumen sea legible.
 function relative(text) {
   const root = process.cwd().replaceAll("\\", "/") + "/"
-  return text.replaceAll("\\", "/").startsWith(root) ? text.replaceAll("\\", "/").slice(root.length) : text
+  const normalized = String(text).replaceAll("\\", "/")
+  return normalized.startsWith(root) ? normalized.slice(root.length) : normalized
 }
 
-function inputField(entry, ...names) {
-  const input = typeof entry.input === "object" && entry.input ? entry.input : {}
-  for (const name of names) if (input[name]) return relative(String(input[name]))
-  return undefined
+const corto = (text, max = 100) => {
+  const plano = String(text).replace(/\s+/g, " ").trim()
+  return plano.length > max ? `${plano.slice(0, max)}…` : plano
 }
 
-function describe(entry) {
-  if (entry.prompt) return `prompt: ${String(entry.prompt).slice(0, 100)}`
-  if (!entry.tool) return entry.source ?? entry.reason ?? ""
-  const detail =
-    inputField(entry, "command", "cmd") ??
-    inputField(entry, "file_path", "path", "filePath", "notebook_path") ??
-    inputField(entry, "pattern", "query", "regex", "url", "skill") ??
-    (typeof entry.input === "string" ? entry.input : "")
-  return `${entry.tool} ${detail.slice(0, 100)}`.trim()
+// Cada llamada a herramienta, ya clasificada (también para logs viejos sin `kind`).
+function accion(entry) {
+  const { kind, op, targets } = clasificar(entry.tool, entry.input)
+  return { ts: entry.ts, tool: entry.tool, kind: entry.kind ?? kind, op: entry.op ?? op, targets: targets.length ? targets : entry.detail ? [entry.detail] : [] }
+}
+
+const etiqueta = (a) => (a.op ? `${a.kind} (${a.op})` : a.kind)
+const rutas = (a) => (a.kind === "leer" || a.kind === "escribir" ? a.targets.map(relative) : a.targets)
+
+// Agrupa los eventos por turno: cada prompt abre uno y junta lo que el agente hizo hasta el siguiente.
+function turnos(list) {
+  const result = []
+  let actual
+  const abrir = (prompt, ts) => result.push((actual = { prompt, ts, acciones: [], fallas: [], fin: undefined }))
+  for (const entry of list) {
+    if (entry.event === "UserPromptSubmit" || entry.event === "TaskStart") {
+      if (entry.event === "TaskStart" && entry.prompt === undefined) continue
+      abrir(entry.prompt ?? "", entry.ts)
+    } else if (PRE_EVENTS.has(entry.event) && entry.tool) {
+      if (!actual) abrir("(sin prompt registrado)", entry.ts)
+      actual.acciones.push(accion(entry))
+    } else if (entry.event === "PostToolUseFailure") {
+      if (actual) actual.fallas.push(entry)
+    } else if (FIN_EVENTS.has(entry.event) && actual) {
+      actual.fin = entry.lastMessage
+    }
+  }
+  return result
 }
 
 for (const key of selected) {
@@ -94,48 +119,65 @@ for (const key of selected) {
   const first = new Date(list[0].ts)
   const last = new Date(list.at(-1).ts)
   const toolCalls = list.filter((e) => PRE_EVENTS.has(e.event) && e.tool)
+  const acciones = toolCalls.map(accion)
+  const lista = turnos(list)
 
   console.log(`\n━━━ Sesión ${key}`)
   console.log(`Inicio: ${first.toLocaleString()}  ·  Duración: ${Math.round((last - first) / 1000)} s`)
-  console.log(`Eventos registrados: ${list.length}  ·  Llamadas a herramientas: ${toolCalls.length}`)
+  console.log(`Turnos: ${lista.length}  ·  Llamadas a herramientas: ${toolCalls.length}  ·  Eventos registrados: ${list.length}`)
 
-  console.log("\nEventos por tipo:")
-  for (const [name, n] of count(list.map((e) => e.event))) console.log(`  ${String(n).padStart(4)}  ${name}`)
+  console.log("\nPor tipo de acción:")
+  for (const [name, n] of count(acciones.map((a) => a.kind))) console.log(`  ${String(n).padStart(4)}  ${name}`)
 
   console.log("\nHerramientas usadas:")
   for (const [name, n] of count(toolCalls.map((e) => e.tool))) console.log(`  ${String(n).padStart(4)}  ${name}`)
 
-  const commands = toolCalls.map((e) => inputField(e, "command", "cmd")).filter(Boolean)
-  if (commands.length) {
+  const leidos = acciones.filter((a) => a.kind === "leer").flatMap(rutas)
+  if (leidos.length) {
+    console.log("\nArchivos leídos:")
+    for (const [file, n] of count(leidos)) console.log(`  ${String(n).padStart(4)}  ${file}`)
+  }
+
+  const escritos = acciones.filter((a) => a.kind === "escribir").flatMap((a) => rutas(a).map((file) => `${file}  [${a.op}]`))
+  if (escritos.length) {
+    console.log("\nArchivos escritos:")
+    for (const [file, n] of count(escritos)) console.log(`  ${String(n).padStart(4)}  ${file}`)
+  }
+
+  const comandos = acciones.filter((a) => a.kind === "ejecutar").flatMap((a) => a.targets)
+  if (comandos.length) {
     console.log("\nComandos de terminal:")
-    for (const cmd of commands) console.log(`  $ ${cmd.slice(0, 140)}`)
+    for (const cmd of comandos) console.log(`  $ ${corto(cmd, 140)}`)
   }
 
-  const files = toolCalls.map((e) => inputField(e, "file_path", "path", "filePath")).filter(Boolean)
-  if (files.length) {
-    console.log("\nArchivos tocados (lectura o escritura):")
-    for (const [file, n] of count(files)) console.log(`  ${String(n).padStart(4)}  ${file}`)
-  }
-
-  const mcp = toolCalls.filter((e) => /^mcp__|^use_mcp_tool$|^mcp_/i.test(e.tool))
+  const mcp = acciones.filter((a) => a.kind === "mcp")
   if (mcp.length) {
     console.log("\nHerramientas MCP:")
-    for (const [name, n] of count(mcp.map((e) => e.tool))) console.log(`  ${String(n).padStart(4)}  ${name}`)
+    for (const [name, n] of count(mcp.map((a) => a.tool))) console.log(`  ${String(n).padStart(4)}  ${name}`)
   }
 
-  const skills = toolCalls.filter((e) => /skill/i.test(e.tool) || /SKILL\.md/.test(JSON.stringify(e.input ?? "")))
+  // Además de la herramienta de skills, cuenta quien lee un SKILL.md a mano.
+  const skills = acciones.filter((a) => a.kind === "skill" || a.targets.some((t) => /SKILL\.md/.test(t)))
   if (skills.length) {
     console.log("\nSkills activadas o leídas:")
-    for (const entry of skills) console.log(`  ${describe(entry)}`)
+    for (const a of skills) console.log(`  ${corto(a.targets.map(relative).join(" · "), 120)}`)
   }
 
-  if (args.has("--timeline")) {
-    console.log("\nLínea de tiempo:")
-    for (const entry of list) {
-      const time = new Date(entry.ts).toLocaleTimeString()
-      console.log(`  ${time}  ${entry.event.padEnd(18)} ${describe(entry)}`)
+  console.log("\nTurnos:")
+  lista.forEach((turno, i) => {
+    const resumen = count(turno.acciones.map((a) => a.kind)).map(([k, n]) => `${k} ${n}`).join(", ")
+    const t0 = Math.round((new Date(turno.ts) - first) / 1000)
+    console.log(`  ${i + 1}. +${t0}s  ${corto(turno.prompt, 90) || "(prompt vacío)"}`)
+    console.log(`       ${turno.acciones.length} herramientas${resumen ? ` (${resumen})` : ""}${turno.fallas.length ? `  ·  ${turno.fallas.length} con error` : ""}`)
+    if (args.has("--timeline")) {
+      for (const a of turno.acciones) {
+        const t = Math.round((new Date(a.ts) - first) / 1000)
+        console.log(`       +${String(t).padStart(4)}s  ${etiqueta(a).padEnd(18)} ${corto(rutas(a).join(" · "), 110)}`)
+      }
+      for (const f of turno.fallas) console.log(`       ✗ falló ${f.tool ?? ""} ${corto(f.error ?? "", 100)}`)
+      if (turno.fin) console.log(`       ↳ ${corto(turno.fin, 160)}`)
     }
-  }
+  })
 }
 
 if (!args.has("--todas") && keys.length > 1) {
