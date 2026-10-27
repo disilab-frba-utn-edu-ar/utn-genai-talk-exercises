@@ -1,4 +1,5 @@
-// Guarda las respuestas de los ejercicios en ejercicios/<id>/respuestas.json.
+// Guarda las respuestas de los ejercicios en ejercicios/<id>/respuestas.json (para seguir editándolas)
+// y en ejercicios/<id>/RESPUESTAS.md (lo que se entrega).
 // Vive en el servidor de desarrollo de Vite (`npm run dev`): no es parte de la API del producto.
 import { existsSync, readFileSync, writeFileSync } from "node:fs"
 import type { ServerResponse } from "node:http"
@@ -37,15 +38,28 @@ export function respuestasEjercicios(): Plugin {
           if (cuerpo.length > LIMITE_BYTES) req.destroy()
         })
         req.on("end", () => {
-          let respuestas: unknown
+          let datos: { general?: unknown; respuestas?: unknown; markdown?: unknown } = {}
           try {
-            respuestas = JSON.parse(cuerpo).respuestas
+            datos = JSON.parse(cuerpo)
           } catch {
             // cuerpo inválido: se responde 400 abajo
           }
-          if (typeof respuestas !== "string") return responder(res, 400, { error: "Las respuestas tienen que ser texto" })
-          const guardadas = { ejercicio: id, guardado: new Date().toISOString(), respuestas: respuestas.split("\n") }
+          const { general, respuestas, markdown } = datos
+          const sonTextos =
+            typeof respuestas === "object" &&
+            respuestas !== null &&
+            Object.values(respuestas).every((r) => typeof r === "string")
+          if (typeof general !== "string" || typeof markdown !== "string" || !sonTextos) {
+            return responder(res, 400, { error: "Las respuestas tienen que ser texto" })
+          }
+          const guardadas = {
+            ejercicio: id,
+            guardado: new Date().toISOString(),
+            general: general.split("\n"),
+            respuestas: Object.fromEntries(Object.entries(respuestas as Record<string, string>).map(([n, r]) => [n, r.split("\n")])),
+          }
           writeFileSync(archivo, JSON.stringify(guardadas, null, 2) + "\n")
+          writeFileSync(join(DIR, id, "RESPUESTAS.md"), markdown)
           responder(res, 200, guardadas)
         })
       })

@@ -2,15 +2,18 @@
 // Resume logs/agent-actions.jsonl para responder las preguntas de los ejercicios.
 //
 // Uso:
-//   npm run logs:resumen                 → resumen de la última sesión
+//   npm run logs:resumen                 → resumen de la última sesión con actividad
 //   npm run logs:resumen -- --todas      → resumen de todas las sesiones
 //   npm run logs:resumen -- --timeline   → además, la línea de tiempo completa
+//   npm run logs:resumen -- --archivo logs/archivo/<archivo>.jsonl → lee un log archivado por logs:limpiar
 
 import { existsSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 
-const logFile = join(process.env.AGENT_LOG_DIR ?? join(process.cwd(), "logs"), "agent-actions.jsonl")
-const args = new Set(process.argv.slice(2))
+const argv = process.argv.slice(2)
+const args = new Set(argv)
+const archivo = argv.includes("--archivo") ? argv[argv.indexOf("--archivo") + 1] : undefined
+const logFile = archivo ?? join(process.env.AGENT_LOG_DIR ?? join(process.cwd(), "logs"), "agent-actions.jsonl")
 
 if (!existsSync(logFile)) {
   console.log(`No hay logs todavía (${logFile}). ¿Están configurados los hooks?`)
@@ -37,7 +40,9 @@ for (const entry of entries) {
 }
 
 const keys = [...sessions.keys()]
-const selected = args.has("--todas") ? keys : keys.slice(-1)
+// Algunos agentes abren sesiones sin prompts ni herramientas (solo SessionStart/SessionEnd): no cuentan como "la última".
+const conActividad = keys.filter((key) => sessions.get(key).some((e) => e.event === "UserPromptSubmit" || e.event === "PreToolUse"))
+const selected = args.has("--todas") ? keys : (conActividad.length ? conActividad : keys).slice(-1)
 
 const PRE_EVENTS = new Set(["PreToolUse"])
 

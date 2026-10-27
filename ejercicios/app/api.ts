@@ -1,5 +1,11 @@
 // Único lugar de los ejercicios que hace fetch. Lo atiende ejercicios/vite-plugin.ts.
-export type RespuestasGuardadas = { ejercicio: string; guardado: string; respuestas: string[] }
+export type RespuestasGuardadas = {
+  ejercicio: string
+  guardado: string
+  general: string[]
+  /** Por número de pregunta, cada respuesta como líneas. */
+  respuestas: Record<string, string[]>
+}
 
 async function pedir<T>(id: string, opciones?: RequestInit): Promise<T> {
   let respuesta: Response
@@ -20,5 +26,5 @@ async function pedir<T>(id: string, opciones?: RequestInit): Promise<T> {
 
 export const leerRespuestas = (id: string) => pedir<RespuestasGuardadas | null>(id)
 
-export const guardarRespuestas = (id: string, texto: string) =>
-  pedir<RespuestasGuardadas>(id, { method: "PUT", body: JSON.stringify({ respuestas: texto }) })
+export const guardarRespuestas = (id: string, datos: { general: string; respuestas: Record<string, string>; markdown: string }) =>
+  pedir<RespuestasGuardadas>(id, { method: "PUT", body: JSON.stringify(datos) })
