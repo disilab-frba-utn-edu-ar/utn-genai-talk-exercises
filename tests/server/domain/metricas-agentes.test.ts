@@ -345,6 +345,9 @@ describe("rutaPublica y binarioDe", () => {
     ["C:\\nodejs\\node.exe script.js", ["node"]],
     ["git rm secreto", ["git"]],
     ["$(curl x)", ["(otro)"]],
+    ["python3 - <<'E'\nimport json\nprint(1); const x = 2\nE\nls", ["python3", "ls"]],
+    ["git commit -m \"a; b | c && d\"", ["git commit"]],
+    ["echo 'x; rm -rf y' | head", ["echo", "head"]],
   ])("binarioDe(%s)", (comando, esperado) => {
     expect(binarioDe(comando)).toEqual(esperado)
   })

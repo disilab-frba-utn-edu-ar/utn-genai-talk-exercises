@@ -85,7 +85,11 @@ const SCRIPTS_NPM = new Set(["test", "lint", "typecheck", "build", "dev", "seed"
 
 /** Binarios de una línea de shell, con subcomando de la lista blanca (`git status`, `npm run test`). */
 export function binarioDe(comando: string): string[] {
-  return comando
+  // Los cuerpos de heredoc y el texto entre comillas no son comandos: se descartan antes de separar.
+  const limpio = comando
+    .replace(/<<-?\s*(['"]?)(\w+)\1[^\n]*\n[\s\S]*?\n\s*\2\b/g, "")
+    .replace(/'[^']*'|"[^"]*"/g, '""')
+  return limpio
     .split(/&&|\|\||;|\||\n/)
     .map((segmento) => segmento.trim().split(/\s+/).filter((t) => !/^\w+=/.test(t)))
     .filter((tokens) => tokens[0] && tokens[0] !== "cd")
