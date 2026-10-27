@@ -157,6 +157,36 @@ code {
   color: var(--acento);
 }
 
+.marcas {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.marca-utn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--texto);
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.marca-utn-logo {
+  height: 2rem;
+  width: auto;
+}
+
+.marca-utn strong {
+  font-weight: 700;
+}
+
+.marcas-separador {
+  width: 2px;
+  height: 1.75rem;
+  background: var(--linea-suave);
+}
+
 .marca-icono {
   display: grid;
   place-items: center;
@@ -827,6 +857,11 @@ code {
 }
 
 @media (max-width: 30rem) {
+  .marca-utn-texto,
+  .marcas-separador {
+    display: none;
+  }
+
   .resumen-fila {
     grid-template-columns: 1fr;
     gap: 0.1rem;
