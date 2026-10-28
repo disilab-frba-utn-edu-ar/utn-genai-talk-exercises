@@ -78,8 +78,24 @@ const puertasSdd = `<figure class="diagrama" aria-label="Validaciones entre etap
   .join("")}</ul>
 </figure>`
 
+const carpeta = (nombre: string, descripcion: string, chips: string[], { etiqueta = "", capas = false } = {}) =>
+  `<li><span class="repo-carpeta">${nombre}</span><span class="repo-desc">${descripcion}</span><span class="repo-chips${
+    capas ? " repo-capas" : ""
+  }">${etiqueta ? `<span class="repo-etiqueta">${etiqueta}</span>` : ""}${chips.map((c) => `<span class="repo-chip">${c}</span>`).join("")}</span></li>`
+
+const mapaRepo = `<figure class="diagrama" aria-label="Estructura del repo: client, server en capas (routes, services, repositories y domain), shared, data y tests.">
+<ul class="repo">${[
+  carpeta("client/", "Vite + React + TypeScript", ["/", "/mentoras/:id", "/confirmacion"], { etiqueta: "pantallas" }),
+  carpeta("server/", "Express + TypeScript", ["routes", "services", "repositories", "domain"], { etiqueta: "en capas", capas: true }),
+  carpeta("shared/", "tipos compartidos", ["shared/types.ts"]),
+  carpeta("data/", "archivos JSON", ["mentoras", "habilidades", "tipos de asesoría", "colectivos", "sesiones"]),
+  carpeta("tests/", "Vitest", ["tests/server/domain", "tests/server/api (supertest)", "tests/client"]),
+].join("")}</ul>
+</figure>`
+
 export const diagramas: Record<string, string> = {
   "ciclo-agentico": cicloAgentico,
   "flujo-sdd": flujoSdd,
   "puertas-sdd": puertasSdd,
+  "mapa-repo": mapaRepo,
 }

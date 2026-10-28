@@ -826,6 +826,79 @@
   background: repeating-linear-gradient(-45deg, var(--texto) 0 5px, var(--acento) 5px 10px);
 }
 
+/* Estructura del repo (ejercicio 1): una fila por carpeta; en server, las capas en orden. */
+.repo {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.repo > li {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.2rem 0.75rem;
+  margin: 0;
+  padding: 0.55rem 0;
+  border-bottom: 1px dashed var(--linea-suave);
+}
+
+.repo > li:last-child {
+  border-bottom: 0;
+}
+
+.repo-carpeta {
+  grid-row: span 2;
+  font: 700 0.875rem var(--fuente-codigo);
+}
+
+.repo-desc {
+  font-weight: 600;
+}
+
+.repo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.repo-etiqueta {
+  color: var(--texto-suave);
+  font-size: 0.8125rem;
+}
+
+.repo-chip {
+  padding: 0.1rem 0.5rem;
+  border: 1.5px solid var(--linea-suave);
+  border-radius: var(--radio-chico);
+  font: 0.75rem var(--fuente-codigo);
+}
+
+.repo-capas {
+  gap: 0.35rem 1.4rem;
+}
+
+.repo-capas .repo-etiqueta {
+  margin-right: -0.9rem;
+}
+
+.repo-capas .repo-chip {
+  position: relative;
+  border-color: var(--texto);
+  background: var(--texto);
+  color: var(--invertido);
+  font-weight: 600;
+}
+
+.repo-capas .repo-chip:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  right: -1.15rem;
+  color: var(--texto);
+  font-weight: 400;
+}
+
 /* Angosto: los pasos se apilan. */
 @container (max-width: 48rem) {
   .pasos {
@@ -846,7 +919,7 @@
   }
 }
 
-/* Muy angosto: las puertas pasan a una columna. */
+/* Muy angosto: las puertas y el repo pasan a una columna. */
 @container (max-width: 36rem) {
   .puertas > li {
     grid-template-columns: auto minmax(0, 1fr);
@@ -864,6 +937,14 @@
   .puerta-barrera {
     grid-column: 1 / -1;
     margin-left: 0;
+  }
+
+  .repo > li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .repo-carpeta {
+    grid-row: auto;
   }
 }
 

@@ -193,6 +193,15 @@ describe("Ejercicios", () => {
     ])
     expect(screen.queryByText(/tasks\s+→ ¿leíste/)).not.toBeInTheDocument()
   })
+
+  it("la estructura del repo del ejercicio 1 se dibuja con las capas del servidor en orden", async () => {
+    renderDe(ejercicios[0])
+    const diagrama = await screen.findByRole("figure", { name: /estructura del repo/i })
+    const carpetas = textosDeLista(diagrama)
+    expect(carpetas).toEqual(["client/", "server/", "shared/", "data/", "tests/"].map((c) => expect.stringContaining(c)))
+    expect(carpetas[1]).toMatch(/routes.*services.*repositories.*domain/)
+    expect(screen.queryByText(/client\/\s+Vite/)).not.toBeInTheDocument()
+  })
 })
 
 describe("Ejercicios · RESPUESTAS.md y temporizador", () => {

@@ -85,7 +85,7 @@
     "colectivos (fundaciones, ONGs, asambleas, asociaciones barriales) reservan",
     "sesiones para destrabar sus proyectos. Es un repo full stack liviano:",
     "",
-    "```",
+    "```mapa-repo",
     "client/   Vite + React + TypeScript (pantallas: /, /mentoras/:id, /confirmacion)",
     "server/   Express + TypeScript en capas: routes → services → repositories → domain",
     "shared/   tipos compartidos (shared/types.ts)",
