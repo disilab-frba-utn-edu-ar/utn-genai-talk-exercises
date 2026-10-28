@@ -65,7 +65,21 @@ ${pasos(
 <figcaption><span><span class="pasos-control-muestra" aria-hidden="true">✋</span>validación humana: revisás vos antes de pasar a la etapa siguiente</span></figcaption>
 </figure>`
 
+const puertasSdd = `<figure class="diagrama" aria-label="Validaciones entre etapas: tasks, ¿leíste la constitution?; plan, ¿la spec está aprobada?; implement, ¿existe un plan para esto? Si no, no avanza.">
+<ul class="puertas">${[
+  ["tasks", "¿leíste la constitution?"],
+  ["plan", "¿la spec está aprobada?"],
+  ["implement", "¿existe un plan para esto?"],
+]
+  .map(
+    ([etapa, pregunta]) =>
+      `<li><span class="puerta-etapa">${etapa}</span><span class="puerta-pregunta">${pregunta}</span><span class="puerta-barrera">si no, no avanza</span></li>`,
+  )
+  .join("")}</ul>
+</figure>`
+
 export const diagramas: Record<string, string> = {
   "ciclo-agentico": cicloAgentico,
   "flujo-sdd": flujoSdd,
+  "puertas-sdd": puertasSdd,
 }

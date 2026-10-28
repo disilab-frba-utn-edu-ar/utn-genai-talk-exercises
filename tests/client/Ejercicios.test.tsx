@@ -182,6 +182,17 @@ describe("Ejercicios", () => {
     expect(within(diagrama).getAllByRole("img", { name: "validación humana" })).toHaveLength(nombres.length - 1)
     expect(screen.queryByText(/Constitution → Specify/)).not.toBeInTheDocument()
   })
+
+  it("las validaciones entre etapas del desafío extra se dibujan como puertas", async () => {
+    renderDe(ejercicios[2])
+    const diagrama = await screen.findByRole("figure", { name: /validaciones entre etapas/i })
+    expect(textosDeLista(diagrama)).toEqual([
+      expect.stringMatching(/tasks.*¿leíste la constitution\?.*si no, no avanza/),
+      expect.stringMatching(/plan.*¿la spec está aprobada\?.*si no, no avanza/),
+      expect.stringMatching(/implement.*¿existe un plan para esto\?.*si no, no avanza/),
+    ])
+    expect(screen.queryByText(/tasks\s+→ ¿leíste/)).not.toBeInTheDocument()
+  })
 })
 
 describe("Ejercicios · RESPUESTAS.md y temporizador", () => {

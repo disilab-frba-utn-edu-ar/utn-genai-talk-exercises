@@ -763,6 +763,69 @@
   font-size: 0.6875rem;
 }
 
+/* Validaciones entre etapas (desafío extra del ejercicio 3). */
+.puertas {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.puertas > li {
+  display: grid;
+  grid-template-columns: 6.5rem 2.25rem minmax(0, 1fr) auto;
+  align-items: center;
+  margin: 0;
+}
+
+.puertas > li::before {
+  content: "→";
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--texto-suave);
+  text-align: center;
+}
+
+.puerta-etapa {
+  grid-column: 1;
+  grid-row: 1;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radio-chico);
+  background: var(--texto);
+  color: var(--invertido);
+  font: 600 0.8125rem var(--fuente-codigo);
+  text-align: center;
+}
+
+.puerta-pregunta {
+  grid-column: 3;
+  padding: 0.35rem 0.75rem;
+  border: 2px dashed var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  font-weight: 600;
+}
+
+.puerta-barrera {
+  grid-column: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.85rem;
+  color: var(--acento-texto);
+  font: 600 0.75rem var(--fuente-codigo);
+  white-space: nowrap;
+}
+
+.puerta-barrera::before {
+  content: "";
+  width: 1.9rem;
+  height: 0.8rem;
+  border-radius: 2px;
+  background: repeating-linear-gradient(-45deg, var(--texto) 0 5px, var(--acento) 5px 10px);
+}
+
 /* Angosto: los pasos se apilan. */
 @container (max-width: 48rem) {
   .pasos {
@@ -780,6 +843,27 @@
   .pasos-control {
     top: calc(100% + 2px + var(--pasos-hueco) / 2);
     left: 50%;
+  }
+}
+
+/* Muy angosto: las puertas pasan a una columna. */
+@container (max-width: 36rem) {
+  .puertas > li {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.4rem 0.5rem;
+  }
+
+  .puertas > li::before {
+    display: none;
+  }
+
+  .puerta-pregunta {
+    grid-column: 2;
+  }
+
+  .puerta-barrera {
+    grid-column: 1 / -1;
+    margin-left: 0;
   }
 }
 

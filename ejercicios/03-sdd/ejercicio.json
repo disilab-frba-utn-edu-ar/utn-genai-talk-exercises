@@ -322,7 +322,7 @@
     "En la charla vimos que un hook es **validación determinística entre etapas**:",
     "no depende de que el modelo se acuerde.",
     "",
-    "```",
+    "```puertas-sdd",
     "tasks      → ¿leíste la constitution?    si no, no avanza",
     "plan       → ¿la spec está aprobada?     si no, no avanza",
     "implement  → ¿existe un plan para esto?  si no, no avanza",
