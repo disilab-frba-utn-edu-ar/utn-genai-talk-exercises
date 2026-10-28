@@ -85,6 +85,28 @@ export function clasificar(tool, rawInput) {
   return { kind, op, targets, detail }
 }
 
+// Resultado de una corrida de tests (Vitest) a partir de su salida completa, para ver el rojo y el verde
+// de TDD sin abrir el log. Distingue por qué falló: no compila (la función no existe, error de import o
+// de sintaxis) o la regla no se cumple (una aserción). undefined si el comando no corre tests.
+const CORRE_TESTS = /\b(vitest|npm (run )?test|npx vitest|pnpm (run )?test|yarn test)\b/
+const NO_COMPILA = /Cannot find module|Failed to (load|resolve)|is not a function|is not defined|SyntaxError|Transform failed|error TS\d+/
+const NO_SE_CUMPLE = /AssertionError|expected .+ to /
+
+export function resultadoDeTests(comando, salida) {
+  if (!CORRE_TESTS.test(String(comando ?? ""))) return undefined
+  // Claude manda { stdout, stderr }; Codex y Cline, un string.
+  const texto =
+    typeof salida === "string" ? salida : [salida?.stdout, salida?.stderr, salida?.output].filter(Boolean).join("\n") || JSON.stringify(salida ?? "")
+  const linea = texto.match(/^\s*Tests\s+(.+)$/m)?.[1] ?? ""
+  const fallaron = Number(linea.match(/(\d+) failed/)?.[1] ?? 0)
+  const pasaron = Number(linea.match(/(\d+) passed/)?.[1] ?? 0)
+  const suitesRotas = /Failed Suites|Test Files\s+\d+ failed/.test(texto)
+  if (!linea && !suitesRotas) return { resultado: "no detectado" }
+  const causas = [NO_COMPILA.test(texto) && "no compila", NO_SE_CUMPLE.test(texto) && "la regla no se cumple"].filter(Boolean)
+  const rojo = fallaron > 0 || suitesRotas
+  return { resultado: rojo ? "rojo" : "verde", fallaron, pasaron, ...(rojo && causas.length ? { causa: causas.join(" y ") } : {}) }
+}
+
 // Campos que traen el contenido de un archivo o un diff: no aportan al log (el archivo ya está en disco).
 const CAMPOS_PESADOS = new Set(["content", "new_text", "old_text", "new_string", "old_string", "file_text", "text", "patch", "diff", "edits", "new_source"])
 

@@ -2,7 +2,7 @@
 import type { ReactNode } from "react"
 import { Link, Route, Routes, useParams } from "react-router"
 import NoEncontradaPage from "../../client/src/pages/NoEncontradaPage"
-import { conAnexosEnLinea, ejercicios, introduccion, partirConsigna, type Anexo } from "./contenido"
+import { conAnexosEnLinea, ejercicios, introduccion, type Anexo } from "./contenido"
 import "./ejercicios.css"
 import Markdown from "./Markdown"
 import Respuestas from "./Respuestas"
@@ -81,24 +81,15 @@ function EjercicioPage() {
   const ejercicio = ejercicios.find((e) => e.id === id)
   if (!ejercicio) return <NoEncontradaPage />
 
-  const { antes, despues } = partirConsigna(ejercicio)
   const enLinea = ejercicio.anexos.filter((a) => a.insertarDespuesDe)
   const consigna = (lineas: string[]) => <Consigna lineas={lineas} anexos={enLinea} />
 
-  // Mismo orden que el documento original: nada se saltea ni se repite.
+  // La consigna va entera, en el orden del documento, con las preguntas intercaladas entre los pasos.
   const secciones = [
-    { id: "consigna", titulo: "Consigna", contenido: consigna(antes) },
+    { id: "consigna", titulo: "Consigna", contenido: <Respuestas ejercicio={ejercicio} consigna={consigna} /> },
     ...ejercicio.anexos
       .filter((a) => !a.insertarDespuesDe)
       .map((a) => ({ id: a.archivo, titulo: a.titulo, contenido: <Markdown texto={a.markdown.join("\n")} /> })),
-    {
-      id: "respuestas",
-      titulo: "Preguntas y respuestas",
-      contenido: <Respuestas ejercicio={ejercicio} />,
-    },
-    ...(despues.length > 0
-      ? [{ id: "despues", titulo: despues[0].replace(/^#+\s*/, ""), contenido: consigna(despues) }]
-      : []),
   ]
 
   return (

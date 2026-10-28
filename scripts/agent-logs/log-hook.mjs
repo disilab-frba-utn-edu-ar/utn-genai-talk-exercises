@@ -14,7 +14,7 @@
 import { appendFileSync, mkdirSync, readFileSync } from "node:fs"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
-import { adelgazar, clasificar } from "./clasificar.mjs"
+import { adelgazar, clasificar, resultadoDeTests } from "./clasificar.mjs"
 
 const [, , agent = "desconocido", eventArg] = process.argv
 
@@ -128,6 +128,8 @@ function normalize(payload) {
     input: esResultado ? undefined : truncate(adelgazar(input)),
     output: sinSalida ? undefined : excerpt(outputText),
     outputChars: esResultado ? outputText?.length : undefined,
+    // El extracto corta antes del resumen de Vitest: el resultado se calcula acá, con la salida completa.
+    tests: esResultado && kind === "ejecutar" ? resultadoDeTests(detail, output) : undefined,
     error: truncate(payload.error ?? undefined),
     success: nested.success ?? undefined, // Cline; en Claude la falla es el evento PostToolUseFailure
     interrupted: payload.is_interrupt ?? undefined,

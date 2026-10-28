@@ -9,3 +9,5 @@ export type Clasificacion = {
 export function clasificar(tool: unknown, rawInput: unknown): Clasificacion
 export function desenvolver(value: unknown): unknown
 export function adelgazar(value: unknown): unknown
+export type ResultadoDeTests = { resultado: "rojo" | "verde" | "no detectado"; fallaron?: number; pasaron?: number; causa?: string }
+export function resultadoDeTests(comando: unknown, salida: unknown): ResultadoDeTests | undefined

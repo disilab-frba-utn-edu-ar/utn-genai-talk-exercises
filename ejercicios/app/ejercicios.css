@@ -239,6 +239,24 @@
   resize: vertical;
 }
 
+/* Las preguntas intercaladas entre los pasos: un recuadro que las separa de la consigna. */
+.tramo-preguntas {
+  margin: 1.5rem 0;
+  padding: 0.25rem 1rem 0.75rem;
+  border-left: 4px solid var(--acento);
+}
+
+/* Un enlace de la consigna con forma de botón (por ejemplo, "Ver aplicación"). */
+.boton-enlace {
+  margin: 0.25rem 0;
+}
+
+.respuestas-seguir {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
 /* Pegado abajo mientras se ven las preguntas: se puede guardar en cualquier momento. */
 .respuestas-acciones {
   position: sticky;

@@ -11,7 +11,6 @@ function destino(href: string): string | null {
   const ejercicio = href.match(/^\.\/(\d{2}-[a-z0-9-]+)\/$/)
   if (ejercicio) return `/ejercicios/${ejercicio[1]}`
   if (/^\/[a-z-]+$/.test(href)) return href // otra página de la app, por ejemplo /configurar-entorno
-  if (href === "./RESPUESTAS.md") return "#respuestas"
   if (/^\.\/[\w-]+\.md$/.test(href)) return `#${href.slice(2)}`
   return null
 }
@@ -23,12 +22,14 @@ const marked = new Marked({
       const etiqueta = lang === "text" ? "Copiar prompt" : "Copiar"
       return `<div class="codigo"><button type="button" class="boton-copiar" data-copiar>${etiqueta}</button><pre><code>${escapar(text)}</code></pre></div>`
     },
-    link({ href, tokens }) {
+    // [texto](url "boton") se muestra como botón: por ejemplo, "Ver aplicación" en una pestaña nueva.
+    link({ href, title, tokens }) {
       const texto = this.parser.parseInline(tokens)
       const a = destino(href)
       if (a === null) return `<span class="enlace-repo" title="${escapar(href)}">${texto}</span>`
       const externo = a.startsWith("http") ? ' target="_blank" rel="noreferrer"' : ""
-      return `<a href="${escapar(a)}"${externo}>${texto}</a>`
+      const clase = title === "boton" ? ' class="boton boton-enlace"' : ""
+      return `<a href="${escapar(a)}"${clase}${externo}>${texto}</a>`
     },
   },
 })
