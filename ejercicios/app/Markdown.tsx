@@ -1,6 +1,7 @@
 import { Marked } from "marked"
 import { useMemo, type MouseEvent } from "react"
 import { useNavigate } from "react-router"
+import { diagramas } from "./diagramas"
 
 const escapar = (texto: string) =>
   texto.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
@@ -18,7 +19,10 @@ function destino(href: string): string | null {
 const marked = new Marked({
   renderer: {
     // Cada bloque de código lleva su botón de copiar; los bloques `text` son prompts.
+    // Si el lenguaje es el nombre de un diagrama, se dibuja el diagrama en lugar del ASCII.
     code({ text, lang }) {
+      const diagrama = lang ? diagramas[lang] : undefined
+      if (diagrama) return diagrama
       const etiqueta = lang === "text" ? "Copiar prompt" : "Copiar"
       return `<div class="codigo"><button type="button" class="boton-copiar" data-copiar>${etiqueta}</button><pre><code>${escapar(text)}</code></pre></div>`
     },

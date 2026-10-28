@@ -155,6 +155,14 @@ describe("Ejercicios", () => {
     await userEvent.click(screen.getByRole("button", { name: "Iniciar" }))
     expect(screen.getByRole("button", { name: "Pausar" })).toBeInTheDocument()
   })
+
+  it("el ciclo agéntico del ejercicio 1 se dibuja como diagrama, no como ASCII", async () => {
+    simularApi({ [RUTA_API]: null })
+    renderEjercicio()
+    const diagrama = await screen.findByRole("figure", { name: /ciclo agéntico/i })
+    for (const hook of ["UserPromptSubmit", "PreToolUse", "PostToolUse", "Stop"]) expect(diagrama).toHaveTextContent(hook)
+    expect(screen.queryByText(/──prompt──▶/)).not.toBeInTheDocument()
+  })
 })
 
 describe("Ejercicios · RESPUESTAS.md y temporizador", () => {

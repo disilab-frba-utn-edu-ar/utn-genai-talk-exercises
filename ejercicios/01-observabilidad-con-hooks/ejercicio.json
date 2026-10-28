@@ -33,7 +33,7 @@
     "termina. Es determinístico: corre siempre, no depende de que el modelo \"se",
     "acuerde\".",
     "",
-    "```",
+    "```ciclo-agentico",
     " vos ──prompt──▶ [UserPromptSubmit] ──▶ modelo",
     "                                          │ pide una tool",
     "                                          ▼",
