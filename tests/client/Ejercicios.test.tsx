@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react"
+import { screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import Ejercicios from "../../ejercicios/app/Ejercicios"
 import { armarRespuestasMd, conAnexosEnLinea, ejercicios, partirConsigna, partirPreguntas } from "../../ejercicios/app/contenido"
@@ -12,6 +12,16 @@ const RUTA_API = `/ejercicios-api/${ejercicio.id}/respuestas`
 
 const renderEjercicio = () =>
   renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicio.id}`, patron: "/ejercicios/*" })
+
+const renderDe = (e: (typeof ejercicios)[number]) => {
+  simularApi({ [`/ejercicios-api/${e.id}/respuestas`]: null })
+  return renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${e.id}`, patron: "/ejercicios/*" })
+}
+
+const textosDeLista = (diagrama: HTMLElement) =>
+  within(diagrama)
+    .getAllByRole("listitem")
+    .map((li) => li.textContent?.replace(/\s+/g, " "))
 
 describe("Ejercicios · cómo se reparte la consigna", () => {
   it.each(ejercicios.map((e) => [e.id, e] as const))("%s: se muestra entera, sin perder ni repetir líneas", (_id, e) => {
@@ -162,6 +172,15 @@ describe("Ejercicios", () => {
     const diagrama = await screen.findByRole("figure", { name: /ciclo agéntico/i })
     for (const hook of ["UserPromptSubmit", "PreToolUse", "PostToolUse", "Stop"]) expect(diagrama).toHaveTextContent(hook)
     expect(screen.queryByText(/──prompt──▶/)).not.toBeInTheDocument()
+  })
+
+  it("el flujo SDD del ejercicio 3 se dibuja como diagrama, con una validación humana entre cada etapa", async () => {
+    renderDe(ejercicios[2])
+    const diagrama = await screen.findByRole("figure", { name: /spec-driven development/i })
+    const nombres = ["Constitution", "Specify", "Clarify", "Plan", "Tasks", "Implement"]
+    expect(textosDeLista(diagrama)).toEqual(nombres.map((n) => expect.stringContaining(n)))
+    expect(within(diagrama).getAllByRole("img", { name: "validación humana" })).toHaveLength(nombres.length - 1)
+    expect(screen.queryByText(/Constitution → Specify/)).not.toBeInTheDocument()
   })
 })
 

@@ -42,7 +42,7 @@
     "Llevar una feature desde la idea hasta el código pasando por las etapas del",
     "flujo que vimos en la charla, **con validación humana entre cada paso**:",
     "",
-    "```",
+    "```flujo-sdd",
     "Constitution → Specify → Clarify → Plan → Tasks → Implement",
     "  (estándares)  (el qué)   (dudas)   (el cómo) (trabajo chico) (construir)",
     "        ✋          ✋          ✋         ✋          ✋",

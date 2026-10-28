@@ -37,6 +37,35 @@ ${hook("stop", "Stop")}
 <figcaption><span><i class="ciclo-muestra-hook"></i>hook: lo corre el harness siempre, en ese punto del ciclo</span><span><i class="ciclo-muestra-actor"></i>quién actúa</span></figcaption>
 </figure>`
 
+/* Pasos en fila unidos por una línea; `entre` va entre cada tarjeta y la siguiente. */
+type Paso = { nombre: string; detalle: string }
+
+const pasos = (lista: Paso[], { entre = "" } = {}) =>
+  `<ol class="pasos" style="--pasos-n:${lista.length}">${lista
+    .map(
+      (p, i) =>
+        `<li><span class="pasos-numero">${String(i + 1).padStart(2, "0")}</span><span class="pasos-nombre">${p.nombre}</span><span class="pasos-detalle">${p.detalle}</span>${
+          i < lista.length - 1 ? entre : ""
+        }</li>`,
+    )
+    .join("")}</ol>`
+
+const flujoSdd = `<figure class="diagrama" aria-label="Flujo de Spec-Driven Development: Constitution, Specify, Clarify, Plan, Tasks e Implement, con validación humana entre cada etapa.">
+${pasos(
+  [
+    { nombre: "Constitution", detalle: "estándares" },
+    { nombre: "Specify", detalle: "el qué" },
+    { nombre: "Clarify", detalle: "dudas" },
+    { nombre: "Plan", detalle: "el cómo" },
+    { nombre: "Tasks", detalle: "trabajo chico" },
+    { nombre: "Implement", detalle: "construir" },
+  ],
+  { entre: `<span class="pasos-control" role="img" aria-label="validación humana">✋</span>` },
+)}
+<figcaption><span><span class="pasos-control-muestra" aria-hidden="true">✋</span>validación humana: revisás vos antes de pasar a la etapa siguiente</span></figcaption>
+</figure>`
+
 export const diagramas: Record<string, string> = {
   "ciclo-agentico": cicloAgentico,
+  "flujo-sdd": flujoSdd,
 }

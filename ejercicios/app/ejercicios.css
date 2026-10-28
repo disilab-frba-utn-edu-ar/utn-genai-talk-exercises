@@ -685,6 +685,104 @@
   }
 }
 
+/* Pasos en fila (flujo SDD): tarjetas unidas por una línea, apiladas en angosto. */
+.pasos {
+  --pasos-hueco: 2.25rem;
+  display: grid;
+  grid-template-columns: repeat(var(--pasos-n), minmax(0, 1fr));
+  gap: var(--pasos-hueco);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pasos > li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.55rem 0.35rem 0.6rem;
+  border: var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  text-align: center;
+}
+
+.pasos > li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: calc(var(--pasos-hueco) + 4px);
+  height: 2px;
+  background: var(--linea);
+}
+
+.pasos-numero {
+  color: var(--acento-texto);
+  font: 600 0.6875rem var(--fuente-codigo);
+}
+
+.pasos-nombre {
+  font: 700 0.8125rem var(--fuente-titulos);
+}
+
+.pasos-detalle {
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+.pasos-control,
+.pasos-control-muestra {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: var(--borde);
+  border-radius: 50%;
+  background: var(--acento);
+  font-size: 0.8125rem;
+  line-height: 1;
+}
+
+.pasos-control {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: calc(100% + 2px + var(--pasos-hueco) / 2);
+  transform: translate(-50%, -50%);
+}
+
+.pasos-control-muestra {
+  width: 1.4rem;
+  height: 1.4rem;
+  align-self: center;
+  font-size: 0.6875rem;
+}
+
+/* Angosto: los pasos se apilan. */
+@container (max-width: 48rem) {
+  .pasos {
+    grid-template-columns: minmax(0, 16rem);
+    justify-content: center;
+  }
+
+  .pasos > li:not(:last-child)::after {
+    top: 100%;
+    left: 50%;
+    width: 2px;
+    height: calc(var(--pasos-hueco) + 4px);
+  }
+
+  .pasos-control {
+    top: calc(100% + 2px + var(--pasos-hueco) / 2);
+    left: 50%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ciclo-hook {
     animation: none;
