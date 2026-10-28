@@ -45,6 +45,10 @@ export default function Metricas() {
 
   return (
     <div className="metricas">
+      <p className="metricas-aviso" role="note">
+        Si llegaste a esta pestaña sin terminar el Ejercicio 1, te recomendamos no usarla todavía: ese ejercicio es para
+        aprender a leer el log a mano, y este tablero muestra lo mismo ya resumido.
+      </p>
       <section className="portada">
         <p className="sobretitulo prompt">Observabilidad</p>
         <h1>Métricas</h1>

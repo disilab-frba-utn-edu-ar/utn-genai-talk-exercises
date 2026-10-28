@@ -3,6 +3,14 @@ import userEvent from "@testing-library/user-event"
 import { FuenteFalsa, renderPagina, simularServidor } from "./metricas-helpers"
 import { metricasDePrueba } from "./metricas-fixture"
 
+describe("Métricas: aviso", () => {
+  it("arriba de todo avisa que no conviene usarla antes de terminar el ejercicio 1", () => {
+    simularServidor(metricasDePrueba())
+    renderPagina()
+    expect(screen.getByRole("note")).toHaveTextContent(/sin terminar el Ejercicio 1/)
+  })
+})
+
 describe("Métricas: estados", () => {
   it("muestra cargando hasta que llega el primer evento y después los KPIs", async () => {
     simularServidor(metricasDePrueba())

@@ -5,6 +5,7 @@ import NoEncontradaPage from "../../client/src/pages/NoEncontradaPage"
 import { conAnexosEnLinea, ejercicios, introduccion, type Anexo } from "./contenido"
 import "./ejercicios.css"
 import Markdown from "./Markdown"
+import { useTerminado } from "./progreso"
 import Respuestas from "./Respuestas"
 import Temporizador from "./Temporizador"
 
@@ -63,16 +64,20 @@ function IndicePage() {
   )
 }
 
+function AnexoEnLinea({ anexo }: { anexo: Anexo }) {
+  const habilitado = useTerminado(anexo.soloSiTerminado ?? "")
+  if (anexo.soloSiTerminado && !habilitado) return null
+  return (
+    <aside id={anexo.archivo} className="anexo-en-linea" aria-label={anexo.titulo}>
+      <Markdown texto={anexo.markdown.join("\n")} />
+    </aside>
+  )
+}
+
 /** Un tramo de la consigna, con los anexos en línea (el prompt aparece justo debajo de "Copiá el prompt…"). */
 function Consigna({ lineas, anexos }: { lineas: string[]; anexos: Anexo[] }) {
   return conAnexosEnLinea(lineas, anexos).map((b, i) =>
-    b.tipo === "markdown" ? (
-      <Markdown key={i} texto={b.texto} />
-    ) : (
-      <aside key={i} id={b.anexo.archivo} className="anexo-en-linea" aria-label={b.anexo.titulo}>
-        <Markdown texto={b.anexo.markdown.join("\n")} />
-      </aside>
-    ),
+    b.tipo === "markdown" ? <Markdown key={i} texto={b.texto} /> : <AnexoEnLinea key={i} anexo={b.anexo} />,
   )
 }
 

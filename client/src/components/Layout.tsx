@@ -1,7 +1,10 @@
 import { Link, NavLink, Outlet } from "react-router"
+import { HABILITA_METRICAS, useTerminado } from "../../../ejercicios/app/progreso"
 import UtnLogo from "./UtnLogo"
 
 export default function Layout() {
+  // Métricas aparece en el menú recién cuando se termina el ejercicio 1: primero se aprende a leer el log.
+  const metricasHabilitadas = useTerminado(HABILITA_METRICAS)
   return (
     <div className="pagina">
       <a href="#contenido" className="saltar">
@@ -32,7 +35,7 @@ export default function Layout() {
           </NavLink>
           <NavLink to="/ejercicios">Ejercicios</NavLink>
           <NavLink to="/configurar-entorno">Configurar entorno</NavLink>
-          <NavLink to="/metricas">Métricas</NavLink>
+          {metricasHabilitadas && <NavLink to="/metricas">Métricas</NavLink>}
         </nav>
         <p className="encabezado-lema">Horas de experiencia donadas a colectivos que construyen software</p>
       </header>

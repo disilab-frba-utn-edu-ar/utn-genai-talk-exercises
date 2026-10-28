@@ -1,9 +1,10 @@
 import { readFileSync } from "node:fs"
-import { render, screen, within } from "@testing-library/react"
+import { act, render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter } from "react-router"
 import App from "../../client/src/App"
 import { ejercicios } from "../../ejercicios/app/contenido"
+import { HABILITA_METRICAS, marcarTerminado } from "../../ejercicios/app/progreso"
 import setup from "../../ejercicios/setup.json"
 import { habilidades, valentina } from "./fixtures"
 import { simularApi } from "./helpers"
@@ -19,10 +20,13 @@ function renderApp(ruta: string) {
 
 describe("Navegación principal", () => {
   it.each(["/", "/ejercicios", "/configurar-entorno", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
-    "%s: el encabezado siempre muestra el link a Métricas",
+    "%s: el link a Métricas aparece recién cuando se terminó el ejercicio 1",
     async (ruta) => {
       renderApp(ruta)
       const nav = await screen.findByRole("navigation", { name: "Principal" })
+      expect(within(nav).queryByRole("link", { name: "Métricas" })).not.toBeInTheDocument()
+
+      act(() => marcarTerminado(HABILITA_METRICAS))
       expect(within(nav).getByRole("link", { name: "Métricas" })).toHaveAttribute("href", "/metricas")
     },
   )

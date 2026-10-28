@@ -489,9 +489,35 @@
     "git commit -m \"Ejercicio 2\"",
     "git push",
     "```",
+    "",
+    "Por último, apretá **Terminé** al pie de esta página: guarda tus respuestas y te lleva al ejercicio 3.",
     ""
   ],
-  "anexos": [],
+  "anexos": [
+    {
+      "titulo": "El tablero de Métricas",
+      "archivo": "metricas",
+      "insertarDespuesDe": "> vas a usar para comprobar que la skill y el MCP se activaron.",
+      "soloSiTerminado": "01-observabilidad-con-hooks",
+      "markdown": [
+        "### Antes de empezar: el tablero de Métricas",
+        "",
+        "Hasta ahora estuvimos viendo el uso del agente desde los logs, pero esto se puede",
+        "representar de una forma más visual, que facilita los ejercicios que siguen. El",
+        "tablero de **Métricas** lee los mismos archivos de `logs/` y se actualiza solo:",
+        "eventos por minuto, herramientas, fallas, archivos y duración de cada acción.",
+        "Además muestra **tokens, modelo y costo estimado**, que los hooks no mandan: salen",
+        "de la transcripción que cada agente guarda en tu equipo. Para ver los comandos",
+        "completos, con las claves tapadas, activá \"Mostrar comandos completos\". Solo se ve",
+        "desde tu propia máquina.",
+        "",
+        "[Ver métricas](/metricas \"boton\")",
+        "",
+        "Usalo para mirar, pero en las respuestas seguí citando el log (`logs:resumen` /",
+        "`logs:timeline`) como evidencia."
+      ]
+    }
+  ],
   "plantillaRespuestas": [
     "# Ejercicio 2 — Respuestas",
     "",

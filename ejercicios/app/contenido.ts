@@ -2,8 +2,11 @@
 // de líneas de markdown: unidas con "\n" son exactamente el documento original.
 import indice from "../indice.json"
 
-/** `insertarDespuesDe`: línea exacta de la consigna debajo de la cual se muestra (si no, va en su propia sección). */
-export type Anexo = { titulo: string; archivo: string; insertarDespuesDe?: string; markdown: string[] }
+/**
+ * `insertarDespuesDe`: línea exacta de la consigna debajo de la cual se muestra (si no, va en su propia sección).
+ * `soloSiTerminado`: id de un ejercicio; el anexo se muestra recién cuando ese ejercicio está marcado como terminado.
+ */
+export type Anexo = { titulo: string; archivo: string; insertarDespuesDe?: string; soloSiTerminado?: string; markdown: string[] }
 
 type ArchivoEjercicio = {
   titulo: string

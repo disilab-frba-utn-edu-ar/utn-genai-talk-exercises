@@ -359,3 +359,12 @@
   width: 100%;
   background: var(--grilla);
 }
+
+/* Aviso arriba de todo: el tablero se usa después de aprender a leer el log en el ejercicio 1. */
+.metricas-aviso {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--acento);
+  background: var(--acento-suave);
+  font-size: 0.9375rem;
+}

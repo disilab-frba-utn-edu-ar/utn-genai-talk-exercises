@@ -5,6 +5,7 @@ import { useCarga } from "../../client/src/hooks/useCarga"
 import { guardarRespuestas, leerRespuestas, type RespuestasGuardadas } from "./api"
 import { armarRespuestasMd, partirConsigna, partirPreguntas, siguienteDe, type Ejercicio, type Respuestas as Datos } from "./contenido"
 import Markdown from "./Markdown"
+import { HABILITA_METRICAS, marcarTerminado } from "./progreso"
 
 type Estado = { tipo: "editando" } | { tipo: "guardando" } | { tipo: "guardado"; hora: string } | { tipo: "error"; mensaje: string }
 
@@ -66,9 +67,10 @@ function Editor({ ejercicio, inicial, consigna }: { ejercicio: Ejercicio; inicia
     void guardar()
   }
 
-  // Si no se pudo guardar, se queda en la página con el error a la vista.
-  async function guardarYSeguir() {
+  // Si no se pudo guardar, se queda en la página con el error a la vista y no lo marca como terminado.
+  async function terminar() {
     if (!(await guardar())) return
+    marcarTerminado(ejercicio.id)
     navigate(siguiente ? `/ejercicios/${siguiente.id}` : "/ejercicios")
     document.documentElement.scrollTop = 0
   }
@@ -136,8 +138,18 @@ function Editor({ ejercicio, inicial, consigna }: { ejercicio: Ejercicio; inicia
       ))}
 
       <div className="respuestas-seguir">
-        <button type="button" className="boton boton-secundario" disabled={estado.tipo === "guardando"} onClick={guardarYSeguir}>
-          {siguiente ? "Guardar y seguir" : "Guardar y terminar"} <span aria-hidden="true">→</span>
+        <p className="respuestas-estado" id={`terminar-${ejercicio.id}`}>
+          Guarda tus respuestas{ejercicio.id === HABILITA_METRICAS && ", habilita Métricas"} y{" "}
+          {siguiente ? `pasa al ejercicio ${siguiente.numero}.` : "vuelve al índice."}
+        </p>
+        <button
+          type="button"
+          className="boton boton-secundario"
+          disabled={estado.tipo === "guardando"}
+          onClick={terminar}
+          aria-describedby={`terminar-${ejercicio.id}`}
+        >
+          Terminé <span aria-hidden="true">→</span>
         </button>
       </div>
 

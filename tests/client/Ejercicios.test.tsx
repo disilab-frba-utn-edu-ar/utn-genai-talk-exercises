@@ -2,10 +2,12 @@ import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import Ejercicios from "../../ejercicios/app/Ejercicios"
 import { armarRespuestasMd, conAnexosEnLinea, ejercicios, partirConsigna, partirPreguntas } from "../../ejercicios/app/contenido"
+import { HABILITA_METRICAS } from "../../ejercicios/app/progreso"
 import { formatearTiempo } from "../../ejercicios/app/Temporizador"
 import { renderConRuta, simularApi } from "./helpers"
 
 const ejercicio = ejercicios[0]
+const terminado = (id: string) => (JSON.parse(localStorage.getItem("ejercicios:terminados") ?? "[]") as string[]).includes(id)
 const RUTA_API = `/ejercicios-api/${ejercicio.id}/respuestas`
 
 const renderEjercicio = () =>
@@ -84,19 +86,31 @@ describe("Ejercicios", () => {
     expect(cuerpo.markdown).toContain("### 2. Explorar antes de actuar\n\n_Sin responder._")
   })
 
-  it("“Guardar y seguir” guarda y pasa al ejercicio siguiente", async () => {
+  it("“Terminé” guarda, habilita Métricas y pasa al ejercicio 2, donde aparece la invitación al tablero", async () => {
     const guardadas = { ejercicio: ejercicio.id, guardado: "2026-10-28T12:00:00Z", general: [], respuestas: {} }
     const fetchFalso = simularApi({ [RUTA_API]: guardadas, [`/ejercicios-api/${ejercicios[1].id}/respuestas`]: null })
     renderEjercicio()
 
-    await userEvent.click(await screen.findByRole("button", { name: /Guardar y seguir/ }))
+    expect(screen.queryByRole("link", { name: "Ver métricas" })).not.toBeInTheDocument()
+    await userEvent.click(await screen.findByRole("button", { name: /Terminé/ }))
 
     const llamadas = fetchFalso.mock.calls as unknown as [string, RequestInit | undefined][]
     expect(llamadas.some(([url, op]) => url === RUTA_API && op?.method === "PUT")).toBe(true)
     expect(await screen.findByRole("heading", { name: "A.3 ¿Se dispara?" })).toBeInTheDocument()
+    expect(terminado(HABILITA_METRICAS)).toBe(true)
+    const metricas = screen.getByRole("link", { name: "Ver métricas" })
+    expect(metricas).toHaveAttribute("href", "/metricas")
+    expect(metricas).toHaveAttribute("target", "_blank")
   })
 
-  it("si no se pudo guardar, “Guardar y seguir” se queda con el error a la vista", async () => {
+  it("sin terminar el ejercicio 1, el ejercicio 2 no invita a Métricas", async () => {
+    simularApi({ [`/ejercicios-api/${ejercicios[1].id}/respuestas`]: null })
+    renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicios[1].id}`, patron: "/ejercicios/*" })
+    await screen.findByLabelText("Datos de la entrega")
+    expect(screen.queryByRole("link", { name: "Ver métricas" })).not.toBeInTheDocument()
+  })
+
+  it("si no se pudo guardar, “Terminé” se queda con el error a la vista y no lo marca como terminado", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async (_url: string, op?: RequestInit) =>
@@ -105,17 +119,18 @@ describe("Ejercicios", () => {
     )
     renderEjercicio()
 
-    await userEvent.click(await screen.findByRole("button", { name: /Guardar y seguir/ }))
+    await userEvent.click(await screen.findByRole("button", { name: /Terminé/ }))
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Disco lleno")
     expect(screen.getByLabelText("Datos de la entrega")).toBeInTheDocument()
+    expect(terminado(HABILITA_METRICAS)).toBe(false)
   })
 
   it("el último ejercicio termina y vuelve al índice", async () => {
     const ultimo = ejercicios.at(-1)!
     simularApi({ [`/ejercicios-api/${ultimo.id}/respuestas`]: null })
     renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ultimo.id}`, patron: "/ejercicios/*" })
-    expect(await screen.findByRole("button", { name: /Guardar y terminar/ })).toBeInTheDocument()
+    expect(await screen.findByRole("button", { name: /Terminé/ })).toHaveAccessibleDescription(/vuelve al índice/)
   })
 
   it("“Ver aplicación” es un botón que abre la app en una pestaña nueva", async () => {
