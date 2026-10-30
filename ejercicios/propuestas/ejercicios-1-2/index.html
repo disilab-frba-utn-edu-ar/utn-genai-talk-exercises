@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ejercicios 1 y 2 por pasos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: misma estética del visor (papel + tinta, bordes gruesos, sombra dura). Cada paso es una fila
+   "acción | nota al margen"; la nota a mano apunta con una flecha a la acción que la necesita. */
+:root {
+  --fondo: #fbf6ea;
+  --superficie: #fffdf7;
+  --texto: #17140f;
+  --texto-suave: #4f4a42;
+  --linea: #17140f;
+  --linea-suave: color-mix(in srgb, #17140f 16%, transparent);
+  --trama: color-mix(in srgb, #17140f 13%, transparent);
+  --acento: #e8482b;
+  --acento-texto: #c2361b;
+  --acento-suave: color-mix(in srgb, #e8482b 12%, transparent);
+  --resaltador: #ffd84d;
+  --cielo: #9fd8ff;
+  --menta: #a6e8c9;
+  --rosa: #ffb3c7;
+  --tinta-fija: #17140f;
+  --terminal: #17140f;
+  --terminal-texto: #f3ecdc;
+  --ok: #1f8a5b;
+  --error: #b42318;
+  --nota: #fff3b0;
+  --radio: 16px;
+  --radio-chico: 10px;
+  --borde: 2.5px solid var(--linea);
+  --sombra: 5px 5px 0 var(--linea);
+  --sombra-chica: 3px 3px 0 var(--linea);
+  --fuente: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fuente-titulos: "Bricolage Grotesque", var(--fuente);
+  --fuente-mano: "Caveat", "Segoe Print", cursive;
+  --fuente-codigo: "IBM Plex Mono", ui-monospace, monospace;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fondo: #1a1713; --superficie: #24201a; --texto: #f3ecdc; --texto-suave: #c4bba8;
+    --linea: #f3ecdc; --linea-suave: color-mix(in srgb, #f3ecdc 18%, transparent);
+    --trama: color-mix(in srgb, #f3ecdc 9%, transparent);
+    --acento: #ff6a4d; --acento-texto: #ff8a70; --acento-suave: color-mix(in srgb, #ff6a4d 16%, transparent);
+    --terminal: #0f0d0a; --ok: #5fd39c; --error: #ff7b6b; --nota: #ffe68a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fondo: #1a1713; --superficie: #24201a; --texto: #f3ecdc; --texto-suave: #c4bba8;
+  --linea: #f3ecdc; --linea-suave: color-mix(in srgb, #f3ecdc 18%, transparent);
+  --trama: color-mix(in srgb, #f3ecdc 9%, transparent);
+  --acento: #ff6a4d; --acento-texto: #ff8a70; --acento-suave: color-mix(in srgb, #ff6a4d 16%, transparent);
+  --terminal: #0f0d0a; --ok: #5fd39c; --error: #ff7b6b; --nota: #ffe68a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background-color: var(--fondo);
+  background-image: radial-gradient(var(--trama) 1.2px, transparent 1.4px);
+  background-size: 18px 18px;
+  color: var(--texto);
+  font-family: var(--fuente);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.pagina {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding-block: 2rem 4rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 2rem;
+}
+h1, h2, h3 { font-family: var(--fuente-titulos); font-weight: 800; line-height: 1.1; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3.2rem); }
+h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); }
+h3 { font-size: 1.2rem; }
+p { margin: 0; }
+code, .mono { font-family: var(--fuente-codigo); font-size: 0.88em; }
+.sobretitulo {
+  font-family: var(--fuente-codigo); font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--acento-texto);
+}
+.suave { color: var(--texto-suave); }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+
+/* ── Cabecera ─────────────────────────────── */
+.cabecera { display: grid; gap: 0.9rem; max-width: 52rem; }
+.cabecera .bajada { font-size: 1.08rem; max-width: 62ch; }
+.mano { font-family: var(--fuente-mano); font-size: 1.45rem; line-height: 1.1; color: var(--acento-texto); }
+
+/* ── Controles ────────────────────────────── */
+.controles {
+  display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: end;
+  padding: 1rem 1.2rem; background: var(--superficie); border: var(--borde); border-radius: var(--radio); box-shadow: var(--sombra);
+}
+.grupo { display: grid; gap: 0.4rem; }
+.grupo > span { font-size: 0.8rem; font-weight: 600; color: var(--texto-suave); }
+.segmentado { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.segmentado button {
+  border: var(--borde); border-radius: 999px; background: var(--superficie);
+  padding: 0.35rem 0.9rem; font-weight: 600; font-size: 0.92rem;
+  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.segmentado button:hover { transform: translate(-1px, -1px); box-shadow: var(--sombra-chica); }
+.segmentado button[aria-pressed="true"] { background: var(--tinta-fija); color: #fbf6ea; border-color: var(--tinta-fija); }
+:root[data-theme="dark"] .segmentado button[aria-pressed="true"] { background: var(--acento); border-color: var(--acento); color: #17140f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .segmentado button[aria-pressed="true"] { background: var(--acento); border-color: var(--acento); color: #17140f; } }
+.descripcion-variante { flex: 1 1 18rem; min-width: 0; font-size: 0.92rem; color: var(--texto-suave); }
+
+/* ── Piezas comunes de un paso ────────────── */
+.objetivo { font-size: 1.02rem; }
+.objetivo b { background: linear-gradient(transparent 55%, color-mix(in srgb, var(--resaltador) 70%, transparent) 55%); color: inherit; }
+.acciones { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+.accion {
+  display: grid; grid-template-columns: minmax(0, 32rem) minmax(0, 17rem); gap: 0.5rem 1.25rem; align-items: start;
+}
+.accion-texto { display: flex; gap: 0.6rem; align-items: baseline; min-width: 0; }
+.accion-texto .vineta {
+  flex: none; width: 1.5rem; height: 1.5rem; border: 2px solid var(--linea); border-radius: 50%;
+  display: grid; place-items: center; font-size: 0.75rem; font-weight: 700; font-family: var(--fuente-codigo);
+  transform: translateY(0.2rem);
+}
+.accion.sin-nota { grid-template-columns: minmax(0, 1fr); }
+
+.nota {
+  position: relative; min-width: 0;
+  display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); gap: 0.2rem; align-items: start;
+}
+.nota svg { width: 2.6rem; height: 1.8rem; color: var(--acento); margin-top: 0.15rem; }
+.nota-cuerpo {
+  min-width: 0; background: var(--nota); color: var(--tinta-fija);
+  border: 2px solid var(--tinta-fija); border-radius: 4px 12px 4px 12px; padding: 0.5rem 0.65rem 0.6rem;
+  transform: rotate(-0.6deg); box-shadow: 2px 3px 0 var(--tinta-fija);
+  font-size: 0.86rem; line-height: 1.4; display: grid; gap: 0.35rem;
+}
+.nota-cuerpo .titulo-nota { font-family: var(--fuente-mano); font-size: 1.3rem; line-height: 1; }
+.cmd {
+  display: flex; gap: 0.4rem; align-items: start; justify-content: space-between;
+  background: #17140f; color: #f3ecdc; border-radius: 6px; padding: 0.4rem 0.5rem; min-width: 0;
+}
+.cmd pre { margin: 0; font-family: var(--fuente-codigo); font-size: 0.78rem; white-space: pre-wrap; word-break: break-word; min-width: 0; }
+.cmd button {
+  flex: none; border: 1px solid #f3ecdc55; background: transparent; color: #f3ecdc; border-radius: 4px;
+  font-size: 0.7rem; padding: 0.05rem 0.35rem; font-family: var(--fuente-codigo);
+}
+
+@media (max-width: 720px) {
+  .accion { grid-template-columns: minmax(0, 1fr); }
+  .nota { padding-left: 1.6rem; grid-template-columns: 2rem minmax(0, 1fr); }
+  .nota svg { transform: rotate(60deg); width: 2rem; }
+}
+
+/* Lo que deberías ver */
+.veras { display: grid; gap: 0.45rem; min-width: 0; }
+.veras-etiqueta { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); }
+.terminal {
+  background: var(--terminal); color: var(--terminal-texto); border: var(--borde); border-radius: var(--radio-chico);
+  padding: 0.75rem 0.9rem; font-family: var(--fuente-codigo); font-size: 0.8rem; line-height: 1.55;
+  overflow-x: auto; white-space: pre; margin: 0;
+}
+.terminal .ok { color: #5fd39c; } .terminal .err { color: #ff7b6b; } .terminal .dim { color: #f3ecdc88; } .terminal .hl { color: #ffd84d; }
+.ilustrativo { font-size: 0.75rem; color: var(--texto-suave); font-style: italic; }
+
+.superposicion { display: grid; gap: 0.5rem; padding: 0.9rem; border: var(--borde); border-radius: var(--radio-chico); background: var(--superficie); }
+.superposicion .eje { position: relative; height: 1.2rem; font-family: var(--fuente-codigo); font-size: 0.72rem; color: var(--texto-suave); }
+.superposicion .eje span { position: absolute; transform: translateX(-50%); }
+.franja { position: relative; height: 2rem; }
+.franja div {
+  position: absolute; top: 0; bottom: 0; border: 2px solid var(--tinta-fija); border-radius: 6px; color: var(--tinta-fija);
+  font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; padding-inline: 0.4rem; white-space: nowrap; overflow: hidden;
+}
+.choque { position: absolute; top: -0.2rem; bottom: -0.2rem; background: repeating-linear-gradient(45deg, var(--acento) 0 4px, transparent 4px 8px); opacity: 0.55; border-radius: 4px; }
+.respuestas-api { display: flex; flex-wrap: wrap; gap: 0.5rem; font-family: var(--fuente-codigo); font-size: 0.8rem; }
+.status { border: 2px solid var(--linea); border-radius: 6px; padding: 0.1rem 0.45rem; font-weight: 700; }
+.status.mal { background: var(--acento-suave); border-color: var(--acento); color: var(--acento-texto); }
+.status.bien { color: var(--ok); border-color: var(--ok); }
+
+/* Preguntas del paso */
+.preguntas-paso { display: grid; gap: 0.6rem; padding: 0.9rem 1rem; border: 2px dashed var(--linea); border-radius: var(--radio-chico); background: color-mix(in srgb, var(--cielo) 22%, transparent); }
+.preguntas-paso h4 { margin: 0; font-family: var(--fuente-titulos); font-size: 1rem; display: flex; gap: 0.5rem; align-items: center; }
+.preguntas-paso ol { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.45rem; }
+.preguntas-paso li::marker { font-weight: 700; font-family: var(--fuente-codigo); }
+.preguntas-paso .p-titulo { font-weight: 700; }
+.etiqueta-opcional { font-size: 0.72rem; font-weight: 700; border: 1.5px solid var(--linea); border-radius: 999px; padding: 0 0.4rem; margin-left: 0.3rem; vertical-align: 1px; }
+
+.decision {
+  border: var(--borde); border-radius: var(--radio-chico); padding: 0.7rem 0.9rem;
+  background: color-mix(in srgb, var(--rosa) 35%, var(--superficie)); display: grid; gap: 0.3rem;
+}
+.criterios { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.45rem; }
+.criterios span { border: 2px solid var(--linea); border-radius: 999px; padding: 0.05rem 0.55rem; font-size: 0.8rem; font-weight: 600; background: var(--superficie); }
+
+/* ── Variante A: asistente ────────────────── */
+.stepper { list-style: none; margin: 0; padding: 0 0 0.4rem; display: flex; gap: 0.35rem; overflow-x: auto; }
+.stepper li { flex: 1 0 7.5rem; }
+.stepper button {
+  width: 100%; text-align: left; border: none; background: none; padding: 0.3rem 0.2rem; display: grid; gap: 0.35rem;
+}
+.stepper .barra { height: 6px; border-radius: 999px; background: var(--linea-suave); }
+.stepper .hecho .barra { background: var(--linea); }
+.stepper .actual .barra { background: var(--acento); }
+.stepper .nombre { font-size: 0.82rem; font-weight: 600; color: var(--texto-suave); line-height: 1.25; }
+.stepper .actual .nombre { color: var(--texto); }
+.tarjeta {
+  background: var(--superficie); border: var(--borde); border-radius: var(--radio); box-shadow: var(--sombra);
+  padding: clamp(1rem, 3vw, 1.75rem); display: grid; gap: 1.2rem; min-width: 0;
+}
+.tarjeta-cabecera { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; align-items: baseline; }
+.navegacion { display: flex; justify-content: space-between; gap: 0.6rem; }
+.boton {
+  border: var(--borde); border-radius: 999px; background: var(--superficie); padding: 0.45rem 1.1rem; font-weight: 700;
+  box-shadow: var(--sombra-chica); transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.boton:hover:not(:disabled) { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--linea); }
+.boton.primario { background: var(--acento); color: #17140f; }
+.boton:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
+
+/* ── Variante B: recorrido ────────────────── */
+.recorrido { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.6rem; position: relative; }
+.recorrido > li { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); gap: 1rem; position: relative; }
+.recorrido > li::before {
+  content: ""; position: absolute; left: calc(1.3rem - 1.25px); top: 2.8rem; bottom: -1.6rem; border-left: 2.5px dashed var(--linea);
+}
+.recorrido > li:last-child::before { display: none; }
+.nodo {
+  width: 2.6rem; height: 2.6rem; border: var(--borde); border-radius: 50%; background: var(--resaltador); color: var(--tinta-fija);
+  display: grid; place-items: center; font-family: var(--fuente-titulos); font-weight: 800; font-size: 1.15rem; position: relative; z-index: 1;
+}
+.recorrido .cuerpo { display: grid; gap: 0.9rem; min-width: 0; padding-top: 0.3rem; }
+.recorrido .veras { max-width: 50.25rem; }
+@media (max-width: 720px) { .recorrido .veras { max-width: none; } .recorrido > li { grid-template-columns: 2rem minmax(0,1fr); gap: 0.6rem; } .nodo { width: 2rem; height: 2rem; font-size: 0.95rem; } .recorrido > li::before { left: calc(1rem - 1.25px); top: 2.2rem; } }
+
+/* ── Variante C: hacé / deberías ver ──────── */
+.progreso { display: grid; gap: 0.4rem; }
+.progreso-barra { height: 14px; border: var(--borde); border-radius: 999px; overflow: hidden; background: var(--superficie); }
+.progreso-barra div { height: 100%; background: var(--menta); border-right: 2.5px solid var(--linea); transition: width 0.3s var(--ease); }
+.dos-columnas { display: grid; gap: 1.5rem; }
+.fila-c {
+  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0;
+  border: var(--borde); border-radius: var(--radio); background: var(--superficie); box-shadow: var(--sombra); overflow: hidden;
+}
+.fila-c > div { padding: 1.1rem 1.2rem; display: grid; gap: 0.8rem; align-content: start; min-width: 0; }
+.fila-c > div + div { border-left: var(--borde); background: color-mix(in srgb, var(--menta) 14%, var(--superficie)); }
+.fila-c .accion { grid-template-columns: minmax(0, 1fr); }
+.fila-c .nota { padding-left: 1.9rem; grid-template-columns: 2rem minmax(0, 1fr); }
+.fila-c .nota svg { transform: rotate(60deg); width: 2rem; }
+.check { display: flex; gap: 0.6rem; align-items: start; cursor: pointer; }
+.check input { width: 1.15rem; height: 1.15rem; margin-top: 0.2rem; accent-color: var(--acento); flex: none; }
+.check input:checked + span { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--texto-suave); }
+@media (max-width: 760px) { .fila-c { grid-template-columns: minmax(0, 1fr); } .fila-c > div + div { border-left: none; border-top: var(--borde); } }
+
+/* ── Inventario de preguntas ──────────────── */
+.inventario { display: grid; gap: 1.2rem; }
+.resumen-conteo { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+.conteo { border: var(--borde); border-radius: var(--radio-chico); padding: 0.55rem 0.9rem; background: var(--superficie); display: grid; }
+.conteo b { font-family: var(--fuente-titulos); font-size: 1.6rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.conteo span { font-size: 0.8rem; color: var(--texto-suave); }
+.leyenda { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.82rem; }
+.tabla-envoltorio { overflow-x: auto; border: var(--borde); border-radius: var(--radio); background: var(--superficie); box-shadow: var(--sombra); }
+table { border-collapse: collapse; width: 100%; min-width: 46rem; font-size: 0.9rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.65rem 0.8rem; border-bottom: 1.5px solid var(--linea-suave); }
+th { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); background: color-mix(in srgb, var(--resaltador) 25%, var(--superficie)); }
+tr:last-child td { border-bottom: none; }
+td.num { font-family: var(--fuente-codigo); font-weight: 700; white-space: nowrap; }
+td ul { margin: 0.25rem 0 0; padding-left: 1.1rem; color: var(--texto-suave); }
+td ul li.tachada { text-decoration: line-through; opacity: 0.7; }
+.veredicto { display: inline-block; border: 2px solid var(--tinta-fija); border-radius: 999px; padding: 0 0.55rem; font-size: 0.78rem; font-weight: 700; color: var(--tinta-fija); white-space: nowrap; }
+.v-mantener { background: var(--menta); }
+.v-recortar { background: var(--resaltador); }
+.v-fusionar { background: var(--cielo); }
+.v-sacar { background: var(--rosa); }
+.v-opcional { background: var(--superficie); color: var(--texto); border-color: var(--linea); border-style: dashed; }
+tr.sacada td:not(:last-child) { opacity: 0.6; }
+
+.redundancias { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 1rem; }
+.redundancias .tarjeta { gap: 0.6rem; box-shadow: var(--sombra-chica); }
+.redundancias ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+.redundancias li b { font-weight: 600; }
+
+section { display: grid; gap: 1rem; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<main class="pagina">
+  <header class="cabecera">
+    <span class="sobretitulo">Propuesta · visor de ejercicios</span>
+    <h1>Ejercicios 1 y 2, paso a paso</h1>
+    <p class="bajada">La consigna de cada ejercicio, partida en pasos cortos: qué hacés, qué deberías ver y qué preguntas se responden ahí. Los comandos y los tips van al costado como notas, con una flecha a la acción que los necesita.</p>
+    <p class="mano">Tres formas de mostrarlo: elegí una y comparalas con el mismo ejercicio.</p>
+  </header>
+
+  <div class="controles" role="group" aria-label="Qué mostrar">
+    <div class="grupo"><span>Ejercicio</span><div class="segmentado" id="selector-ejercicio"></div></div>
+    <div class="grupo"><span>Variante</span><div class="segmentado" id="selector-variante"></div></div>
+    <p class="descripcion-variante" id="descripcion-variante"></p>
+  </div>
+
+  <section id="vista" aria-live="polite"></section>
+
+  <section class="inventario" aria-labelledby="titulo-inventario">
+    <span class="sobretitulo">Preguntas</span>
+    <h2 id="titulo-inventario">Todas las preguntas de hoy y qué propongo con cada una</h2>
+    <div class="resumen-conteo" id="conteo"></div>
+    <div class="leyenda">
+      <span class="veredicto v-mantener">Mantener</span>
+      <span class="veredicto v-recortar">Recortar</span>
+      <span class="veredicto v-fusionar">Fusionar</span>
+      <span class="veredicto v-opcional">Opcional</span>
+      <span class="veredicto v-sacar">Sacar</span>
+      <span class="suave">· las sub-preguntas tachadas se van o pasan a la checklist del paso</span>
+    </div>
+    <div class="tabla-envoltorio"><table id="tabla-preguntas"></table></div>
+  </section>
+
+  <section aria-labelledby="titulo-redundancias">
+    <span class="sobretitulo">Texto que se va</span>
+    <h2 id="titulo-redundancias">Explicaciones redundantes que saco de la consigna</h2>
+    <div class="redundancias" id="redundancias"></div>
+  </section>
+</main>
+
+<script>
+const FLECHA = '<svg viewBox="0 0 52 36" fill="none" aria-hidden="true"><path d="M48 8 C 36 2, 18 4, 7 22" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M7 22 L 6 11 M7 22 L 17 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
+
+/* ── Contenido ───────────────────────────────────────────────── */
+const EJERCICIOS = {
+  1: {
+    titulo: 'Observar al agente con hooks',
+    minutos: 30,
+    pasos: [
+      {
+        nombre: 'Preparar y activar los hooks',
+        objetivo: 'Dejá la app corriendo y <b>el log grabando cada acción del agente</b>.',
+        acciones: [
+          { t: 'Instalá, generá los datos de ejemplo y levantá la app.', nota: { titulo: 'en su propia terminal', t: 'Dejala corriendo todo el ejercicio. En PowerShell, un comando por línea.', cmd: 'npm install\nnpm run seed\nnpm test\nnpm run dev' } },
+          { t: 'Abrí tu agente desde la raíz del repo y comprobá que los hooks estén cargados.', nota: { titulo: 'según el agente', t: 'Claude Code: /hooks · Codex: marcá el proyecto como confiable y aprobá cada hook en /hooks · Cline: Settings → Enable Hooks.' } },
+          { t: 'Mandale algo trivial ("¿qué hay en package.json?") y mirá el resumen del log.', nota: { titulo: 'terminal maximizada', t: 'Las líneas son largas: en una ventana angosta se cortan.', cmd: 'npm run logs:resumen' } },
+          { t: 'Vaciá el log para medir solo la tarea.', nota: { titulo: 'no borra nada', t: 'Archiva el log en logs/archivo/<fecha>/.', cmd: 'npm run logs:limpiar' } },
+        ],
+        veras: { tipo: 'terminal', etiqueta: 'Después del mensaje trivial', lineas: [
+          ['dim', '$ npm run logs:resumen'], ['', 'Sesión 7c1e…  agente: claude'], ['', 'Eventos      UserPromptSubmit 1 · PreToolUse 1 · PostToolUse 1 · Stop 1'], ['ok', 'Archivos leídos  package.json'],
+        ] },
+      },
+      {
+        nombre: 'Ver el bug',
+        objetivo: 'Comprobá que <b>la API acepta dos sesiones superpuestas</b> de la misma mentora.',
+        acciones: [
+          { t: 'Reservale a Valentina una estrategia de testing (45 min) a las 19:00.', nota: { titulo: 'bash, PowerShell o Postman', t: 'Los tres pedidos completos, listos para copiar, van en un desplegable debajo.', cmd: 'POST /api/sesiones\n{ …, "tipoAsesoriaId": "estrategia_de_testing", "horaInicio": "19:00" }' } },
+          { t: 'Reservale, el mismo día, una revisión de código (30 min) a las 19:30.' },
+          { t: 'Mirá el status de la segunda respuesta.' },
+          { t: 'Borrá esas reservas regenerando los datos.', nota: { titulo: 'siempre después de probar', cmd: 'npm run seed' } },
+        ],
+        veras: { tipo: 'superposicion' },
+      },
+      {
+        nombre: 'Darle la tarea',
+        objetivo: 'Pasale el prompt <b>tal cual</b> y dejalo trabajar sin ayudarlo.',
+        acciones: [
+          { t: 'Abrí una sesión nueva del agente y pegá el prompt del ejercicio.' },
+          { t: 'Aprobá o rechazá cada permiso leyendo qué pide.', nota: { titulo: 'anotalo', t: 'Si tenés que intervenir, escribí cuándo y por qué: lo vas a usar en las respuestas.' } },
+          { t: 'Si querés, seguí el log en vivo mientras trabaja.', nota: { titulo: 'en otra terminal', cmd: 'tail -f logs/<agente>/<sesión>.jsonl\n# PowerShell: Get-Content … -Wait' } },
+        ],
+        veras: { tipo: 'terminal', etiqueta: 'Lo que debería hacer el agente', lineas: [
+          ['hl', '› Plan: extraigo haySuperposicion a server/domain/,'], ['hl', '  escribo los tests primero, los corro y después implemento.'], ['dim', '  …'], ['err', '✗ npm test  2 failed'], ['dim', '  …'], ['ok', '✓ npm test  all passed · npm run lint ok'],
+        ] },
+      },
+      {
+        nombre: 'Leer el log',
+        objetivo: 'Reconstruí <b>qué hizo, en qué orden y con qué evidencia</b>.',
+        acciones: [
+          { t: 'Mirá los conteos: herramientas, comandos y archivos.', nota: { titulo: 'arranca por acá', cmd: 'npm run logs:resumen' } },
+          { t: 'Mirá la línea de tiempo paso a paso.', nota: { titulo: 'tipos de acción', t: 'leer · escribir · ejecutar · buscar · skill · mcp. Las corridas de tests muestran cómo terminaron.', cmd: 'npm run logs:timeline' } },
+          { t: 'Para el detalle de un evento, buscalo en el JSONL de la sesión.', nota: { titulo: 'salidas recortadas', t: 'Cada entrada guarda 2000 caracteres. Para más, abrí el agente con AGENT_LOG_MAX_CHARS=20000.' } },
+        ],
+        veras: { tipo: 'terminal', etiqueta: 'La línea de tiempo que buscás', lineas: [
+          ['dim', '$ npm run logs:timeline'], ['', '10:02:11  leer       AGENTS.md'], ['', '10:02:14  leer       .specify/memory/constitution.md'], ['', '10:02:40  escribir   tests/server/domain/superposicion.test.ts'], ['err', '10:03:05  ejecutar   npm test               → 2 fallaron'], ['', '10:03:31  escribir   server/domain/superposicion.ts'], ['ok', '10:04:02  ejecutar   npm test               → pasaron todos'],
+        ] },
+        preguntas: [1, 2, 3, 4, 7],
+      },
+      {
+        nombre: 'Probar el arreglo',
+        objetivo: 'Verificá vos el resultado, <b>sin creerle al resumen del agente</b>.',
+        acciones: [
+          { t: 'Repetí las dos reservas del paso 2: la segunda tiene que dar 409.' },
+          { t: 'Corré tests, lint y typecheck.', nota: { titulo: 'typecheck no lo pedía el prompt', cmd: 'npm test\nnpm run lint\nnpm run typecheck' } },
+          { t: 'Revisá con git status que no haya tocado data/ ni tests existentes.' },
+          { t: 'Recorré la pantalla de reserva y regenerá los datos.', nota: { cmd: 'npm run seed' } },
+        ],
+        veras: { tipo: 'terminal', etiqueta: 'La segunda reserva, ahora', lineas: [
+          ['dim', '$ POST /api/sesiones  (revision_de_codigo, 19:30)'], ['err', '[409]'], ['', '{ "error": "El horario se superpone con otra sesión de la mentora" }'],
+        ] },
+        preguntas: [6],
+      },
+      {
+        nombre: 'Pensar y entregar',
+        objetivo: 'Dos preguntas para pensar y <b>subir todo a tu rama</b>.',
+        acciones: [
+          { t: 'Respondé las preguntas de reflexión y guardá.' },
+          { t: 'Guardá la línea de tiempo en un archivo.', nota: { titulo: 'en PowerShell', t: 'usá | Out-File -Encoding utf8 en lugar de >.', cmd: 'npm run logs:timeline > ejercicios/01-observabilidad-con-hooks/timeline.txt' } },
+          { t: 'Commiteá, subí y apretá Terminé.', nota: { cmd: 'git add -A\ngit commit -m "Ejercicio 1"\ngit push' } },
+        ],
+        veras: { tipo: 'terminal', etiqueta: 'En git status', lineas: [
+          ['ok', 'nuevo:      server/domain/superposicion.ts'], ['ok', 'nuevo:      tests/server/domain/superposicion.test.ts'], ['ok', 'modificado: server/services/sesiones.ts'], ['ok', 'nuevo:      ejercicios/01-observabilidad-con-hooks/timeline.txt'],
+        ] },
+        preguntas: [9, 10],
+      },
+    ],
+    preguntas: [
+      { n: 1, titulo: 'El ciclo', subs: ['¿Cuántas llamadas a herramientas hizo en total?', '¿Qué herramienta usó más?', 'Agrupalas en las familias de la charla: búsqueda de código, control de versiones, validación local, navegador, servicios.'], v: 'mantener', motivo: 'Es la primera lectura del log y arma el vocabulario del resto.', final: '¿Cuántas herramientas usó, cuál más y de qué familias son?' },
+      { n: 2, titulo: 'Explorar antes de actuar', subs: ['¿Cuántas herramientas usó antes de su primera edición?', '¿Qué archivos leyó?', '¿Leyó la constitution que menciona el prompt?'], v: 'mantener', motivo: 'Se responde mirando la timeline, rápido y con evidencia clara.', final: '¿Qué hizo antes de editar el primer archivo? ¿Leyó la constitution?' },
+      { n: 3, titulo: 'TDD de verdad', subs: ['¿Cumplió el orden test → npm test (falla) → implementación → npm test (pasa)?', '¿Falló porque no compilaba o porque la regla no se cumplía?'], v: 'mantener', motivo: 'Es la pregunta central del ejercicio.', final: '¿Respetó el orden de TDD? ¿El test falló por no compilar o por la regla?' },
+      { n: 4, titulo: 'Comandos de terminal', subs: ['~Listá todos los comandos que ejecutó.~', '¿Alguno no lo pediste? ¿Alguno te generó dudas al aprobarlo?', 'Clasificalos con el semáforo: verde, amarillo, rojo.'], v: 'recortar', motivo: 'Listar es copiar del resumen. Queda lo que pide criterio: dudas y semáforo.', final: 'Clasificá los comandos con el semáforo. ¿Alguno te hizo dudar al aprobarlo? ¿Falló alguno y qué hizo después?' },
+      { n: 5, titulo: 'Errores y reintentos', subs: ['¿Alguna herramienta falló?', '¿Qué hizo el agente después?'], v: 'fusionar', con: 4, motivo: 'Muchas veces no falla nada y queda vacía. Entra como una línea en la 4.' },
+      { n: 6, titulo: 'El resultado', subs: ['Corré test, lint y typecheck: ¿coincide con lo que dijo el agente al final?', '~¿Hizo algo prohibido (tocar data/, correr seed)?~', '~¿Modificó algún test existente? ¿Avisó?~', '¿Respetó las capas: función pura en server/domain/ y la ruta sin hablar con el repositorio?'], v: 'recortar', motivo: 'Lo prohibido y los tests tocados se verifican con git status: pasan a la checklist del paso 5.', final: '¿Lo que corriste coincide con lo que dijo el agente? ¿Respetó las capas de la constitution?' },
+      { n: 7, titulo: 'Contexto', subs: ['¿Qué herramienta llenó más la ventana de contexto?', '¿Había lecturas evitables?'], v: 'mantener', motivo: 'Conecta con context engineering y prepara el ejercicio 2.', final: '¿Qué herramienta llenó más el contexto? ¿Qué lectura se podía evitar?' },
+      { n: 8, titulo: 'Comparar', subs: ['Con alguien que usó otro agente: ¿qué diferencias de estrategia ven?'], v: 'sacar', motivo: 'Depende de otra persona y no entra en 30 minutos. Funciona mejor como puesta en común en la charla.' },
+      { n: 9, titulo: 'Hooks como control', subs: ['Proponé un hook que bloquee algo: ¿en qué evento?', '¿Por qué un hook y no una instrucción en AGENTS.md?'], v: 'mantener', motivo: 'Es la idea de harness engineering que se lleva el ejercicio.', final: 'Proponé un hook que bloquee algo. ¿En qué evento va y por qué no alcanza con AGENTS.md?' },
+      { n: 10, titulo: 'Riesgos', subs: ['~Buscá emails en tu log con grep o Select-String.~', '¿Qué datos sensibles podrían terminar en el log en un proyecto real?', '¿El log debería versionarse?'], v: 'recortar', motivo: 'La búsqueda con regex ocupa más que la pregunta y hay que darla para cada sistema. Queda la reflexión.', final: '¿Qué datos sensibles podrían quedar en el log? ¿Debería versionarse?' },
+    ],
+    redundancias: [
+      ['Objetivo', 'Tres oraciones que repiten la charla. Queda una línea por paso.'],
+      ['Descripción del proyecto y mapa del repo', 'Ya están en el índice y en el prompt.'],
+      ['Tabla de configuración de cada agente', 'Pasa a la nota del paso 1.'],
+      ['Explicación de logs:limpiar y del archivo', 'Una nota de una línea.'],
+      ['Párrafo de AGENT_LOG_MAX_CHARS y AGENT_LOG_RAW', 'Nota en "Leer el log". RAW se saca.'],
+      ['Aviso de terminal maximizada, puerto 5174, && en PowerShell', 'Notas al costado, solo donde aplican.'],
+      ['"Dejá npm run dev corriendo" y botón "Ver aplicación" duplicados', 'Una vez cada uno.'],
+      ['Pistas dentro de las preguntas', 'Se vuelven el "deberías ver" del paso.'],
+    ],
+  },
+  2: {
+    titulo: 'Escribir una skill y conectar un MCP',
+    minutos: 45,
+    pasos: [
+      {
+        nombre: 'Escribir la skill',
+        objetivo: 'Pasá a un archivo <b>las reglas que en el ejercicio 1 tuviste que escribir en el prompt</b>.',
+        acciones: [
+          { t: 'Vaciá el log para medir solo este ejercicio.', nota: { cmd: 'npm run logs:limpiar' } },
+          { t: 'Creá nuevo-endpoint/SKILL.md en la carpeta de skills de tu agente.', nota: { titulo: 'dónde va', t: 'Claude Code y Cline: .claude/skills/ · Codex: .agents/skills/. Usá .claude/skills/speckit-specify/ como modelo.' } },
+          { t: 'Escribí el encabezado: name y description.', nota: { titulo: '"Ayuda con la API" no dispara nunca', t: 'Nombrá el trabajo y el momento, con las palabras que vas a usar al pedirlo: endpoint, ruta, handler, server/routes.' } },
+          { t: 'Escribí el criterio. Tiene que cubrir estos siete puntos:', criterios: ['Preguntar antes', 'Capas', 'Contrato /api', 'Dominio en español', 'Privacidad', 'TDD con supertest', 'Caso borde + validar'] },
+        ],
+        veras: { tipo: 'terminal', etiqueta: '.claude/skills/nuevo-endpoint/SKILL.md', lineas: [
+          ['dim', '---'], ['hl', 'name: nuevo-endpoint'], ['hl', 'description: Crear o modificar un endpoint de la API'], ['hl', '  Express (rutas en server/routes) …'], ['dim', '---'], ['', '## Antes de escribir, preguntá'], ['', '- ¿Quién lo consume? ¿Devuelve datos personales?'], ['', '## Dónde va cada cosa'], ['dim', '…'],
+        ] },
+      },
+      {
+        nombre: '¿Se dispara sola?',
+        objetivo: 'Comprobá que el agente <b>la usa sin que se la nombres</b>.',
+        acciones: [
+          { t: 'En una sesión nueva, preguntale: "¿Cuándo usarías la skill nuevo-endpoint?"', nota: { titulo: 'siempre sesión nueva', t: 'Abierta después de guardar el SKILL.md. En la sesión donde la escribiste, la prueba no vale.' } },
+          { t: 'En otra sesión nueva, pedile el endpoint sin nombrar la skill.', nota: { titulo: 'el pedido, tal cual', cmd: 'Necesito un endpoint para obtener el detalle de una sesión\npor su id: GET /api/sesiones/:id. Si no existe, 404.' } },
+          { t: 'Buscá la skill en la línea de tiempo y anotá el session.', nota: { cmd: 'npm run logs:timeline' } },
+          { t: 'Si no aparece, no le digas que la use: cambiá la description y probá de nuevo. Contá los intentos.' },
+        ],
+        veras: { tipo: 'terminal', etiqueta: 'Se disparó', lineas: [
+          ['dim', 'Sesión 4b9d…'], ['', '11:20:03  prompt     Necesito un endpoint para…'], ['ok', '11:20:05  skill      nuevo-endpoint'], ['', '11:20:09  leer       server/routes/sesiones.ts'], ['', '11:20:30  escribir   tests/server/api/sesion-por-id.test.ts'],
+        ] },
+        preguntas: [1, 3],
+      },
+      {
+        nombre: 'Revisar la privacidad',
+        objetivo: 'Mirá <b>qué campos devuelve</b> el endpoint nuevo.',
+        decision: { titulo: 'Decisión de producto: el detalle no devuelve contactoNombre ni contactoEmail.', t: 'No hay login, y un UUID en la URL no es una credencial. Devuelve la misma vista pública que GET /api/sesiones. El pedido no lo dice a propósito.' },
+        acciones: [
+          { t: 'Pedí una sesión que existe y mirá los campos.', nota: { titulo: 'bash, PowerShell o Postman', t: 'Los comandos completos van en el desplegable.', cmd: 'GET /api/sesiones/<id>' } },
+          { t: 'Pedí una que no existe: tiene que dar 404.', nota: { cmd: 'GET /api/sesiones/no-existe' } },
+          { t: 'Si devuelve el email, no lo corrijas a mano: mejorá la skill y repetí.' },
+        ],
+        veras: { tipo: 'terminal', etiqueta: 'Respuesta esperada', lineas: [
+          ['ok', '[200]'], ['', '{ "id": "…", "mentoraId": "…", "tipoAsesoriaId": "revision_de_codigo",'], ['', '  "colectivoId": "…", "proyecto": "…", "fecha": "2026-11-04",'], ['', '  "horaInicio": "18:00", "horaFin": "18:30", "estado": "confirmada" }'], ['dim', '  sin contactoNombre · sin contactoEmail'], ['err', '[404] { "error": "…" }'],
+        ] },
+        preguntas: [4, 5],
+      },
+      {
+        nombre: 'Conectar el navegador',
+        objetivo: 'Sumale al agente <b>herramientas para usar un navegador</b> con Playwright MCP.',
+        acciones: [
+          { t: 'Agregá el servidor MCP de Playwright.', nota: { titulo: 'Claude Code', t: 'Codex: [mcp_servers.playwright] en .codex/config.toml · Cline: panel MCP Servers.', cmd: 'claude mcp add playwright --scope project -- npx -y @playwright/mcp@latest' } },
+          { t: 'Verificá con /mcp que aparezca y mirá cuántas herramientas expone.', nota: { titulo: 'antes de la clase', t: 'Bajá el navegador para que no se trabe en el momento.', cmd: 'npx playwright install chromium' } },
+        ],
+        veras: { tipo: 'terminal', etiqueta: '/mcp', lineas: [
+          ['ok', 'playwright · conectado'], ['', '  browser_navigate   browser_click   browser_type'], ['', '  browser_snapshot   browser_take_screenshot'], ['', '  browser_network_requests   browser_resize   …'],
+        ] },
+        preguntas: [67],
+      },
+      {
+        nombre: 'Que reserve en el navegador',
+        objetivo: 'Que el agente <b>use la app como un colectivo</b> y te cuente qué encontró.',
+        acciones: [
+          { t: 'Con npm run dev corriendo, pasale el prompt del navegador.', nota: { titulo: 'puerto ocupado', t: 'Si Vite usa el 5174, pasale esa URL.' } },
+          { t: 'Dejalo reservar, verificar con tu endpoint y sacar la captura.' },
+          { t: 'Revisá las herramientas MCP en el resumen.', nota: { cmd: 'npm run logs:resumen' } },
+          { t: 'Descartá la reserva del agente.', nota: { cmd: 'npm run seed' } },
+        ],
+        veras: { tipo: 'terminal', etiqueta: 'En el resumen', lineas: [
+          ['', 'Herramientas MCP'], ['ok', '  mcp__playwright__browser_navigate      3'], ['ok', '  mcp__playwright__browser_click         9'], ['ok', '  mcp__playwright__browser_snapshot      7'], ['', 'Archivo nuevo  ejercicios/02-skill-y-mcp/captura-confirmacion.png'],
+        ] },
+        preguntas: [8, 9, 11],
+      },
+      {
+        nombre: 'Entregar',
+        objetivo: 'Revisá que esté todo y <b>subilo a tu rama</b>.',
+        acciones: [
+          { t: 'Revisá que estén la skill, la configuración del MCP, el endpoint con sus tests y la captura.' },
+          { t: 'Commiteá, subí y apretá Terminé.', nota: { cmd: 'git add -A\ngit commit -m "Ejercicio 2"\ngit push' } },
+          { t: 'Si te sobra tiempo: la parte C, una skill que se dispara al editar un archivo.', nota: { titulo: 'opcional', t: 'Va plegada, con su propia pregunta.' } },
+        ],
+        veras: { tipo: 'terminal', etiqueta: 'En git status', lineas: [
+          ['ok', 'nuevo:      .claude/skills/nuevo-endpoint/SKILL.md'], ['ok', 'nuevo:      .mcp.json'], ['ok', 'modificado: server/routes/sesiones.ts'], ['ok', 'nuevo:      tests/server/api/sesion-por-id.test.ts'], ['ok', 'nuevo:      ejercicios/02-skill-y-mcp/captura-confirmacion.png'],
+        ] },
+        preguntas: [12],
+      },
+    ],
+    preguntas: [
+      { n: 1, titulo: 'La description', subs: ['Pegá tu description final.', '¿Cuántas versiones probaste? Indicá el session de la que funcionó.', '¿Qué cambió entre la primera y la última?'], v: 'mantener', motivo: 'Es lo que más se aprende del ejercicio.', final: 'Pegá tu description final. ¿Cuántos intentos te llevó y qué cambió entre la primera y la última?' },
+      { n: 2, titulo: 'Cuándo se cargó', subs: ['¿Cargó la skill antes o después de leer código?'], v: 'fusionar', con: 3, motivo: 'Se ve en la misma timeline que la 3: va como primera línea de esa pregunta.' },
+      { n: 3, titulo: '¿Siguió el criterio?', subs: ['Mostrá en el diff dos reglas de tu skill que cumplió.', '¿Alguna la ignoró? ¿Por qué?'], v: 'mantener', motivo: 'Une la skill con el código que salió.', final: '¿Cargó la skill antes o después de leer código? Mostrá dos reglas que cumplió y una que haya ignorado, si la hay.' },
+      { n: 4, titulo: 'Privacidad', subs: ['¿La respuesta incluye contactoEmail?', '¿Lo decidió por tu skill, por la constitution o por casualidad?', '~¿Hay un test que lo verifique?~', '~¿GET /api/sesiones es coherente con tu endpoint?~'], v: 'recortar', motivo: 'El test y la coherencia se chequean en la checklist de entrega.', final: '¿Devuelve el email? ¿Por qué: tu skill, la constitution o casualidad? Mostralo en el log.' },
+      { n: 5, titulo: 'Prompt contra skill', subs: ['¿Qué parte del prompt del ejercicio 1 ya no hace falta?', '¿Qué parte sigue haciendo falta?'], v: 'mantener', motivo: 'Es la reflexión que justifica una skill.', final: 'Compará con el prompt del ejercicio 1: ¿qué ya no hace falta escribir y qué sí?' },
+      { n: 6, titulo: 'Contexto (skill)', subs: ['¿Por qué importa que la skill entre solo cuando se usa?', '¿Qué pasaría si todo estuviera en AGENTS.md?'], v: 'fusionar', con: 7, motivo: 'La 6 y la 7 preguntan lo mismo: qué le cuesta al contexto lo que tenés cargado.' },
+      { n: 7, titulo: 'Costo de tener MCP conectados', subs: ['¿Cuántas herramientas expone?', '¿Conviene tener muchos MCP conectados? ¿Qué le cuesta al contexto?'], v: 'fusionar', con: 6, motivo: 'Se responde junto con la 6, al conectar el MCP.', final: 'El MCP expone N herramientas y la skill entra solo cuando se usa. ¿Qué le cuesta cada uno al contexto? ¿Qué pasaría con todo en AGENTS.md?' },
+      { n: 8, titulo: 'Lo que encontró', subs: ['¿Encontró un problema real que los tests no veían?', '¿Qué no pudo verificar?'], v: 'mantener', motivo: 'Muestra qué agrega observar con un navegador.', final: '¿Encontró algo que los tests no veían? ¿Qué no pudo verificar?' },
+      { n: 9, titulo: 'Permisos', subs: ['¿De qué color es un navegador controlado por el agente?', '~¿Qué permisos le diste?~', '¿Cuáles no le darías contra producción?'], v: 'recortar', motivo: '"Qué permisos le diste" se ve en el log y no agrega criterio.', final: '¿De qué color es el navegador en el semáforo? ¿Qué no le permitirías contra producción?' },
+      { n: 10, titulo: 'Herramientas usadas', subs: ['¿Qué herramientas del MCP usó y cuántas veces?', '¿Cuál devolvió las salidas más grandes?'], v: 'sacar', motivo: 'Es un conteo como la pregunta 1 del ejercicio 1, y el tablero de Métricas ya lo muestra.' },
+      { n: 11, titulo: 'Una skill que usa el MCP', subs: ['Proponé una skill que use Playwright: encabezado y 5-6 líneas de criterio.'], v: 'opcional', motivo: 'Buen cierre, pero lleva tiempo. Queda para quien termina antes.', final: 'Proponé una skill que use el MCP: el encabezado y 5-6 líneas de criterio.', opcional: true },
+      { n: 12, titulo: 'La skill por archivo (parte C)', subs: ['¿Se disparó al editar el archivo?', '¿Qué glob usaste y por qué no **/*.ts?', '¿Qué quedó en el script y qué en el criterio?'], v: 'opcional', motivo: 'Va con la parte C, que ya es opcional.', final: 'Parte C: ¿se disparó al editar? ¿Qué glob usaste y qué dejaste en el script?', opcional: true },
+    ],
+    redundancias: [
+      ['Tabla Skill vs MCP del objetivo', 'Se entiende con los pasos 1 y 4.'],
+      ['Explicación larga del frontmatter', 'Nota "Ayuda con la API no dispara nunca".'],
+      ['Checklist de criterio en prosa', 'Siete etiquetas. El detalle de cada una, plegado.'],
+      ['Recuadro de privacidad de 15 líneas', 'Dos líneas de decisión. El "por qué" largo, plegado.'],
+      ['Nota de PowerShell 5 y -SkipHttpErrorCheck', 'Dentro del desplegable de PowerShell.'],
+      ['B.3 "Mirá lo que pasó"', 'Pasa a ser una acción del paso 5.'],
+      ['Tabla de entrega', 'La reemplaza el git status esperado del último paso.'],
+    ],
+  },
+};
+
+const VARIANTES = {
+  a: { nombre: 'A · Asistente', desc: 'Un paso por pantalla, con barra de progreso arriba y Anterior / Siguiente. Las preguntas aparecen en el paso donde se juntó la evidencia.' },
+  b: { nombre: 'B · Recorrido', desc: 'Todos los pasos en una columna, unidos por una línea. Las notas van en el margen derecho con su flecha, como en un cuaderno.' },
+  c: { nombre: 'C · Hacé / Deberías ver', desc: 'Cada paso partido en dos: a la izquierda lo que hacés, con casillas para tildar; a la derecha lo que tiene que aparecer en pantalla.' },
+};
+
+/* ── Estado ──────────────────────────────────────────────────── */
+function leer(clave, defecto) { try { return localStorage.getItem(clave) || defecto; } catch { return defecto; } }
+function guardar(clave, valor) { try { localStorage.setItem(clave, valor); } catch {} }
+const estado = { ej: leer('prop-ej', '1'), variante: leer('prop-var', 'b'), paso: 0, tildes: new Set() };
+
+/* ── Render de piezas ────────────────────────────────────────── */
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function nota(n) {
+  if (!n) return '';
+  return `<aside class="nota">${FLECHA}<div class="nota-cuerpo">
+    ${n.titulo ? `<span class="titulo-nota">${esc(n.titulo)}</span>` : ''}
+    ${n.t ? `<span>${esc(n.t)}</span>` : ''}
+    ${n.cmd ? `<div class="cmd"><pre>${esc(n.cmd)}</pre><button type="button" data-copiar="${esc(n.cmd)}">copiar</button></div>` : ''}
+  </div></aside>`;
+}
+
+function accion(a, i, conCheck, idPaso) {
+  const id = `chk-${estado.ej}-${idPaso}-${i}`;
+  const texto = conCheck
+    ? `<label class="check" for="${id}"><input type="checkbox" id="${id}" data-tilde="${id}" ${estado.tildes.has(id) ? 'checked' : ''}><span>${esc(a.t)}</span></label>`
+    : `<div class="accion-texto"><span class="vineta">${i + 1}</span><span>${esc(a.t)}</span></div>`;
+  const crit = a.criterios ? `<div class="criterios">${a.criterios.map((c) => `<span>${esc(c)}</span>`).join('')}</div>` : '';
+  return `<li class="accion ${a.nota ? '' : 'sin-nota'}"><div style="min-width:0">${texto}${crit}</div>${nota(a.nota)}</li>`;
+}
+
+function veras(v) {
+  if (v.tipo === 'superposicion') {
+    const pos = (h) => ((h - 18.5) / 2) * 100; // eje de 18:30 a 20:30
+    return `<div class="veras"><span class="veras-etiqueta">Lo que deberías ver</span>
+      <div class="superposicion" role="img" aria-label="Dos sesiones de Valentina: 19:00 a 19:45 y 19:30 a 20:00, se pisan de 19:30 a 19:45">
+        <div class="eje">${[18.5, 19, 19.5, 20, 20.5].map((h) => `<span style="left:${pos(h)}%">${Math.floor(h)}:${h % 1 ? '30' : '00'}</span>`).join('')}</div>
+        <div class="franja"><div style="left:${pos(19)}%;width:${pos(19.75) - pos(19)}%;background:var(--cielo)">Testing · 45 min</div></div>
+        <div class="franja"><div style="left:${pos(19.5)}%;width:${pos(20) - pos(19.5)}%;background:var(--rosa)">Revisión · 30 min</div><span class="choque" style="left:${pos(19.5)}%;width:${pos(19.75) - pos(19.5)}%"></span></div>
+        <div class="respuestas-api"><span class="status bien">1ª → 201</span><span class="status mal">2ª → 201 · debería ser 409</span></div>
+      </div></div>`;
+  }
+  const lineas = v.lineas.map(([c, t]) => `<span class="${c}">${esc(t)}</span>`).join('\n');
+  return `<div class="veras"><span class="veras-etiqueta">Lo que deberías ver · ${esc(v.etiqueta)}</span><pre class="terminal">${lineas}</pre><span class="ilustrativo">Ejemplo ilustrativo: los nombres y la hora cambian en cada corrida.</span></div>`;
+}
+
+function preguntasDelPaso(ej, ids) {
+  if (!ids || !ids.length) return '';
+  const items = ids.map((id) => {
+    const p = id === 67 ? ej.preguntas.find((q) => q.n === 7) : ej.preguntas.find((q) => q.n === id);
+    const titulo = id === 67 ? 'Contexto: skill y MCP' : p.titulo;
+    return `<li><span class="p-titulo">${esc(titulo)}.</span>${p.opcional ? '<span class="etiqueta-opcional">opcional</span>' : ''} ${esc(p.final)}</li>`;
+  }).join('');
+  return `<div class="preguntas-paso"><h4>✎ Respondé con lo que acabás de ver</h4><ol>${items}</ol></div>`;
+}
+
+function decision(d) {
+  return d ? `<div class="decision"><b>${esc(d.titulo)}</b><span class="suave">${esc(d.t)}</span></div>` : '';
+}
+
+/* ── Variantes ───────────────────────────────────────────────── */
+function varianteA(ej) {
+  const total = ej.pasos.length;
+  const p = ej.pasos[estado.paso];
+  const stepper = ej.pasos.map((s, i) => `<li class="${i < estado.paso ? 'hecho' : i === estado.paso ? 'actual' : ''}"><button type="button" data-ir="${i}" ${i === estado.paso ? 'aria-current="step"' : ''}><span class="barra"></span><span class="nombre">${i + 1}. ${esc(s.nombre)}</span></button></li>`).join('');
+  return `<ol class="stepper" aria-label="Pasos">${stepper}</ol>
+    <article class="tarjeta">
+      <div class="tarjeta-cabecera"><h2>${esc(p.nombre)}</h2><span class="sobretitulo">Paso ${estado.paso + 1} de ${total}</span></div>
+      <p class="objetivo">${p.objetivo}</p>
+      ${decision(p.decision)}
+      <ul class="acciones">${p.acciones.map((a, i) => accion(a, i, false, estado.paso)).join('')}</ul>
+      ${veras(p.veras)}
+      ${preguntasDelPaso(ej, p.preguntas)}
+      <div class="navegacion">
+        <button type="button" class="boton" data-ir="${estado.paso - 1}" ${estado.paso === 0 ? 'disabled' : ''}>← Anterior</button>
+        <button type="button" class="boton primario" data-ir="${estado.paso + 1}" ${estado.paso === total - 1 ? 'disabled' : ''}>Siguiente →</button>
+      </div>
+    </article>`;
+}
+
+function varianteB(ej) {
+  return `<ol class="recorrido">${ej.pasos.map((p, k) => `
+    <li><span class="nodo">${k + 1}</span><div class="cuerpo">
+      <h3>${esc(p.nombre)}</h3>
+      <p class="objetivo">${p.objetivo}</p>
+      ${decision(p.decision)}
+      <ul class="acciones">${p.acciones.map((a, i) => accion(a, i, false, k)).join('')}</ul>
+      ${veras(p.veras)}
+      ${preguntasDelPaso(ej, p.preguntas)}
+    </div></li>`).join('')}</ol>`;
+}
+
+function varianteC(ej) {
+  const total = ej.pasos.reduce((s, p) => s + p.acciones.length, 0);
+  const hechas = [...estado.tildes].filter((t) => t.startsWith(`chk-${estado.ej}-`)).length;
+  return `<div class="progreso"><span class="suave">${hechas} de ${total} acciones hechas</span><div class="progreso-barra"><div style="width:${(hechas / total) * 100}%"></div></div></div>
+    <div class="dos-columnas">${ej.pasos.map((p, k) => `
+      <article class="fila-c">
+        <div>
+          <span class="sobretitulo">Paso ${k + 1} · Hacé</span>
+          <h3>${esc(p.nombre)}</h3>
+          <p class="objetivo">${p.objetivo}</p>
+          ${decision(p.decision)}
+          <ul class="acciones">${p.acciones.map((a, i) => accion(a, i, true, k)).join('')}</ul>
+          ${preguntasDelPaso(ej, p.preguntas)}
+        </div>
+        <div>${veras(p.veras)}</div>
+      </article>`).join('')}</div>`;
+}
+
+/* ── Inventario ──────────────────────────────────────────────── */
+function inventario() {
+  const filas = [];
+  let conteo = '';
+  for (const [n, ej] of Object.entries(EJERCICIOS)) {
+    const subs = ej.preguntas.reduce((s, p) => s + p.subs.length, 0);
+    const quedan = ej.preguntas.filter((p) => p.final && !p.opcional).length;
+    const opcionales = ej.preguntas.filter((p) => p.opcional).length;
+    conteo += `<div class="conteo"><b>${ej.preguntas.length} → ${quedan}</b><span>Ejercicio ${n}: preguntas obligatorias${opcionales ? ` (+${opcionales} opcionales)` : ''}</span></div>`;
+    conteo += `<div class="conteo"><b>${subs}</b><span>Ejercicio ${n}: sub-preguntas hoy</span></div>`;
+    filas.push(`<tr><th colspan="4">Ejercicio ${n} · ${esc(ej.titulo)} · ${ej.minutos} min</th></tr>`);
+    for (const p of ej.preguntas) {
+      const subsHtml = p.subs.map((s) => s.startsWith('~') ? `<li class="tachada">${esc(s.slice(1, -1))}</li>` : `<li>${esc(s)}</li>`).join('');
+      const etiqueta = { mantener: 'Mantener', recortar: 'Recortar', fusionar: `Fusionar con ${p.con}`, sacar: 'Sacar', opcional: 'Opcional' }[p.v];
+      filas.push(`<tr class="${p.v === 'sacar' ? 'sacada' : ''}">
+        <td class="num">${n}.${p.n}</td>
+        <td><b>${esc(p.titulo)}</b><ul>${subsHtml}</ul></td>
+        <td><span class="veredicto v-${p.v}">${etiqueta}</span><div class="suave" style="margin-top:.35rem;font-size:.85rem">${esc(p.motivo)}</div></td>
+        <td>${p.final ? esc(p.final) : '<span class="suave">—</span>'}</td>
+      </tr>`);
+    }
+  }
+  document.getElementById('conteo').innerHTML = conteo;
+  document.getElementById('tabla-preguntas').innerHTML = `<thead><tr><th>#</th><th>Pregunta actual</th><th>Propuesta</th><th>Cómo queda</th></tr></thead><tbody>${filas.join('')}</tbody>`;
+  document.getElementById('redundancias').innerHTML = Object.entries(EJERCICIOS).map(([n, ej]) => `
+    <div class="tarjeta"><h3>Ejercicio ${n}</h3><ul>${ej.redundancias.map(([q, d]) => `<li><b>${esc(q)}</b>: ${esc(d)}</li>`).join('')}</ul></div>`).join('');
+}
+
+/* ── Controles ───────────────────────────────────────────────── */
+function render() {
+  const ej = EJERCICIOS[estado.ej];
+  document.getElementById('selector-ejercicio').innerHTML = Object.keys(EJERCICIOS).map((k) => `<button type="button" data-ej="${k}" aria-pressed="${k === estado.ej}">Ejercicio ${k}</button>`).join('');
+  document.getElementById('selector-variante').innerHTML = Object.entries(VARIANTES).map(([k, v]) => `<button type="button" data-var="${k}" aria-pressed="${k === estado.variante}">${v.nombre}</button>`).join('');
+  document.getElementById('descripcion-variante').textContent = VARIANTES[estado.variante].desc;
+  const cuerpo = { a: varianteA, b: varianteB, c: varianteC }[estado.variante](ej);
+  document.getElementById('vista').innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:baseline"><h2>Ejercicio ${estado.ej} · ${esc(ej.titulo)}</h2><span class="suave">${ej.minutos} min · ${ej.pasos.length} pasos</span></div>${cuerpo}`;
+}
+
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  if (b.dataset.ej) { estado.ej = b.dataset.ej; estado.paso = 0; guardar('prop-ej', estado.ej); render(); }
+  else if (b.dataset.var) { estado.variante = b.dataset.var; guardar('prop-var', estado.variante); render(); }
+  else if (b.dataset.ir !== undefined) { estado.paso = Number(b.dataset.ir); render(); document.getElementById('vista').scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+  else if (b.dataset.copiar !== undefined) {
+    try { await navigator.clipboard.writeText(b.dataset.copiar); b.textContent = 'copiado'; }
+    catch { const pre = b.previousElementSibling; const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'seleccionado'; }
+    setTimeout(() => { b.textContent = 'copiar'; }, 1500);
+  }
+});
+document.addEventListener('change', (e) => {
+  const id = e.target.dataset && e.target.dataset.tilde;
+  if (!id) return;
+  e.target.checked ? estado.tildes.add(id) : estado.tildes.delete(id);
+  render();
+  document.getElementById(id)?.focus();
+});
+
+render();
+inventario();
+</script>
+</html>
