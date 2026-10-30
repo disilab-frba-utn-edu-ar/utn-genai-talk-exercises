@@ -1,8 +1,8 @@
 // Métricas de agentes: función pura (entradas del log, filtros, ahora) → MetricasAgentes.
 // Sin IO. Define también qué sale del servidor: solo agregados y metadatos (Principio IV, spec 003 FR-002).
 // Nunca se copian prompt, lastMessage, output, el texto de error ni el input crudo al resultado.
-import type { AgenteLog, ConteoMetrica, EntradaLog, FiltrosMetricas, MetricasAgentes, PuntoLineaDeTiempo, SesionMetricas, TablaPrecios, TokensDeMetricas, TokensMetricas, UsoTokens } from "@shared/types"
-import { clasificar } from "../../scripts/agent-logs/clasificar.mjs"
+import type { AgenteLog, ConteoMetrica, EntradaLog, FiltrosMetricas, MetricasAgentes, PuntoLineaDeTiempo, SesionMetricas, TablaPrecios, TokensDeMetricas, TokensMetricas, UsoTokens } from "../../tipos"
+import { clasificar } from "../../../scripts/agent-logs/clasificar.mjs"
 import { costoDe } from "./uso-tokens"
 
 const AGENTES: AgenteLog[] = ["claude", "codex", "cline"]

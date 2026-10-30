@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react"
 import { MemoryRouter } from "react-router"
-import type { MetricasAgentes } from "@shared/types"
-import App from "../../client/src/App"
+import type { MetricasAgentes } from "../../tipos"
+import App from "../../../client/src/App"
 
 /** jsdom no trae EventSource: este doble deja al test mandar eventos y errores. */
 export class FuenteFalsa {

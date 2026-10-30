@@ -1,7 +1,7 @@
 // Uso de tokens: convierte las líneas de las transcripciones de cada agente en `UsoTokens` y calcula el costo.
 // Función pura, sin IO. De esos archivos solo se leen modelo, tokens y timestamp: nunca el contenido de los mensajes.
 // Los nombres de campo confirmados y los supuestos están en specs/003-dashboard-agentes/spec.md.
-import type { PreciosPorTramo, PrecioModelo, TablaPrecios, UsoTokens } from "@shared/types"
+import type { PreciosPorTramo, PrecioModelo, TablaPrecios, UsoTokens } from "../../tipos"
 
 type Objeto = Record<string, unknown>
 const esObjeto = (valor: unknown): valor is Objeto => typeof valor === "object" && valor !== null && !Array.isArray(valor)

@@ -5,9 +5,9 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs"
 import { homedir } from "node:os"
 import { basename, isAbsolute, join } from "node:path"
-import type { AgenteLog, UsoTokens } from "@shared/types"
+import type { AgenteLog, UsoTokens } from "../../tipos"
 import { crearParserCodex, usoDeLineaClaude, usosDeCline } from "../domain/uso-tokens"
-import { crearSeguidor } from "./lectura-incremental"
+import { crearSeguidor } from "../../../server/repositories/lectura-incremental"
 
 export type SesionDeLog = {
   agente: AgenteLog

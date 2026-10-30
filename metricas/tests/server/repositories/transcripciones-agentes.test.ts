@@ -3,7 +3,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { crearRepositorioTranscripciones, type SesionDeLog } from "../../../server/repositories/transcripciones-agentes"
 
-const FIXTURE_HOME = join(process.cwd(), "tests", "server", "fixtures", "home")
+const FIXTURE_HOME = join(process.cwd(), "metricas", "tests", "server", "fixtures", "home")
 const CLAUDE_ID = "bb76875c-d528-5a9e-9c40-c1ba18725474"
 const CODEX_ID = "019a-codex-sesion-1"
 const CLINE_ID = "1761584400000"

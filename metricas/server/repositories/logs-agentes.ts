@@ -2,8 +2,8 @@
 // Lectura incremental: por archivo se recuerda hasta dónde se leyó y solo se agrega lo nuevo.
 import { existsSync, readdirSync } from "node:fs"
 import { join } from "node:path"
-import type { EntradaLog, OrigenDisponible, OrigenLogs } from "@shared/types"
-import { crearSeguidor } from "./lectura-incremental"
+import type { EntradaLog, OrigenDisponible, OrigenLogs } from "../../tipos"
+import { crearSeguidor } from "../../../server/repositories/lectura-incremental"
 
 const ARCHIVO = "archivo" // logs/archivo/<fecha>: lo que mueve npm run logs:limpiar
 

@@ -1,11 +1,11 @@
 import { readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
-import type { EntradaLog, FiltrosMetricas, TablaPrecios, UsoTokens } from "@shared/types"
-import precios from "../../../metricas/precios-modelos.json"
+import type { EntradaLog, FiltrosMetricas, TablaPrecios, UsoTokens } from "../../../tipos"
+import precios from "../../../precios-modelos.json"
 import { crearParserCodex, usoDeLineaClaude, usosDeCline } from "../../../server/domain/uso-tokens"
 import { binarioDe, calcularMetricas, percentil, redactar, rutaPublica } from "../../../server/domain/metricas-agentes"
 
-const FIXTURES = join(process.cwd(), "tests", "server", "fixtures", "logs")
+const FIXTURES = join(process.cwd(), "metricas", "tests", "server", "fixtures", "logs")
 const RAIZ = "/work/repo"
 const AHORA = new Date("2026-10-27T17:12:00.000Z") // pasadas las tres sesiones de las fixtures
 

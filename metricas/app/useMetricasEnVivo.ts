@@ -1,4 +1,4 @@
-import type { FiltrosMetricas, MetricasAgentes, OrigenLogs } from "@shared/types"
+import type { FiltrosMetricas, MetricasAgentes, OrigenLogs } from "../tipos"
 import { useCallback, useEffect, useState } from "react"
 import { leerMetricas, suscribirse } from "./api"
 

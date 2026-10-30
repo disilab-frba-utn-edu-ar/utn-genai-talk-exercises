@@ -1,6 +1,6 @@
 // Único lugar de Métricas que hace fetch o abre un EventSource (Principio VI). Lo atiende
 // server/routes/metricas-agentes.ts. Vive junto a la UI, separado del producto, igual que ejercicios/app/api.ts.
-import type { FiltrosMetricas, MetricasAgentes, OrigenDisponible, OrigenLogs } from "@shared/types"
+import type { FiltrosMetricas, MetricasAgentes, OrigenDisponible, OrigenLogs } from "../tipos"
 
 const BASE = "/api/metricas-agentes"
 const ERRORES_PARA_RENDIRSE = 3
