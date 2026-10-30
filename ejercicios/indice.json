@@ -37,7 +37,7 @@
     "|---|---|---|---|",
     "| 1 | [Observar al agente con hooks](./01-observabilidad-con-hooks/) | Activás los hooks que loguean cada acción, le pasás un prompt para arreglar un bug (sesiones superpuestas) y respondés preguntas con el log. | 30 min |",
     "| 2 | [Escribir una skill y conectar un MCP](./02-skill-y-mcp/) | Escribís la skill `nuevo-endpoint`, comprobás que se dispara sola y conectás Playwright MCP para que el agente reserve una sesión en el navegador. | 45 min |",
-    "| 3 | [Feature con Spec-Driven Development](./03-sdd/) | Elegís una iteración del backlog y la llevás de la spec al código con Spec Kit, con ✋ entre cada etapa. | 45 min |",
+    "| 3 | [Feature con Spec-Driven Development](./03-sdd/) | Tomás una historia del tablero y la llevás de la spec al código con Spec Kit, con ✋ entre cada etapa. | 45 min |",
     "",
     "Agentes soportados: **Claude Code**, **Codex CLI** y **Cline** (cada ejercicio",
     "tiene instrucciones para los tres). Requisitos: Node.js 22 LTS o 24 LTS y git.",

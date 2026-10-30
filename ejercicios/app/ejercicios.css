@@ -961,3 +961,564 @@
     animation: none;
   }
 }
+
+/* ── Ejercicio 3: bloqueo, Rocco, tablero ───────────────── */
+
+/* El ejercicio 3 usa un ancho propio, más amplio que el de lectura: entra la consigna y, al costado, la tarea. */
+.ejercicio-pagina {
+  --ancho-sdd: calc(var(--ancho-lectura) + 30rem);
+}
+
+.bloqueado,
+.po,
+.sdd-pestanas,
+.kanban-contenedor {
+  width: 100%;
+  max-width: var(--ancho-lectura);
+  margin-inline: auto;
+}
+
+/* Ya en el tablero, cabecera, pestañas, temporizador, tablero y consigna se alinean al mismo ancho centrado. */
+.ejercicio-pagina:has(.kanban-contenedor) .ejercicio-cabecera,
+.sdd-pestanas,
+.kanban-contenedor {
+  max-width: var(--ancho-sdd);
+}
+
+/* El temporizador se alinea con --ancho-lectura: acá, con el ancho del ejercicio 3. */
+.sdd-temporizador {
+  display: contents;
+  --ancho-lectura: var(--ancho-sdd);
+}
+
+.bloqueado {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding: 1.35rem;
+}
+
+.bloqueado h2,
+.bloqueado p {
+  margin: 0;
+}
+
+/* Rocco en una viñeta celeste, como la del inicio: el logo a la izquierda y su globo de diálogo. */
+.po {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: var(--borde);
+  border-radius: 22px;
+  background: var(--cielo);
+  box-shadow: var(--sombra);
+  perspective: 900px;
+}
+
+/* El logo de la marca en grande, apenas girado hacia el globo. */
+.po-logo {
+  display: grid;
+  place-items: center;
+  width: clamp(7rem, 18vw, 11rem);
+  aspect-ratio: 1;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--texto);
+  color: var(--acento);
+  font-family: var(--fuente-codigo);
+  font-size: clamp(4.5rem, 12vw, 7.5rem);
+  line-height: 1;
+  transform: rotateY(16deg) rotateX(4deg);
+  box-shadow: 6px 6px 0 var(--acento);
+}
+
+/* Globo de diálogo: la colita es un cuadrado girado con el mismo trazo (como .globo). */
+.po-dialogo {
+  position: relative;
+  padding: 1.1rem 1.35rem;
+  border: var(--borde);
+  border-radius: 18px;
+  background: var(--superficie);
+}
+
+.po-dialogo::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -0.7rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-left: var(--borde);
+  border-bottom: var(--borde);
+  background: inherit;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.po-quien {
+  margin: 0 0 0.35rem;
+  font-family: var(--fuente-mano);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.po-quien span {
+  margin-left: 0.35rem;
+  font-family: var(--fuente-codigo);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--texto-suave);
+}
+
+.po-texto {
+  /* Reserva el alto del texto entero: el globo no salta mientras se escribe. */
+  min-height: 7.5em;
+  margin: 0;
+  font-family: var(--fuente-codigo);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+/* El cursor de bloque, titilando mientras escribe (usa el parpadear de styles.css). */
+.po-texto[data-escribiendo]::after {
+  content: "▋";
+  margin-left: 0.1em;
+  color: var(--acento);
+  animation: parpadear 1.05s steps(1, end) infinite;
+}
+
+.po-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.po-paso {
+  margin-right: auto;
+  font-family: var(--fuente-codigo);
+  font-size: 0.8125rem;
+  color: var(--texto-suave);
+}
+
+@media (max-width: 40rem) {
+  .po {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .po-dialogo::before {
+    top: -0.7rem;
+    left: 50%;
+    transform: translateX(-50%) rotate(135deg);
+  }
+}
+
+.sdd-pestanas {
+  margin-bottom: 1.25rem;
+}
+
+/* La ayuda del tablero, como anotación a mano. */
+.kanban-ayuda {
+  margin: 0 0 0.9rem;
+  font-family: var(--fuente-mano);
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.kanban-aviso {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.85rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: color-mix(in srgb, var(--resaltador) 55%, var(--superficie));
+  box-shadow: var(--sombra-chica);
+  font-size: 0.9375rem;
+}
+
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 48rem) {
+  .kanban {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kanban-columna {
+  min-height: 14rem;
+  padding: 0.85rem;
+  border: 2.5px dashed var(--linea-suave);
+  border-radius: var(--radio);
+  transition:
+    border-color 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+
+.kanban-columna[data-destino] {
+  border-color: var(--linea);
+  background: color-mix(in srgb, var(--resaltador) 30%, transparent);
+}
+
+/* El título de cada columna es un sticker de color. */
+.kanban-titulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.9rem;
+  padding: 0.2rem 0.8rem;
+  border: 2px solid var(--linea);
+  border-radius: 999px;
+  background: var(--resaltador);
+  box-shadow: 2px 2px 0 var(--linea);
+  font-family: var(--fuente-titulos);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.kanban-columna:nth-child(2) .kanban-titulo {
+  background: var(--cielo);
+}
+
+.kanban-columna:nth-child(3) .kanban-titulo {
+  background: var(--menta);
+}
+
+.kanban-cantidad {
+  font-family: var(--fuente-codigo);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.kanban-lista {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kanban-tarjeta {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.8rem 0.9rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
+  cursor: pointer;
+  transition:
+    transform 0.15s var(--ease),
+    box-shadow 0.15s var(--ease);
+}
+
+.kanban-tarjeta[draggable="true"] {
+  cursor: grab;
+}
+
+.kanban-tarjeta:hover,
+.kanban-tarjeta:focus-visible {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sombra);
+}
+
+.kanban-tarjeta:active {
+  transform: rotate(-2deg);
+}
+
+/* Lo que el equipo ya resolvió: sticker menta. */
+.kanban-tarjeta[data-hecha] {
+  background: color-mix(in srgb, var(--menta) 45%, var(--superficie));
+}
+
+.kanban-tarjeta-titulo {
+  font-weight: 700;
+}
+
+.etiqueta-principal {
+  border-color: var(--linea);
+  background: var(--resaltador);
+}
+
+.detalle {
+  width: min(40rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  padding: 0;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra-alzada);
+}
+
+.detalle::backdrop {
+  background: color-mix(in srgb, var(--texto) 45%, transparent);
+}
+
+.detalle-caja {
+  padding: 1.5rem;
+}
+
+.detalle h2,
+.sdd-elegida h2 {
+  margin: 0 0 0.6rem;
+  font-family: var(--fuente-titulos);
+  font-weight: 800;
+}
+
+.detalle h3 {
+  margin: 1.1rem 0 0.4rem;
+  font-size: 1rem;
+}
+
+.detalle ul:not(.etiquetas) {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.detalle li + li {
+  margin-top: 0.25rem;
+}
+
+.detalle-historia {
+  margin: 0.9rem 0 0;
+  font-size: 1.0625rem;
+}
+
+.detalle-apis code {
+  font-family: var(--fuente-codigo);
+  font-size: 0.875rem;
+}
+
+.detalle-nota {
+  margin: 0.5rem 0 1rem;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+/* La consigna con la historia elegida al costado, siempre a la vista. */
+.sdd-consigna {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 28rem);
+  align-items: start;
+  gap: 2rem;
+  max-width: var(--ancho-sdd);
+  margin-inline: auto;
+}
+
+/* La consigna ocupa toda su columna, alineada con la cabecera. */
+.sdd-consigna .paso {
+  max-width: none;
+}
+
+.sdd-consigna[hidden] {
+  display: none;
+}
+
+.sdd-consigna > :last-child {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.sdd-elegida {
+  position: sticky;
+  top: 5rem;
+  grid-column: 2;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  padding: 1.35rem 1.5rem;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+  font-size: 0.9375rem;
+}
+
+.sdd-elegida h2 {
+  font-size: 1.5rem;
+}
+
+.sdd-elegida h3 {
+  margin: 1rem 0 0.35rem;
+  font-size: 0.9375rem;
+}
+
+.sdd-elegida ul:not(.etiquetas) {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.sdd-elegida .detalle-historia {
+  font-size: 1rem;
+}
+
+@media (max-width: 72rem) {
+  .sdd-consigna {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: var(--ancho-lectura);
+  }
+
+  .sdd-consigna > :last-child,
+  .sdd-elegida {
+    grid-row: auto;
+    grid-column: 1;
+  }
+
+  .sdd-elegida {
+    position: static;
+    max-height: none;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* ── Captura de pantalla (opcional) ─────────────────────── */
+
+.captura {
+  margin-top: 1.5rem;
+}
+
+.captura h4 {
+  margin: 0 0 0.4rem;
+}
+
+.captura p {
+  margin: 0 0 0.75rem;
+}
+
+.captura-zona {
+  display: grid;
+  place-items: center;
+  min-height: 8rem;
+  padding: 1rem;
+  border: 2.5px dashed var(--linea-suave);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  color: var(--texto-suave);
+  font-size: 0.9375rem;
+  text-align: center;
+}
+
+.captura-zona:focus-visible,
+.captura-zona:hover {
+  border-color: var(--linea);
+  background: color-mix(in srgb, var(--resaltador) 25%, var(--superficie));
+}
+
+.captura-zona img {
+  max-width: 100%;
+  max-height: 24rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  box-shadow: var(--sombra-chica);
+}
+
+.captura-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+}
+
+/* Etapas del flujo SDD (ejercicio 3): una línea de tiempo vertical, con un ✋ entre etapa y etapa. */
+.etapas {
+  --etapas-hueco: 2.25rem;
+  display: grid;
+  gap: var(--etapas-hueco);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: etapa;
+}
+
+.etapas > li {
+  position: relative;
+  display: grid;
+  gap: 0.2rem;
+  margin: 0 0 0 3.25rem;
+  padding: 0.7rem 0.95rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
+  counter-increment: etapa;
+}
+
+/* El número, como sticker, a la izquierda de cada etapa. */
+.etapas > li::before {
+  content: counter(etapa, decimal-leading-zero);
+  position: absolute;
+  top: 0.55rem;
+  left: -3.25rem;
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  border: 2px solid var(--linea);
+  border-radius: 50%;
+  background: var(--resaltador);
+  font: 600 0.8125rem var(--fuente-codigo);
+}
+
+/* La línea que une un número con el siguiente. */
+.etapas > li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 2.85rem;
+  bottom: calc(-1 * var(--etapas-hueco) - 0.55rem);
+  left: calc(-3.25rem + 1.15rem - 1px);
+  width: 2px;
+  background: var(--linea);
+}
+
+.etapas-nombre {
+  font: 800 1.0625rem var(--fuente-titulos);
+}
+
+.etapas-nombre span {
+  margin-left: 0.3rem;
+  font-family: var(--fuente-mano);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--acento-texto);
+}
+
+.etapas-hacer,
+.etapas-revisar {
+  font-size: 0.9375rem;
+}
+
+.etapas-revisar {
+  color: var(--texto-suave);
+}
+
+.etapas-revisar b {
+  color: var(--texto);
+}
+
+/* El ✋ sobre la línea, a mitad del hueco entre una etapa y la siguiente. */
+.etapas-control {
+  position: absolute;
+  z-index: 1;
+  bottom: calc(-1 * var(--etapas-hueco) / 2);
+  left: calc(-3.25rem + 1.15rem);
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: var(--borde);
+  border-radius: 50%;
+  background: var(--acento);
+  font-size: 0.8125rem;
+  line-height: 1;
+  transform: translate(-50%, 50%);
+}

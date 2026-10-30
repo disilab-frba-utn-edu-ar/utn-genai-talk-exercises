@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react"
+import { screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import Ejercicios from "../../ejercicios/app/Ejercicios"
 import { armarRespuestasMd, conAnexosEnLinea, ejercicios, partirConsigna, partirPreguntas } from "../../ejercicios/app/contenido"
@@ -14,6 +14,11 @@ const renderEjercicio = () =>
   renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicio.id}`, patron: "/ejercicios/*" })
 
 const renderDe = (e: (typeof ejercicios)[number]) => {
+  // El 3 muestra su consigna recién con el 2 terminado y una historia tomada del tablero.
+  if (e.id === "03-sdd") {
+    localStorage.setItem("ejercicios:terminados", JSON.stringify([ejercicios[1].id]))
+    localStorage.setItem("ejercicios:tablero-sdd", JSON.stringify({ introVista: true, elegidas: ["cancelar-sesion"], terminadas: [] }))
+  }
   simularApi({ [`/ejercicios-api/${e.id}/respuestas`]: null })
   return renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${e.id}`, patron: "/ejercicios/*" })
 }
@@ -106,7 +111,8 @@ describe("Ejercicios", () => {
 
     const llamadas = fetchFalso.mock.calls as unknown as [string, RequestInit | undefined][]
     expect(llamadas.some(([url, op]) => url === RUTA_API && op?.method === "PUT")).toBe(true)
-    expect(await screen.findByRole("heading", { name: "A.3 ¿Se dispara?" })).toBeInTheDocument()
+    // waitFor reintenta la aserción entera: mientras busca las respuestas, la consigna se redibuja con otro árbol.
+    await waitFor(() => expect(screen.getByRole("heading", { name: "A.3 ¿Se dispara?" })).toBeInTheDocument())
     expect(terminado(HABILITA_METRICAS)).toBe(true)
     const metricas = screen.getByRole("link", { name: "Ver métricas" })
     expect(metricas).toHaveAttribute("href", "/metricas")
@@ -136,11 +142,14 @@ describe("Ejercicios", () => {
     expect(terminado(HABILITA_METRICAS)).toBe(false)
   })
 
-  it("el último ejercicio termina y vuelve al índice", async () => {
+  it("el último ejercicio cierra la actividad con Rocco", async () => {
     const ultimo = ejercicios.at(-1)!
+    // El 3 se ve recién con el 2 terminado y una historia tomada del tablero.
+    localStorage.setItem("ejercicios:terminados", JSON.stringify([ejercicios[1].id]))
+    localStorage.setItem("ejercicios:tablero-sdd", JSON.stringify({ introVista: true, elegidas: ["cancelar-sesion"], terminadas: [] }))
     simularApi({ [`/ejercicios-api/${ultimo.id}/respuestas`]: null })
     renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ultimo.id}`, patron: "/ejercicios/*" })
-    expect(await screen.findByRole("button", { name: /Terminé/ })).toHaveAccessibleDescription(/vuelve al índice/)
+    expect(await screen.findByRole("button", { name: /Terminé/ })).toHaveAccessibleDescription(/cierra la actividad con Rocco/)
   })
 
   it("“Ver aplicación” es un botón que abre la app en una pestaña nueva", async () => {
@@ -181,6 +190,16 @@ describe("Ejercicios", () => {
     expect(textosDeLista(diagrama)).toEqual(nombres.map((n) => expect.stringContaining(n)))
     expect(within(diagrama).getAllByRole("img", { name: "validación humana" })).toHaveLength(nombres.length - 1)
     expect(screen.queryByText(/Constitution → Specify/)).not.toBeInTheDocument()
+  })
+
+  it("las etapas del ejercicio 3 se dibujan en orden, con qué revisar en cada una y un ✋ entre etapa y etapa", async () => {
+    renderDe(ejercicios[2])
+    const diagrama = await screen.findByRole("figure", { name: /etapas del flujo/i })
+    const nombres = ["Constitution", "Specify", "Clarify", "Plan", "Tasks", "Implement"]
+    expect(textosDeLista(diagrama)).toEqual(nombres.map((n) => expect.stringMatching(new RegExp(`^${n}.*Revisá:`))))
+    expect(within(diagrama).getAllByRole("img", { name: "validación humana" })).toHaveLength(nombres.length - 1)
+    expect(screen.getByText(/Podés pedirle a tu agente que te vaya guiando/)).toBeInTheDocument()
+    expect(screen.getByText(/Recordá revisar antes de pasar a la siguiente etapa/)).toBeInTheDocument()
   })
 
   it("las validaciones entre etapas del desafío extra se dibujan como puertas", async () => {
