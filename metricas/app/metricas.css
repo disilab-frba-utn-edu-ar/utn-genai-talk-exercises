@@ -43,9 +43,10 @@
 .metricas-selectores select {
   min-height: 2.25rem;
   padding: 0.3rem 0.5rem;
-  border: 1.5px solid var(--linea);
+  border: 2px solid var(--linea);
   border-radius: var(--radio-chico);
   background: var(--superficie);
+  box-shadow: 2px 2px 0 var(--linea);
   color: var(--texto);
   font: inherit;
 }
@@ -95,6 +96,7 @@
   border: var(--borde);
   border-radius: var(--radio);
   background: var(--superficie);
+  box-shadow: var(--sombra-chica);
 }
 
 .indicador-etiqueta {
@@ -105,8 +107,8 @@
 
 .indicador-valor {
   font-family: var(--fuente-titulos);
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: 1.9rem;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
   text-wrap: balance;
@@ -120,8 +122,10 @@
 .en-curso {
   margin: 0 0 1.25rem;
   padding: 0.5rem 0.75rem;
-  border-left: 4px solid var(--acento);
-  background: var(--acento-suave);
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: color-mix(in srgb, var(--resaltador) 40%, var(--superficie));
+  box-shadow: var(--sombra-chica);
   font-family: var(--fuente-codigo);
   font-size: 0.85rem;
 }
@@ -135,10 +139,11 @@
 
 .grafico {
   margin: 0;
-  padding: 0.75rem 1rem 1rem;
+  padding: 0.85rem 1.1rem 1rem;
   border: var(--borde);
   border-radius: var(--radio);
   background: var(--superficie);
+  box-shadow: var(--sombra);
   min-width: 0;
 }
 
@@ -162,7 +167,7 @@
   gap: 0.4rem;
 }
 
-/* Descripción a demanda: el gráfico se lee sin texto alrededor y el detalle está a un hover/foco. */
+/* Descripción a demanda (globo de diálogo en tinta): el gráfico se lee sin texto alrededor y el detalle está a un hover/foco. */
 .info-boton {
   position: relative;
   display: inline-grid;
@@ -170,10 +175,10 @@
   width: 1.1rem;
   height: 1.1rem;
   padding: 0;
-  border: 1.5px solid var(--linea);
+  border: 2px solid var(--linea);
   border-radius: 50%;
-  background: none;
-  color: var(--texto-suave);
+  background: var(--resaltador);
+  color: var(--texto);
   font: italic 700 0.7rem/1 var(--fuente-titulos);
   cursor: help;
 }
@@ -193,26 +198,34 @@
 
 .info-boton:hover,
 .info-boton:focus-visible {
-  border-color: var(--texto);
-  color: var(--texto);
+  box-shadow: 2px 2px 0 var(--linea);
 }
 
 .info-texto {
   position: absolute;
-  top: calc(100% + 0.4rem);
+  top: calc(100% + 0.65rem);
   left: 0;
   z-index: 10;
   width: max-content;
   max-width: min(18rem, 80vw);
-  padding: 0.5rem 0.65rem;
-  border: 1px solid var(--linea);
-  border-radius: var(--radio-chico);
-  background: var(--superficie);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 12%);
-  color: var(--texto);
+  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+  background: var(--texto);
+  box-shadow: 3px 3px 0 var(--acento);
+  color: var(--invertido);
   font-size: 0.8125rem;
   font-weight: 400;
   line-height: 1.4;
+}
+
+.info-texto::before {
+  content: "";
+  position: absolute;
+  top: -0.45rem;
+  left: 1rem;
+  border: 0.5rem solid transparent;
+  border-top: 0;
+  border-bottom-color: var(--texto);
 }
 
 .info-texto[hidden] {
@@ -221,22 +234,23 @@
 
 /* Alternar gráfico/tabla: acción secundaria, no compite con el título. */
 .boton-texto.grafico-alternar {
-  padding: 0.1rem 0.5rem;
-  border: 1px solid var(--linea);
-  border-radius: var(--radio-chico);
-  color: var(--texto-suave);
+  padding: 0.1rem 0.6rem;
+  border: 2px solid var(--linea);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 var(--linea);
+  color: var(--texto);
   font-size: 0.75rem;
   text-decoration: none;
 }
 
 .boton-texto.grafico-alternar:hover {
-  border-color: var(--texto);
-  color: var(--texto);
+  background: color-mix(in srgb, var(--resaltador) 35%, var(--superficie));
 }
 
 .grafico figcaption {
   font-family: var(--fuente-titulos);
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 800;
 }
 
 .boton-texto {
@@ -370,7 +384,9 @@
 .metricas-aviso {
   margin: 0 0 1rem;
   padding: 0.75rem 1rem;
-  border-left: 4px solid var(--acento);
-  background: var(--acento-suave);
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: color-mix(in srgb, var(--resaltador) 40%, var(--superficie));
+  box-shadow: var(--sombra-chica);
   font-size: 0.9375rem;
 }

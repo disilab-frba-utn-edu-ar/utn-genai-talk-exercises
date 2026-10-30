@@ -36,7 +36,7 @@ const TICK = { fill: "var(--texto-suave)", fontSize: 12 }
 const ROTULO = { fill: "var(--texto-suave)", fontSize: 12, fontWeight: 600 }
 const GRILLA = { stroke: "var(--linea-suave)", strokeDasharray: "3 3" }
 const TOOLTIP = {
-  contentStyle: { background: "var(--superficie)", border: "1px solid var(--linea)", borderRadius: 6, fontSize: 13, color: "var(--texto)", fontVariantNumeric: "tabular-nums" },
+  contentStyle: { background: "var(--superficie)", border: "2px solid var(--linea)", borderRadius: 12, boxShadow: "3px 3px 0 var(--linea)", fontSize: 13, color: "var(--texto)", fontVariantNumeric: "tabular-nums" },
   labelStyle: { fontWeight: 700, color: "var(--texto)" },
   cursor: { fill: "var(--grilla)", stroke: "var(--linea)" },
 }
