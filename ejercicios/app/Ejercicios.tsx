@@ -2,10 +2,13 @@
 import type { ReactNode } from "react"
 import { Link, Route, Routes, useParams } from "react-router"
 import NoEncontradaPage from "../../client/src/pages/NoEncontradaPage"
-import { conAnexosEnLinea, ejercicios, introduccion, partirConsigna, type Anexo } from "./contenido"
+import { conAnexosEnLinea, ejercicios, introduccion, type Anexo } from "./contenido"
+import EjercicioSdd from "./EjercicioSdd"
 import "./ejercicios.css"
 import Markdown from "./Markdown"
+import { useTerminado } from "./progreso"
 import Respuestas from "./Respuestas"
+import { ID_SDD } from "./tablero"
 import Temporizador from "./Temporizador"
 
 type PropsSeccion = { numero: number; id: string; titulo: string; children: ReactNode }
@@ -63,16 +66,20 @@ function IndicePage() {
   )
 }
 
+function AnexoEnLinea({ anexo }: { anexo: Anexo }) {
+  const habilitado = useTerminado(anexo.soloSiTerminado ?? "")
+  if (anexo.soloSiTerminado && !habilitado) return null
+  return (
+    <aside id={anexo.archivo} className="anexo-en-linea" aria-label={anexo.titulo}>
+      <Markdown texto={anexo.markdown.join("\n")} />
+    </aside>
+  )
+}
+
 /** Un tramo de la consigna, con los anexos en línea (el prompt aparece justo debajo de "Copiá el prompt…"). */
 function Consigna({ lineas, anexos }: { lineas: string[]; anexos: Anexo[] }) {
   return conAnexosEnLinea(lineas, anexos).map((b, i) =>
-    b.tipo === "markdown" ? (
-      <Markdown key={i} texto={b.texto} />
-    ) : (
-      <aside key={i} id={b.anexo.archivo} className="anexo-en-linea" aria-label={b.anexo.titulo}>
-        <Markdown texto={b.anexo.markdown.join("\n")} />
-      </aside>
-    ),
+    b.tipo === "markdown" ? <Markdown key={i} texto={b.texto} /> : <AnexoEnLinea key={i} anexo={b.anexo} />,
   )
 }
 
@@ -81,25 +88,29 @@ function EjercicioPage() {
   const ejercicio = ejercicios.find((e) => e.id === id)
   if (!ejercicio) return <NoEncontradaPage />
 
-  const { antes, despues } = partirConsigna(ejercicio)
   const enLinea = ejercicio.anexos.filter((a) => a.insertarDespuesDe)
   const consigna = (lineas: string[]) => <Consigna lineas={lineas} anexos={enLinea} />
 
-  // Mismo orden que el documento original: nada se saltea ni se repite.
+  // La consigna va entera, en el orden del documento, con las preguntas intercaladas entre los pasos.
   const secciones = [
-    { id: "consigna", titulo: "Consigna", contenido: consigna(antes) },
+    { id: "consigna", titulo: "Consigna", contenido: <Respuestas ejercicio={ejercicio} consigna={consigna} /> },
     ...ejercicio.anexos
       .filter((a) => !a.insertarDespuesDe)
       .map((a) => ({ id: a.archivo, titulo: a.titulo, contenido: <Markdown texto={a.markdown.join("\n")} /> })),
-    {
-      id: "respuestas",
-      titulo: "Preguntas y respuestas",
-      contenido: <Respuestas ejercicio={ejercicio} />,
-    },
-    ...(despues.length > 0
-      ? [{ id: "despues", titulo: despues[0].replace(/^#+\s*/, ""), contenido: consigna(despues) }]
-      : []),
   ]
+
+  // Fuera de la cabecera para quedar fijo mientras se scrollea la consigna.
+  const temporizador = <Temporizador key={ejercicio.id} id={ejercicio.id} minutos={ejercicio.minutos} />
+  const cuerpo = (
+    <div className="reserva">
+      {secciones.map((s, i) => (
+        <Seccion key={s.id} numero={i + 1} id={s.id} titulo={s.titulo}>
+          {s.contenido}
+        </Seccion>
+      ))}
+    </div>
+  )
+  const sdd = ejercicio.id === ID_SDD
 
   return (
     <div className="ejercicio-pagina">
@@ -107,25 +118,25 @@ function EjercicioPage() {
         <Link to="/ejercicios" className="volver">
           <span aria-hidden="true">←</span> Todos los ejercicios
         </Link>
-        <nav className="chips" aria-label="Secciones del ejercicio">
-          {secciones.map((s, i) => (
-            <a key={s.id} href={`#${s.id}`} className="chip">
-              {i + 1}. {s.titulo}
-            </a>
-          ))}
-        </nav>
+        {!sdd && (
+          <nav className="chips" aria-label="Secciones del ejercicio">
+            {secciones.map((s, i) => (
+              <a key={s.id} href={`#${s.id}`} className="chip">
+                {i + 1}. {s.titulo}
+              </a>
+            ))}
+          </nav>
+        )}
       </div>
 
-      {/* Fuera de la cabecera para quedar fijo mientras se scrollea la consigna. */}
-      <Temporizador key={ejercicio.id} id={ejercicio.id} minutos={ejercicio.minutos} />
-
-      <div className="reserva">
-        {secciones.map((s, i) => (
-          <Seccion key={s.id} numero={i + 1} id={s.id} titulo={s.titulo}>
-            {s.contenido}
-          </Seccion>
-        ))}
-      </div>
+      {sdd ? (
+        <EjercicioSdd temporizador={temporizador} consigna={cuerpo} />
+      ) : (
+        <>
+          {temporizador}
+          {cuerpo}
+        </>
+      )}
     </div>
   )
 }

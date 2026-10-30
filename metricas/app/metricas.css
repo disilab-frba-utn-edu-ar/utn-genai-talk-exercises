@@ -1,4 +1,5 @@
-/* Dashboard de Métricas: solo lo que no está en client/src/styles.css (usa sus variables). */
+/* Dashboard de Métricas: solo lo que no está en client/src/styles.css (usa sus variables).
+   Estilo "Viñeta" liviano: trazo y sombra corta en los paneles, sin recargar los datos. */
 
 .metricas {
   /* Paleta categórica validada (dataviz): tres agentes con los primeros slots, tipos de acción con los siguientes. */
@@ -43,9 +44,10 @@
 .metricas-selectores select {
   min-height: 2.25rem;
   padding: 0.3rem 0.5rem;
-  border: 1.5px solid var(--linea);
+  border: 2px solid var(--linea);
   border-radius: var(--radio-chico);
   background: var(--superficie);
+  box-shadow: 2px 2px 0 var(--linea);
   color: var(--texto);
   font: inherit;
 }
@@ -88,6 +90,7 @@
   border: var(--borde);
   border-radius: var(--radio);
   background: var(--superficie);
+  box-shadow: var(--sombra-chica);
 }
 
 .indicador-etiqueta {
@@ -111,8 +114,10 @@
 .en-curso {
   margin: 0 0 1.25rem;
   padding: 0.5rem 0.75rem;
-  border-left: 4px solid var(--acento);
-  background: var(--acento-suave);
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: color-mix(in srgb, var(--resaltador) 55%, var(--superficie));
+  box-shadow: var(--sombra-chica);
   font-family: var(--fuente-codigo);
   font-size: 0.85rem;
 }
@@ -130,6 +135,7 @@
   border: var(--borde);
   border-radius: var(--radio);
   background: var(--superficie);
+  box-shadow: var(--sombra-chica);
   min-width: 0;
 }
 
@@ -358,4 +364,15 @@
   display: block;
   width: 100%;
   background: var(--grilla);
+}
+
+/* Aviso arriba de todo: el tablero se usa después de aprender a leer el log en el ejercicio 1. */
+.metricas-aviso {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: color-mix(in srgb, var(--resaltador) 55%, var(--superficie));
+  box-shadow: var(--sombra-chica);
+  font-size: 0.9375rem;
 }

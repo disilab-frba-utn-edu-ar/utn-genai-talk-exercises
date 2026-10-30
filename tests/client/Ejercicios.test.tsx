@@ -1,38 +1,66 @@
-import { screen } from "@testing-library/react"
+import { screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import Ejercicios from "../../ejercicios/app/Ejercicios"
 import { armarRespuestasMd, conAnexosEnLinea, ejercicios, partirConsigna, partirPreguntas } from "../../ejercicios/app/contenido"
+import { HABILITA_METRICAS } from "../../ejercicios/app/progreso"
 import { formatearTiempo } from "../../ejercicios/app/Temporizador"
 import { renderConRuta, simularApi } from "./helpers"
 
 const ejercicio = ejercicios[0]
+const terminado = (id: string) => (JSON.parse(localStorage.getItem("ejercicios:terminados") ?? "[]") as string[]).includes(id)
 const RUTA_API = `/ejercicios-api/${ejercicio.id}/respuestas`
 
 const renderEjercicio = () =>
   renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicio.id}`, patron: "/ejercicios/*" })
 
+const renderDe = (e: (typeof ejercicios)[number]) => {
+  // El 3 muestra su consigna recién con el 2 terminado y una historia tomada del tablero.
+  if (e.id === "03-sdd") {
+    localStorage.setItem("ejercicios:terminados", JSON.stringify([ejercicios[1].id]))
+    localStorage.setItem("ejercicios:tablero-sdd", JSON.stringify({ introVista: true, elegidas: ["cancelar-sesion"], terminadas: [] }))
+  }
+  simularApi({ [`/ejercicios-api/${e.id}/respuestas`]: null })
+  return renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${e.id}`, patron: "/ejercicios/*" })
+}
+
+const textosDeLista = (diagrama: HTMLElement) =>
+  within(diagrama)
+    .getAllByRole("listitem")
+    .map((li) => li.textContent?.replace(/\s+/g, " "))
+
 describe("Ejercicios · cómo se reparte la consigna", () => {
   it.each(ejercicios.map((e) => [e.id, e] as const))("%s: se muestra entera, sin perder ni repetir líneas", (_id, e) => {
-    const { antes, preguntas, despues } = partirConsigna(e)
-    expect(preguntas[0]).toBe(e.preguntas.desde)
-    expect([...antes, ...preguntas, ...despues]).toEqual(e.consigna)
+    const tramos = partirConsigna(e)
+    expect(tramos.flatMap((t) => t.lineas)).toEqual(e.consigna)
+    expect(tramos.filter((t) => t.tipo === "preguntas").map((t) => t.lineas[0])).toEqual(e.preguntas.map((p) => p.desde))
 
-    const textos = conAnexosEnLinea(antes, e.anexos).flatMap((b) => (b.tipo === "markdown" ? [b.texto] : []))
-    expect(textos.join("\n")).toBe(antes.join("\n"))
+    for (const t of tramos.filter((t) => t.tipo === "consigna")) {
+      const textos = conAnexosEnLinea(t.lineas, e.anexos).flatMap((b) => (b.tipo === "markdown" ? [b.texto] : []))
+      expect(textos.join("\n")).toBe(t.lineas.join("\n"))
+    }
   })
 
   it.each(ejercicios.map((e) => [e.id, e] as const))("%s: cada pregunta numerada queda en su desplegable, sin perder líneas", (_id, e) => {
-    const { preguntas } = partirConsigna(e)
-    const bloques = partirPreguntas(preguntas)
-    expect(bloques.flatMap((b) => b.lineas)).toEqual(preguntas)
-
-    const numeros = bloques.flatMap((b) => (b.tipo === "pregunta" ? [Number(b.numero)] : []))
+    const numeros: number[] = []
+    for (const t of partirConsigna(e).filter((t) => t.tipo === "preguntas")) {
+      const bloques = partirPreguntas(t.lineas)
+      expect(bloques.flatMap((b) => b.lineas)).toEqual(t.lineas)
+      for (const b of bloques) if (b.tipo === "pregunta") numeros.push(Number(b.numero))
+      for (const b of bloques) if (b.tipo === "pregunta") expect(b.titulo).not.toMatch(/\*\*/)
+    }
+    // Numeración corrida entre todos los tramos: las respuestas se guardan por número.
     expect(numeros).toEqual(numeros.map((_, i) => i + 1))
-    for (const b of bloques) if (b.tipo === "pregunta") expect(b.titulo).not.toMatch(/\*\*/)
+  })
+
+  it("las preguntas van intercaladas: en el ejercicio 2 la primera está después de probar la skill", () => {
+    const tramos = partirConsigna(ejercicios[1])
+    const primera = tramos.findIndex((t) => t.tipo === "preguntas")
+    expect(tramos[primera - 1].lineas).toContain("### A.3 ¿Se dispara?")
+    expect(tramos.filter((t) => t.tipo === "preguntas").length).toBeGreaterThan(1)
   })
 
   it("el prompt del ejercicio 1 aparece justo debajo de “Copiá el prompt…”", () => {
-    const bloques = conAnexosEnLinea(partirConsigna(ejercicio).antes, ejercicio.anexos)
+    const bloques = conAnexosEnLinea(partirConsigna(ejercicio)[0].lineas, ejercicio.anexos)
     const i = bloques.findIndex((b) => b.tipo === "anexo")
     expect(bloques[i - 1]).toMatchObject({ texto: expect.stringMatching(/Copiá el prompt de .+ y mandalo\.$/) })
     expect(bloques[i]).toMatchObject({ anexo: { archivo: "prompt.md" } })
@@ -44,6 +72,7 @@ describe("Ejercicios", () => {
     const usuario = userEvent.setup()
     simularApi({ [RUTA_API]: null })
     renderEjercicio()
+    await screen.findByLabelText("Datos de la entrega")
 
     const lineas = ejercicio.anexos[0].markdown
     const prompt = lineas.slice(lineas.indexOf("```text") + 1, lineas.lastIndexOf("```")).join("\n")
@@ -60,7 +89,7 @@ describe("Ejercicios", () => {
 
     await userEvent.click(screen.getByText("1. El ciclo"))
     await userEvent.type(screen.getByLabelText("Tu respuesta a la pregunta 1"), "Listo")
-    expect(screen.getByText("Respondida")).toBeInTheDocument()
+    expect(screen.getByText("Respondida", { selector: ".etiqueta" })).toBeInTheDocument()
     await userEvent.click(screen.getByRole("button", { name: "Guardar respuestas" }))
 
     const [url, opciones] = fetchFalso.mock.calls.at(-1) as unknown as [string, RequestInit]
@@ -70,6 +99,66 @@ describe("Ejercicios", () => {
     expect(cuerpo.respuestas).toEqual({ 1: "Listo" })
     expect(cuerpo.markdown).toContain("### 1. El ciclo\n\nListo")
     expect(cuerpo.markdown).toContain("### 2. Explorar antes de actuar\n\n_Sin responder._")
+  })
+
+  it("“Terminé” guarda, habilita Métricas y pasa al ejercicio 2, donde aparece la invitación al tablero", async () => {
+    const guardadas = { ejercicio: ejercicio.id, guardado: "2026-10-28T12:00:00Z", general: [], respuestas: {} }
+    const fetchFalso = simularApi({ [RUTA_API]: guardadas, [`/ejercicios-api/${ejercicios[1].id}/respuestas`]: null })
+    renderEjercicio()
+
+    expect(screen.queryByRole("link", { name: "Ver métricas" })).not.toBeInTheDocument()
+    await userEvent.click(await screen.findByRole("button", { name: /Terminé/ }))
+
+    const llamadas = fetchFalso.mock.calls as unknown as [string, RequestInit | undefined][]
+    expect(llamadas.some(([url, op]) => url === RUTA_API && op?.method === "PUT")).toBe(true)
+    // waitFor reintenta la aserción entera: mientras busca las respuestas, la consigna se redibuja con otro árbol.
+    await waitFor(() => expect(screen.getByRole("heading", { name: "A.3 ¿Se dispara?" })).toBeInTheDocument())
+    expect(terminado(HABILITA_METRICAS)).toBe(true)
+    const metricas = screen.getByRole("link", { name: "Ver métricas" })
+    expect(metricas).toHaveAttribute("href", "/metricas")
+    expect(metricas).toHaveAttribute("target", "_blank")
+  })
+
+  it("sin terminar el ejercicio 1, el ejercicio 2 no invita a Métricas", async () => {
+    simularApi({ [`/ejercicios-api/${ejercicios[1].id}/respuestas`]: null })
+    renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicios[1].id}`, patron: "/ejercicios/*" })
+    await screen.findByLabelText("Datos de la entrega")
+    expect(screen.queryByRole("link", { name: "Ver métricas" })).not.toBeInTheDocument()
+  })
+
+  it("si no se pudo guardar, “Terminé” se queda con el error a la vista y no lo marca como terminado", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, op?: RequestInit) =>
+        op?.method === "PUT" ? new Response(JSON.stringify({ error: "Disco lleno" }), { status: 500 }) : new Response("null", { status: 200 }),
+      ),
+    )
+    renderEjercicio()
+
+    await userEvent.click(await screen.findByRole("button", { name: /Terminé/ }))
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Disco lleno")
+    expect(screen.getByLabelText("Datos de la entrega")).toBeInTheDocument()
+    expect(terminado(HABILITA_METRICAS)).toBe(false)
+  })
+
+  it("el último ejercicio cierra la actividad con Rocco", async () => {
+    const ultimo = ejercicios.at(-1)!
+    // El 3 se ve recién con el 2 terminado y una historia tomada del tablero.
+    localStorage.setItem("ejercicios:terminados", JSON.stringify([ejercicios[1].id]))
+    localStorage.setItem("ejercicios:tablero-sdd", JSON.stringify({ introVista: true, elegidas: ["cancelar-sesion"], terminadas: [] }))
+    simularApi({ [`/ejercicios-api/${ultimo.id}/respuestas`]: null })
+    renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ultimo.id}`, patron: "/ejercicios/*" })
+    expect(await screen.findByRole("button", { name: /Terminé/ })).toHaveAccessibleDescription(/cierra la actividad con Rocco/)
+  })
+
+  it("“Ver aplicación” es un botón que abre la app en una pestaña nueva", async () => {
+    simularApi({ [RUTA_API]: null })
+    renderEjercicio()
+    const [enlace] = await screen.findAllByRole("link", { name: "Ver aplicación" })
+    expect(enlace).toHaveClass("boton")
+    expect(enlace).toHaveAttribute("target", "_blank")
+    expect(enlace).toHaveAttribute("href", "http://localhost:5173")
   })
 
   it("un respuestas.json con el formato anterior (un solo texto) no se pierde", async () => {
@@ -84,6 +173,53 @@ describe("Ejercicios", () => {
     expect(screen.getByRole("timer")).toHaveTextContent(formatearTiempo(ejercicio.minutos * 60_000))
     await userEvent.click(screen.getByRole("button", { name: "Iniciar" }))
     expect(screen.getByRole("button", { name: "Pausar" })).toBeInTheDocument()
+  })
+
+  it("el ciclo agéntico del ejercicio 1 se dibuja como diagrama, no como ASCII", async () => {
+    simularApi({ [RUTA_API]: null })
+    renderEjercicio()
+    const diagrama = await screen.findByRole("figure", { name: /ciclo agéntico/i })
+    for (const hook of ["UserPromptSubmit", "PreToolUse", "PostToolUse", "Stop"]) expect(diagrama).toHaveTextContent(hook)
+    expect(screen.queryByText(/──prompt──▶/)).not.toBeInTheDocument()
+  })
+
+  it("el flujo SDD del ejercicio 3 se dibuja como diagrama, con una validación humana entre cada etapa", async () => {
+    renderDe(ejercicios[2])
+    const diagrama = await screen.findByRole("figure", { name: /spec-driven development/i })
+    const nombres = ["Constitution", "Specify", "Clarify", "Plan", "Tasks", "Implement"]
+    expect(textosDeLista(diagrama)).toEqual(nombres.map((n) => expect.stringContaining(n)))
+    expect(within(diagrama).getAllByRole("img", { name: "validación humana" })).toHaveLength(nombres.length - 1)
+    expect(screen.queryByText(/Constitution → Specify/)).not.toBeInTheDocument()
+  })
+
+  it("las etapas del ejercicio 3 se dibujan en orden, con qué revisar en cada una y un ✋ entre etapa y etapa", async () => {
+    renderDe(ejercicios[2])
+    const diagrama = await screen.findByRole("figure", { name: /etapas del flujo/i })
+    const nombres = ["Constitution", "Specify", "Clarify", "Plan", "Tasks", "Implement"]
+    expect(textosDeLista(diagrama)).toEqual(nombres.map((n) => expect.stringMatching(new RegExp(`^${n}.*Revisá:`))))
+    expect(within(diagrama).getAllByRole("img", { name: "validación humana" })).toHaveLength(nombres.length - 1)
+    expect(screen.getByText(/Podés pedirle a tu agente que te vaya guiando/)).toBeInTheDocument()
+    expect(screen.getByText(/Recordá revisar antes de pasar a la siguiente etapa/)).toBeInTheDocument()
+  })
+
+  it("las validaciones entre etapas del desafío extra se dibujan como puertas", async () => {
+    renderDe(ejercicios[2])
+    const diagrama = await screen.findByRole("figure", { name: /validaciones entre etapas/i })
+    expect(textosDeLista(diagrama)).toEqual([
+      expect.stringMatching(/tasks.*¿leíste la constitution\?.*si no, no avanza/),
+      expect.stringMatching(/plan.*¿la spec está aprobada\?.*si no, no avanza/),
+      expect.stringMatching(/implement.*¿existe un plan para esto\?.*si no, no avanza/),
+    ])
+    expect(screen.queryByText(/tasks\s+→ ¿leíste/)).not.toBeInTheDocument()
+  })
+
+  it("la estructura del repo del ejercicio 1 se dibuja con las capas del servidor en orden", async () => {
+    renderDe(ejercicios[0])
+    const diagrama = await screen.findByRole("figure", { name: /estructura del repo/i })
+    const carpetas = textosDeLista(diagrama)
+    expect(carpetas).toEqual(["client/", "server/", "shared/", "data/", "tests/"].map((c) => expect.stringContaining(c)))
+    expect(carpetas[1]).toMatch(/routes.*services.*repositories.*domain/)
+    expect(screen.queryByText(/client\/\s+Vite/)).not.toBeInTheDocument()
   })
 })
 

@@ -16,15 +16,28 @@ export default function InicioPage() {
 
   return (
     <>
-      <section className="portada">
-        <p className="sobretitulo prompt">Para colectivos</p>
-        <h1>
-          Encontrá a alguien que te ayude a <span className="acento">destrabar</span> tu proyecto
-        </h1>
-        <p className="bajada">
-          Personas con experiencia en desarrollo donan horas de mentoría. Elegí según lo que necesitás y reservá una
-          sesión gratuita.
-        </p>
+      <section className="portada portada-con-vineta">
+        <div>
+          <p className="sobretitulo prompt">Para colectivos</p>
+          <h1>
+            Encontrá a alguien que te ayude a <span className="acento">destrabar</span> tu proyecto
+          </h1>
+          <p className="bajada">
+            Personas con experiencia en desarrollo donan horas de mentoría. Elegí según lo que necesitás y reservá una
+            sesión gratuita.
+          </p>
+        </div>
+        {/* Ilustración: cuenta en una viñeta de qué se trata la app. Decorativa, el texto de al lado ya lo dice. */}
+        <div className="vineta" aria-hidden="true">
+          <p className="globo">
+            <span className="globo-quien">Colectivo</span>
+            Nuestra API creció sin orden y ya no sabemos dónde tocar…
+          </p>
+          <p className="globo globo-respuesta">
+            <span className="globo-quien">Mentora</span>
+            ¡Charlemos de capas! En una hora lo ordenamos.
+          </p>
+        </div>
       </section>
 
       {habilidades.estado === "lista" && (

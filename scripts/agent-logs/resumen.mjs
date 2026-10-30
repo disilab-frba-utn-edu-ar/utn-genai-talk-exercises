@@ -10,7 +10,7 @@
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs"
 import { join } from "node:path"
-import { clasificar } from "./clasificar.mjs"
+import { clasificar, resultadoDeTests } from "./clasificar.mjs"
 
 const argv = process.argv.slice(2)
 const args = new Set(argv)
@@ -91,12 +91,23 @@ function accion(entry) {
 }
 
 const etiqueta = (a) => (a.op ? `${a.kind} (${a.op})` : a.kind)
+
+// "→ rojo: 1 falló · 85 pasaron · la regla no se cumple"
+function tests(a) {
+  if (!a.tests) return ""
+  const { resultado, fallaron, pasaron, causa } = a.tests
+  if (resultado === "no detectado") return "  → tests: resultado no detectado"
+  const conteo = [fallaron && `${fallaron} falló`, `${pasaron} pasaron`].filter(Boolean).join(" · ")
+  return `  → ${resultado}: ${conteo}${causa ? ` · ${causa}` : ""}`
+}
 const rutas = (a) => (a.kind === "leer" || a.kind === "escribir" ? a.targets.map(relative) : a.targets)
 
 // Agrupa los eventos por turno: cada prompt abre uno y junta lo que el agente hizo hasta el siguiente.
 function turnos(list) {
   const result = []
   let actual
+  // El resultado de cada llamada llega en su PostToolUse: se empareja por toolUseId.
+  const resultados = new Map(list.filter((e) => e.event === "PostToolUse" && e.toolUseId).map((e) => [e.toolUseId, e]))
   const abrir = (prompt, ts) => result.push((actual = { prompt, ts, acciones: [], fallas: [], fin: undefined }))
   for (const entry of list) {
     if (entry.event === "UserPromptSubmit" || entry.event === "TaskStart") {
@@ -104,7 +115,11 @@ function turnos(list) {
       abrir(entry.prompt ?? "", entry.ts)
     } else if (PRE_EVENTS.has(entry.event) && entry.tool) {
       if (!actual) abrir("(sin prompt registrado)", entry.ts)
-      actual.acciones.push(accion(entry))
+      const a = accion(entry)
+      const post = resultados.get(entry.toolUseId)
+      // Logs viejos no traen `tests`: se intenta con el extracto de la salida.
+      if (a.kind === "ejecutar" && post) a.tests = post.tests ?? resultadoDeTests(a.targets.join(" "), post.output)
+      actual.acciones.push(a)
     } else if (entry.event === "PostToolUseFailure") {
       if (actual) actual.fallas.push(entry)
     } else if (FIN_EVENTS.has(entry.event) && actual) {
@@ -132,6 +147,18 @@ for (const key of selected) {
   console.log("\nHerramientas usadas:")
   for (const [name, n] of count(toolCalls.map((e) => e.tool))) console.log(`  ${String(n).padStart(4)}  ${name}`)
 
+  // Lo que devuelve una herramienta vuelve al modelo como contexto (outputChars es el tamaño completo, sin recortar).
+  // Las escrituras se excluyen: el hook recibe el archivo y el parche enteros, pero al modelo solo le vuelve un "listo".
+  const salidas = new Map()
+  for (const e of list) {
+    if (e.event !== "PostToolUse" || !e.tool || !e.outputChars || (e.kind ?? clasificar(e.tool).kind) === "escribir") continue
+    salidas.set(e.tool, (salidas.get(e.tool) ?? 0) + e.outputChars)
+  }
+  if (salidas.size) {
+    console.log("\nSalida que volvió al modelo (caracteres, por herramienta):")
+    for (const [name, n] of [...salidas].sort((a, b) => b[1] - a[1])) console.log(`  ${String(n).padStart(8)}  ${name}`)
+  }
+
   const leidos = acciones.filter((a) => a.kind === "leer").flatMap(rutas)
   if (leidos.length) {
     console.log("\nArchivos leídos:")
@@ -156,8 +183,8 @@ for (const key of selected) {
     for (const [name, n] of count(mcp.map((a) => a.tool))) console.log(`  ${String(n).padStart(4)}  ${name}`)
   }
 
-  // Además de la herramienta de skills, cuenta quien lee un SKILL.md a mano.
-  const skills = acciones.filter((a) => a.kind === "skill" || a.targets.some((t) => /SKILL\.md/.test(t)))
+  // Además de la herramienta de skills, cuenta quien lee un SKILL.md a mano (escribirlo no es activarla).
+  const skills = acciones.filter((a) => a.kind === "skill" || (a.kind !== "escribir" && a.targets.some((t) => /SKILL\.md/.test(t))))
   if (skills.length) {
     console.log("\nSkills activadas o leídas:")
     for (const a of skills) console.log(`  ${corto(a.targets.map(relative).join(" · "), 120)}`)
@@ -172,7 +199,7 @@ for (const key of selected) {
     if (args.has("--timeline")) {
       for (const a of turno.acciones) {
         const t = Math.round((new Date(a.ts) - first) / 1000)
-        console.log(`       +${String(t).padStart(4)}s  ${etiqueta(a).padEnd(18)} ${corto(rutas(a).join(" · "), 110)}`)
+        console.log(`       +${String(t).padStart(4)}s  ${etiqueta(a).padEnd(18)} ${corto(rutas(a).join(" · "), a.tests ? 70 : 110)}${tests(a)}`)
       }
       for (const f of turno.fallas) console.log(`       ✗ falló ${f.tool ?? ""} ${corto(f.error ?? "", 100)}`)
       if (turno.fin) console.log(`       ↳ ${corto(turno.fin, 160)}`)

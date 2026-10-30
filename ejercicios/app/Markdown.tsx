@@ -1,6 +1,7 @@
 import { Marked } from "marked"
 import { useMemo, type MouseEvent } from "react"
 import { useNavigate } from "react-router"
+import { diagramas } from "./diagramas"
 
 const escapar = (texto: string) =>
   texto.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
@@ -11,7 +12,6 @@ function destino(href: string): string | null {
   const ejercicio = href.match(/^\.\/(\d{2}-[a-z0-9-]+)\/$/)
   if (ejercicio) return `/ejercicios/${ejercicio[1]}`
   if (/^\/[a-z-]+$/.test(href)) return href // otra página de la app, por ejemplo /configurar-entorno
-  if (href === "./RESPUESTAS.md") return "#respuestas"
   if (/^\.\/[\w-]+\.md$/.test(href)) return `#${href.slice(2)}`
   return null
 }
@@ -19,16 +19,23 @@ function destino(href: string): string | null {
 const marked = new Marked({
   renderer: {
     // Cada bloque de código lleva su botón de copiar; los bloques `text` son prompts.
+    // Si el lenguaje es el nombre de un diagrama, se dibuja el diagrama en lugar del ASCII.
     code({ text, lang }) {
+      const diagrama = lang ? diagramas[lang] : undefined
+      if (diagrama) return diagrama
       const etiqueta = lang === "text" ? "Copiar prompt" : "Copiar"
       return `<div class="codigo"><button type="button" class="boton-copiar" data-copiar>${etiqueta}</button><pre><code>${escapar(text)}</code></pre></div>`
     },
-    link({ href, tokens }) {
+    // [texto](url "boton") se muestra como botón y abre siempre en otra pestaña, aunque sea una página
+    // de la app: así la consigna (y lo que no se guardó) queda abierta. Ej.: "Ver aplicación", "Ver métricas".
+    link({ href, title, tokens }) {
       const texto = this.parser.parseInline(tokens)
       const a = destino(href)
       if (a === null) return `<span class="enlace-repo" title="${escapar(href)}">${texto}</span>`
-      const externo = a.startsWith("http") ? ' target="_blank" rel="noreferrer"' : ""
-      return `<a href="${escapar(a)}"${externo}>${texto}</a>`
+      const boton = title === "boton"
+      const pestanaNueva = boton || a.startsWith("http") ? ' target="_blank" rel="noreferrer"' : ""
+      const clase = boton ? ' class="boton boton-enlace"' : ""
+      return `<a href="${escapar(a)}"${clase}${pestanaNueva}>${texto}</a>`
     },
   },
 })
@@ -57,8 +64,9 @@ export default function Markdown({ texto, enLinea = false }: { texto: string; en
     const objetivo = evento.target as HTMLElement
     const boton = objetivo.closest<HTMLButtonElement>("[data-copiar]")
     if (boton) return void copiar(boton)
-    const href = objetivo.closest("a")?.getAttribute("href")
-    if (href?.startsWith("/")) {
+    const enlace = objetivo.closest("a")
+    const href = enlace?.getAttribute("href")
+    if (href?.startsWith("/") && enlace?.target !== "_blank") {
       evento.preventDefault()
       navigate(href)
     }

@@ -223,7 +223,10 @@ Contrato completo: [`specs/001-reservar-sesion/contracts/api.md`](specs/001-rese
 
 Dashboard en vivo de lo que hacen Claude Code, Codex CLI y Cline, leído de `logs/` (los
 archivos que escriben los hooks). Está **separado del producto** Mentorías, igual que
-`/ejercicios`: la UI vive en `metricas/app/` y el link "Métricas" está siempre en el menú.
+`/ejercicios`: la UI vive en `metricas/app/`. El link "Métricas" aparece en el menú recién
+cuando se marca el ejercicio 1 con **Terminé** (se recuerda en el navegador, en
+`localStorage`): el ejercicio 1 es para aprender a leer el log a mano. La página responde
+igual en `/metricas`, con un aviso arriba para quien llegue antes.
 
 - **Qué muestra:** sesiones, prompts, herramientas, fallas ("n/d" si el agente no las reporta),
   eventos por minuto, acciones por tipo, duraciones p50/p95, archivos leídos y escritos, binarios de

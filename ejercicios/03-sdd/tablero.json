@@ -1,0 +1,145 @@
+{
+  "introduccion": [
+    "¡Hola! Soy Rocco, el Product Owner de Mentorías a Voluntad. ¡Felicitaciones por llegar al ejercicio 3! Ya viste qué hace un agente por dentro con los hooks, y le diste criterio con una skill y herramientas con un MCP.",
+    "Ahora vamos un paso más allá: vas a trabajar como en un equipo de producto real. Tomás una tarea del backlog y la llevás de la idea al código con Spec-Driven Development.",
+    "Para organizarnos usamos un tablero, como en Jira. Siempre lo vas a tener a mano: muestra lo que el equipo ya resolvió y lo que queda pendiente.",
+    "Tu parte: en To Do, abrí cada tarjeta y leé el detalle. Cuando te decidas, arrastrala a In Progress: esa es la que vas a implementar. Si cambiás de idea, podés devolverla a To Do. ¡Éxitos!"
+  ],
+  "felicitacion": [
+    "¡Lo lograste! Llevaste una historia de la idea al código: la spec, las dudas, el plan, las tareas y la implementación, frenando a revisar en cada etapa.",
+    "Eso es Spec-Driven Development: el agente formaliza y vos ponés el criterio. Esa parte no se delega.",
+    "Último detalle: el push a la rama de tu grupo es lo que deja entregados los tres ejercicios. ¡Gracias por sumarte al equipo de Mentorías a Voluntad!"
+  ],
+  "hechas": [
+    {
+      "id": "listado-mentoras",
+      "titulo": "Listado de mentoras",
+      "historia": "Como colectivo, quiero ver qué mentoras hay y qué tipos de asesoría dan, para elegir a quién pedirle ayuda."
+    },
+    {
+      "id": "reservar-sesion",
+      "titulo": "Reservar una sesión",
+      "historia": "Como colectivo, quiero elegir mentora, tipo de asesoría, día y horario libre, para que la sesión quede confirmada.",
+      "nota": "Se construyó con SDD: `specs/001-reservar-sesion/`."
+    },
+    {
+      "id": "sin-superposiciones",
+      "titulo": "Sesiones sin superposición",
+      "historia": "Como mentora, quiero que no me reserven dos sesiones que se pisan, para no fallarle a ningún colectivo."
+    }
+  ],
+  "historias": [
+    {
+      "id": "cancelar-sesion",
+      "titulo": "Cancelar una sesión",
+      "tamano": "Chica",
+      "recomendada": "Opción por defecto",
+      "historia": "Como colectivo, quiero cancelar una sesión que reservé, para avisar que no voy y liberar el horario para otro colectivo.",
+      "criterios": [
+        "Al reservar, el colectivo recibe un enlace a su sesión con el detalle y la opción de cancelar.",
+        "Se puede cancelar hasta 24 horas antes del inicio, con un motivo opcional. Después, se explica por qué ya no se puede.",
+        "Una sesión cancelada libera su horario."
+      ],
+      "casosBorde": [
+        "Faltan exactamente 24 horas: ¿contra qué hora se compara, la del servidor o la de Argentina?",
+        "Cancelar una sesión que ya está cancelada o que ya pasó.",
+        "Sin login, cualquiera con el enlace puede cancelar: ¿alcanza para esta iteración? ¿Quién ve el motivo?"
+      ],
+      "apis": [
+        "GET /api/sesiones/:id",
+        "PATCH /api/sesiones/:id { estado: \"cancelada\", motivo }"
+      ]
+    },
+    {
+      "id": "cupo-mensual",
+      "titulo": "Cupo mensual de horas por mentora",
+      "tamano": "Chica a media",
+      "recomendada": "Primera vez con SDD",
+      "historia": "Como mentora, quiero fijar cuántas horas dono por mes, para no comprometer más tiempo del que puedo sostener.",
+      "criterios": [
+        "Cada mentora tiene un cupo mensual: las sesiones confirmadas lo consumen y las canceladas no.",
+        "Sin cupo, la mentora no ofrece horarios en ese mes.",
+        "El colectivo ve cuánto le queda (\"Le quedan 2 h este mes\") o \"Sin cupo este mes\".",
+        "El cupo se carga con los datos de la mentora: no hace falta una pantalla para editarlo."
+      ],
+      "casosBorde": [
+        "Le quedan 30 minutos y la asesoría dura 60: ¿se permite pasarse?",
+        "¿Mes calendario o próximos 30 días? ¿Una mentora sin cupo definido tiene límite?",
+        "Dos colectivos reservan al mismo tiempo las últimas horas del mes."
+      ],
+      "apis": [
+        "GET /api/mentoras y /api/mentoras/:id con las horas disponibles",
+        "POST /api/sesiones: 409 si excede el cupo"
+      ]
+    },
+    {
+      "id": "ausencias",
+      "titulo": "Ausencias en la agenda",
+      "tamano": "Media",
+      "recomendada": "Fuera de clase",
+      "historia": "Como mentora, quiero cargar mis ausencias (vacaciones, parciales, una reunión), para que no me reserven cuando no voy a estar.",
+      "criterios": [
+        "Una ausencia ocupa uno o varios días completos, o una franja horaria de un día.",
+        "Los horarios afectados no se ofrecen al reservar.",
+        "El motivo es privado: el colectivo solo ve que no hay horario.",
+        "La mentora ve sus próximas ausencias y puede eliminar una."
+      ],
+      "casosBorde": [
+        "Atiende de 09 a 13, se ausenta de 10 a 11 y la asesoría dura 90 minutos: ¿qué horarios quedan?",
+        "Ya hay una sesión confirmada dentro de la ausencia: ¿se rechaza, se acepta con aviso o se cancela la sesión?",
+        "Ausencias superpuestas entre sí, en el pasado o con fechas invertidas."
+      ],
+      "apis": [
+        "GET y POST /api/mentoras/:id/ausencias",
+        "DELETE /api/mentoras/:id/ausencias/:ausenciaId"
+      ]
+    },
+    {
+      "id": "cualquier-mentora",
+      "titulo": "Cualquier mentora disponible",
+      "tamano": "Media",
+      "recomendada": "Quien ya terminó otra",
+      "historia": "Como colectivo que no conoce a nadie del ambiente, quiero reservar por tipo de asesoría sin elegir mentora, para destrabar mi proyecto igual.",
+      "criterios": [
+        "Un segundo camino de reserva: tipo de asesoría, día y horario, y \"Cualquier mentora disponible\".",
+        "Solo se ofrecen horarios con al menos una mentora libre que dé ese tipo.",
+        "Se asigna la mentora de menor carga y el colectivo ve quién le tocó. El camino actual sigue existiendo."
+      ],
+      "casosBorde": [
+        "¿Qué es carga: sesiones u horas, de la semana o del mes? Y ante un empate, ¿qué criterio determinístico?",
+        "El horario estaba libre al consultarlo, pero al confirmar ya no queda ninguna mentora.",
+        "¿El colectivo puede rechazar la mentora asignada?"
+      ],
+      "apis": [
+        "GET /api/tipos-asesoria/:id/disponibilidad",
+        "POST /api/sesiones sin mentoraId"
+      ]
+    },
+    {
+      "id": "solicitudes",
+      "titulo": "Solicitudes de sesión y revelado de contacto",
+      "tamano": "Grande",
+      "recomendada": "Grupos de 2-3, fuera de clase",
+      "historia": "Como mentora, quiero aceptar o rechazar cada pedido antes de comprometer mi tiempo. Como colectivo, quiero escribirle a la mentora una vez confirmada la sesión.",
+      "criterios": [
+        "Al reservar, la sesión queda pendiente y el horario, tomado de forma provisoria.",
+        "La mentora acepta o rechaza, con un motivo opcional. Rechazar libera el horario.",
+        "Solo con la sesión confirmada cada parte ve el contacto de la otra, y solo en el detalle de esa sesión.",
+        "Si la mentora no responde hasta 48 horas antes, la solicitud vence y el horario se libera."
+      ],
+      "casosBorde": [
+        "Sin login, ¿cómo se sabe que quien pide el contacto es el colectivo de esa sesión? Es la decisión más importante.",
+        "¿Una solicitud pendiente bloquea el horario? Si sí, hay que enmendar la constitution.",
+        "¿El vencimiento corre solo o se evalúa al consultar? El dominio no hace IO."
+      ],
+      "apis": [
+        "GET /api/mentoras/:id/solicitudes?estado=pendiente",
+        "PATCH /api/sesiones/:id { estado }",
+        "GET /api/sesiones/:id/contacto"
+      ]
+    }
+  ],
+  "notas": [
+    "Si tu feature guarda un archivo nuevo en `data/` (por ejemplo, `ausencias.json`), sumalo al `.gitignore`."
+  ]
+}

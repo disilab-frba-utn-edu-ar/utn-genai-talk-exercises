@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process"
 import { mkdtempSync, readFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { clasificar } from "../../../scripts/agent-logs/clasificar.mjs"
+import { clasificar, resultadoDeTests } from "../../../scripts/agent-logs/clasificar.mjs"
 
 const HOOK = join(process.cwd(), "scripts", "agent-logs", "log-hook.mjs")
 
@@ -108,5 +108,39 @@ describe("clasificar: rutas de apply_patch", () => {
 
   it("sin rutas legibles no inventa nada", () => {
     expect(clasificar("apply_patch", { input: "otra cosa" }).targets).toEqual([])
+  })
+})
+
+describe("resultadoDeTests: el rojo y el verde de TDD", () => {
+  const noCompila = [
+    " FAIL  |server| tests/server/domain/superposicion.test.ts",
+    "Error: Cannot find module '../../../server/domain/superposicion'",
+    " Test Files  1 failed | 9 passed (10)",
+    "      Tests  75 passed (75)",
+  ].join("\n")
+  const reglaRota = [
+    "AssertionError: expected 201 to be 409 // Object.is equality",
+    " Test Files  1 failed | 10 passed (11)",
+    "      Tests  1 failed | 85 passed (86)",
+  ].join("\n")
+
+  it("distingue si falló porque no compila o porque la regla no se cumple", () => {
+    expect(resultadoDeTests("npm test", noCompila)).toEqual({ resultado: "rojo", fallaron: 0, pasaron: 75, causa: "no compila" })
+    expect(resultadoDeTests("npx vitest run tests/server", reglaRota)).toEqual({ resultado: "rojo", fallaron: 1, pasaron: 85, causa: "la regla no se cumple" })
+  })
+
+  it("verde cuando pasan todos", () => {
+    expect(resultadoDeTests("npm test 2>&1 | tail -8", " Test Files  11 passed (11)\n      Tests  86 passed (86)")).toEqual({ resultado: "verde", fallaron: 0, pasaron: 86 })
+  })
+
+  it("no inventa: sin resumen de Vitest es 'no detectado' y otros comandos no son tests", () => {
+    expect(resultadoDeTests("npm test | grep FAIL", "")).toEqual({ resultado: "no detectado" })
+    expect(resultadoDeTests("npm run lint", "ok")).toBeUndefined()
+  })
+
+  it("el hook lo guarda en el PostToolUse con la salida completa, aunque el extracto la corte", () => {
+    const salida = "x".repeat(5000) + "\n" + reglaRota
+    const { entrada } = registrar("claude", { session_id: "s-tests", hook_event_name: "PostToolUse", tool_name: "Bash", tool_input: { command: "npm test" }, tool_response: { stdout: salida } })
+    expect(entrada.tests).toEqual({ resultado: "rojo", fallaron: 1, pasaron: 85, causa: "la regla no se cumple" })
   })
 })

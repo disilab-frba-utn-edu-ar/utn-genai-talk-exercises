@@ -2,8 +2,11 @@
 // de líneas de markdown: unidas con "\n" son exactamente el documento original.
 import indice from "../indice.json"
 
-/** `insertarDespuesDe`: línea exacta de la consigna debajo de la cual se muestra (si no, va en su propia sección). */
-export type Anexo = { titulo: string; archivo: string; insertarDespuesDe?: string; markdown: string[] }
+/**
+ * `insertarDespuesDe`: línea exacta de la consigna debajo de la cual se muestra (si no, va en su propia sección).
+ * `soloSiTerminado`: id de un ejercicio; el anexo se muestra recién cuando ese ejercicio está marcado como terminado.
+ */
+export type Anexo = { titulo: string; archivo: string; insertarDespuesDe?: string; soloSiTerminado?: string; markdown: string[] }
 
 type ArchivoEjercicio = {
   titulo: string
@@ -11,12 +14,19 @@ type ArchivoEjercicio = {
   /** Para el temporizador: el máximo de la duración estimada. */
   minutos: number
   resumen: string
-  /** Encabezados exactos de la consigna donde empiezan y terminan las preguntas (sin `hasta`: hasta el final). */
-  preguntas: { desde: string; hasta?: string }
+  /**
+   * Tramos de preguntas intercalados en la consigna, en orden: encabezados exactos donde empieza y
+   * termina cada uno (sin `hasta`: hasta el final). Así se responde justo después de cada paso.
+   */
+  preguntas: { desde: string; hasta?: string }[]
   consigna: string[]
   anexos: Anexo[]
   /** Lo que no es una pregunta: datos de la entrega, bitácoras, anexos. */
   plantillaRespuestas: string[]
+  /** Texto de ayuda en el recuadro de cada respuesta. */
+  placeholder?: string
+  /** Si al final de las preguntas se puede adjuntar una captura de pantalla (opcional). */
+  captura?: boolean
 }
 
 export type Ejercicio = ArchivoEjercicio & { id: string; numero: number }
@@ -30,12 +40,30 @@ export const ejercicios: Ejercicio[] = Object.keys(archivos)
 
 export const introduccion = indice.introduccion.join("\n")
 
-/** Divide la consigna en lo anterior a las preguntas, las preguntas y lo que sigue. Ninguna línea se pierde ni se repite. */
-export function partirConsigna({ consigna, preguntas }: Ejercicio) {
-  const desde = consigna.indexOf(preguntas.desde)
-  const hasta = preguntas.hasta ? consigna.indexOf(preguntas.hasta) : consigna.length
-  return { antes: consigna.slice(0, desde), preguntas: consigna.slice(desde, hasta), despues: consigna.slice(hasta) }
+export type Tramo = { tipo: "consigna" | "preguntas"; lineas: string[] }
+
+/** Divide la consigna en tramos de pasos y de preguntas, en orden. Ninguna línea se pierde ni se repite. */
+export function partirConsigna({ consigna, preguntas }: Ejercicio): Tramo[] {
+  const tramos: Tramo[] = []
+  let inicio = 0
+  for (const { desde, hasta } of preguntas) {
+    const i = consigna.indexOf(desde, inicio)
+    const fin = hasta ? consigna.indexOf(hasta, i) : consigna.length
+    if (i < 0 || fin < 0) throw new Error(`Tramo de preguntas no encontrado: ${desde} → ${hasta ?? "fin"}`)
+    if (i > inicio) tramos.push({ tipo: "consigna", lineas: consigna.slice(inicio, i) })
+    tramos.push({ tipo: "preguntas", lineas: consigna.slice(i, fin) })
+    inicio = fin
+  }
+  if (inicio < consigna.length) tramos.push({ tipo: "consigna", lineas: consigna.slice(inicio) })
+  return tramos
 }
+
+/** Todas las líneas de preguntas, de todos los tramos. */
+export const lineasDePreguntas = (ejercicio: Ejercicio) =>
+  partirConsigna(ejercicio).flatMap((t) => (t.tipo === "preguntas" ? t.lineas : []))
+
+/** El ejercicio que sigue en el orden de la consigna (undefined en el último). */
+export const siguienteDe = (ejercicio: Ejercicio): Ejercicio | undefined => ejercicios[ejercicio.numero]
 
 export type Bloque = { tipo: "markdown"; texto: string } | { tipo: "anexo"; anexo: Anexo }
 
@@ -94,9 +122,9 @@ export type Respuestas = { general: string; porPregunta: Record<string, string> 
 /** El RESPUESTAS.md que se entrega: los datos generales y, debajo, cada pregunta con su respuesta. */
 export function armarRespuestasMd(ejercicio: Ejercicio, { general, porPregunta }: Respuestas): string {
   const partes = [general.trim()]
-  for (const bloque of partirPreguntas(partirConsigna(ejercicio).preguntas)) {
+  for (const bloque of partirPreguntas(lineasDePreguntas(ejercicio))) {
     if (bloque.tipo === "markdown") {
-      partes.push(...bloque.lineas.filter((l) => l.startsWith("### ")).map((l) => l.replace(/^###/, "##")))
+      partes.push(...bloque.lineas.filter((l) => /^#{3,4} /.test(l)).map((l) => l.replace(/^#{3,4}/, "##")))
     } else {
       partes.push(`### ${bloque.numero}. ${bloque.titulo}`, porPregunta[bloque.numero]?.trim() || "_Sin responder._")
     }
