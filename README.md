@@ -237,7 +237,7 @@ igual en `/metricas`, con un aviso arriba para quien llegue antes.
   (`~/.claude/projects/…`, `~/.codex/sessions/…`, `~/.cline/data/tasks/…`), ubicada por el
   `transcript_path` que guarda el hook o por los lugares estándar. Solo se leen modelo, tokens y
   fechas, nunca el contenido de los mensajes. Los formatos de Codex y Cline son supuestos sin
-  confirmar con logs reales: están anotados en [`specs/003-dashboard-agentes/spec.md`](specs/003-dashboard-agentes/spec.md).
+  confirmar con logs reales: están anotados en [`metricas/specs/003-dashboard-agentes/spec.md`](metricas/specs/003-dashboard-agentes/spec.md).
 - **Precios:** [`metricas/precios-modelos.json`](metricas/precios-modelos.json) (USD por millón de
   tokens, con fecha y link de la fuente oficial de cada proveedor: Anthropic, OpenAI y Google).
   Un modelo que no figura muestra "n/d", nunca 0: solo se cargaron precios confirmados en la

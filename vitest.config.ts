@@ -12,14 +12,14 @@ export default defineConfig({
     projects: [
       {
         extends: true,
-        test: { name: "server", environment: "node", include: ["tests/server/**/*.test.ts"] },
+        test: { name: "server", environment: "node", include: ["tests/server/**/*.test.ts", "metricas/tests/server/**/*.test.ts"] },
       },
       {
         extends: true,
         test: {
           name: "client",
           environment: "jsdom",
-          include: ["tests/client/**/*.test.tsx"],
+          include: ["tests/client/**/*.test.tsx", "ejercicios/tests/**/*.test.tsx", "metricas/tests/client/**/*.test.tsx"],
           setupFiles: ["tests/client/setup.ts"],
         },
       },

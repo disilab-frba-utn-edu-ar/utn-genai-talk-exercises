@@ -1,6 +1,6 @@
-import type { AgenteLog, FiltrosMetricas } from "@shared/types"
+import type { AgenteLog, FiltrosMetricas } from "../../tipos"
 import { Router, type RequestHandler } from "express"
-import { ErrorDeNegocio } from "../services/errores"
+import { ErrorDeNegocio } from "../../../server/services/errores"
 import type { ServicioMetricas } from "../services/metricas-agentes"
 
 const LOOPBACK = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"])

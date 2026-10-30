@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
-import type { TablaPrecios, UsoTokens } from "@shared/types"
+import type { TablaPrecios, UsoTokens } from "../../../tipos"
 import { buscarPrecio, costoDe, crearParserCodex, usoDeLineaClaude, usosDeCline } from "../../../server/domain/uso-tokens"
-import precios from "../../../metricas/precios-modelos.json"
+import precios from "../../../precios-modelos.json"
 
-const HOME = join(process.cwd(), "tests", "server", "fixtures", "home")
+const HOME = join(process.cwd(), "metricas", "tests", "server", "fixtures", "home")
 const lineas = (ruta: string) => readFileSync(join(HOME, ruta), "utf-8").split("\n").filter(Boolean).map((l) => JSON.parse(l))
 const CLAUDE = ".claude/projects/-work-repo/bb76875c-d528-5a9e-9c40-c1ba18725474.jsonl"
 const CODEX = ".codex/sessions/2026/10/27/rollout-2026-10-27T17-01-40-019a-codex-sesion-1.jsonl"

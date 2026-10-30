@@ -1,4 +1,4 @@
-import type { MetricasAgentes } from "@shared/types"
+import type { MetricasAgentes } from "../../tipos"
 
 /** Un snapshot completo con datos de los tres agentes; `extra` pisa lo que cada test necesite. */
 export function metricasDePrueba(extra: Partial<MetricasAgentes> = {}): MetricasAgentes {

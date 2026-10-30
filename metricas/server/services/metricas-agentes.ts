@@ -4,11 +4,11 @@
 // `fs.watch` pierde (eventos duplicados en Windows, carpetas de red, logs/ que todavía no existe
 // o que logs:limpiar movió).
 import { watch, type FSWatcher } from "node:fs"
-import type { AgenteLog, FiltrosMetricas, MetricasAgentes, OrigenDisponible, OrigenLogs, TablaPrecios } from "@shared/types"
+import type { AgenteLog, FiltrosMetricas, MetricasAgentes, OrigenDisponible, OrigenLogs, TablaPrecios } from "../../tipos"
 import { calcularMetricas } from "../domain/metricas-agentes"
 import type { LectorLogs, RepositorioLogs } from "../repositories/logs-agentes"
 import type { SesionDeLog, crearRepositorioTranscripciones } from "../repositories/transcripciones-agentes"
-import { ErrorDeNegocio } from "./errores"
+import { ErrorDeNegocio } from "../../../server/services/errores"
 
 export type OpcionesMetricas = {
   reloj?: () => Date

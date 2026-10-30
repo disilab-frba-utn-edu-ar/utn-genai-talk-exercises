@@ -2,23 +2,23 @@ import { appendFileSync, cpSync, mkdirSync, mkdtempSync } from "node:fs"
 import type { AddressInfo } from "node:net"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import type { MetricasAgentes } from "@shared/types"
+import type { MetricasAgentes } from "../../../tipos"
 import { soloLoopback } from "../../../server/routes/metricas-agentes"
-import { crearAppDePrueba } from "./helpers"
+import { crearAppDePrueba } from "../../../../tests/server/api/helpers"
 
 const AHORA_LOGS = new Date("2026-10-27T17:12:00.000Z")
 
 /** Los logs de las fixtures se copian a un directorio temporal: ningún test escribe en logs/ ni en data/. */
 function crearLogsDePrueba() {
   const logsDir = mkdtempSync(join(tmpdir(), "metricas-"))
-  cpSync(join(process.cwd(), "tests", "server", "fixtures", "logs"), logsDir, { recursive: true })
+  cpSync(join(process.cwd(), "metricas", "tests", "server", "fixtures", "logs"), logsDir, { recursive: true })
   return logsDir
 }
 
 /** Un "home" temporal con las transcripciones de las fixtures: los tests nunca leen el ~ real. */
 function crearHomeDePrueba(conTranscripciones = true) {
   const home = mkdtempSync(join(tmpdir(), "home-"))
-  if (conTranscripciones) cpSync(join(process.cwd(), "tests", "server", "fixtures", "home"), home, { recursive: true })
+  if (conTranscripciones) cpSync(join(process.cwd(), "metricas", "tests", "server", "fixtures", "home"), home, { recursive: true })
   return home
 }
 

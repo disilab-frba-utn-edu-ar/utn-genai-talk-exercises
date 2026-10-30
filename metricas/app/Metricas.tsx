@@ -1,4 +1,4 @@
-import type { AgenteLog, FiltrosMetricas, MetricasAgentes, OrigenLogs, TokensMetricas } from "@shared/types"
+import type { AgenteLog, FiltrosMetricas, MetricasAgentes, OrigenLogs, TokensMetricas } from "../tipos"
 import { useState } from "react"
 import { Link } from "react-router"
 import { Cargando, ErrorCarga, Vacio } from "../../client/src/components/Estado"

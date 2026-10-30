@@ -1,0 +1,5 @@
+# Material de la charla: no es parte del producto. Oculto a las búsquedas de los agentes
+# (Claude Code y Codex buscan con ripgrep, que respeta este archivo). Se puede leer igual
+# pidiéndolo con la ruta. Ver "Material de la charla" en AGENTS.md.
+ejercicios/
+metricas/

@@ -14,8 +14,6 @@ donan horas de asesoramiento. App full stack liviana en un solo repo.
 - `shared/types.ts` — tipos compartidos client/server.
 - `server/` — Express en capas: `routes/ → services/ → repositories/ → domain/`. `domain/` es puro (sin IO).
 - `client/src/` — React + Vite + React Router. Todo `fetch` vive en `client/src/api/`.
-- `ejercicios/` — consignas de la charla en JSON y su visor en `/ejercicios`. No es parte del producto.
-- `metricas/` — dashboard de métricas de agentes (`/metricas`, UI en `metricas/app/`) y `precios-modelos.json`. No es parte del producto; su servidor está en `server/*/metricas-agentes.ts` y `server/*/{logs,transcripciones}-agentes.ts` (spec 003).
 - `data/` — archivos JSON. `data/sesiones.json` no se versiona: se genera con `npm run seed`.
 - `tests/server/{domain,api}` y `tests/client` — Vitest; los tests de API usan un `DATA_DIR` temporal (ver `tests/server/api/helpers.ts`). Nunca escribas en `data/` desde un test.
 
@@ -25,3 +23,10 @@ donan horas de asesoramiento. App full stack liviana en un solo repo.
 - `npm test` · `npm run lint` · `npm run typecheck` · `npm run build`
 
 Antes de dar una tarea por terminada, corré `npm test`, `npm run lint` y `npm run typecheck`.
+
+## Material de la charla (no es parte del producto)
+
+`ejercicios/` (consignas y su visor) y `metricas/` (dashboard de los logs de los agentes, con su
+servidor, sus tests y su spec) son material de la charla. Están ocultos a las búsquedas (`.ignore`,
+`.clineignore`): no los leas ni los modifiques salvo que te lo pidan con la ruta. Para trabajar en
+el producto no hace falta mirarlos.

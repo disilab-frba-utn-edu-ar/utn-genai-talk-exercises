@@ -1,10 +1,10 @@
 import { screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import Ejercicios from "../../ejercicios/app/Ejercicios"
-import { armarRespuestasMd, conAnexosEnLinea, ejercicios, partirConsigna, partirPreguntas } from "../../ejercicios/app/contenido"
-import { HABILITA_METRICAS } from "../../ejercicios/app/progreso"
-import { formatearTiempo } from "../../ejercicios/app/Temporizador"
-import { renderConRuta, simularApi } from "./helpers"
+import Ejercicios from "../app/Ejercicios"
+import { armarRespuestasMd, conAnexosEnLinea, ejercicios, partirConsigna, partirPreguntas } from "../app/contenido"
+import { HABILITA_METRICAS } from "../app/progreso"
+import { formatearTiempo } from "../app/Temporizador"
+import { renderConRuta, simularApi } from "../../tests/client/helpers"
 
 const ejercicio = ejercicios[0]
 const terminado = (id: string) => (JSON.parse(localStorage.getItem("ejercicios:terminados") ?? "[]") as string[]).includes(id)

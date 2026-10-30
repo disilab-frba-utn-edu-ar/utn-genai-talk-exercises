@@ -1,7 +1,7 @@
 // Gráficos propios, sin librerías: reciben datos ya calculados por el servidor y solo dibujan.
 // Cada gráfico es una <figure> con su botón "Ver como tabla" (sirve también a lectores de pantalla).
 import { useId, useState, type ReactNode } from "react"
-import type { AgenteLog } from "@shared/types"
+import type { AgenteLog } from "../tipos"
 import { hora } from "./formato"
 
 export const colorAgente = (agente: AgenteLog) => `var(--agente-${agente})`

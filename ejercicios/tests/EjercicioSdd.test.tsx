@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import Ejercicios from "../../ejercicios/app/Ejercicios"
-import { HABILITA_SDD } from "../../ejercicios/app/progreso"
-import { SddPage } from "../../ejercicios/app/Setup"
-import { felicitacion, historias, introduccion, leerEstado, mover, type EstadoTablero } from "../../ejercicios/app/tablero"
+import Ejercicios from "../app/Ejercicios"
+import { HABILITA_SDD } from "../app/progreso"
+import { SddPage } from "../app/Setup"
+import { felicitacion, historias, introduccion, leerEstado, mover, type EstadoTablero } from "../app/tablero"
 import { MemoryRouter } from "react-router"
-import { renderConRuta, simularApi } from "./helpers"
+import { renderConRuta, simularApi } from "../../tests/client/helpers"
 
 const CLAVE = "ejercicios:tablero-sdd"
 const [primera, segunda] = historias
