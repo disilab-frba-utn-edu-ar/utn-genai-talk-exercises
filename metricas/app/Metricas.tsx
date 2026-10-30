@@ -1,12 +1,12 @@
 import type { AgenteLog, FiltrosMetricas, MetricasAgentes, OrigenLogs, TokensMetricas } from "@shared/types"
 import { useState } from "react"
-import { Link } from "react-router"
+import { Link, useSearchParams } from "react-router"
 import { Cargando, ErrorCarga, Vacio } from "../../client/src/components/Estado"
 import Chip from "../../client/src/components/Chip"
 import { useCarga } from "../../client/src/hooks/useCarga"
 import { leerOrigenes } from "./api"
 import { AGENTES, caracteres, duracion, formatoNumero, hora, porcentaje, usd } from "./formato"
-import { colorAgente, colorKind, Figura, GraficoApilado, GraficoBarras, GraficoSerie, Indicador, LineaDeTiempo, type SerieDef } from "./graficos"
+import { colorAgente, colorKind, Figura, GraficoBarras, GraficoDuraciones, GraficoSerie, GraficoTorta, Indicador, LineaDeTiempo, TortasPorGrupo, type Segmento, type SerieDef } from "./graficos"
 import "./metricas.css"
 import { useMetricasEnVivo, type Conexion } from "./useMetricasEnVivo"
 
@@ -25,18 +25,36 @@ const SERIES_TOKENS: SerieDef[] = [
   { id: "cacheEscritura", nombre: "Caché (escritura)", color: "var(--tokens-cache-escritura)" },
 ]
 const sumaCache = (t: TokensMetricas) => t.cacheLectura + t.cacheEscritura
+const totalTokens = (t: TokensMetricas | null) => (t ? t.entrada + t.salida + sumaCache(t) : 0)
+const segmentosTokens = (m: MetricasAgentes): Segmento[] =>
+  m.tokens.total ? SERIES_TOKENS.map((s) => ({ nombre: s.nombre, valor: m.tokens.total![s.id as keyof TokensMetricas], color: s.color })).filter((s) => s.valor > 0) : []
+const nombrePaso = (min: number) => (min === 1 ? "minuto" : min === 60 ? "hora" : `${min} minutos`)
+const horaExacta = (iso: string) => new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" })
 
 const ESTADO_CONEXION: Record<Conexion, string> = {
   envivo: "En vivo",
   reconectando: "Reconectando…",
-  consultando: "Consultando cada 5 s (sin conexión en vivo)",
+  consultando: "Consultando cada 5 s (sin conexión en vivo)",
 }
 
 export default function Metricas() {
-  const [origen, setOrigen] = useState<OrigenLogs>("actual")
-  const [agente, setAgente] = useState<AgenteLog | undefined>()
-  const [sesion, setSesion] = useState("")
-  const [ventana, setVentana] = useState("")
+  // Los filtros viven en la URL: un link abre el tablero ya filtrado (por ejemplo, ?agente=cline&ventana=60).
+  const [params, setParams] = useSearchParams()
+  const agenteUrl = params.get("agente")
+  const agente = agenteUrl && agenteUrl in AGENTES ? (agenteUrl as AgenteLog) : undefined
+  const sesion = params.get("sesion") ?? ""
+  const ventana = params.get("ventana") ?? ""
+  const origen: OrigenLogs = params.get("origen") ?? "actual"
+  const filtrar = (clave: string, valor: string | undefined) =>
+    setParams(
+      (actuales) => {
+        const nuevos = new URLSearchParams(actuales)
+        if (valor) nuevos.set(clave, valor)
+        else nuevos.delete(clave)
+        return nuevos
+      },
+      { replace: true },
+    )
   const [detalle, setDetalle] = useState(false) // apagado por defecto: se activa desde la UI, sin variables de entorno
 
   const filtros: FiltrosMetricas = { agente, sesion: sesion || undefined, ventanaMin: ventana ? Number(ventana) : undefined, detalle }
@@ -46,8 +64,7 @@ export default function Metricas() {
   return (
     <div className="metricas">
       <p className="metricas-aviso" role="note">
-        Si llegaste a esta pestaña sin terminar el Ejercicio 1, te recomendamos no usarla todavía: ese ejercicio es para
-        aprender a leer el log a mano, y este tablero muestra lo mismo ya resumido.
+        Si llegaste sin terminar el Ejercicio 1, volvé después: ahí se aprende a leer a mano el log que este tablero resume.
       </p>
       <section className="portada">
         <p className="sobretitulo prompt">Observabilidad</p>
@@ -57,11 +74,11 @@ export default function Metricas() {
 
       <section className="metricas-filtros" aria-label="Filtros">
         <div className="chips">
-          <Chip activo={!agente} onClick={() => setAgente(undefined)}>
+          <Chip activo={!agente} onClick={() => filtrar("agente", undefined)}>
             Todos
           </Chip>
           {(Object.keys(AGENTES) as AgenteLog[]).map((a) => (
-            <Chip key={a} activo={agente === a} onClick={() => setAgente(a)}>
+            <Chip key={a} activo={agente === a} onClick={() => filtrar("agente", a)}>
               {AGENTES[a]}
             </Chip>
           ))}
@@ -69,7 +86,7 @@ export default function Metricas() {
         <div className="metricas-selectores">
           <label>
             Ventana
-            <select value={ventana} onChange={(e) => setVentana(e.target.value)}>
+            <select value={ventana} onChange={(e) => filtrar("ventana", e.target.value)}>
               {VENTANAS.map((v) => (
                 <option key={v.valor} value={v.valor}>
                   {v.nombre}
@@ -79,19 +96,19 @@ export default function Metricas() {
           </label>
           <label>
             Sesión
-            <select value={sesion} onChange={(e) => setSesion(e.target.value)}>
+            <select value={sesion} onChange={(e) => filtrar("sesion", e.target.value)}>
               <option value="">Todas</option>
               {(metricas.estado === "lista" ? metricas.datos : metricas.estado === "cargando" ? metricas.previo : undefined)?.sesiones.map((s) => (
-                  <option key={`${s.agente}${s.id}`} value={s.id}>
-                    {AGENTES[s.agente]} · {s.id}
-                  </option>
-                ))}
+                <option key={`${s.agente}${s.id}`} value={s.id}>
+                  {AGENTES[s.agente]} · {s.id}
+                </option>
+              ))}
             </select>
           </label>
           {origenes.estado === "lista" && (
             <label>
               Origen
-              <select value={origen} onChange={(e) => setOrigen(e.target.value)}>
+              <select value={origen} onChange={(e) => filtrar("origen", e.target.value === "actual" ? undefined : e.target.value)}>
                 {origenes.datos.map((o) => (
                   <option key={o.id} value={o.id}>
                     {o.nombre}
@@ -106,8 +123,12 @@ export default function Metricas() {
           </label>
         </div>
         {metricas.estado === "lista" && (
-          <p className={`metricas-conexion metricas-conexion-${metricas.conexion}`} aria-live="polite">
-            <span aria-hidden="true">●</span> {ESTADO_CONEXION[metricas.conexion]}
+          <p className={`metricas-conexion metricas-conexion-${metricas.conexion}`}>
+            {/* Solo el estado se anuncia: la hora cambia con cada evento y el lector de pantalla no pararía de hablar. */}
+            <span aria-live="polite">
+              <span aria-hidden="true">●</span> {ESTADO_CONEXION[metricas.conexion]}
+            </span>
+            <span className="metricas-actualizado"> · actualizado a las {horaExacta(metricas.datos.generado)}</span>
           </p>
         )}
       </section>
@@ -139,7 +160,8 @@ function Tablero({ m }: { m: MetricasAgentes }) {
     ...m.skills.map((u) => ({ etiqueta: u.nombre, tipo: "skill", kind: "skill", valor: u.n })),
     ...m.mcp.map((u) => ({ etiqueta: u.nombre, tipo: "mcp", kind: "mcp", valor: u.n })),
   ]
-  const paso = m.porTiempo.pasoMin === 1 ? "minuto" : m.porTiempo.pasoMin === 10 ? "10 minutos" : "hora"
+  const paso = nombrePaso(m.porTiempo.pasoMin)
+  const pasoTokens = nombrePaso(m.tokens.porTiempo.pasoMin)
   return (
     <>
       <section className="indicadores" aria-label="Indicadores">
@@ -166,7 +188,8 @@ function Tablero({ m }: { m: MetricasAgentes }) {
 
       <div className="metricas-grilla">
         <Figura
-          titulo={`Eventos por ${paso}`}
+          titulo={`Actividad por ${paso}, por agente`}
+          nota={`Eventos del log (prompts, herramientas, fines de turno) cada ${paso}.`}
           ancho
           vacio={m.porTiempo.puntos.length === 0}
           tabla={{
@@ -174,11 +197,12 @@ function Tablero({ m }: { m: MetricasAgentes }) {
             filas: m.porTiempo.puntos.map((p) => [hora(p.t), p.porAgente.claude ?? 0, p.porAgente.codex ?? 0, p.porAgente.cline ?? 0]),
           }}
         >
-          <GraficoSerie puntos={m.porTiempo.puntos.map((p) => ({ t: p.t, valores: p.porAgente }))} series={SERIES_AGENTES} />
+          <GraficoSerie puntos={m.porTiempo.puntos.map((p) => ({ t: p.t, valores: p.porAgente }))} series={SERIES_AGENTES} pasoMin={m.porTiempo.pasoMin} ejeY="Eventos" tipo="lineas" />
         </Figura>
 
         <Figura
-          titulo={`Tokens por ${paso}, por agente`}
+          titulo={`Tokens por ${pasoTokens}, por agente`}
+          nota={`Tokens consumidos cada ${pasoTokens} (entrada + salida + caché), apilados por agente.`}
           ancho
           vacio={m.tokens.porTiempo.puntos.length === 0}
           tabla={{
@@ -186,11 +210,12 @@ function Tablero({ m }: { m: MetricasAgentes }) {
             filas: m.tokens.porTiempo.puntos.map((p) => [hora(p.t), formatoNumero(p.porAgente.claude ?? 0), formatoNumero(p.porAgente.codex ?? 0), formatoNumero(p.porAgente.cline ?? 0)]),
           }}
         >
-          <GraficoSerie puntos={m.tokens.porTiempo.puntos.map((p) => ({ t: p.t, valores: p.porAgente }))} series={SERIES_AGENTES} formato={caracteres} />
+          <GraficoSerie puntos={m.tokens.porTiempo.puntos.map((p) => ({ t: p.t, valores: p.porAgente }))} series={SERIES_AGENTES} pasoMin={m.tokens.porTiempo.pasoMin} ejeY="Tokens" tipo="barras" formato={caracteres} />
         </Figura>
 
         <Figura
-          titulo={`Tokens por ${paso}, por tipo`}
+          titulo={`Tokens por ${pasoTokens}, por tipo`}
+          nota="Tokens apilados por tipo. La caché (lectura) es el contexto que el modelo relee en cada pedido: suele ser la mayor parte."
           ancho
           vacio={m.tokens.porTiempo.puntos.length === 0}
           tabla={{
@@ -198,11 +223,24 @@ function Tablero({ m }: { m: MetricasAgentes }) {
             filas: m.tokens.porTiempo.puntos.map((p) => [hora(p.t), formatoNumero(p.porTipo.entrada), formatoNumero(p.porTipo.salida), formatoNumero(p.porTipo.cacheLectura), formatoNumero(p.porTipo.cacheEscritura)]),
           }}
         >
-          <GraficoSerie puntos={m.tokens.porTiempo.puntos.map((p) => ({ t: p.t, valores: { ...p.porTipo } }))} series={SERIES_TOKENS} formato={caracteres} />
+          <GraficoSerie puntos={m.tokens.porTiempo.puntos.map((p) => ({ t: p.t, valores: { ...p.porTipo } }))} series={SERIES_TOKENS} pasoMin={m.tokens.porTiempo.pasoMin} ejeY="Tokens" tipo="area" formato={caracteres} />
+        </Figura>
+
+        <Figura
+          titulo="Distribución de tokens por tipo"
+          nota="Porcentaje de cada tipo sobre el total de tokens (al centro)."
+          vacio={!m.tokens.total || totalTokens(m.tokens.total) === 0}
+          tabla={{
+            columnas: ["Tipo", "Tokens", "Del total"],
+            filas: segmentosTokens(m).map((s) => [s.nombre, formatoNumero(s.valor), porcentaje(s.valor / (totalTokens(m.tokens.total) || 1))]),
+          }}
+        >
+          <GraficoTorta segmentos={segmentosTokens(m)} unidad="tokens" formato={caracteres} />
         </Figura>
 
         <Figura
           titulo="Tokens y costo por modelo"
+          nota="Tokens totales por modelo y su costo estimado a precio de lista."
           vacio={m.tokens.porModelo.length === 0}
           tabla={{
             columnas: ["Agente", "Modelo", "Solicitudes", "Entrada", "Salida", "Caché (lectura)", "Caché (escritura)", "Costo"],
@@ -210,6 +248,8 @@ function Tablero({ m }: { m: MetricasAgentes }) {
           }}
         >
           <GraficoBarras
+            eje="Tokens"
+            formato={caracteres}
             filas={m.tokens.porModelo.map((f) => ({
               etiqueta: `${f.modelo} (${AGENTES[f.agente]})`,
               valor: f.entrada + f.salida + f.cacheLectura + f.cacheEscritura,
@@ -220,63 +260,74 @@ function Tablero({ m }: { m: MetricasAgentes }) {
         </Figura>
 
         <Figura
-          titulo="Herramientas más usadas"
-          vacio={m.herramientas.length === 0}
-          tabla={{ columnas: ["Herramienta", "Tipo", "Llamadas"], filas: m.herramientas.map((h) => [h.nombre, h.kind, h.n]) }}
-        >
-          <GraficoBarras filas={m.herramientas.map((h) => ({ etiqueta: h.nombre, valor: h.n, color: colorKind(h.kind) }))} />
-        </Figura>
-
-        <Figura
-          titulo="Fallas por herramienta"
-          vacio={m.fallasPorHerramienta.length === 0}
-          tabla={{ columnas: ["Herramienta", "Fallas"], filas: m.fallasPorHerramienta.map((f) => [f.nombre, f.n]) }}
-        >
-          <GraficoBarras filas={m.fallasPorHerramienta.map((f) => ({ etiqueta: f.nombre, valor: f.n, color: "var(--error)" }))} />
-        </Figura>
-
-        <Figura
-          titulo="Acciones por tipo y agente"
+          titulo="Acciones por tipo, por agente"
+          nota="Proporción de cada tipo de acción sobre las llamadas del agente (total al centro)."
+          ancho
           vacio={m.acciones.length === 0}
           tabla={{ columnas: ["Agente", "Tipo", "Llamadas", "Del agente"], filas: m.acciones.map((a) => [AGENTES[a.agente], a.kind, a.n, porcentaje(a.n / (totalPorAgente.get(a.agente) ?? 1))]) }}
         >
-          <GraficoApilado
-            filas={(Object.keys(AGENTES) as AgenteLog[])
+          <TortasPorGrupo
+            unidad="llamadas"
+            grupos={(Object.keys(AGENTES) as AgenteLog[])
               .filter((a) => totalPorAgente.has(a))
               .map((a) => ({
-                etiqueta: AGENTES[a],
-                color: colorAgente(a),
+                nombre: AGENTES[a],
                 segmentos: m.acciones.filter((x) => x.agente === a).map((x) => ({ nombre: x.kind, valor: x.n, color: colorKind(x.kind) })),
               }))}
           />
         </Figura>
 
         <Figura
-          titulo="Duración por tipo de acción (p50 / p95)"
+          titulo="Herramientas más usadas"
+          nota="Llamadas por herramienta; el color es el tipo de acción."
+          vacio={m.herramientas.length === 0}
+          tabla={{ columnas: ["Herramienta", "Tipo", "Llamadas"], filas: m.herramientas.map((h) => [h.nombre, h.kind, h.n]) }}
+        >
+          <GraficoBarras eje="Llamadas" filas={m.herramientas.map((h) => ({ etiqueta: h.nombre, valor: h.n, color: colorKind(h.kind) }))} />
+        </Figura>
+
+        <Figura
+          titulo="Fallas por herramienta"
+          nota="Llamadas que devolvieron error."
+          vacio={m.fallasPorHerramienta.length === 0}
+          tabla={{ columnas: ["Herramienta", "Fallas"], filas: m.fallasPorHerramienta.map((f) => [f.nombre, f.n]) }}
+        >
+          <GraficoBarras eje="Llamadas con error" filas={m.fallasPorHerramienta.map((f) => ({ etiqueta: f.nombre, valor: f.n, color: "var(--error)" }))} />
+        </Figura>
+
+        <Figura
+          titulo="Duración por tipo de acción"
+          nota="p50: la mitad de las llamadas tarda menos. p95: el peor caso habitual."
           vacio={m.duraciones.length === 0}
           tabla={{ columnas: ["Tipo", "Llamadas", "p50", "p95"], filas: m.duraciones.map((d) => [d.kind, d.n, duracion(d.p50Ms), duracion(d.p95Ms)]) }}
         >
-          <GraficoBarras filas={m.duraciones.map((d) => ({ etiqueta: d.kind, valor: d.p95Ms, texto: `${duracion(d.p50Ms)} / ${duracion(d.p95Ms)}`, color: colorKind(d.kind) }))} />
+          <GraficoDuraciones filas={m.duraciones} />
         </Figura>
 
-        <Figura titulo="Archivos leídos" vacio={m.archivosLeidos.length === 0} tabla={{ columnas: ["Archivo", "Lecturas"], filas: m.archivosLeidos.map((a) => [a.nombre, a.n]) }}>
-          <GraficoBarras filas={m.archivosLeidos.map((a) => ({ etiqueta: a.nombre, valor: a.n, color: colorKind("leer") }))} />
+        <Figura
+          titulo="Subagentes, skills y MCP"
+          nota="Usos de cada skill, servidor MCP o subagente."
+          vacio={usos.length === 0}
+          tabla={{ columnas: ["Nombre", "Tipo", "Usos"], filas: usos.map((u) => [u.etiqueta, u.tipo, u.valor]) }}
+        >
+          <GraficoBarras eje="Usos" filas={usos.map((u) => ({ etiqueta: u.etiqueta, valor: u.valor, texto: `${u.valor} · ${u.tipo}`, color: colorKind(u.kind) }))} />
         </Figura>
 
-        <Figura titulo="Archivos escritos" vacio={m.archivosEscritos.length === 0} tabla={{ columnas: ["Archivo", "Escrituras"], filas: m.archivosEscritos.map((a) => [a.nombre, a.n]) }}>
-          <GraficoBarras filas={m.archivosEscritos.map((a) => ({ etiqueta: a.nombre, valor: a.n, color: colorKind("escribir") }))} />
+        <Figura titulo="Archivos leídos" nota="Veces que el agente leyó cada archivo." vacio={m.archivosLeidos.length === 0} tabla={{ columnas: ["Archivo", "Lecturas"], filas: m.archivosLeidos.map((a) => [a.nombre, a.n]) }}>
+          <GraficoBarras eje="Lecturas" filas={m.archivosLeidos.map((a) => ({ etiqueta: a.nombre, valor: a.n, color: colorKind("leer") }))} />
         </Figura>
 
-        <Figura titulo="Binarios de shell" vacio={m.binarios.length === 0} tabla={{ columnas: ["Comando", "Veces"], filas: m.binarios.map((b) => [b.nombre, b.n]) }}>
-          <GraficoBarras filas={m.binarios.map((b) => ({ etiqueta: b.nombre, valor: b.n, color: colorKind("ejecutar") }))} />
+        <Figura titulo="Archivos escritos" nota="Veces que el agente creó o editó cada archivo." vacio={m.archivosEscritos.length === 0} tabla={{ columnas: ["Archivo", "Escrituras"], filas: m.archivosEscritos.map((a) => [a.nombre, a.n]) }}>
+          <GraficoBarras eje="Escrituras" filas={m.archivosEscritos.map((a) => ({ etiqueta: a.nombre, valor: a.n, color: colorKind("escribir") }))} />
         </Figura>
 
-        <Figura titulo="Subagentes, skills y MCP" vacio={usos.length === 0} tabla={{ columnas: ["Nombre", "Tipo", "Usos"], filas: usos.map((u) => [u.etiqueta, u.tipo, u.valor]) }}>
-          <GraficoBarras filas={usos.map((u) => ({ etiqueta: u.etiqueta, valor: u.valor, texto: `${u.valor} · ${u.tipo}`, color: colorKind(u.kind) }))} />
+        <Figura titulo="Comandos de shell" nota="Veces que se ejecutó cada programa (git, npm, node…)." vacio={m.binarios.length === 0} tabla={{ columnas: ["Comando", "Veces"], filas: m.binarios.map((b) => [b.nombre, b.n]) }}>
+          <GraficoBarras eje="Ejecuciones" filas={m.binarios.map((b) => ({ etiqueta: b.nombre, valor: b.n, color: colorKind("ejecutar") }))} />
         </Figura>
 
         <Figura
           titulo={m.lineaDeTiempo ? `Línea de tiempo de la sesión ${m.lineaDeTiempo.sesion} (${AGENTES[m.lineaDeTiempo.agente]})` : "Línea de tiempo de la sesión"}
+          nota="Cada punto es una llamada a herramienta. Línea punteada: prompt · línea llena: fin de turno · cruz roja: falla."
           ancho
           vacio={!m.lineaDeTiempo || m.lineaDeTiempo.puntos.length === 0}
           tabla={{

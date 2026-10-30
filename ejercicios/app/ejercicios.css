@@ -54,7 +54,7 @@
 
 .markdown h2 {
   padding-top: 1.25rem;
-  border-top: 1px solid var(--linea-suave);
+  border-top: 2px dashed var(--linea-suave);
   font-size: 1.45rem;
 }
 
@@ -66,12 +66,14 @@
   font-size: 1rem;
 }
 
+/* Las citas son el recuadro de narración de la consigna: amarillo, con trazo y sombra corta. */
 .markdown blockquote {
-  margin: 1rem 0;
+  margin: 1.25rem 0;
   padding: 0.5rem 1rem;
-  border-left: 4px solid var(--acento);
-  background: var(--acento-suave);
-  border-radius: 0 var(--radio-chico) var(--radio-chico) 0;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: color-mix(in srgb, var(--resaltador) 40%, var(--superficie));
+  box-shadow: var(--sombra-chica);
 }
 
 .markdown blockquote p {
@@ -81,8 +83,8 @@
 .markdown :not(pre) > code {
   padding: 0.1em 0.35em;
   border-radius: 4px;
-  background: var(--grilla);
-  border: 1px solid var(--linea-suave);
+  background: var(--superficie);
+  border: 1.5px solid var(--linea);
 }
 
 .markdown table {
@@ -96,13 +98,13 @@
 .markdown th,
 .markdown td {
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--linea-suave);
+  border: 1.5px solid var(--linea);
   text-align: left;
   vertical-align: top;
 }
 
 .markdown th {
-  background: var(--grilla);
+  background: var(--cielo);
 }
 
 .markdown li {
@@ -116,9 +118,10 @@
 .markdown details {
   margin: 0.75rem 0;
   padding: 0.6rem 1rem;
-  border: 1.5px solid var(--linea);
+  border: 2px solid var(--linea);
   border-radius: var(--radio-chico);
-  background: var(--fondo);
+  background: var(--superficie);
+  box-shadow: 2px 2px 0 var(--linea);
 }
 
 .markdown summary {
@@ -128,7 +131,7 @@
 .markdown hr {
   margin: 2rem 0;
   border: 0;
-  border-top: 1px solid var(--linea-suave);
+  border-top: 2px dashed var(--linea-suave);
 }
 
 .enlace-repo {
@@ -145,7 +148,9 @@
   margin: 0;
   padding: 2.6rem 1rem 1rem;
   overflow-x: auto;
+  border: var(--borde);
   border-radius: var(--radio-chico);
+  box-shadow: 3px 3px 0 var(--acento);
   background: var(--texto);
   color: var(--invertido);
   font-size: 0.875rem;
@@ -168,8 +173,8 @@
 }
 
 .boton-copiar:hover {
-  border-color: var(--acento);
-  background: var(--acento);
+  border-color: var(--resaltador);
+  background: var(--resaltador);
   color: var(--texto);
 }
 
@@ -177,9 +182,10 @@
 .anexo-en-linea {
   margin: 0.75rem 0 1.25rem;
   padding: 1rem 1.15rem;
-  border: 2px solid var(--acento);
+  border: var(--borde);
   border-radius: var(--radio);
-  background: var(--fondo);
+  background: var(--superficie);
+  box-shadow: 4px 4px 0 var(--acento);
 }
 
 .anexo-en-linea .markdown h1 {
@@ -194,10 +200,11 @@
 }
 
 .pregunta {
-  margin: 0.6rem 0;
-  border: 1.5px solid var(--linea);
+  margin: 0.75rem 0;
+  border: 2px solid var(--linea);
   border-radius: var(--radio-chico);
-  background: var(--fondo);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
 }
 
 .pregunta summary {
@@ -212,7 +219,7 @@
 }
 
 .pregunta[open] summary {
-  border-bottom: 1px solid var(--linea-suave);
+  border-bottom: 2px dashed var(--linea-suave);
 }
 
 .pregunta-cuerpo {
@@ -243,7 +250,7 @@
 .tramo-preguntas {
   margin: 1.5rem 0;
   padding: 0.25rem 1rem 0.75rem;
-  border-left: 4px solid var(--acento);
+  border-left: 4px dashed var(--acento);
 }
 
 /* Un enlace de la consigna con forma de botón (por ejemplo, "Ver aplicación"). */
@@ -271,10 +278,10 @@
   gap: 0.5rem 1rem;
   margin-top: 0.75rem;
   padding: 0.6rem 0.75rem;
-  border: 2px solid var(--texto);
+  border: var(--borde);
   border-radius: var(--radio);
-  background: var(--fondo);
-  box-shadow: 3px 3px 0 var(--texto);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
 }
 
 .respuestas-estado {
@@ -299,10 +306,10 @@
   /* Alineado al borde derecho de la columna de lectura (--ancho-lectura). */
   margin: 0 max(0px, calc((100% - var(--ancho-lectura)) / 2)) 1.5rem auto;
   padding: 0.5rem 0.75rem;
-  border: 2px solid var(--texto);
+  border: var(--borde);
   border-radius: var(--radio);
-  background: var(--fondo);
-  box-shadow: 3px 3px 0 var(--texto);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
 }
 
 .temporizador-etiqueta {
@@ -318,10 +325,639 @@
 }
 
 .temporizador[data-terminado="true"] {
-  border-color: var(--acento);
+  background: var(--resaltador);
 }
 
 .temporizador .boton {
   padding: 0.35rem 0.8rem;
   font-size: 0.875rem;
+}
+
+/* Diagramas que reemplazan bloques ASCII de las consignas (ver diagramas.ts). */
+.diagrama {
+  container-type: inline-size;
+  margin: 1.25rem 0;
+  padding: 1.25rem;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+}
+
+/* El ciclo necesita aire arriba para el hook Stop. */
+.ciclo {
+  padding: 2rem 1.25rem 1rem;
+}
+
+.diagrama figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  margin-top: 1.25rem;
+  color: var(--texto-suave);
+  font-size: 0.8125rem;
+}
+
+.diagrama figcaption > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+/* Ciclo agéntico (ejercicio 1): actores en papel, hooks en tinta. */
+.ciclo-mapa {
+  display: grid;
+  grid-template-columns: auto minmax(3.5rem, 1fr) auto minmax(1.5rem, 0.5fr) auto minmax(7rem, 1.4fr) auto;
+  grid-template-rows: auto 2.75rem auto 3rem auto;
+  grid-template-areas:
+    ".   .       .   .      stop   .     .      "
+    ".   .       .   .      fstop  .     .      "
+    "vos fprompt ups fentra modelo fpide pre    "
+    ".   .       .   .      fevid  .     fbaja  "
+    ".   .       .   .      post   fizq  harness";
+  align-items: center;
+  justify-items: center;
+  gap: 0.25rem;
+  padding-bottom: 1rem;
+}
+
+.ciclo-mapa > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ciclo-mapa > .ciclo-bucle {
+  z-index: 0;
+  grid-row: modelo-start / post-end;
+  grid-column: modelo-start / pre-end;
+  align-self: stretch;
+  justify-self: stretch;
+  margin: -0.75rem;
+  border: 2px dashed var(--acento);
+  border-radius: var(--radio);
+  background: var(--acento-suave);
+}
+
+.ciclo-bucle > span {
+  position: absolute;
+  bottom: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 0.5rem;
+  background: var(--superficie);
+  color: var(--acento-texto);
+  font: 600 0.75rem var(--fuente-codigo);
+  white-space: nowrap;
+}
+
+.ciclo-actor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.45rem 0.85rem;
+  border: var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  text-align: center;
+}
+
+.ciclo-nombre {
+  font-family: var(--fuente-titulos);
+  font-weight: 700;
+}
+
+.ciclo-detalle {
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.ciclo-hook {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radio-chico);
+  background: var(--texto);
+  color: var(--invertido);
+  font: 600 0.8125rem var(--fuente-codigo);
+  white-space: nowrap;
+  animation: 7s ease-in-out infinite;
+}
+
+.ciclo-tag {
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.ciclo-tag::before {
+  content: "◆ ";
+  color: var(--acento);
+}
+
+/* Los hooks se encienden en el orden en que el harness los corre: el bucle da dos vueltas y termina. */
+.ciclo-hook-ups { animation-name: ciclo-ups; }
+.ciclo-hook-pre { animation-name: ciclo-pre; }
+.ciclo-hook-post { animation-name: ciclo-post; }
+.ciclo-hook-stop { animation-name: ciclo-stop; }
+
+@keyframes ciclo-ups {
+  0%, 15%, 100% { background: var(--texto); color: var(--invertido); }
+  2%, 13% { background: var(--acento); color: var(--texto); }
+}
+
+@keyframes ciclo-pre {
+  0%, 16%, 30%, 48%, 62%, 100% { background: var(--texto); color: var(--invertido); }
+  18%, 28%, 50%, 60% { background: var(--acento); color: var(--texto); }
+}
+
+@keyframes ciclo-post {
+  0%, 32%, 46%, 64%, 78%, 100% { background: var(--texto); color: var(--invertido); }
+  34%, 44%, 66%, 76% { background: var(--acento); color: var(--texto); }
+}
+
+@keyframes ciclo-stop {
+  0%, 80%, 96%, 100% { background: var(--texto); color: var(--invertido); }
+  82%, 94% { background: var(--acento); color: var(--texto); }
+}
+
+.ciclo-flecha {
+  color: var(--texto-suave);
+  font: 0.75rem var(--fuente-codigo);
+}
+
+.ciclo-flecha::before,
+.ciclo-flecha::after {
+  content: "";
+  position: absolute;
+}
+
+.ciclo-flecha::before {
+  background: var(--linea);
+}
+
+.ciclo-flecha::after {
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+}
+
+.ciclo-der,
+.ciclo-izq {
+  justify-self: stretch;
+  height: 1.5rem;
+}
+
+.ciclo-der::before,
+.ciclo-izq::before {
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+.ciclo-der::after {
+  top: 50%;
+  right: -1px;
+  transform: translateY(-50%);
+  border-left: 8px solid var(--linea);
+  border-right-width: 0;
+}
+
+.ciclo-izq::after {
+  top: 50%;
+  left: -1px;
+  transform: translateY(-50%);
+  border-right: 8px solid var(--linea);
+  border-left-width: 0;
+}
+
+.ciclo-der > span,
+.ciclo-izq > span {
+  position: absolute;
+  bottom: 60%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.ciclo-arriba,
+.ciclo-abajo {
+  align-self: stretch;
+  width: 0;
+}
+
+.ciclo-arriba::before,
+.ciclo-abajo::before {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  transform: translateX(-50%);
+}
+
+.ciclo-abajo::after {
+  bottom: -1px;
+  left: 0;
+  transform: translateX(-50%);
+  border-top: 8px solid var(--linea);
+  border-bottom-width: 0;
+}
+
+.ciclo-arriba::after {
+  top: -1px;
+  left: 0;
+  transform: translateX(-50%);
+  border-bottom: 8px solid var(--linea);
+  border-top-width: 0;
+}
+
+.ciclo-arriba > span,
+.ciclo-abajo > span {
+  position: absolute;
+  top: 50%;
+  left: 0.6rem;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+
+.ciclo-solo-movil {
+  display: none;
+  font-style: normal;
+}
+
+.ciclo-muestra-hook,
+.ciclo-muestra-actor {
+  flex: none;
+  width: 1.1rem;
+  height: 0.75rem;
+  border-radius: 3px;
+}
+
+.ciclo-muestra-hook {
+  background: var(--texto);
+}
+
+.ciclo-muestra-actor {
+  border: var(--borde);
+  background: var(--superficie);
+}
+
+/* Angosto: el ciclo se lee de arriba hacia abajo y la vuelta al modelo se anota. */
+@container (max-width: 44rem) {
+  .ciclo-mapa {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-template-areas:
+      "vos" "fprompt" "ups" "fentra" "modelo" "fpide" "pre" "fbaja"
+      "harness" "fizq" "post" "fevid" "fstop" "stop";
+  }
+
+  .ciclo-mapa > .ciclo-bucle {
+    grid-row: modelo-start / fevid-end;
+    grid-column: 1 / -1;
+  }
+
+  .ciclo-mapa .ciclo-flecha {
+    justify-self: center;
+    align-self: stretch;
+    width: 0;
+    height: auto;
+    min-height: 2rem;
+  }
+
+  .ciclo-mapa .ciclo-flecha::before {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: 2px;
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  .ciclo-mapa .ciclo-flecha::after {
+    top: auto;
+    bottom: -1px;
+    left: 0;
+    right: auto;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top: 8px solid var(--linea);
+    border-bottom-width: 0;
+  }
+
+  .ciclo-mapa .ciclo-flecha > span {
+    top: 50%;
+    bottom: auto;
+    left: 0.6rem;
+    right: auto;
+    transform: translateY(-50%);
+    width: max-content;
+    max-width: calc(50cqi - 1.5rem);
+    white-space: normal;
+    text-align: left;
+  }
+
+  .ciclo-mapa .ciclo-retorno {
+    justify-self: stretch;
+    width: auto;
+    min-height: 0;
+    padding: 0.4rem 0.75rem;
+    text-align: center;
+  }
+
+  .ciclo-bucle > span {
+    display: none;
+  }
+
+  .ciclo-mapa .ciclo-retorno::before,
+  .ciclo-mapa .ciclo-retorno::after {
+    display: none;
+  }
+
+  .ciclo-mapa .ciclo-retorno > span {
+    position: static;
+    transform: none;
+    white-space: normal;
+    color: var(--acento-texto);
+    font-weight: 600;
+  }
+
+  .ciclo-solo-movil {
+    display: inline;
+  }
+}
+
+/* Pasos en fila (flujo SDD): tarjetas unidas por una línea, apiladas en angosto. */
+.pasos {
+  --pasos-hueco: 2.25rem;
+  display: grid;
+  grid-template-columns: repeat(var(--pasos-n), minmax(0, 1fr));
+  gap: var(--pasos-hueco);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pasos > li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.55rem 0.35rem 0.6rem;
+  border: var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  text-align: center;
+}
+
+.pasos > li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: calc(var(--pasos-hueco) + 4px);
+  height: 2px;
+  background: var(--linea);
+}
+
+.pasos-numero {
+  color: var(--acento-texto);
+  font: 600 0.6875rem var(--fuente-codigo);
+}
+
+.pasos-nombre {
+  font: 700 0.8125rem var(--fuente-titulos);
+}
+
+.pasos-detalle {
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+.pasos-control,
+.pasos-control-muestra {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: var(--borde);
+  border-radius: 50%;
+  background: var(--acento);
+  font-size: 0.8125rem;
+  line-height: 1;
+}
+
+.pasos-control {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: calc(100% + 2px + var(--pasos-hueco) / 2);
+  transform: translate(-50%, -50%);
+}
+
+.pasos-control-muestra {
+  width: 1.4rem;
+  height: 1.4rem;
+  align-self: center;
+  font-size: 0.6875rem;
+}
+
+/* Validaciones entre etapas (desafío extra del ejercicio 3). */
+.puertas {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.puertas > li {
+  display: grid;
+  grid-template-columns: 6.5rem 2.25rem minmax(0, 1fr) auto;
+  align-items: center;
+  margin: 0;
+}
+
+.puertas > li::before {
+  content: "→";
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--texto-suave);
+  text-align: center;
+}
+
+.puerta-etapa {
+  grid-column: 1;
+  grid-row: 1;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radio-chico);
+  background: var(--texto);
+  color: var(--invertido);
+  font: 600 0.8125rem var(--fuente-codigo);
+  text-align: center;
+}
+
+.puerta-pregunta {
+  grid-column: 3;
+  padding: 0.35rem 0.75rem;
+  border: 2px dashed var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  font-weight: 600;
+}
+
+.puerta-barrera {
+  grid-column: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.85rem;
+  color: var(--acento-texto);
+  font: 600 0.75rem var(--fuente-codigo);
+  white-space: nowrap;
+}
+
+.puerta-barrera::before {
+  content: "";
+  width: 1.9rem;
+  height: 0.8rem;
+  border-radius: 2px;
+  background: repeating-linear-gradient(-45deg, var(--texto) 0 5px, var(--acento) 5px 10px);
+}
+
+/* Estructura del repo (ejercicio 1): una fila por carpeta; en server, las capas en orden. */
+.repo {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.repo > li {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.2rem 0.75rem;
+  margin: 0;
+  padding: 0.55rem 0;
+  border-bottom: 1px dashed var(--linea-suave);
+}
+
+.repo > li:last-child {
+  border-bottom: 0;
+}
+
+.repo-carpeta {
+  grid-row: span 2;
+  font: 700 0.875rem var(--fuente-codigo);
+}
+
+.repo-desc {
+  font-weight: 600;
+}
+
+.repo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.repo-etiqueta {
+  color: var(--texto-suave);
+  font-size: 0.8125rem;
+}
+
+.repo-chip {
+  padding: 0.1rem 0.5rem;
+  border: 1.5px solid var(--linea-suave);
+  border-radius: var(--radio-chico);
+  font: 0.75rem var(--fuente-codigo);
+}
+
+.repo-capas {
+  gap: 0.35rem 1.4rem;
+}
+
+.repo-capas .repo-etiqueta {
+  margin-right: -0.9rem;
+}
+
+.repo-capas .repo-chip {
+  position: relative;
+  border-color: var(--texto);
+  background: var(--texto);
+  color: var(--invertido);
+  font-weight: 600;
+}
+
+.repo-capas .repo-chip:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  right: -1.15rem;
+  color: var(--texto);
+  font-weight: 400;
+}
+
+/* Angosto: los pasos se apilan. */
+@container (max-width: 48rem) {
+  .pasos {
+    grid-template-columns: minmax(0, 16rem);
+    justify-content: center;
+  }
+
+  .pasos > li:not(:last-child)::after {
+    top: 100%;
+    left: 50%;
+    width: 2px;
+    height: calc(var(--pasos-hueco) + 4px);
+  }
+
+  .pasos-control {
+    top: calc(100% + 2px + var(--pasos-hueco) / 2);
+    left: 50%;
+  }
+}
+
+/* Muy angosto: las puertas y el repo pasan a una columna. */
+@container (max-width: 36rem) {
+  .puertas > li {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.4rem 0.5rem;
+  }
+
+  .puertas > li::before {
+    display: none;
+  }
+
+  .puerta-pregunta {
+    grid-column: 2;
+  }
+
+  .puerta-barrera {
+    grid-column: 1 / -1;
+    margin-left: 0;
+  }
+
+  .repo > li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .repo-carpeta {
+    grid-row: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ciclo-hook {
+    animation: none;
+  }
 }
