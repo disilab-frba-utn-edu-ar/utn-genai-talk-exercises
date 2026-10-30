@@ -308,7 +308,9 @@ function Tablero({ tablero }: { tablero: ReturnType<typeof useTablero> }) {
 
 type Pestana = "tablero" | "consigna"
 
-export default function EjercicioSdd({ temporizador, consigna }: { temporizador: ReactNode; consigna: ReactNode }) {
+type Props = { temporizador: ReactNode; video: ReactNode; consigna: ReactNode }
+
+export default function EjercicioSdd({ temporizador, video, consigna }: Props) {
   const habilitado = useTerminado(HABILITA_SDD)
   const tablero = useTablero()
   const navigate = useNavigate()
@@ -338,6 +340,8 @@ export default function EjercicioSdd({ temporizador, consigna }: { temporizador:
         </nav>
       )}
       <div className="sdd-temporizador">{temporizador}</div>
+      {/* Popup y botón flotante: fuera de las pestañas, para volver a verlo desde cualquiera. */}
+      {video}
       {/* Las dos pestañas quedan montadas: cambiar no pierde lo escrito en las respuestas. */}
       <div hidden={pestana !== "tablero"}>
         <Tablero tablero={tablero} />

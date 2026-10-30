@@ -10,6 +10,7 @@ import { useTerminado } from "./progreso"
 import Respuestas from "./Respuestas"
 import { ID_SDD } from "./tablero"
 import Temporizador from "./Temporizador"
+import VideoDeIntroduccion from "./VideoDeIntroduccion"
 
 type PropsSeccion = { numero: number; id: string; titulo: string; children: ReactNode }
 
@@ -101,6 +102,9 @@ function EjercicioPage() {
 
   // Fuera de la cabecera para quedar fijo mientras se scrollea la consigna.
   const temporizador = <Temporizador key={ejercicio.id} id={ejercicio.id} minutos={ejercicio.minutos} />
+  // En el ejercicio 3 se abre con el tablero, para verlo antes de elegir la historia.
+  // La key lo reinicia al pasar a otro ejercicio; distinta de la del temporizador, su hermano.
+  const video = <VideoDeIntroduccion key={`video-${ejercicio.id}`} ejercicio={ejercicio} />
   const cuerpo = (
     <div className="reserva">
       {secciones.map((s, i) => (
@@ -130,10 +134,11 @@ function EjercicioPage() {
       </div>
 
       {sdd ? (
-        <EjercicioSdd temporizador={temporizador} consigna={cuerpo} />
+        <EjercicioSdd temporizador={temporizador} video={video} consigna={cuerpo} />
       ) : (
         <>
           {temporizador}
+          {video}
           {cuerpo}
         </>
       )}

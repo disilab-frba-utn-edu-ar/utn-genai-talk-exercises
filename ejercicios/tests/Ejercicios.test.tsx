@@ -1,9 +1,13 @@
-import { screen, waitFor, within } from "@testing-library/react"
+import { existsSync } from "node:fs"
+import { join } from "node:path"
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import Ejercicios from "../app/Ejercicios"
 import { armarRespuestasMd, conAnexosEnLinea, ejercicios, partirConsigna, partirPreguntas } from "../app/contenido"
 import { HABILITA_METRICAS } from "../app/progreso"
+import { ID_SDD } from "../app/tablero"
 import { formatearTiempo } from "../app/Temporizador"
+import { videosIntro } from "../app/videos"
 import { renderConRuta, simularApi } from "../../tests/client/helpers"
 
 const ejercicio = ejercicios[0]
@@ -220,6 +224,92 @@ describe("Ejercicios", () => {
     expect(carpetas).toEqual(["client/", "server/", "shared/", "data/", "tests/"].map((c) => expect.stringContaining(c)))
     expect(carpetas[1]).toMatch(/routes.*services.*repositories.*domain/)
     expect(screen.queryByText(/client\/\s+Vite/)).not.toBeInTheDocument()
+  })
+
+  // El del ejercicio 3 se abre con el tablero: lo cubre EjercicioSdd.test.tsx.
+  it.each(ejercicios.filter((e) => e.id in videosIntro && e.id !== ID_SDD).map((e) => [e.id, e] as const))(
+    "%s abre su video de introducción en un popup la primera vez, sin arrancarlo solo",
+    async (id, e) => {
+      renderDe(e)
+      const popup = await screen.findByRole("dialog", { name: "Video de introducción" })
+      expect(popup).toHaveAttribute("open")
+      expect(within(popup).getByText(`Ejercicio ${e.numero}`)).toBeInTheDocument()
+      expect(within(popup).getByRole("heading", { name: e.titulo })).toBeInTheDocument()
+      const video = popup.querySelector("video")
+      expect(video).toHaveAttribute("src", `/videos/${id}.mp4`)
+      expect(video).toHaveAttribute("poster", `/videos/${id}.jpg`)
+      expect(video).toHaveAttribute("controls")
+      expect(video).not.toHaveAttribute("autoplay")
+      expect(screen.queryByRole("button", { name: /^Ver video de introducción/ })).not.toBeInTheDocument()
+    },
+  )
+
+  it("“Empezar el ejercicio” minimiza el video a un botón con su duración, que lo vuelve a abrir", async () => {
+    renderDe(ejercicio)
+    const popup = await screen.findByRole("dialog", { name: "Video de introducción" })
+    const video = popup.querySelector("video")!
+    const pausa = vi.spyOn(video, "pause").mockImplementation(() => {})
+
+    await userEvent.click(within(popup).getByRole("button", { name: /Empezar el ejercicio/ }))
+    expect(popup).not.toHaveAttribute("open")
+    expect(pausa).toHaveBeenCalled()
+
+    const mini = screen.getByRole("button", { name: /^Ver video de introducción/ })
+    expect(mini).toHaveTextContent(videosIntro[ejercicio.id].duracion)
+    await userEvent.click(mini)
+    expect(popup).toHaveAttribute("open")
+
+    await userEvent.click(within(popup).getByRole("button", { name: "Minimizar" }))
+    expect(popup).not.toHaveAttribute("open")
+  })
+
+  it("cada vez que entra por “Ver consigna” el video se abre de nuevo, aunque lo haya minimizado", async () => {
+    simularApi({ [RUTA_API]: null })
+    renderConRuta(<Ejercicios />, { ruta: "/ejercicios", patron: "/ejercicios/*" })
+    for (let vez = 0; vez < 2; vez++) {
+      // El primero: el del ejercicio 1, siempre habilitado.
+      await userEvent.click(screen.getAllByRole("link", { name: /Ver consigna/ })[0])
+      const popup = await screen.findByRole("dialog", { name: "Video de introducción" })
+      expect(popup).toHaveAttribute("open")
+      await userEvent.click(within(popup).getByRole("button", { name: "Minimizar" }))
+      await userEvent.click(screen.getByRole("link", { name: /Todos los ejercicios/ }))
+    }
+  })
+
+  it("minimizado, el video va arriba de la barra de Guardar y Terminé, también al llegar al final de la página", async () => {
+    renderDe(ejercicio)
+    const popup = await screen.findByRole("dialog", { name: "Video de introducción" })
+    await userEvent.click(within(popup).getByRole("button", { name: "Minimizar" }))
+    const barra = (await screen.findByRole("button", { name: "Guardar respuestas" })).parentElement!
+    const mini = screen.getByRole("button", { name: /^Ver video de introducción/ })
+    let arriba = window.innerHeight - 83 // pegada abajo
+    vi.spyOn(barra, "getBoundingClientRect").mockImplementation(() => ({ top: arriba, bottom: arriba + 71 }) as DOMRect)
+
+    fireEvent.scroll(window)
+    await waitFor(() => expect(mini.style.bottom).toBe(`${window.innerHeight - arriba + 12}px`))
+
+    // Al final de la página la barra deja de estar pegada y sube con el contenido: el video la sigue.
+    arriba = window.innerHeight - 260
+    fireEvent.scroll(window)
+    await waitFor(() => expect(mini.style.bottom).toBe(`${window.innerHeight - arriba + 12}px`))
+  })
+
+  it("al recargar la página el video se abre de nuevo", async () => {
+    renderDe(ejercicio)
+    const popup = await screen.findByRole("dialog", { name: "Video de introducción" })
+    await userEvent.click(within(popup).getByRole("button", { name: "Minimizar" }))
+    cleanup()
+
+    renderDe(ejercicio)
+    expect(await screen.findByRole("dialog", { name: "Video de introducción" })).toHaveAttribute("open")
+  })
+
+  it("los videos y sus portadas existen en client/public", () => {
+    expect(Object.keys(videosIntro).length).toBeGreaterThan(0)
+    for (const { src, poster } of Object.values(videosIntro)) {
+      expect(existsSync(join("client/public", src)), src).toBe(true)
+      expect(existsSync(join("client/public", poster)), poster).toBe(true)
+    }
   })
 })
 

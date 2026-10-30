@@ -27,6 +27,268 @@
   padding: 1.35rem;
 }
 
+/* ── Video de introducción ──────────────────────────────── */
+
+/* Una viñeta que se abre sobre la página: recuadro de narración, título, la "pantalla" con sombra
+   de acento como los botones, y abajo la nota a mano y la acción para seguir. */
+.video-intro {
+  width: min(52rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  padding: 0;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra-alzada);
+}
+
+.video-intro[open] {
+  animation: video-intro-entrar 0.4s var(--ease);
+}
+
+@keyframes video-intro-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.96) rotate(-1deg);
+  }
+}
+
+/* Tinta con trama de puntos, como la impresión de una historieta. */
+.video-intro::backdrop {
+  background-color: color-mix(in srgb, var(--texto) 55%, transparent);
+  background-image: radial-gradient(color-mix(in srgb, var(--fondo) 22%, transparent) 1.2px, transparent 1.5px);
+  background-size: 14px 14px;
+}
+
+.video-intro-caja {
+  padding: 1.25rem 1.5rem 1.4rem;
+}
+
+.video-intro-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.video-intro-cabecera .sobretitulo {
+  margin-bottom: 0.55rem;
+}
+
+.video-intro-titulo {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: clamp(1.3rem, 3vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.video-intro-minimizar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: var(--borde);
+  border-radius: 12px;
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra-chica);
+  cursor: pointer;
+  transition:
+    transform 0.12s var(--ease),
+    box-shadow 0.12s var(--ease),
+    background-color 0.12s;
+}
+
+.video-intro-minimizar svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.video-intro-minimizar:hover {
+  background: var(--resaltador);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--sombra);
+}
+
+.video-intro-minimizar:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.video-intro-pantalla {
+  overflow: hidden;
+  border: var(--borde);
+  border-radius: 12px;
+  background: var(--texto);
+  box-shadow: 6px 6px 0 var(--acento);
+}
+
+.video-intro-pantalla video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+.video-intro-descripcion {
+  max-width: 62ch;
+  margin: 1.1rem 0 0;
+  color: var(--texto-suave);
+  font-size: 0.9375rem;
+}
+
+.video-intro-pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 2px dashed var(--linea-suave);
+}
+
+.video-intro-nota {
+  margin: 0;
+  font-size: 1.35rem;
+  transform: rotate(-1.5deg);
+}
+
+/* Minimizado: un sticker abajo a la derecha, apenas torcido; se endereza al pasar el mouse. */
+.video-intro-mini {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0.9rem 0.4rem 0.4rem;
+  border: var(--borde);
+  border-radius: 14px;
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transform: rotate(-1.5deg);
+  animation: video-intro-mini-entrar 0.45s var(--ease);
+  transition:
+    transform 0.15s var(--ease),
+    box-shadow 0.15s var(--ease),
+    background-color 0.15s;
+}
+
+@keyframes video-intro-mini-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem) rotate(4deg);
+  }
+}
+
+.video-intro-mini:hover {
+  background: var(--resaltador);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sombra-alzada);
+}
+
+.video-intro-mini:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--sombra-chica);
+}
+
+.video-intro-mini:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 3px;
+}
+
+/* La miniatura con un botón de play encima: círculo de acento y triángulo de papel. */
+.video-intro-mini-miniatura {
+  position: relative;
+  flex-shrink: 0;
+  width: 5rem;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 2px solid var(--linea);
+  border-radius: 8px;
+}
+
+.video-intro-mini-miniatura img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-intro-mini-miniatura::before,
+.video-intro-mini-miniatura::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+}
+
+.video-intro-mini-miniatura::before {
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 2px solid var(--linea);
+  border-radius: 999px;
+  background: var(--acento);
+}
+
+.video-intro-mini-miniatura::after {
+  width: 0;
+  height: 0;
+  translate: 1.5px 0;
+  border-block: 0.32rem solid transparent;
+  border-left: 0.5rem solid var(--superficie);
+}
+
+.video-intro-mini-texto {
+  display: grid;
+  gap: 0.1rem;
+  line-height: 1.2;
+}
+
+.video-intro-mini-texto > :first-child {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.video-intro-mini-duracion {
+  color: var(--texto-suave);
+  font-family: var(--fuente-codigo);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 30rem) {
+  .video-intro-caja {
+    padding: 1rem;
+  }
+
+  .video-intro-pie .boton {
+    width: 100%;
+  }
+
+  /* En el celular, solo la miniatura: el texto queda para el lector de pantalla. */
+  .video-intro-mini {
+    padding: 0.35rem;
+  }
+
+  .video-intro-mini-texto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
 /* ── Markdown de las consignas ──────────────────────────── */
 
 /* break-word (no anywhere): las tablas hacen scroll en vez de partir palabras. */
