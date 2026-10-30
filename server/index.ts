@@ -1,6 +1,6 @@
 import { createApp } from "./app"
-import { PORT } from "./config"
+import { HOST, PORT } from "./config"
 
-createApp().listen(PORT, () => {
-  console.log(`[api] Mentorías a Voluntad escuchando en http://localhost:${PORT}/api`)
+createApp().listen(PORT, HOST, () => {
+  console.log(`[api] Mentorías a Voluntad escuchando en http://${HOST}:${PORT}/api`)
 })

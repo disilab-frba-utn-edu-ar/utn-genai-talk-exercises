@@ -37,6 +37,18 @@ function primero(input, nombres) {
   return undefined
 }
 
+// apply_patch (Codex) no trae una ruta: trae el parche entero y las rutas están en sus encabezados
+// ("*** Update File: ruta"). Buscamos en cualquier texto del input, sea cual sea el nombre del campo.
+const ENCABEZADO_PARCHE = /^\*\*\* (Add|Update|Delete) File: (.+)$|^\*\*\* Move to: (.+)$/gm
+
+function rutasDeParche(input) {
+  const textos = Object.values(input).filter((valor) => typeof valor === "string")
+  const encabezados = textos.flatMap((t) => [...t.matchAll(ENCABEZADO_PARCHE)])
+  const rutas = encabezados.map((m) => (m[2] ?? m[3]).trim())
+  const soloNuevos = encabezados.length > 0 && encabezados.every((m) => m[1] === "Add")
+  return { rutas: [...new Set(rutas)], soloNuevos }
+}
+
 // Devuelve { kind, op?, targets, detail }.
 //   targets: rutas (leer/escribir), comandos (ejecutar) o consultas (buscar).
 //   detail:  una línea corta para mostrar.
@@ -52,7 +64,10 @@ export function clasificar(tool, rawInput) {
     targets = lista(primero(input, ["files", "file_path", "path", "filePath", "notebook_path", "value"])).map(texto)
   } else if (kind === "escribir") {
     targets = lista(primero(input, ["file_path", "path", "filePath", "notebook_path"])).map(texto)
-    if (/^write$|create_file|write_to_file/i.test(name)) op = "crear"
+    const parche = /^apply_patch$/i.test(name) ? rutasDeParche(input) : undefined
+    if (parche) targets = parche.rutas
+    if (parche?.soloNuevos) op = "crear"
+    else if (/^write$|create_file|write_to_file/i.test(name)) op = "crear"
     else if (/^editor$/i.test(name)) op = input.insert_line !== undefined ? "insertar" : input.old_text !== undefined ? "editar" : "crear/reemplazar"
     else op = "editar"
   } else if (kind === "ejecutar") {
@@ -78,7 +93,8 @@ export function adelgazar(value) {
   if (!limpio || typeof limpio !== "object" || Array.isArray(limpio)) return limpio
   return Object.fromEntries(
     Object.entries(limpio).map(([clave, valor]) => {
-      if (!CAMPOS_PESADOS.has(clave)) return [clave, valor]
+      const esParche = typeof valor === "string" && valor.includes("*** Begin Patch")
+      if (!CAMPOS_PESADOS.has(clave) && !esParche) return [clave, valor]
       const largo = typeof valor === "string" ? valor.length : JSON.stringify(valor ?? "").length
       return [clave, `[${largo} caracteres]`]
     }),

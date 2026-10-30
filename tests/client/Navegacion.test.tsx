@@ -19,6 +19,15 @@ function renderApp(ruta: string) {
 
 describe("Navegación principal", () => {
   it.each(["/", "/ejercicios", "/configurar-entorno", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
+    "%s: el encabezado siempre muestra el link a Métricas",
+    async (ruta) => {
+      renderApp(ruta)
+      const nav = await screen.findByRole("navigation", { name: "Principal" })
+      expect(within(nav).getByRole("link", { name: "Métricas" })).toHaveAttribute("href", "/metricas")
+    },
+  )
+
+  it.each(["/", "/ejercicios", "/configurar-entorno", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
     "%s: el encabezado tiene los links a Ejercicios y Configurar entorno",
     async (ruta) => {
       renderApp(ruta)
@@ -26,6 +35,18 @@ describe("Navegación principal", () => {
       expect(within(nav).getByRole("link", { name: "Ejercicios" })).toHaveAttribute("href", "/ejercicios")
       expect(within(nav).getByRole("link", { name: "Configurar entorno" })).toHaveAttribute("href", "/configurar-entorno")
       expect(within(nav).getByRole("link", { name: "Mentoras" })).toHaveAttribute("href", "/")
+    },
+  )
+
+  it.each(["/", "/ejercicios", "/configurar-entorno", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
+    "%s: el encabezado enlaza a la UTN FRBA en una pestaña nueva",
+    async (ruta) => {
+      renderApp(ruta)
+      const enlace = await within(await screen.findByRole("banner")).findByRole("link", { name: /UTN FRBA/ })
+      expect(enlace).toHaveAttribute("href", "https://www.frba.utn.edu.ar")
+      expect(enlace).toHaveAttribute("target", "_blank")
+      expect(enlace).toHaveAttribute("rel", expect.stringContaining("noreferrer"))
+      expect(enlace).toHaveAccessibleName(/abre en otra pestaña/)
     },
   )
 

@@ -1,0 +1,10 @@
+{"ts":"2026-10-27T17:03:20.000Z","agent":"cline","event":"TaskStart","session":"1761584400000","prompt":"PROMPT-UNICO-CLINE"}
+{"ts":"2026-10-27T17:03:22.000Z","agent":"cline","event":"PreToolUse","session":"1761584400000","tool":"execute_command","kind":"ejecutar","detail":"npm test","input":{"command":"npm test"}}
+{"ts":"2026-10-27T17:03:24.000Z","agent":"cline","event":"PostToolUse","session":"1761584400000","tool":"execute_command","kind":"ejecutar","detail":"npm test","outputChars":500,"success":true,"durationMs":1500}
+{"ts":"2026-10-27T17:03:26.000Z","agent":"cline","event":"PreToolUse","session":"1761584400000","tool":"read_file","kind":"leer","detail":"/work/repo/shared/types.ts","input":{"path":"/work/repo/shared/types.ts"}}
+{"ts":"2026-10-27T17:03:26.100Z","agent":"cline","event":"PostToolUse","session":"1761584400000","tool":"read_file","kind":"leer","detail":"/work/repo/shared/types.ts","outputChars":800,"success":true,"durationMs":20}
+{"ts":"2026-10-27T17:03:28.000Z","agent":"cline","event":"PreToolUse","session":"1761584400000","tool":"write_to_file","kind":"escribir","op":"crear","detail":"notas/nueva.md","input":{"path":"notas/nueva.md","content":"[40 caracteres]"}}
+{"ts":"2026-10-27T17:03:28.200Z","agent":"cline","event":"PostToolUse","session":"1761584400000","tool":"write_to_file","kind":"escribir","op":"crear","detail":"notas/nueva.md","outputChars":20,"success":false,"durationMs":200}
+{"ts":"2026-10-27T17:03:30.000Z","agent":"cline","event":"tool_call","session":"1761584400000","tool":"list_files","kind":"buscar","detail":".","input":{"path":"."}}
+{"ts":"2026-10-27T17:03:30.100Z","agent":"cline","event":"tool_result","session":"1761584400000","tool":"list_files","kind":"buscar","detail":".","outputChars":90,"success":true,"durationMs":10}
+{"ts":"2026-10-27T17:03:35.000Z","agent":"cline","event":"TaskComplete","session":"1761584400000"}

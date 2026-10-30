@@ -1,0 +1,214 @@
+{
+  "comentario": "Precios en USD por millón de tokens. Es configuración versionada: se edita acá, no con variables de entorno. Un modelo que no figura en esta tabla muestra el costo como n/d (nunca 0): solo se cargan precios confirmados en la fuente oficial. Agregar un modelo: sumar un objeto a `modelos` con su `id` (sin fecha; se ignoran el prefijo de proveedor, las mayúsculas y los puntos) y los precios del proveedor. Si un tipo de token no tiene precio acá, un uso que lo incluya también da n/d. `umbralPrompt` y `superior` (opcionales) son para modelos con otro precio cuando el prompt (entrada + caché) supera ese tamaño en una solicitud.",
+  "moneda": "USD",
+  "actualizado": "2026-10-27",
+  "fuentes": [
+    {
+      "proveedor": "Anthropic",
+      "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "consultado": "2026-10-27"
+    },
+    {
+      "proveedor": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/pricing",
+      "consultado": "2026-10-27",
+      "nota": "Páginas de precios y de cada modelo en developers.openai.com. El entorno de desarrollo no abre esas páginas directamente: los valores se leyeron del contenido de esas páginas devuelto por la búsqueda, y coinciden entre las páginas de modelo y la de precios. No se cargaron gpt-5.3-codex (la página muestra dos tablas distintas, sin aclarar el tramo), gpt-5.1-codex-max ni los modelos Pro, por no poder confirmarse. Los recargos por prompt largo de gpt-5.4 y gpt-5.5 (2x entrada, 1.5x salida sobre 272 mil tokens) no tienen precio de caché confirmado: en ese tramo un uso con caché da n/d. Es el precio estándar de la API."
+    },
+    {
+      "proveedor": "Google",
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "consultado": "2026-10-27",
+      "nota": "Gemini Developer API, nivel estándar y texto/imagen/video (el audio tiene otro precio). Mismo método de lectura que OpenAI. Flash y Flash-Lite no tienen precio de caché en el nivel estándar: un uso con caché da n/d. No se cargaron los modelos con precio promocional que cambia de fecha (Gemini 3.8 Flash, Gemini 4 Argon) ni los 3.x en preview."
+    }
+  ],
+  "modelos": [
+    {
+      "id": "claude-fable-5-1",
+      "nombre": "Claude Fable 5.1",
+      "proveedor": "Anthropic",
+      "entrada": 10,
+      "salida": 50,
+      "cacheEscritura5m": 12.5,
+      "cacheEscritura1h": 20,
+      "cacheLectura": 0.25
+    },
+    {
+      "id": "claude-opus-5-5",
+      "nombre": "Claude Opus 5.5",
+      "proveedor": "Anthropic",
+      "entrada": 4,
+      "salida": 20,
+      "cacheEscritura5m": 5,
+      "cacheEscritura1h": 8,
+      "cacheLectura": 0.2
+    },
+    {
+      "id": "claude-sonnet-5-5",
+      "nombre": "Claude Sonnet 5.5",
+      "proveedor": "Anthropic",
+      "entrada": 2,
+      "salida": 10,
+      "cacheEscritura5m": 2.5,
+      "cacheEscritura1h": 4,
+      "cacheLectura": 0.1
+    },
+    {
+      "id": "claude-haiku-5-5",
+      "nombre": "Claude Haiku 5.5",
+      "proveedor": "Anthropic",
+      "entrada": 0.1,
+      "salida": 0.5,
+      "cacheEscritura5m": 0.125,
+      "cacheEscritura1h": 0.2,
+      "cacheLectura": 0.01,
+      "umbralPrompt": 100000,
+      "superior": {
+        "entrada": 0.5,
+        "salida": 2.5,
+        "cacheEscritura5m": 0.625,
+        "cacheEscritura1h": 1,
+        "cacheLectura": 0.05
+      }
+    },
+    {
+      "id": "claude-opus-4-5",
+      "nombre": "Claude Opus 4.5",
+      "proveedor": "Anthropic",
+      "entrada": 5,
+      "salida": 25,
+      "cacheEscritura5m": 6.25,
+      "cacheEscritura1h": 10,
+      "cacheLectura": 0.5
+    },
+    {
+      "id": "claude-sonnet-4-5",
+      "nombre": "Claude Sonnet 4.5",
+      "proveedor": "Anthropic",
+      "entrada": 3,
+      "salida": 15,
+      "cacheEscritura5m": 3.75,
+      "cacheEscritura1h": 6,
+      "cacheLectura": 0.3
+    },
+    {
+      "id": "claude-haiku-4-5",
+      "nombre": "Claude Haiku 4.5",
+      "proveedor": "Anthropic",
+      "entrada": 1,
+      "salida": 5,
+      "cacheEscritura5m": 1.25,
+      "cacheEscritura1h": 2,
+      "cacheLectura": 0.1
+    },
+    {
+      "id": "gpt-5-codex",
+      "nombre": "GPT-5-Codex",
+      "proveedor": "OpenAI",
+      "entrada": 1.25,
+      "salida": 10,
+      "cacheLectura": 0.125
+    },
+    {
+      "id": "gpt-5.1-codex",
+      "nombre": "GPT-5.1-Codex",
+      "proveedor": "OpenAI",
+      "entrada": 1.25,
+      "salida": 10,
+      "cacheLectura": 0.125
+    },
+    {
+      "id": "gpt-5.1-codex-mini",
+      "nombre": "GPT-5.1-Codex mini",
+      "proveedor": "OpenAI",
+      "entrada": 0.25,
+      "salida": 2,
+      "cacheLectura": 0.025
+    },
+    {
+      "id": "gpt-5.2-codex",
+      "nombre": "GPT-5.2-Codex",
+      "proveedor": "OpenAI",
+      "entrada": 1.75,
+      "salida": 14,
+      "cacheLectura": 0.175
+    },
+    {
+      "id": "gpt-5.2",
+      "nombre": "GPT-5.2",
+      "proveedor": "OpenAI",
+      "entrada": 1.75,
+      "salida": 14,
+      "cacheLectura": 0.175
+    },
+    {
+      "id": "gpt-5",
+      "nombre": "GPT-5",
+      "proveedor": "OpenAI",
+      "entrada": 1.25,
+      "salida": 10,
+      "cacheLectura": 0.125
+    },
+    {
+      "id": "gpt-5-mini",
+      "nombre": "GPT-5 mini",
+      "proveedor": "OpenAI",
+      "entrada": 0.25,
+      "salida": 2,
+      "cacheLectura": 0.025
+    },
+    {
+      "id": "gpt-5.4",
+      "nombre": "GPT-5.4",
+      "proveedor": "OpenAI",
+      "entrada": 2.5,
+      "salida": 15,
+      "cacheLectura": 0.25,
+      "umbralPrompt": 272000,
+      "superior": {
+        "entrada": 5,
+        "salida": 22.5
+      }
+    },
+    {
+      "id": "gpt-5.5",
+      "nombre": "GPT-5.5",
+      "proveedor": "OpenAI",
+      "entrada": 5,
+      "salida": 30,
+      "cacheLectura": 0.5,
+      "umbralPrompt": 272000,
+      "superior": {
+        "entrada": 10,
+        "salida": 45
+      }
+    },
+    {
+      "id": "gemini-2.5-pro",
+      "nombre": "Gemini 2.5 Pro",
+      "proveedor": "Google",
+      "entrada": 1.25,
+      "salida": 10,
+      "cacheLectura": 0.125,
+      "umbralPrompt": 200000,
+      "superior": {
+        "entrada": 2.5,
+        "salida": 15,
+        "cacheLectura": 0.25
+      }
+    },
+    {
+      "id": "gemini-2.5-flash",
+      "nombre": "Gemini 2.5 Flash",
+      "proveedor": "Google",
+      "entrada": 0.3,
+      "salida": 2.5
+    },
+    {
+      "id": "gemini-2.5-flash-lite",
+      "nombre": "Gemini 2.5 Flash-Lite",
+      "proveedor": "Google",
+      "entrada": 0.1,
+      "salida": 0.4
+    }
+  ]
+}

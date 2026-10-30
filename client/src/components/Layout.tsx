@@ -1,4 +1,5 @@
 import { Link, NavLink, Outlet } from "react-router"
+import UtnLogo from "./UtnLogo"
 
 export default function Layout() {
   return (
@@ -7,20 +8,31 @@ export default function Layout() {
         Saltar al contenido
       </a>
       <header className="encabezado">
-        <Link to="/" className="marca">
-          <span className="marca-icono" aria-hidden="true">
-            ›
-          </span>
-          <span>
-            Mentorías <em>a Voluntad</em>
-          </span>
-        </Link>
+        <div className="marcas">
+          <a href="https://www.frba.utn.edu.ar" className="marca-utn" target="_blank" rel="noreferrer">
+            <UtnLogo className="marca-utn-logo" />
+            <span className="marca-utn-texto" aria-hidden="true">
+              UTN <strong>FRBA</strong>
+            </span>
+            <span className="sr-only">UTN FRBA (abre en otra pestaña)</span>
+          </a>
+          <span className="marcas-separador" aria-hidden="true" />
+          <Link to="/" className="marca">
+            <span className="marca-icono" aria-hidden="true">
+              ›
+            </span>
+            <span>
+              Mentorías <em>a Voluntad</em>
+            </span>
+          </Link>
+        </div>
         <nav className="navegacion" aria-label="Principal">
           <NavLink to="/" end>
             Mentoras
           </NavLink>
           <NavLink to="/ejercicios">Ejercicios</NavLink>
           <NavLink to="/configurar-entorno">Configurar entorno</NavLink>
+          <NavLink to="/metricas">Métricas</NavLink>
         </nav>
         <p className="encabezado-lema">Horas de experiencia donadas a colectivos que construyen software</p>
       </header>

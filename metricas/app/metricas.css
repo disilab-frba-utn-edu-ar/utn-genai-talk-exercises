@@ -1,0 +1,361 @@
+/* Dashboard de Métricas: solo lo que no está en client/src/styles.css (usa sus variables). */
+
+.metricas {
+  /* Paleta categórica validada (dataviz): tres agentes con los primeros slots, tipos de acción con los siguientes. */
+  --agente-claude: #2a78d6;
+  --agente-codex: #eb6834;
+  --agente-cline: #1baf7a;
+  --kind-leer: #2a78d6;
+  --kind-escribir: #eb6834;
+  --kind-ejecutar: #1baf7a;
+  --kind-buscar: #eda100;
+  --kind-skill: #e87ba4;
+  --kind-mcp: #008300;
+  --kind-pregunta: #6250d6;
+  --kind-otro: #8a867c;
+  --tokens-entrada: #6250d6;
+  --tokens-salida: #e87ba4;
+  --tokens-cache-lectura: #008300;
+  --tokens-cache-escritura: #eda100;
+}
+
+.metricas-filtros {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.metricas-selectores {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem 1.25rem;
+}
+
+.metricas-selectores label {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+
+.metricas-selectores select {
+  min-height: 2.25rem;
+  padding: 0.3rem 0.5rem;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+}
+
+.metricas-selectores .metricas-detalle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+}
+
+.metricas-conexion {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+
+.metricas-conexion-envivo span {
+  color: var(--agente-cline);
+}
+
+.metricas-conexion-reconectando span,
+.metricas-conexion-consultando span {
+  color: var(--kind-buscar);
+}
+
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.indicador {
+  display: grid;
+  gap: 0.15rem;
+  align-content: start;
+  padding: 0.75rem 1rem;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+}
+
+.indicador-etiqueta {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+
+.indicador-valor {
+  font-family: var(--fuente-titulos);
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.indicador-nota {
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+
+.en-curso {
+  margin: 0 0 1.25rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 4px solid var(--acento);
+  background: var(--acento-suave);
+  font-family: var(--fuente-codigo);
+  font-size: 0.85rem;
+}
+
+.metricas-grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.grafico {
+  margin: 0;
+  padding: 0.75rem 1rem 1rem;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  min-width: 0;
+}
+
+.grafico-ancho {
+  grid-column: 1 / -1;
+}
+
+.grafico-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.grafico figcaption {
+  font-family: var(--fuente-titulos);
+  font-weight: 700;
+}
+
+.boton-texto {
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  color: var(--acento-texto);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.grafico-vacio {
+  margin: 0;
+  color: var(--texto-suave);
+}
+
+.barras {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.barras li {
+  display: grid;
+  grid-template-columns: minmax(6rem, 40%) 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.barra-etiqueta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--fuente-codigo);
+}
+
+.barra-pista {
+  height: 0.9rem;
+  border-radius: 0 4px 4px 0;
+  background: var(--grilla);
+}
+
+.barra-relleno {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: 0 4px 4px 0;
+}
+
+.barra-valor {
+  min-width: 2ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.serie svg {
+  display: block;
+  width: 100%;
+  height: 8rem;
+}
+
+.serie-ejes {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+
+.leyenda-color {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.35rem;
+  border-radius: 2px;
+}
+
+.tabla-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.metricas table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.metricas th,
+.metricas td {
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--linea-suave);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.metricas thead th {
+  font-weight: 700;
+  color: var(--texto-suave);
+}
+
+.metricas tbody th {
+  font-family: var(--fuente-codigo);
+  font-weight: 600;
+}
+
+.etiqueta-en-curso {
+  color: var(--acento-texto);
+  font-family: var(--fuente);
+  font-size: 0.75rem;
+}
+
+.sesiones,
+.comandos,
+.cambios-modelo {
+  margin-bottom: 1.5rem;
+}
+
+.comandos ul,
+.cambios-modelo ul {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comando-meta {
+  display: block;
+  padding-left: 0.5rem;
+  border-left: 4px solid var(--linea);
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+
+.comandos code,
+.cambios-modelo code {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.apilado {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.apilado li {
+  display: grid;
+  grid-template-columns: minmax(5rem, 25%) 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.apilado-barra {
+  display: flex;
+  gap: 2px;
+  height: 1.1rem;
+}
+
+.apilado-barra span {
+  min-width: 2px;
+  border-radius: 2px;
+}
+
+.linea {
+  display: grid;
+  grid-template-columns: auto minmax(30rem, 1fr);
+  gap: 0.5rem;
+}
+
+.linea-carriles {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.75rem;
+}
+
+.linea-carriles li {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.linea svg {
+  display: block;
+  width: 100%;
+  background: var(--grilla);
+}

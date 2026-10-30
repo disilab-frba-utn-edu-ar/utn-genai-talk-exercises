@@ -1,10 +1,10 @@
 /* Visor de ejercicios: solo lo que no está en client/src/styles.css (usa sus variables). */
 
-/* Lectura a 56rem. */
+/* Medida de lectura: --ancho-lectura (client/src/styles.css). */
 .ejercicio-cabecera,
 .ejercicio-pagina .paso {
   width: 100%;
-  max-width: 56rem;
+  max-width: var(--ancho-lectura);
   margin-inline: auto;
 }
 
@@ -23,7 +23,7 @@
 }
 
 .documento {
-  margin-top: 2.5rem;
+  margin-top: var(--espacio-seccion);
   padding: 1.35rem;
 }
 
@@ -275,8 +275,8 @@
   gap: 0.5rem 0.75rem;
   width: fit-content;
   max-width: 100%;
-  /* Alineado al borde derecho de la columna de lectura (56rem). */
-  margin: 0 max(0px, calc((100% - 56rem) / 2)) 1.5rem auto;
+  /* Alineado al borde derecho de la columna de lectura (--ancho-lectura). */
+  margin: 0 max(0px, calc((100% - var(--ancho-lectura)) / 2)) 1.5rem auto;
   padding: 0.5rem 0.75rem;
   border: 2px solid var(--texto);
   border-radius: var(--radio);
