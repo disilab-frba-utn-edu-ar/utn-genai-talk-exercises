@@ -663,15 +663,6 @@
   margin: 0.25rem 0;
 }
 
-.respuestas-seguir {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem 1rem;
-  margin-top: 1.5rem;
-}
-
 /* Pegado abajo mientras se ven las preguntas: se puede guardar en cualquier momento. */
 .respuestas-acciones {
   position: sticky;
@@ -693,6 +684,45 @@
   margin: 0;
   font-size: 0.875rem;
   color: var(--texto-suave);
+}
+
+/* Sin nada que avisar no ocupa lugar. */
+.respuestas-estado:empty {
+  display: none;
+}
+
+/* En pantallas angostas los dos botones van en una fila ("Guardar" a secas; el lector de pantalla
+   sigue leyendo "Guardar respuestas") y el aviso, si hay, abajo. */
+@media (max-width: 40rem) {
+  .respuestas-acciones .respuestas-estado {
+    order: 1;
+    flex-basis: 100%;
+  }
+
+  .respuestas-largo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* Terminé, en la punta derecha de la barra: amarillo resaltador para que no pase de largo. */
+.boton-terminar {
+  margin-left: auto;
+  background: var(--resaltador);
+  color: var(--texto);
+  box-shadow: 3px 3px 0 var(--linea);
+}
+
+.boton-terminar:hover:not(:disabled) {
+  box-shadow: 5px 5px 0 var(--linea);
+}
+
+.boton-terminar:active:not(:disabled) {
+  box-shadow: 0 0 0 var(--linea);
 }
 
 /* ── Temporizador ───────────────────────────────────────── */

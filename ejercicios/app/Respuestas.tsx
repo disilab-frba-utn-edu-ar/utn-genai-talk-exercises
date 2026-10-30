@@ -53,6 +53,9 @@ function Editor({ ejercicio, inicial, consigna, historia }: PropsEditor) {
   const primerTramo = tramos.findIndex((t) => t.tipo === "preguntas")
   const ultimoTramo = tramos.findLastIndex((t) => t.tipo === "preguntas")
   const siguiente = siguienteDe(ejercicio)
+  const descripcionTerminar = `Guarda tus respuestas${ejercicio.id === HABILITA_METRICAS ? ", habilita Métricas" : ""} y ${
+    siguiente ? `pasa al ejercicio ${siguiente.numero}.` : ejercicio.id === ID_SDD ? "cierra la actividad con Rocco." : "vuelve al índice."
+  }`
 
   // Avisa antes de cerrar la pestaña con cambios sin guardar.
   useEffect(() => {
@@ -160,29 +163,39 @@ function Editor({ ejercicio, inicial, consigna, historia }: PropsEditor) {
         </div>
       ))}
 
-      <div className="respuestas-seguir">
-        <p className="respuestas-estado" id={`terminar-${ejercicio.id}`}>
-          Guarda tus respuestas{ejercicio.id === HABILITA_METRICAS && ", habilita Métricas"} y{" "}
-          {siguiente ? `pasa al ejercicio ${siguiente.numero}.` : ejercicio.id === ID_SDD ? "cierra la actividad con Rocco." : "vuelve al índice."}
-        </p>
+      {/* Terminé va en la misma barra que Guardar, fija abajo: así nadie se lo saltea al final de la página. */}
+      <div className="respuestas-acciones" role="group" aria-label="Guardar y terminar">
+        {/* En pantallas angostas se ve "Guardar" a secas: el nombre completo va explícito, no depende del CSS. */}
         <button
-          type="button"
-          className="boton boton-secundario"
+          type="submit"
+          className="boton"
           disabled={estado.tipo === "guardando"}
-          onClick={terminar}
-          aria-describedby={`terminar-${ejercicio.id}`}
+          aria-label={estado.tipo === "guardando" ? undefined : "Guardar respuestas"}
         >
-          Terminé <span aria-hidden="true">→</span>
-        </button>
-      </div>
-
-      <div className="respuestas-acciones">
-        <button type="submit" className="boton" disabled={estado.tipo === "guardando"}>
-          {estado.tipo === "guardando" ? "Guardando…" : "Guardar respuestas"}
+          {estado.tipo === "guardando" ? (
+            "Guardando…"
+          ) : (
+            <>
+              Guardar<span className="respuestas-largo"> respuestas</span>
+            </>
+          )}
         </button>
         <p className="respuestas-estado" role="status" aria-live="polite">
           {sinGuardar ? "Hay cambios sin guardar." : estado.tipo === "guardado" && `Guardado a las ${estado.hora}.`}
         </p>
+        <p className="sr-only" id={`terminar-${ejercicio.id}`}>
+          {descripcionTerminar}
+        </p>
+        <button
+          type="button"
+          className="boton boton-terminar"
+          disabled={estado.tipo === "guardando"}
+          onClick={terminar}
+          aria-describedby={`terminar-${ejercicio.id}`}
+          title={descripcionTerminar}
+        >
+          Terminé <span aria-hidden="true">→</span>
+        </button>
       </div>
       {estado.tipo === "error" && (
         <p className="aviso-error" role="alert">

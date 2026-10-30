@@ -134,6 +134,15 @@ describe("Ejercicios", () => {
     expect(screen.queryByRole("timer")).not.toBeInTheDocument()
   })
 
+  it("“Terminé” viaja con “Guardar respuestas”, en la barra que queda fija abajo", async () => {
+    simularApi({ [RUTA_API]: null })
+    renderEjercicio()
+    const barra = await screen.findByRole("group", { name: "Guardar y terminar" })
+    expect(within(barra).getByRole("button", { name: "Guardar respuestas" })).toBeInTheDocument()
+    expect(within(barra).getByRole("button", { name: /Terminé/ })).toHaveAccessibleDescription(/pasa al ejercicio 2/)
+    expect(screen.getAllByRole("button", { name: /Terminé/ })).toHaveLength(1)
+  })
+
   it("si no se pudo guardar, “Terminé” se queda con el error a la vista y no lo marca como terminado", async () => {
     vi.stubGlobal(
       "fetch",
