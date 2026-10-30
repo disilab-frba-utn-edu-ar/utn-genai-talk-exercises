@@ -1,0 +1,8 @@
+# Scripts que se ejecutan en shells POSIX (Git Bash, WSL, macOS, Linux): siempre LF.
+*.sh text eol=lf
+# Hooks de Cline sin extensión (versión macOS/Linux): siempre LF, o el shebang se rompe.
+.clinerules/hooks/* text eol=lf
+# Scripts de PowerShell: CRLF.
+*.ps1 text eol=crlf
+# Excepción: los hooks .ps1 de Cline también son de .clinerules/hooks/*; el orden de las reglas hace ganar a esta.
+.clinerules/hooks/*.ps1 text eol=crlf
