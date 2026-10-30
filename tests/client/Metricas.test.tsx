@@ -121,6 +121,16 @@ describe("Métricas: filtros", () => {
     expect(decodeURIComponent(FuenteFalsa.ultima.url)).toContain("origen=archivo/2026-10-20T10-00-00-000Z")
   })
 
+  it("los filtros se leen de la URL, así un link abre el tablero ya filtrado", async () => {
+    simularServidor(metricasDePrueba())
+    renderPagina("/metricas?agente=cline&ventana=60")
+    expect(FuenteFalsa.ultima.url).toContain("agente=cline")
+    expect(FuenteFalsa.ultima.url).toContain("ventana=60")
+    FuenteFalsa.ultima.emitir(metricasDePrueba())
+    expect(await screen.findByRole("button", { name: "Cline" })).toHaveAttribute("aria-pressed", "true")
+    expect(screen.getByLabelText("Ventana")).toHaveValue("60")
+  })
+
   it("cambiar de filtro cierra la conexión anterior", async () => {
     await conDatos()
     const anterior = FuenteFalsa.ultima

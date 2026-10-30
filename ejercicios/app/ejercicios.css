@@ -54,7 +54,7 @@
 
 .markdown h2 {
   padding-top: 1.25rem;
-  border-top: 1px solid var(--linea-suave);
+  border-top: 2px dashed var(--linea-suave);
   font-size: 1.45rem;
 }
 
@@ -66,12 +66,14 @@
   font-size: 1rem;
 }
 
+/* Las citas son el recuadro de narración de la consigna: amarillo, con trazo y sombra corta. */
 .markdown blockquote {
-  margin: 1rem 0;
+  margin: 1.25rem 0;
   padding: 0.5rem 1rem;
-  border-left: 4px solid var(--acento);
-  background: var(--acento-suave);
-  border-radius: 0 var(--radio-chico) var(--radio-chico) 0;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: color-mix(in srgb, var(--resaltador) 40%, var(--superficie));
+  box-shadow: var(--sombra-chica);
 }
 
 .markdown blockquote p {
@@ -81,8 +83,8 @@
 .markdown :not(pre) > code {
   padding: 0.1em 0.35em;
   border-radius: 4px;
-  background: var(--grilla);
-  border: 1px solid var(--linea-suave);
+  background: var(--superficie);
+  border: 1.5px solid var(--linea);
 }
 
 .markdown table {
@@ -96,13 +98,13 @@
 .markdown th,
 .markdown td {
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--linea-suave);
+  border: 1.5px solid var(--linea);
   text-align: left;
   vertical-align: top;
 }
 
 .markdown th {
-  background: var(--grilla);
+  background: var(--cielo);
 }
 
 .markdown li {
@@ -116,9 +118,10 @@
 .markdown details {
   margin: 0.75rem 0;
   padding: 0.6rem 1rem;
-  border: 1.5px solid var(--linea);
+  border: 2px solid var(--linea);
   border-radius: var(--radio-chico);
-  background: var(--fondo);
+  background: var(--superficie);
+  box-shadow: 2px 2px 0 var(--linea);
 }
 
 .markdown summary {
@@ -128,7 +131,7 @@
 .markdown hr {
   margin: 2rem 0;
   border: 0;
-  border-top: 1px solid var(--linea-suave);
+  border-top: 2px dashed var(--linea-suave);
 }
 
 .enlace-repo {
@@ -145,7 +148,9 @@
   margin: 0;
   padding: 2.6rem 1rem 1rem;
   overflow-x: auto;
+  border: var(--borde);
   border-radius: var(--radio-chico);
+  box-shadow: 3px 3px 0 var(--acento);
   background: var(--texto);
   color: var(--invertido);
   font-size: 0.875rem;
@@ -168,8 +173,8 @@
 }
 
 .boton-copiar:hover {
-  border-color: var(--acento);
-  background: var(--acento);
+  border-color: var(--resaltador);
+  background: var(--resaltador);
   color: var(--texto);
 }
 
@@ -177,9 +182,10 @@
 .anexo-en-linea {
   margin: 0.75rem 0 1.25rem;
   padding: 1rem 1.15rem;
-  border: 2px solid var(--acento);
+  border: var(--borde);
   border-radius: var(--radio);
-  background: var(--fondo);
+  background: var(--superficie);
+  box-shadow: 4px 4px 0 var(--acento);
 }
 
 .anexo-en-linea .markdown h1 {
@@ -194,10 +200,11 @@
 }
 
 .pregunta {
-  margin: 0.6rem 0;
-  border: 1.5px solid var(--linea);
+  margin: 0.75rem 0;
+  border: 2px solid var(--linea);
   border-radius: var(--radio-chico);
-  background: var(--fondo);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
 }
 
 .pregunta summary {
@@ -212,7 +219,7 @@
 }
 
 .pregunta[open] summary {
-  border-bottom: 1px solid var(--linea-suave);
+  border-bottom: 2px dashed var(--linea-suave);
 }
 
 .pregunta-cuerpo {
@@ -243,7 +250,7 @@
 .tramo-preguntas {
   margin: 1.5rem 0;
   padding: 0.25rem 1rem 0.75rem;
-  border-left: 4px solid var(--acento);
+  border-left: 4px dashed var(--acento);
 }
 
 /* Un enlace de la consigna con forma de botón (por ejemplo, "Ver aplicación"). */
@@ -271,10 +278,10 @@
   gap: 0.5rem 1rem;
   margin-top: 0.75rem;
   padding: 0.6rem 0.75rem;
-  border: 2px solid var(--texto);
+  border: var(--borde);
   border-radius: var(--radio);
-  background: var(--fondo);
-  box-shadow: 3px 3px 0 var(--texto);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
 }
 
 .respuestas-estado {
@@ -299,10 +306,10 @@
   /* Alineado al borde derecho de la columna de lectura (--ancho-lectura). */
   margin: 0 max(0px, calc((100% - var(--ancho-lectura)) / 2)) 1.5rem auto;
   padding: 0.5rem 0.75rem;
-  border: 2px solid var(--texto);
+  border: var(--borde);
   border-radius: var(--radio);
-  background: var(--fondo);
-  box-shadow: 3px 3px 0 var(--texto);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
 }
 
 .temporizador-etiqueta {
@@ -318,7 +325,7 @@
 }
 
 .temporizador[data-terminado="true"] {
-  border-color: var(--acento);
+  background: var(--resaltador);
 }
 
 .temporizador .boton {
@@ -329,11 +336,12 @@
 /* Diagramas que reemplazan bloques ASCII de las consignas (ver diagramas.ts). */
 .diagrama {
   container-type: inline-size;
-  margin: 1rem 0;
+  margin: 1.25rem 0;
   padding: 1.25rem;
   border: var(--borde);
-  border-radius: var(--radio-chico);
+  border-radius: var(--radio);
   background: var(--superficie);
+  box-shadow: var(--sombra);
 }
 
 /* El ciclo necesita aire arriba para el hook Stop. */
