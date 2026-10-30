@@ -107,7 +107,9 @@
   font-family: var(--fuente-titulos);
   font-size: 1.8rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
   line-height: 1.1;
+  text-wrap: balance;
 }
 
 .indicador-nota {
@@ -162,6 +164,7 @@
 
 /* Descripción a demanda: el gráfico se lee sin texto alrededor y el detalle está a un hover/foco. */
 .info-boton {
+  position: relative;
   display: inline-grid;
   place-items: center;
   width: 1.1rem;
@@ -173,6 +176,19 @@
   color: var(--texto-suave);
   font: italic 700 0.7rem/1 var(--fuente-titulos);
   cursor: help;
+}
+
+/* El círculo mide 18 px; el área táctil se agranda a 32 px sin cambiar el dibujo. */
+.info-boton::before {
+  content: "";
+  position: absolute;
+  inset: -0.4rem;
+}
+
+.info-boton:focus-visible,
+.boton-texto.grafico-alternar:focus-visible {
+  outline: 2px solid var(--acento-texto);
+  outline-offset: 2px;
 }
 
 .info-boton:hover,
@@ -240,14 +256,8 @@
   color: var(--texto-suave);
 }
 
-
 .grafico-lienzo {
   min-width: 0;
-}
-
-/* Recharts: el foco del teclado no dibuja un recuadro sobre el SVG. */
-.grafico-lienzo .recharts-surface:focus {
-  outline: none;
 }
 
 .tortas {
@@ -264,6 +274,10 @@
 
 .metricas-conexion .metricas-actualizado {
   color: var(--texto-suave);
+}
+
+.leyenda-texto {
+  color: var(--texto);
 }
 
 .leyenda {
@@ -301,6 +315,10 @@
   border-bottom: 1px solid var(--linea-suave);
   text-align: left;
   white-space: nowrap;
+}
+
+.metricas td {
+  font-variant-numeric: tabular-nums;
 }
 
 .metricas thead th {

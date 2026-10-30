@@ -1,6 +1,6 @@
 // Gráficos del tablero con Recharts: reciben datos ya calculados por el servidor y solo dibujan.
-// Cada gráfico es una <figure> con su botón "Ver como tabla" (sirve también a lectores de pantalla)
-// y nombra lo que mide cada eje, para que se lea sin adivinar.
+// Cada gráfico es una <figure> con su botón "Ver como tabla" (sirve también a lectores de pantalla),
+// ejes rotulados y su descripción en un tooltip.
 import { useId, useState, type ReactElement, type ReactNode } from "react"
 import {
   Area,
@@ -36,13 +36,16 @@ const TICK = { fill: "var(--texto-suave)", fontSize: 12 }
 const ROTULO = { fill: "var(--texto-suave)", fontSize: 12, fontWeight: 600 }
 const GRILLA = { stroke: "var(--linea-suave)", strokeDasharray: "3 3" }
 const TOOLTIP = {
-  contentStyle: { background: "var(--superficie)", border: "1px solid var(--linea)", borderRadius: 6, fontSize: 13, color: "var(--texto)" },
+  contentStyle: { background: "var(--superficie)", border: "1px solid var(--linea)", borderRadius: 6, fontSize: 13, color: "var(--texto)", fontVariantNumeric: "tabular-nums" },
   labelStyle: { fontWeight: 700, color: "var(--texto)" },
   cursor: { fill: "var(--grilla)", stroke: "var(--linea)" },
 }
+// Sin capa de teclado de Recharts: el lienzo es aria-hidden y la alternativa accesible es la vista de tabla.
 // Sin animación: los datos llegan en vivo varias veces por minuto y cada evento reiniciaría la
 // animación (Recharts no muestra las etiquetas de valor hasta que termina).
 const ANIMACION = { isAnimationActive: false }
+// El texto de la leyenda va en tinta de texto; el color de la serie lo lleva el punto de al lado.
+const LEYENDA = { iconType: "circle" as const, wrapperStyle: { fontSize: 13 }, formatter: (nombre: string) => <span className="leyenda-texto">{nombre}</span> }
 
 /**
  * Ícono "i" con la descripción del gráfico: se abre con el mouse o el foco del teclado y se cierra con Escape.
@@ -142,7 +145,7 @@ export function GraficoBarras({ filas, eje, formato = formatoNumero }: { filas: 
   const datos = filas.map((f) => ({ ...f, texto: f.texto ?? formato(f.valor) }))
   return (
     <Lienzo alto={Math.max(140, datos.length * 30 + 60)}>
-      <BarChart data={datos} layout="vertical" margin={{ top: 4, right: Math.min(150, 16 + 7 * Math.max(...datos.map((d) => d.texto.length))), bottom: 24, left: 8 }} barCategoryGap={4}>
+      <BarChart accessibilityLayer={false} data={datos} layout="vertical" margin={{ top: 4, right: Math.min(150, 16 + 7 * Math.max(...datos.map((d) => d.texto.length))), bottom: 24, left: 8 }} barCategoryGap={4}>
         <CartesianGrid {...GRILLA} horizontal={false} />
         <XAxis type="number" tick={TICK} tickFormatter={formato} allowDecimals={false} label={{ value: eje, position: "insideBottom", offset: -14, ...ROTULO }} />
         <YAxis type="category" dataKey="etiqueta" width={150} tick={TICK} tickFormatter={(t: string) => recortar(t)} interval={0} />
@@ -216,31 +219,31 @@ export function GraficoSerie({ puntos, series, pasoMin, ejeY, tipo = "lineas", f
       <YAxis tick={TICK} tickFormatter={formato} width={64} allowDecimals={false} label={{ value: ejeY, angle: -90, position: "insideLeft", style: { textAnchor: "middle" }, ...ROTULO }} />
       <Tooltip {...TOOLTIP} formatter={(v) => formato(Number(v))} labelFormatter={(t) => `Desde ${fechaHora(Number(t))}`} />
       {/* Con una sola serie la leyenda sobra: el título ya la nombra. */}
-      {presentes.length > 1 && <Legend verticalAlign="top" height={28} iconType="circle" wrapperStyle={{ fontSize: 13, color: "var(--texto)" }} />}
+      {presentes.length > 1 && <Legend verticalAlign="top" height={28} {...LEYENDA} />}
     </>
   )
   const margen = { top: 4, right: 16, bottom: 24, left: 8 }
   return (
     <Lienzo alto={260}>
       {tipo === "barras" ? (
-        <BarChart data={datos} margin={margen}>
+        <BarChart accessibilityLayer={false} data={datos} margin={margen}>
           {comunes}
           {presentes.map((s, i) => (
             <Bar key={s.id} dataKey={s.id} name={s.nombre} stackId="total" fill={s.color} stroke="var(--superficie)" strokeWidth={1} radius={i === presentes.length - 1 ? [4, 4, 0, 0] : 0} {...ANIMACION} />
           ))}
         </BarChart>
       ) : tipo === "area" ? (
-        <AreaChart data={datos} margin={margen}>
+        <AreaChart accessibilityLayer={false} data={datos} margin={margen}>
           {comunes}
           {presentes.map((s) => (
-            <Area key={s.id} type="monotone" dataKey={s.id} name={s.nombre} stackId="total" stroke={s.color} strokeWidth={2} fill={s.color} fillOpacity={0.35} {...ANIMACION} />
+            <Area key={s.id} type="linear" dataKey={s.id} name={s.nombre} stackId="total" stroke={s.color} strokeWidth={2} fill={s.color} fillOpacity={0.35} {...ANIMACION} />
           ))}
         </AreaChart>
       ) : (
-        <LineChart data={datos} margin={margen}>
+        <LineChart accessibilityLayer={false} data={datos} margin={margen}>
           {comunes}
           {presentes.map((s) => (
-            <Line key={s.id} type="monotone" dataKey={s.id} name={s.nombre} stroke={s.color} strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} {...ANIMACION} />
+            <Line key={s.id} type="linear" dataKey={s.id} name={s.nombre} stroke={s.color} strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} {...ANIMACION} />
           ))}
         </LineChart>
       )}
@@ -250,13 +253,22 @@ export function GraficoSerie({ puntos, series, pasoMin, ejeY, tipo = "lineas", f
 
 export type Segmento = { nombre: string; valor: number; color: string }
 
-/** Torta (anillo) con el porcentaje escrito en cada porción y el total en el centro: muestra proporciones de un todo. */
-export function GraficoTorta({ segmentos, unidad, formato = formatoNumero, alto = 240 }: { segmentos: Segmento[]; unidad: string; formato?: (n: number) => string; alto?: number }) {
+/** Una torta se lee hasta 6 porciones: las 5 mayores quedan y el resto se suma en "otros" (el detalle sigue en la tabla). */
+function agruparResto(segmentos: Segmento[], max = 6): Segmento[] {
+  if (segmentos.length <= max) return segmentos
+  const ordenados = [...segmentos].sort((a, b) => b.valor - a.valor)
+  const resto = ordenados.slice(max - 1).reduce((n, s) => n + s.valor, 0)
+  return [...ordenados.slice(0, max - 1), { nombre: "otros", valor: resto, color: "var(--kind-otro)" }]
+}
+
+/** Torta (anillo) con el total en el centro y el porcentaje de cada porción en la leyenda: muestra proporciones de un todo. */
+export function GraficoTorta({ segmentos: todos, unidad, formato = formatoNumero, alto = 240 }: { segmentos: Segmento[]; unidad: string; formato?: (n: number) => string; alto?: number }) {
+  const segmentos = agruparResto(todos)
   const total = segmentos.reduce((n, s) => n + s.valor, 0)
   const pct = (v: number) => (total ? `${Math.round((v / total) * 100)} %` : "0 %")
   return (
     <Lienzo alto={alto}>
-      <PieChart>
+      <PieChart accessibilityLayer={false}>
         <Pie
           data={segmentos}
           dataKey="valor"
@@ -266,6 +278,7 @@ export function GraficoTorta({ segmentos, unidad, formato = formatoNumero, alto 
           paddingAngle={1}
           stroke="var(--superficie)"
           strokeWidth={2}
+          rootTabIndex={-1}
           {...ANIMACION}
         >
           {segmentos.map((s) => (
@@ -281,7 +294,7 @@ export function GraficoTorta({ segmentos, unidad, formato = formatoNumero, alto 
           </tspan>
         </text>
         <Tooltip {...TOOLTIP} formatter={(v, nombre) => [`${formato(Number(v))} ${unidad} (${pct(Number(v))})`, nombre]} />
-        <Legend iconType="circle" wrapperStyle={{ fontSize: 13, color: "var(--texto)" }} formatter={(nombre: string) => `${nombre} · ${pct(segmentos.find((s) => s.nombre === nombre)?.valor ?? 0)}`} />
+        <Legend {...LEYENDA} formatter={(nombre: string) => <span className="leyenda-texto">{`${nombre} · ${pct(segmentos.find((s) => s.nombre === nombre)?.valor ?? 0)}`}</span>} />
       </PieChart>
     </Lienzo>
   )
@@ -305,12 +318,12 @@ export function TortasPorGrupo({ grupos, unidad }: { grupos: { nombre: string; s
 export function GraficoDuraciones({ filas }: { filas: { kind: string; p50Ms: number; p95Ms: number }[] }) {
   return (
     <Lienzo alto={260}>
-      <BarChart data={filas} margin={{ top: 4, right: 16, bottom: 24, left: 8 }} barGap={2}>
+      <BarChart accessibilityLayer={false} data={filas} margin={{ top: 4, right: 16, bottom: 24, left: 8 }} barGap={2}>
         <CartesianGrid {...GRILLA} vertical={false} />
         <XAxis dataKey="kind" tick={TICK} interval={0} label={{ value: "Tipo de acción", position: "insideBottom", offset: -14, ...ROTULO }} />
         <YAxis tick={TICK} tickFormatter={(ms: number) => duracion(ms)} width={64} label={{ value: "Duración", angle: -90, position: "insideLeft", style: { textAnchor: "middle" }, ...ROTULO }} />
         <Tooltip {...TOOLTIP} formatter={(v) => duracion(Number(v))} />
-        <Legend verticalAlign="top" height={28} iconType="circle" wrapperStyle={{ fontSize: 13, color: "var(--texto)" }} />
+        <Legend verticalAlign="top" height={28} {...LEYENDA} />
         <Bar dataKey="p50Ms" name="Mediana (p50)" fill="var(--kind-leer)" radius={[4, 4, 0, 0]} {...ANIMACION} />
         <Bar dataKey="p95Ms" name="Peor caso habitual (p95)" fill="var(--kind-escribir)" radius={[4, 4, 0, 0]} {...ANIMACION} />
       </BarChart>
@@ -356,7 +369,7 @@ export function LineaDeTiempo({ datos }: { datos: DatosLinea }) {
   const fin = Math.max(1, Math.ceil(datos.duracionMs / 1000))
   return (
     <Lienzo alto={Math.max(180, carriles.length * 36 + 90)}>
-        <ScatterChart margin={{ top: 8, right: 16, bottom: 24, left: 8 }}>
+        <ScatterChart accessibilityLayer={false} margin={{ top: 8, right: 16, bottom: 24, left: 8 }}>
           <CartesianGrid {...GRILLA} />
           <XAxis
             type="number"
@@ -368,7 +381,7 @@ export function LineaDeTiempo({ datos }: { datos: DatosLinea }) {
             label={{ value: "Tiempo desde el inicio de la sesión", position: "insideBottom", offset: -14, ...ROTULO }}
           />
           <YAxis type="number" dataKey="carril" domain={[-0.5, carriles.length - 0.5]} ticks={carriles.map((_, i) => i)} tickFormatter={(i: number) => carriles[i] ?? ""} tick={TICK} width={80} reversed />
-          <Legend verticalAlign="top" height={28} iconType="circle" wrapperStyle={{ fontSize: 13, color: "var(--texto)" }} />
+          <Legend verticalAlign="top" height={28} {...LEYENDA} />
           <Tooltip {...TOOLTIP} cursor={{ strokeDasharray: "3 3" }} formatter={(v, nombre) => (nombre === "s" ? [duracion(Number(v) * 1000), "Desde el inicio"] : [carriles[Number(v)] ?? v, "Tipo"])} />
           {datos.puntos
             .filter((p) => p.tipo !== "herramienta")

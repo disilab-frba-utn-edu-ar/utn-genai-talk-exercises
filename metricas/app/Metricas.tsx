@@ -1,6 +1,6 @@
 import type { AgenteLog, FiltrosMetricas, MetricasAgentes, OrigenLogs, TokensMetricas } from "@shared/types"
 import { useState } from "react"
-import { Link } from "react-router"
+import { Link, useSearchParams } from "react-router"
 import { Cargando, ErrorCarga, Vacio } from "../../client/src/components/Estado"
 import Chip from "../../client/src/components/Chip"
 import { useCarga } from "../../client/src/hooks/useCarga"
@@ -34,14 +34,27 @@ const horaExacta = (iso: string) => new Date(iso).toLocaleTimeString("es-AR", { 
 const ESTADO_CONEXION: Record<Conexion, string> = {
   envivo: "En vivo",
   reconectando: "Reconectando…",
-  consultando: "Consultando cada 5 s (sin conexión en vivo)",
+  consultando: "Consultando cada 5 s (sin conexión en vivo)",
 }
 
 export default function Metricas() {
-  const [origen, setOrigen] = useState<OrigenLogs>("actual")
-  const [agente, setAgente] = useState<AgenteLog | undefined>()
-  const [sesion, setSesion] = useState("")
-  const [ventana, setVentana] = useState("")
+  // Los filtros viven en la URL: un link abre el tablero ya filtrado (por ejemplo, ?agente=cline&ventana=60).
+  const [params, setParams] = useSearchParams()
+  const agenteUrl = params.get("agente")
+  const agente = agenteUrl && agenteUrl in AGENTES ? (agenteUrl as AgenteLog) : undefined
+  const sesion = params.get("sesion") ?? ""
+  const ventana = params.get("ventana") ?? ""
+  const origen: OrigenLogs = params.get("origen") ?? "actual"
+  const filtrar = (clave: string, valor: string | undefined) =>
+    setParams(
+      (actuales) => {
+        const nuevos = new URLSearchParams(actuales)
+        if (valor) nuevos.set(clave, valor)
+        else nuevos.delete(clave)
+        return nuevos
+      },
+      { replace: true },
+    )
   const [detalle, setDetalle] = useState(false) // apagado por defecto: se activa desde la UI, sin variables de entorno
 
   const filtros: FiltrosMetricas = { agente, sesion: sesion || undefined, ventanaMin: ventana ? Number(ventana) : undefined, detalle }
@@ -61,11 +74,11 @@ export default function Metricas() {
 
       <section className="metricas-filtros" aria-label="Filtros">
         <div className="chips">
-          <Chip activo={!agente} onClick={() => setAgente(undefined)}>
+          <Chip activo={!agente} onClick={() => filtrar("agente", undefined)}>
             Todos
           </Chip>
           {(Object.keys(AGENTES) as AgenteLog[]).map((a) => (
-            <Chip key={a} activo={agente === a} onClick={() => setAgente(a)}>
+            <Chip key={a} activo={agente === a} onClick={() => filtrar("agente", a)}>
               {AGENTES[a]}
             </Chip>
           ))}
@@ -73,7 +86,7 @@ export default function Metricas() {
         <div className="metricas-selectores">
           <label>
             Ventana
-            <select value={ventana} onChange={(e) => setVentana(e.target.value)}>
+            <select value={ventana} onChange={(e) => filtrar("ventana", e.target.value)}>
               {VENTANAS.map((v) => (
                 <option key={v.valor} value={v.valor}>
                   {v.nombre}
@@ -83,19 +96,19 @@ export default function Metricas() {
           </label>
           <label>
             Sesión
-            <select value={sesion} onChange={(e) => setSesion(e.target.value)}>
+            <select value={sesion} onChange={(e) => filtrar("sesion", e.target.value)}>
               <option value="">Todas</option>
               {(metricas.estado === "lista" ? metricas.datos : metricas.estado === "cargando" ? metricas.previo : undefined)?.sesiones.map((s) => (
-                  <option key={`${s.agente}${s.id}`} value={s.id}>
-                    {AGENTES[s.agente]} · {s.id}
-                  </option>
-                ))}
+                <option key={`${s.agente}${s.id}`} value={s.id}>
+                  {AGENTES[s.agente]} · {s.id}
+                </option>
+              ))}
             </select>
           </label>
           {origenes.estado === "lista" && (
             <label>
               Origen
-              <select value={origen} onChange={(e) => setOrigen(e.target.value)}>
+              <select value={origen} onChange={(e) => filtrar("origen", e.target.value === "actual" ? undefined : e.target.value)}>
                 {origenes.datos.map((o) => (
                   <option key={o.id} value={o.id}>
                     {o.nombre}
@@ -110,8 +123,11 @@ export default function Metricas() {
           </label>
         </div>
         {metricas.estado === "lista" && (
-          <p className={`metricas-conexion metricas-conexion-${metricas.conexion}`} aria-live="polite">
-            <span aria-hidden="true">●</span> {ESTADO_CONEXION[metricas.conexion]}
+          <p className={`metricas-conexion metricas-conexion-${metricas.conexion}`}>
+            {/* Solo el estado se anuncia: la hora cambia con cada evento y el lector de pantalla no pararía de hablar. */}
+            <span aria-live="polite">
+              <span aria-hidden="true">●</span> {ESTADO_CONEXION[metricas.conexion]}
+            </span>
             <span className="metricas-actualizado"> · actualizado a las {horaExacta(metricas.datos.generado)}</span>
           </p>
         )}
