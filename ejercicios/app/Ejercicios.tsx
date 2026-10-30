@@ -3,10 +3,12 @@ import type { ReactNode } from "react"
 import { Link, Route, Routes, useParams } from "react-router"
 import NoEncontradaPage from "../../client/src/pages/NoEncontradaPage"
 import { conAnexosEnLinea, ejercicios, introduccion, type Anexo } from "./contenido"
+import EjercicioSdd from "./EjercicioSdd"
 import "./ejercicios.css"
 import Markdown from "./Markdown"
 import { useTerminado } from "./progreso"
 import Respuestas from "./Respuestas"
+import { ID_SDD } from "./tablero"
 import Temporizador from "./Temporizador"
 
 type PropsSeccion = { numero: number; id: string; titulo: string; children: ReactNode }
@@ -97,31 +99,44 @@ function EjercicioPage() {
       .map((a) => ({ id: a.archivo, titulo: a.titulo, contenido: <Markdown texto={a.markdown.join("\n")} /> })),
   ]
 
+  // Fuera de la cabecera para quedar fijo mientras se scrollea la consigna.
+  const temporizador = <Temporizador key={ejercicio.id} id={ejercicio.id} minutos={ejercicio.minutos} />
+  const cuerpo = (
+    <div className="reserva">
+      {secciones.map((s, i) => (
+        <Seccion key={s.id} numero={i + 1} id={s.id} titulo={s.titulo}>
+          {s.contenido}
+        </Seccion>
+      ))}
+    </div>
+  )
+  const sdd = ejercicio.id === ID_SDD
+
   return (
     <div className="ejercicio-pagina">
       <div className="ejercicio-cabecera">
         <Link to="/ejercicios" className="volver">
           <span aria-hidden="true">←</span> Todos los ejercicios
         </Link>
-        <nav className="chips" aria-label="Secciones del ejercicio">
-          {secciones.map((s, i) => (
-            <a key={s.id} href={`#${s.id}`} className="chip">
-              {i + 1}. {s.titulo}
-            </a>
-          ))}
-        </nav>
+        {!sdd && (
+          <nav className="chips" aria-label="Secciones del ejercicio">
+            {secciones.map((s, i) => (
+              <a key={s.id} href={`#${s.id}`} className="chip">
+                {i + 1}. {s.titulo}
+              </a>
+            ))}
+          </nav>
+        )}
       </div>
 
-      {/* Fuera de la cabecera para quedar fijo mientras se scrollea la consigna. */}
-      <Temporizador key={ejercicio.id} id={ejercicio.id} minutos={ejercicio.minutos} />
-
-      <div className="reserva">
-        {secciones.map((s, i) => (
-          <Seccion key={s.id} numero={i + 1} id={s.id} titulo={s.titulo}>
-            {s.contenido}
-          </Seccion>
-        ))}
-      </div>
+      {sdd ? (
+        <EjercicioSdd temporizador={temporizador} consigna={cuerpo} />
+      ) : (
+        <>
+          {temporizador}
+          {cuerpo}
+        </>
+      )}
     </div>
   )
 }

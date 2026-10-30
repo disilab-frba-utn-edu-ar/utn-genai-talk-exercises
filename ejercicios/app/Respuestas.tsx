@@ -2,10 +2,12 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react"
 import { useNavigate } from "react-router"
 import { Cargando, ErrorCarga } from "../../client/src/components/Estado"
 import { useCarga } from "../../client/src/hooks/useCarga"
+import Captura from "./Captura"
 import { guardarRespuestas, leerRespuestas, type RespuestasGuardadas } from "./api"
 import { armarRespuestasMd, partirConsigna, partirPreguntas, siguienteDe, type Ejercicio, type Respuestas as Datos } from "./contenido"
 import Markdown from "./Markdown"
 import { HABILITA_METRICAS, marcarTerminado } from "./progreso"
+import { ID_SDD, tituloPrincipal, useTablero } from "./tablero"
 
 type Estado = { tipo: "editando" } | { tipo: "guardando" } | { tipo: "guardado"; hora: string } | { tipo: "error"; mensaje: string }
 
@@ -14,24 +16,42 @@ type RenderConsigna = (lineas: string[]) => ReactNode
 
 const hora = (iso: string) => new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })
 
-/** Lo guardado o, si no hay nada, la plantilla. Un respuestas.json viejo (un solo texto) queda entero en los datos generales. */
-function datosIniciales(ejercicio: Ejercicio, guardadas: RespuestasGuardadas | null): Datos {
-  if (!guardadas) return { general: ejercicio.plantillaRespuestas.join("\n"), porPregunta: {} }
+const HISTORIA = "**Historia elegida:**"
+
+/** La línea "Historia elegida" de los datos de la entrega, con la historia del tablero. El resto queda igual. */
+const conHistoria = (general: string, historia?: string) =>
+  historia ? general.replace(/^\*\*Historia elegida:\*\*.*$/m, `${HISTORIA} ${historia}`) : general
+
+/**
+ * Lo guardado o, si no hay nada, la plantilla (con la historia elegida en el tablero, si hay).
+ * Un respuestas.json viejo (un solo texto) queda entero en los datos generales.
+ */
+function datosIniciales(ejercicio: Ejercicio, guardadas: RespuestasGuardadas | null, historia?: string): Datos {
+  if (!guardadas) return { general: conHistoria(ejercicio.plantillaRespuestas.join("\n"), historia), porPregunta: {} }
   if (Array.isArray(guardadas.respuestas)) return { general: guardadas.respuestas.join("\n"), porPregunta: {} }
   return {
-    general: (guardadas.general ?? ejercicio.plantillaRespuestas).join("\n"),
+    general: conHistoria((guardadas.general ?? ejercicio.plantillaRespuestas).join("\n"), historia),
     porPregunta: Object.fromEntries(Object.entries(guardadas.respuestas).map(([n, r]) => [n, r.join("\n")])),
   }
 }
 
-function Editor({ ejercicio, inicial, consigna }: { ejercicio: Ejercicio; inicial: Datos; consigna: RenderConsigna }) {
+type PropsEditor = { ejercicio: Ejercicio; inicial: Datos; consigna: RenderConsigna; historia?: string }
+
+function Editor({ ejercicio, inicial, consigna, historia }: PropsEditor) {
   const navigate = useNavigate()
   const [datos, setDatos] = useState(inicial)
+  // Si cambia la historia del tablero, se actualiza solo esa línea de los datos: las respuestas no se tocan.
+  const [historiaVista, setHistoriaVista] = useState(historia)
+  if (historia !== historiaVista) {
+    setHistoriaVista(historia)
+    setDatos((d) => ({ ...d, general: conHistoria(d.general, historia) }))
+  }
   const [guardadoComo, setGuardadoComo] = useState(inicial)
   const [estado, setEstado] = useState<Estado>({ tipo: "editando" })
   const sinGuardar = JSON.stringify(datos) !== JSON.stringify(guardadoComo)
   const tramos = partirConsigna(ejercicio)
   const primerTramo = tramos.findIndex((t) => t.tipo === "preguntas")
+  const ultimoTramo = tramos.findLastIndex((t) => t.tipo === "preguntas")
   const siguiente = siguienteDe(ejercicio)
 
   // Avisa antes de cerrar la pestaña con cambios sin guardar.
@@ -71,7 +91,9 @@ function Editor({ ejercicio, inicial, consigna }: { ejercicio: Ejercicio; inicia
   async function terminar() {
     if (!(await guardar())) return
     marcarTerminado(ejercicio.id)
-    navigate(siguiente ? `/ejercicios/${siguiente.id}` : "/ejercicios")
+    // El ejercicio 3 cierra con la felicitación de Rocco; el resto pasa al siguiente o al índice.
+    if (ejercicio.id === ID_SDD) navigate(`/ejercicios/${ID_SDD}`, { state: { felicitar: true } })
+    else navigate(siguiente ? `/ejercicios/${siguiente.id}` : "/ejercicios")
     document.documentElement.scrollTop = 0
   }
 
@@ -117,7 +139,7 @@ function Editor({ ejercicio, inicial, consigna }: { ejercicio: Ejercicio; inicia
                   className="editor-respuestas"
                   value={respuesta}
                   onChange={(e) => responder(b.numero, e.target.value)}
-                  placeholder="Tu respuesta, con evidencia del log…"
+                  placeholder={ejercicio.placeholder ?? "Tu respuesta, con evidencia del log…"}
                   spellCheck
                   rows={8}
                 />
@@ -134,13 +156,14 @@ function Editor({ ejercicio, inicial, consigna }: { ejercicio: Ejercicio; inicia
       {tramos.map((t, i) => (
         <div key={i} className={t.tipo === "preguntas" ? "tramo-preguntas" : undefined}>
           {t.tipo === "preguntas" ? preguntas(t.lineas, i === primerTramo) : consigna(t.lineas)}
+          {ejercicio.captura && i === ultimoTramo && <Captura id={ejercicio.id} />}
         </div>
       ))}
 
       <div className="respuestas-seguir">
         <p className="respuestas-estado" id={`terminar-${ejercicio.id}`}>
           Guarda tus respuestas{ejercicio.id === HABILITA_METRICAS && ", habilita Métricas"} y{" "}
-          {siguiente ? `pasa al ejercicio ${siguiente.numero}.` : "vuelve al índice."}
+          {siguiente ? `pasa al ejercicio ${siguiente.numero}.` : ejercicio.id === ID_SDD ? "cierra la actividad con Rocco." : "vuelve al índice."}
         </p>
         <button
           type="button"
@@ -173,6 +196,7 @@ function Editor({ ejercicio, inicial, consigna }: { ejercicio: Ejercicio; inicia
 /** La consigna completa con las preguntas intercaladas, cada una en un desplegable con su recuadro de respuesta. */
 export default function Respuestas({ ejercicio, consigna }: { ejercicio: Ejercicio; consigna: RenderConsigna }) {
   const guardadas = useCarga(`respuestas:${ejercicio.id}`, () => leerRespuestas(ejercicio.id))
+  const historia = tituloPrincipal(useTablero().estado)
 
   // Sin respuestas cargadas la consigna se sigue leyendo: el aviso ocupa el lugar de las preguntas.
   if (guardadas.estado !== "lista") {
@@ -189,5 +213,5 @@ export default function Respuestas({ ejercicio, consigna }: { ejercicio: Ejercic
     ))
   }
 
-  return <Editor key={ejercicio.id} ejercicio={ejercicio} inicial={datosIniciales(ejercicio, guardadas.datos)} consigna={consigna} />
+  return <Editor key={ejercicio.id} ejercicio={ejercicio} inicial={datosIniciales(ejercicio, guardadas.datos, historia)} consigna={consigna} historia={historia} />
 }

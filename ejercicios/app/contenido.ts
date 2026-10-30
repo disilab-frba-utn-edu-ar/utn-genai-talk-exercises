@@ -23,6 +23,10 @@ type ArchivoEjercicio = {
   anexos: Anexo[]
   /** Lo que no es una pregunta: datos de la entrega, bitácoras, anexos. */
   plantillaRespuestas: string[]
+  /** Texto de ayuda en el recuadro de cada respuesta. */
+  placeholder?: string
+  /** Si al final de las preguntas se puede adjuntar una captura de pantalla (opcional). */
+  captura?: boolean
 }
 
 export type Ejercicio = ArchivoEjercicio & { id: string; numero: number }

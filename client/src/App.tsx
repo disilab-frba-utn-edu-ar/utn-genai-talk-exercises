@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router"
 import Ejercicios from "../../ejercicios/app/Ejercicios"
-import SetupPage from "../../ejercicios/app/Setup"
+import SetupPage, { SddPage } from "../../ejercicios/app/Setup"
 import Metricas from "../../metricas/app/Metricas"
 import Layout from "./components/Layout"
 import ConfirmacionPage from "./pages/ConfirmacionPage"
@@ -16,6 +16,7 @@ export default function App() {
         <Route path="mentoras/:id" element={<ReservaPage />} />
         <Route path="confirmacion" element={<ConfirmacionPage />} />
         <Route path="configurar-entorno" element={<SetupPage />} />
+        <Route path="spec-driven-development" element={<SddPage />} />
         <Route path="ejercicios/*" element={<Ejercicios />} />
         <Route path="metricas" element={<Metricas />} />
         <Route path="*" element={<NoEncontradaPage />} />
