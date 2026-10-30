@@ -192,6 +192,16 @@ describe("Ejercicios", () => {
     expect(screen.queryByText(/Constitution → Specify/)).not.toBeInTheDocument()
   })
 
+  it("las etapas del ejercicio 3 se dibujan en orden, con qué revisar en cada una y un ✋ entre etapa y etapa", async () => {
+    renderDe(ejercicios[2])
+    const diagrama = await screen.findByRole("figure", { name: /etapas del flujo/i })
+    const nombres = ["Constitution", "Specify", "Clarify", "Plan", "Tasks", "Implement"]
+    expect(textosDeLista(diagrama)).toEqual(nombres.map((n) => expect.stringMatching(new RegExp(`^${n}.*Revisá:`))))
+    expect(within(diagrama).getAllByRole("img", { name: "validación humana" })).toHaveLength(nombres.length - 1)
+    expect(screen.getByText(/Podés pedirle a tu agente que te vaya guiando/)).toBeInTheDocument()
+    expect(screen.getByText(/Recordá revisar antes de pasar a la siguiente etapa/)).toBeInTheDocument()
+  })
+
   it("las validaciones entre etapas del desafío extra se dibujan como puertas", async () => {
     renderDe(ejercicios[2])
     const diagrama = await screen.findByRole("figure", { name: /validaciones entre etapas/i })

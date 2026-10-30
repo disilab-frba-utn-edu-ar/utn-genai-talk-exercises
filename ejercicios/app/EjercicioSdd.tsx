@@ -337,7 +337,7 @@ export default function EjercicioSdd({ temporizador, consigna }: { temporizador:
           ))}
         </nav>
       )}
-      {temporizador}
+      <div className="sdd-temporizador">{temporizador}</div>
       {/* Las dos pestañas quedan montadas: cambiar no pierde lo escrito en las respuestas. */}
       <div hidden={pestana !== "tablero"}>
         <Tablero tablero={tablero} />
