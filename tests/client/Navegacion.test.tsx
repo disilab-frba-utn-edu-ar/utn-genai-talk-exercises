@@ -72,14 +72,25 @@ describe("Navegación principal", () => {
 })
 
 describe("Ejercicios (índice)", () => {
-  it("lista los 3 ejercicios y cada uno lleva a su consigna", async () => {
+  it("lista los 3 ejercicios; sin progreso solo se abre el 1 y los demás muestran el candado", async () => {
     renderApp("/ejercicios")
     expect(ejercicios).toHaveLength(3)
     for (const e of ejercicios) {
       expect(await screen.findByRole("heading", { name: e.titulo })).toBeInTheDocument()
     }
     const enlaces = screen.getAllByRole("link", { name: /Ver consigna/ })
+    expect(enlaces.map((a) => a.getAttribute("href"))).toEqual([`/ejercicios/${ejercicios[0].id}`])
+    expect(screen.getByText("Se habilita al terminar el ejercicio 1")).toBeInTheDocument()
+    expect(screen.getByText("Se habilita al terminar el ejercicio 2")).toBeInTheDocument()
+  })
+
+  it("al terminar un ejercicio se abre el siguiente, y cada uno lleva a su consigna", async () => {
+    localStorage.setItem("ejercicios:terminados", JSON.stringify([ejercicios[0].id, ejercicios[1].id]))
+    renderApp("/ejercicios")
+    await screen.findByRole("heading", { name: ejercicios[0].titulo })
+    const enlaces = screen.getAllByRole("link", { name: /Ver consigna/ })
     expect(enlaces.map((a) => a.getAttribute("href"))).toEqual(ejercicios.map((e) => `/ejercicios/${e.id}`))
+    expect(screen.queryByText(/Se habilita al terminar/)).not.toBeInTheDocument()
   })
 
   it("enlaza a la guía de setup desde la introducción", async () => {

@@ -1,12 +1,13 @@
 // Visor de las consignas: la app de Mentorías lo monta en /ejercicios/*.
-import type { ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import { Link, Route, Routes, useParams } from "react-router"
 import NoEncontradaPage from "../../client/src/pages/NoEncontradaPage"
-import { conAnexosEnLinea, ejercicios, introduccion, type Anexo } from "./contenido"
+import Bloqueado, { Candado, ConfirmarAvance } from "./Bloqueado"
+import { anteriorDe, conAnexosEnLinea, ejercicios, introduccion, type Anexo, type Ejercicio } from "./contenido"
 import EjercicioSdd from "./EjercicioSdd"
 import "./ejercicios.css"
 import Markdown from "./Markdown"
-import { useTerminado } from "./progreso"
+import { useAvanzoIgual, useTerminado } from "./progreso"
 import Respuestas from "./Respuestas"
 import { ID_SDD } from "./tablero"
 import Temporizador from "./Temporizador"
@@ -28,6 +29,49 @@ function Seccion({ numero, id, titulo, children }: PropsSeccion) {
   )
 }
 
+/** El anterior al que hay que terminar para abrir este, o undefined si ya está habilitado (o se avanzó igual). */
+function useAnteriorPendiente(ejercicio: Ejercicio | undefined): Ejercicio | undefined {
+  const anterior = ejercicio && anteriorDe(ejercicio)
+  const terminado = useTerminado(anterior?.id ?? "")
+  const avanzoIgual = useAvanzoIgual(ejercicio?.id ?? "")
+  return terminado || avanzoIgual ? undefined : anterior
+}
+
+// Mismas tarjetas que las mentoras del inicio; con el anterior sin terminar, con candado: tocarlo pregunta si avanzar igual.
+function TarjetaEjercicio({ ejercicio: e }: { ejercicio: Ejercicio }) {
+  const pendiente = useAnteriorPendiente(e)
+  const [preguntando, setPreguntando] = useState(false)
+  return (
+    <article className="tarjeta mentora" data-bloqueado={pendiente ? true : undefined}>
+      <div>
+        <p className="sobretitulo">Ejercicio {e.numero}</p>
+        <h2 className="mentora-nombre">{e.titulo}</h2>
+      </div>
+      <p className="mentora-presentacion">
+        <Markdown texto={e.resumen} enLinea />
+      </p>
+      <ul className="etiquetas" aria-label="Duración">
+        <li className="etiqueta">{e.duracion}</li>
+      </ul>
+      {pendiente ? (
+        // El botón cubre toda la tarjeta (::after) y lleva adentro el candado de la esquina: se puede tocar cualquiera.
+        <button type="button" className="mentora-accion tarjeta-aviso" onClick={() => setPreguntando(true)}>
+          <span className="tarjeta-candado">
+            <Candado />
+          </span>
+          <Candado />
+          <span>Se habilita al terminar el ejercicio {pendiente.numero}</span>
+        </button>
+      ) : (
+        <Link to={e.id} className="boton mentora-accion">
+          Ver consigna <span aria-hidden="true">→</span>
+        </Link>
+      )}
+      {pendiente && preguntando && <ConfirmarAvance ejercicio={e} anterior={pendiente} alCerrar={() => setPreguntando(false)} />}
+    </article>
+  )
+}
+
 function IndicePage() {
   return (
     <>
@@ -41,22 +85,7 @@ function IndicePage() {
 
       <section className="grilla" aria-label="Ejercicios">
         {ejercicios.map((e) => (
-          // Mismas tarjetas que las mentoras del inicio.
-          <article key={e.id} className="tarjeta mentora">
-            <div>
-              <p className="sobretitulo">Ejercicio {e.numero}</p>
-              <h2 className="mentora-nombre">{e.titulo}</h2>
-            </div>
-            <p className="mentora-presentacion">
-              <Markdown texto={e.resumen} enLinea />
-            </p>
-            <ul className="etiquetas" aria-label="Duración">
-              <li className="etiqueta">{e.duracion}</li>
-            </ul>
-            <Link to={e.id} className="boton mentora-accion">
-              Ver consigna <span aria-hidden="true">→</span>
-            </Link>
-          </article>
+          <TarjetaEjercicio key={e.id} ejercicio={e} />
         ))}
       </section>
 
@@ -87,7 +116,23 @@ function Consigna({ lineas, anexos }: { lineas: string[]; anexos: Anexo[] }) {
 function EjercicioPage() {
   const { id } = useParams()
   const ejercicio = ejercicios.find((e) => e.id === id)
+  const pendiente = useAnteriorPendiente(ejercicio)
   if (!ejercicio) return <NoEncontradaPage />
+
+  const volver = (
+    <Link to="/ejercicios" className="volver">
+      <span aria-hidden="true">←</span> Todos los ejercicios
+    </Link>
+  )
+  // Bloqueado no muestra consigna, temporizador ni video: solo cómo habilitarlo.
+  if (pendiente) {
+    return (
+      <div className="ejercicio-pagina">
+        <div className="ejercicio-cabecera">{volver}</div>
+        <Bloqueado ejercicio={ejercicio} anterior={pendiente} />
+      </div>
+    )
+  }
 
   const enLinea = ejercicio.anexos.filter((a) => a.insertarDespuesDe)
   const consigna = (lineas: string[]) => <Consigna lineas={lineas} anexos={enLinea} />
@@ -100,6 +145,7 @@ function EjercicioPage() {
       .map((a) => ({ id: a.archivo, titulo: a.titulo, contenido: <Markdown texto={a.markdown.join("\n")} /> })),
   ]
 
+  const sdd = ejercicio.id === ID_SDD
   // Fuera de la cabecera para quedar fijo mientras se scrollea la consigna.
   const temporizador = <Temporizador key={ejercicio.id} id={ejercicio.id} minutos={ejercicio.minutos} />
   // En el ejercicio 3 se abre con el tablero, para verlo antes de elegir la historia.
@@ -114,14 +160,11 @@ function EjercicioPage() {
       ))}
     </div>
   )
-  const sdd = ejercicio.id === ID_SDD
 
   return (
     <div className="ejercicio-pagina">
       <div className="ejercicio-cabecera">
-        <Link to="/ejercicios" className="volver">
-          <span aria-hidden="true">←</span> Todos los ejercicios
-        </Link>
+        {volver}
         {!sdd && (
           <nav className="chips" aria-label="Secciones del ejercicio">
             {secciones.map((s, i) => (

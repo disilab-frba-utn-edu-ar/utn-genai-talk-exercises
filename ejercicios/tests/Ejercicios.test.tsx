@@ -18,9 +18,10 @@ const renderEjercicio = () =>
   renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicio.id}`, patron: "/ejercicios/*" })
 
 const renderDe = (e: (typeof ejercicios)[number]) => {
-  // El 3 muestra su consigna recién con el 2 terminado y una historia tomada del tablero.
+  // Cada ejercicio se habilita con el anterior terminado.
+  localStorage.setItem("ejercicios:terminados", JSON.stringify(ejercicios.slice(0, e.numero - 1).map((x) => x.id)))
+  // El 3 muestra su consigna recién con una historia tomada del tablero.
   if (e.id === "03-sdd") {
-    localStorage.setItem("ejercicios:terminados", JSON.stringify([ejercicios[1].id]))
     localStorage.setItem("ejercicios:tablero-sdd", JSON.stringify({ introVista: true, elegidas: ["cancelar-sesion"], terminadas: [] }))
   }
   simularApi({ [`/ejercicios-api/${e.id}/respuestas`]: null })
@@ -123,11 +124,14 @@ describe("Ejercicios", () => {
     expect(metricas).toHaveAttribute("target", "_blank")
   })
 
-  it("sin terminar el ejercicio 1, el ejercicio 2 no invita a Métricas", async () => {
+  it("sin terminar el ejercicio 1, el 2 está bloqueado: sin consigna ni video, y ofrece volver al 1", () => {
     simularApi({ [`/ejercicios-api/${ejercicios[1].id}/respuestas`]: null })
     renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicios[1].id}`, patron: "/ejercicios/*" })
-    await screen.findByLabelText("Datos de la entrega")
-    expect(screen.queryByRole("link", { name: "Ver métricas" })).not.toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Todavía no está habilitado" })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /Ir al ejercicio 1/ })).toHaveAttribute("href", `/ejercicios/${ejercicios[0].id}`)
+    expect(screen.queryByLabelText("Datos de la entrega")).not.toBeInTheDocument()
+    expect(screen.queryByRole("dialog", { hidden: true })).not.toBeInTheDocument()
+    expect(screen.queryByRole("timer")).not.toBeInTheDocument()
   })
 
   it("si no se pudo guardar, “Terminé” se queda con el error a la vista y no lo marca como terminado", async () => {
@@ -310,6 +314,51 @@ describe("Ejercicios", () => {
       expect(existsSync(join("client/public", src)), src).toBe(true)
       expect(existsSync(join("client/public", poster)), poster).toBe(true)
     }
+  })
+})
+
+describe("Ejercicios · candado", () => {
+  const RUTA_2 = `/ejercicios-api/${ejercicios[1].id}/respuestas`
+  const renderIndice = () => {
+    simularApi({ [RUTA_API]: null, [RUTA_2]: null })
+    renderConRuta(<Ejercicios />, { ruta: "/ejercicios", patron: "/ejercicios/*" })
+  }
+  const pregunta = () => screen.getByRole("dialog", { name: "¿Seguro que querés avanzar sin terminar el ejercicio 1?" })
+  const tocarCandado = () => userEvent.click(screen.getByRole("button", { name: "Se habilita al terminar el ejercicio 1" }))
+
+  it("tocar el candado pregunta antes de avanzar; lo recomendado es ir a terminar el anterior", async () => {
+    renderIndice()
+    await tocarCandado()
+    const dialogo = pregunta()
+    expect(dialogo).toHaveAttribute("open")
+    expect(within(dialogo).getByRole("link", { name: /Ir al ejercicio 1/ })).toHaveClass("boton")
+
+    await userEvent.click(within(dialogo).getByRole("link", { name: /Ir al ejercicio 1/ }))
+    const video = await screen.findByRole("dialog", { name: "Video de introducción" })
+    expect(within(video).getByRole("heading", { name: ejercicios[0].titulo })).toBeInTheDocument()
+    expect(localStorage.getItem("ejercicios:avanzar-igual")).toBeNull()
+  })
+
+  it("“Avanzar igual” abre el ejercicio sin terminar el anterior, y queda abierto al volver", async () => {
+    renderIndice()
+    await tocarCandado()
+    await userEvent.click(within(pregunta()).getByRole("button", { name: "Avanzar igual" }))
+    expect(await screen.findByLabelText("Datos de la entrega")).toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Todavía no está habilitado" })).not.toBeInTheDocument()
+    expect(terminado(ejercicios[0].id)).toBe(false)
+
+    cleanup()
+    renderIndice()
+    const enlaces = screen.getAllByRole("link", { name: /Ver consigna/ }).map((a) => a.getAttribute("href"))
+    expect(enlaces).toContain(`/ejercicios/${ejercicios[1].id}`)
+  })
+
+  it("en la página bloqueada también se puede avanzar igual, con la misma pregunta", async () => {
+    simularApi({ [RUTA_2]: null })
+    renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicios[1].id}`, patron: "/ejercicios/*" })
+    await userEvent.click(screen.getByRole("button", { name: "Avanzar igual" }))
+    await userEvent.click(within(pregunta()).getByRole("button", { name: "Avanzar igual" }))
+    expect(await screen.findByLabelText("Datos de la entrega")).toBeInTheDocument()
   })
 })
 

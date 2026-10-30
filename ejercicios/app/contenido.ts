@@ -65,6 +65,9 @@ export const lineasDePreguntas = (ejercicio: Ejercicio) =>
 /** El ejercicio que sigue en el orden de la consigna (undefined en el último). */
 export const siguienteDe = (ejercicio: Ejercicio): Ejercicio | undefined => ejercicios[ejercicio.numero]
 
+/** El ejercicio anterior, que hay que terminar para habilitar este (undefined en el primero). */
+export const anteriorDe = (ejercicio: Ejercicio): Ejercicio | undefined => ejercicios[ejercicio.numero - 2]
+
 export type Bloque = { tipo: "markdown"; texto: string } | { tipo: "anexo"; anexo: Anexo }
 
 /** Corta las líneas debajo de cada `insertarDespuesDe` para mostrar ahí el anexo (por ejemplo, el prompt a copiar). */

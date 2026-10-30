@@ -289,6 +289,149 @@
   }
 }
 
+/* ── Candado: cada ejercicio se habilita al terminar el anterior ── */
+
+.candado {
+  width: 1.15em;
+  height: 1.15em;
+  flex-shrink: 0;
+}
+
+/* La tarjeta bloqueada queda "tachada" con una trama y sin levantarse al pasar el mouse. */
+.mentora[data-bloqueado] {
+  position: relative;
+  background-image: repeating-linear-gradient(-45deg, var(--trama) 0 1.5px, transparent 1.5px 10px);
+  box-shadow: var(--sombra-chica);
+}
+
+.mentora[data-bloqueado]:hover {
+  transform: none;
+  box-shadow: var(--sombra-chica);
+}
+
+.mentora[data-bloqueado]:hover .mentora-nombre {
+  color: inherit;
+}
+
+.mentora[data-bloqueado] > :not(.tarjeta-aviso, dialog) {
+  opacity: 0.68;
+}
+
+/* El candado como sticker sobre la esquina de la tarjeta. */
+.tarjeta-candado,
+.bloqueado-candado {
+  display: grid;
+  place-items: center;
+  border: var(--borde);
+  border-radius: 999px;
+  background: var(--resaltador);
+  box-shadow: var(--sombra-chica);
+  transform: rotate(8deg);
+}
+
+/* Va dentro del botón del aviso, pero se ubica contra la tarjeta (el botón no está posicionado). */
+.tarjeta-candado {
+  position: absolute;
+  top: -1rem;
+  right: -0.75rem;
+  z-index: 2;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.35rem;
+}
+
+.tarjeta-aviso {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.5rem 0.85rem;
+  border: 2px dashed var(--linea);
+  border-radius: 12px;
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+/* El botón se estira sobre toda la tarjeta: tocar el candado (o cualquier parte) pregunta si avanzar igual. */
+.tarjeta-aviso::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radio);
+}
+
+.mentora[data-bloqueado]:hover .tarjeta-aviso,
+.tarjeta-aviso:focus-visible {
+  background: var(--resaltador);
+}
+
+.tarjeta-aviso:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 3px;
+}
+
+/* El candado se sacude un poco al pasar el mouse, como invitando a tocarlo. */
+.mentora[data-bloqueado]:hover .tarjeta-candado {
+  transform: rotate(-8deg) scale(1.08);
+}
+
+.tarjeta-candado {
+  transition: transform 0.2s var(--ease);
+}
+
+/* La pregunta para avanzar igual: el detalle del tablero, más angosto y con el candado de sticker. */
+.confirmar {
+  width: min(32rem, calc(100% - 2rem));
+  overflow: visible;
+}
+
+.confirmar .detalle-caja {
+  position: relative;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.confirmar h2 {
+  margin: 0;
+  padding-right: 3.5rem;
+  font-family: var(--fuente-titulos);
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.confirmar p {
+  margin: 0;
+  color: var(--texto-suave);
+}
+
+.confirmar-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.bloqueado {
+  position: relative;
+}
+
+.bloqueado-candado {
+  position: absolute;
+  top: -1.1rem;
+  right: 1.25rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.6rem;
+}
+
 /* ── Markdown de las consignas ──────────────────────────── */
 
 /* break-word (no anywhere): las tablas hacen scroll en vez de partir palabras. */

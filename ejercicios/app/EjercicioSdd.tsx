@@ -1,10 +1,9 @@
-// El ejercicio 3 como tarea real: bloqueado hasta terminar el 2, una intro con el Product Owner,
-// un tablero para tomar una historia y, ya elegida, las pestañas Tablero y Consigna.
+// El ejercicio 3 como tarea real: una intro con el Product Owner, un tablero para tomar una historia
+// y, ya elegida, las pestañas Tablero y Consigna. Hasta terminar el 2 lo bloquea Ejercicios.tsx.
 import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent, type ReactNode } from "react"
-import { Link, useLocation, useNavigate } from "react-router"
+import { useLocation, useNavigate } from "react-router"
 import Markdown from "./Markdown"
 import { borrarTarea, crearTarea } from "./api"
-import { HABILITA_SDD, useTerminado } from "./progreso"
 import {
   columnaDe,
   enCurso,
@@ -20,19 +19,6 @@ import {
   type Hecha,
   type Historia,
 } from "./tablero"
-
-function Bloqueado() {
-  return (
-    <section className="tarjeta bloqueado" aria-labelledby="bloqueado-titulo">
-      <p className="sobretitulo">Ejercicio 3</p>
-      <h2 id="bloqueado-titulo">Todavía no está habilitado</h2>
-      <p>Hasta que no termines el ejercicio 2, no se habilita el ejercicio 3.</p>
-      <Link to={`/ejercicios/${HABILITA_SDD}`} className="boton">
-        <span aria-hidden="true">←</span> Ir al ejercicio 2
-      </Link>
-    </section>
-  )
-}
 
 const MS_POR_LETRA = 22
 const sinAnimacion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false
@@ -311,7 +297,6 @@ type Pestana = "tablero" | "consigna"
 type Props = { temporizador: ReactNode; video: ReactNode; consigna: ReactNode }
 
 export default function EjercicioSdd({ temporizador, video, consigna }: Props) {
-  const habilitado = useTerminado(HABILITA_SDD)
   const tablero = useTablero()
   const navigate = useNavigate()
   // "Terminé" vuelve acá con este aviso: Rocco cierra la actividad.
@@ -324,7 +309,6 @@ export default function EjercicioSdd({ temporizador, video, consigna }: Props) {
   if (elegida && !consignaMontada) setConsignaMontada(true)
   if (!elegida && pestana === "consigna") setPestana("tablero")
 
-  if (!habilitado) return <Bloqueado />
   if (felicitar) return <DialogoRocco pasos={felicitacion} final="Volver a los ejercicios" alTerminar={() => navigate("/ejercicios")} />
   if (!tablero.estado.introVista) return <DialogoRocco pasos={introduccion} final="Ir al tablero" alTerminar={tablero.terminarIntro} />
 
