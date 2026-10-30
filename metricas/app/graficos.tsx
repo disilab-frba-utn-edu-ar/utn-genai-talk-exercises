@@ -1,25 +1,90 @@
-// Gráficos propios, sin librerías: reciben datos ya calculados por el servidor y solo dibujan.
-// Cada gráfico es una <figure> con su botón "Ver como tabla" (sirve también a lectores de pantalla).
-import { useId, useState, type ReactNode } from "react"
+// Gráficos del tablero con Recharts: reciben datos ya calculados por el servidor y solo dibujan.
+// Cada gráfico es una <figure> con su botón "Ver como tabla" (sirve también a lectores de pantalla)
+// y nombra lo que mide cada eje, para que se lea sin adivinar.
+import { useId, useState, type ReactElement, type ReactNode } from "react"
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  Scatter,
+  ScatterChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
 import type { AgenteLog } from "@shared/types"
-import { hora } from "./formato"
+import { duracion, formatoNumero, hora } from "./formato"
 
 export const colorAgente = (agente: AgenteLog) => `var(--agente-${agente})`
 export const colorKind = (kind: string) => `var(--kind-${["leer", "escribir", "ejecutar", "buscar", "skill", "mcp", "pregunta"].includes(kind) ? kind : "otro"})`
 
 export type Tabla = { columnas: string[]; filas: (string | number)[][] }
 
-/** Contenedor común: título, botón para alternar con la tabla y estado "Sin datos". */
-export function Figura({ titulo, tabla, vacio, ancho, children }: { titulo: string; tabla: Tabla; vacio: boolean; ancho?: boolean; children: ReactNode }) {
+// Estilo común: ejes y grilla recesivos, texto en tinta de texto (nunca del color de la serie).
+const TICK = { fill: "var(--texto-suave)", fontSize: 12 }
+const ROTULO = { fill: "var(--texto-suave)", fontSize: 12, fontWeight: 600 }
+const GRILLA = { stroke: "var(--linea-suave)", strokeDasharray: "3 3" }
+const TOOLTIP = {
+  contentStyle: { background: "var(--superficie)", border: "1px solid var(--linea)", borderRadius: 6, fontSize: 13, color: "var(--texto)" },
+  labelStyle: { fontWeight: 700, color: "var(--texto)" },
+  cursor: { fill: "var(--grilla)", stroke: "var(--linea)" },
+}
+// Sin animación: los datos llegan en vivo varias veces por minuto y cada evento reiniciaría la
+// animación (Recharts no muestra las etiquetas de valor hasta que termina).
+const ANIMACION = { isAnimationActive: false }
+
+/**
+ * Ícono "i" con la descripción del gráfico: se abre con el mouse o el foco del teclado y se cierra con Escape.
+ * La descripción queda siempre asociada al botón (aria-describedby), aunque esté oculta.
+ */
+function Info({ texto }: { texto: string }) {
+  const id = useId()
+  const [abierto, setAbierto] = useState(false)
+  return (
+    <span className="info" onMouseEnter={() => setAbierto(true)} onMouseLeave={() => setAbierto(false)}>
+      <button
+        type="button"
+        className="info-boton"
+        aria-label="Qué muestra este gráfico"
+        aria-describedby={id}
+        onFocus={() => setAbierto(true)}
+        onBlur={() => setAbierto(false)}
+        onKeyDown={(e) => e.key === "Escape" && setAbierto(false)}
+      >
+        i
+      </button>
+      <span role="tooltip" id={id} className="info-texto" hidden={!abierto}>
+        {texto}
+      </span>
+    </span>
+  )
+}
+
+/** Contenedor común: título (con su descripción en un tooltip), alternar con la tabla y estado "Sin datos". */
+export function Figura({ titulo, nota, tabla, vacio, ancho, children }: { titulo: string; nota?: string; tabla: Tabla; vacio: boolean; ancho?: boolean; children: ReactNode }) {
   const id = useId()
   const [verTabla, setVerTabla] = useState(false)
   return (
     <figure className={`grafico${ancho ? " grafico-ancho" : ""}`} aria-labelledby={id}>
       <div className="grafico-cabecera">
-        <figcaption id={id}>{titulo}</figcaption>
+        <div className="grafico-titulo">
+          <figcaption id={id}>{titulo}</figcaption>
+          {nota && <Info texto={nota} />}
+        </div>
         {!vacio && (
-          <button type="button" className="boton-texto" onClick={() => setVerTabla((v) => !v)}>
-            {verTabla ? "Ver como gráfico" : "Ver como tabla"}
+          <button type="button" className="boton-texto grafico-alternar" aria-label={verTabla ? "Ver como gráfico" : "Ver como tabla"} onClick={() => setVerTabla((v) => !v)}>
+            {verTabla ? "Gráfico" : "Tabla"}
           </button>
         )}
       </div>
@@ -47,68 +112,209 @@ export function Figura({ titulo, tabla, vacio, ancho, children }: { titulo: stri
           </table>
         </div>
       ) : (
-        children
+        <div className="grafico-lienzo" aria-hidden="true">
+          {children}
+        </div>
       )}
     </figure>
   )
 }
 
+/** Contenedor que sigue el ancho de la tarjeta; `initialDimension` evita un primer render en 0 px. */
+function Lienzo({ alto, children }: { alto: number; children: ReactElement }) {
+  return (
+    <ResponsiveContainer width="100%" height={alto} initialDimension={{ width: 600, height: alto }}>
+      {children}
+    </ResponsiveContainer>
+  )
+}
+
+/** Etiqueta corta para el eje: las herramientas MCP pierden el prefijo (mcp__servidor__tool → servidor · tool). */
+function recortar(texto: string, max = 24) {
+  const corto = texto.replace(/^mcp__(.+?)__(.+)$/, "$1 · $2")
+  return corto.length > max ? `${corto.slice(0, max - 1)}…` : corto
+}
+
 export type FilaBarra = { etiqueta: string; valor: number; texto?: string; color?: string }
 
-/** Barras horizontales con la etiqueta y el valor escritos (la identidad no depende del color). */
-export function GraficoBarras({ filas }: { filas: FilaBarra[] }) {
-  const max = Math.max(...filas.map((f) => f.valor), 1)
+/** Barras horizontales: el eje Y nombra cada fila, el eje X dice qué se cuenta y el valor va escrito al final de la barra. */
+export function GraficoBarras({ filas, eje, formato = formatoNumero }: { filas: FilaBarra[]; eje: string; formato?: (n: number) => string }) {
+  const datos = filas.map((f) => ({ ...f, texto: f.texto ?? formato(f.valor) }))
   return (
-    <ol className="barras">
-      {filas.map((f) => (
-        <li key={f.etiqueta}>
-          <span className="barra-etiqueta" title={f.etiqueta}>
-            {f.etiqueta}
-          </span>
-          <span className="barra-pista" aria-hidden="true">
-            <span className="barra-relleno" style={{ width: `${(f.valor / max) * 100}%`, background: f.color }} />
-          </span>
-          <span className="barra-valor">{f.texto ?? f.valor}</span>
-        </li>
-      ))}
-    </ol>
+    <Lienzo alto={Math.max(140, datos.length * 30 + 60)}>
+      <BarChart data={datos} layout="vertical" margin={{ top: 4, right: Math.min(150, 16 + 7 * Math.max(...datos.map((d) => d.texto.length))), bottom: 24, left: 8 }} barCategoryGap={4}>
+        <CartesianGrid {...GRILLA} horizontal={false} />
+        <XAxis type="number" tick={TICK} tickFormatter={formato} allowDecimals={false} label={{ value: eje, position: "insideBottom", offset: -14, ...ROTULO }} />
+        <YAxis type="category" dataKey="etiqueta" width={150} tick={TICK} tickFormatter={(t: string) => recortar(t)} interval={0} />
+        <Tooltip {...TOOLTIP} formatter={(_v, _n, item) => [(item.payload as FilaBarra).texto, eje]} />
+        <Bar dataKey="valor" radius={[0, 4, 4, 0]} {...ANIMACION}>
+          {datos.map((f) => (
+            <Cell key={f.etiqueta} fill={f.color ?? "var(--agente-claude)"} />
+          ))}
+          {/* width grande: sin él Recharts parte la etiqueta en dos líneas. */}
+          <LabelList dataKey="texto" position="right" fill="var(--texto)" fontSize={12} width={200} />
+        </Bar>
+      </BarChart>
+    </Lienzo>
   )
 }
 
 export type SerieDef = { id: string; nombre: string; color: string }
+export type PuntoSerie = { t: string; valores: Record<string, number> }
 
-/** Valores por tramo de tiempo, apilados por serie (agente o tipo de token). */
-export function GraficoSerie({ puntos, series, formato = String }: { puntos: { t: string; valores: Record<string, number> }[]; series: SerieDef[]; formato?: (n: number) => string }) {
-  const total = (p: (typeof puntos)[number]) => series.reduce((n, s) => n + (p.valores[s.id] ?? 0), 0)
-  const max = Math.max(...puntos.map(total), 1)
-  const ancho = 12
-  const alto = 120
+const fechaHora = (t: number) => new Date(t).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+
+/**
+ * El servidor solo manda los tramos con actividad. Entre dos tramos separados agrega un 0 justo
+ * después del primero y otro justo antes del segundo, para que la línea baje a cero en el hueco
+ * en vez de unir los puntos como si hubiera habido actividad en el medio.
+ */
+function conHuecos(puntos: PuntoSerie[], pasoMin: number): { t: number; valores: Record<string, number> }[] {
+  const paso = pasoMin * 60_000
+  const resultado: { t: number; valores: Record<string, number> }[] = []
+  for (const p of puntos) {
+    const t = new Date(p.t).getTime()
+    const anterior = resultado.at(-1)?.t
+    if (anterior !== undefined && t - anterior > paso) {
+      resultado.push({ t: anterior + paso, valores: {} })
+      if (t - paso > anterior + paso) resultado.push({ t: t - paso, valores: {} })
+    }
+    resultado.push({ t, valores: p.valores })
+  }
+  return resultado
+}
+
+/**
+ * Valores por tramo de tiempo, una serie por agente o tipo de token.
+ * - "lineas": compara la tendencia de cada serie.
+ * - "area": áreas apiladas, la altura total es la suma de las series.
+ * - "barras": barras apiladas por tramo.
+ */
+export function GraficoSerie({ puntos, series, pasoMin, ejeY, tipo = "lineas", formato = formatoNumero }: { puntos: PuntoSerie[]; series: SerieDef[]; pasoMin: number; ejeY: string; tipo?: "lineas" | "area" | "barras"; formato?: (n: number) => string }) {
   const presentes = series.filter((s) => puntos.some((p) => p.valores[s.id]))
+  const datos = conHuecos(puntos, pasoMin).map((p) => ({ t: p.t, ...Object.fromEntries(presentes.map((s) => [s.id, p.valores[s.id] ?? 0])) }))
+  // Eje de tiempo real (no categorías): una hora sin actividad ocupa una hora en el gráfico.
+  const variosDias = datos.length > 1 && datos.at(-1)!.t - datos[0].t > 20 * 3_600_000
+  const formatoT = (t: number) => (variosDias ? fechaHora(t) : hora(new Date(t).toISOString()))
+  // Recharts reparte las marcas de un eje numérico en números "redondos", que en milisegundos no lo son: las calculamos.
+  const marcas = datos.length > 1 ? Array.from({ length: 6 }, (_, i) => datos[0].t + ((datos.at(-1)!.t - datos[0].t) * i) / 5) : datos.map((d) => d.t)
+  const comunes = (
+    <>
+      <CartesianGrid {...GRILLA} vertical={false} />
+      <XAxis
+        dataKey="t"
+        type="number"
+        scale="time"
+        domain={["dataMin", "dataMax"]}
+        padding={tipo === "barras" ? { left: 16, right: 16 } : undefined}
+        ticks={marcas}
+        tick={TICK}
+        tickFormatter={formatoT}
+        minTickGap={8}
+        label={{ value: variosDias ? "Fecha y hora" : "Hora", position: "insideBottom", offset: -14, ...ROTULO }}
+      />
+      <YAxis tick={TICK} tickFormatter={formato} width={64} allowDecimals={false} label={{ value: ejeY, angle: -90, position: "insideLeft", style: { textAnchor: "middle" }, ...ROTULO }} />
+      <Tooltip {...TOOLTIP} formatter={(v) => formato(Number(v))} labelFormatter={(t) => `Desde ${fechaHora(Number(t))}`} />
+      {/* Con una sola serie la leyenda sobra: el título ya la nombra. */}
+      {presentes.length > 1 && <Legend verticalAlign="top" height={28} iconType="circle" wrapperStyle={{ fontSize: 13, color: "var(--texto)" }} />}
+    </>
+  )
+  const margen = { top: 4, right: 16, bottom: 24, left: 8 }
   return (
-    <div className="serie">
-      <svg viewBox={`0 0 ${puntos.length * ancho} ${alto}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
-        {puntos.map((p, i) => {
-          let y = alto
-          return (
-            <g key={p.t}>
-              {series.map((s) => {
-                const n = p.valores[s.id] ?? 0
-                if (!n) return null
-                const h = (n / max) * (alto - 2)
-                y -= h
-                return <rect key={s.id} x={i * ancho + 1} y={y} width={ancho - 2} height={h} fill={s.color} stroke="var(--superficie)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-              })}
-            </g>
-          )
-        })}
-      </svg>
-      <div className="serie-ejes">
-        <span>{hora(puntos[0].t)}</span>
-        <span>máx. {formato(max)} por tramo</span>
-        <span>{hora(puntos.at(-1)!.t)}</span>
-      </div>
-      <Leyenda items={presentes.map((s) => ({ nombre: s.nombre, color: s.color }))} />
+    <Lienzo alto={260}>
+      {tipo === "barras" ? (
+        <BarChart data={datos} margin={margen}>
+          {comunes}
+          {presentes.map((s, i) => (
+            <Bar key={s.id} dataKey={s.id} name={s.nombre} stackId="total" fill={s.color} stroke="var(--superficie)" strokeWidth={1} radius={i === presentes.length - 1 ? [4, 4, 0, 0] : 0} {...ANIMACION} />
+          ))}
+        </BarChart>
+      ) : tipo === "area" ? (
+        <AreaChart data={datos} margin={margen}>
+          {comunes}
+          {presentes.map((s) => (
+            <Area key={s.id} type="monotone" dataKey={s.id} name={s.nombre} stackId="total" stroke={s.color} strokeWidth={2} fill={s.color} fillOpacity={0.35} {...ANIMACION} />
+          ))}
+        </AreaChart>
+      ) : (
+        <LineChart data={datos} margin={margen}>
+          {comunes}
+          {presentes.map((s) => (
+            <Line key={s.id} type="monotone" dataKey={s.id} name={s.nombre} stroke={s.color} strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} {...ANIMACION} />
+          ))}
+        </LineChart>
+      )}
+    </Lienzo>
+  )
+}
+
+export type Segmento = { nombre: string; valor: number; color: string }
+
+/** Torta (anillo) con el porcentaje escrito en cada porción y el total en el centro: muestra proporciones de un todo. */
+export function GraficoTorta({ segmentos, unidad, formato = formatoNumero, alto = 240 }: { segmentos: Segmento[]; unidad: string; formato?: (n: number) => string; alto?: number }) {
+  const total = segmentos.reduce((n, s) => n + s.valor, 0)
+  const pct = (v: number) => (total ? `${Math.round((v / total) * 100)} %` : "0 %")
+  return (
+    <Lienzo alto={alto}>
+      <PieChart>
+        <Pie
+          data={segmentos}
+          dataKey="valor"
+          nameKey="nombre"
+          innerRadius="50%"
+          outerRadius="78%"
+          paddingAngle={1}
+          stroke="var(--superficie)"
+          strokeWidth={2}
+          {...ANIMACION}
+        >
+          {segmentos.map((s) => (
+            <Cell key={s.nombre} fill={s.color} />
+          ))}
+        </Pie>
+        <text x="50%" y="50%" textAnchor="middle" dominantBaseline="central" fill="var(--texto)">
+          <tspan x="50%" dy="-0.5em" fontSize={18} fontWeight={700}>
+            {formato(total)}
+          </tspan>
+          <tspan x="50%" dy="1.3em" fontSize={11} fill="var(--texto-suave)">
+            {unidad}
+          </tspan>
+        </text>
+        <Tooltip {...TOOLTIP} formatter={(v, nombre) => [`${formato(Number(v))} ${unidad} (${pct(Number(v))})`, nombre]} />
+        <Legend iconType="circle" wrapperStyle={{ fontSize: 13, color: "var(--texto)" }} formatter={(nombre: string) => `${nombre} · ${pct(segmentos.find((s) => s.nombre === nombre)?.valor ?? 0)}`} />
+      </PieChart>
+    </Lienzo>
+  )
+}
+
+/** Una torta por grupo (por ejemplo, por agente) con los mismos colores: compara proporciones entre grupos. */
+export function TortasPorGrupo({ grupos, unidad }: { grupos: { nombre: string; segmentos: Segmento[] }[]; unidad: string }) {
+  return (
+    <div className="tortas">
+      {grupos.map((g) => (
+        <div key={g.nombre} className="torta">
+          <p className="torta-titulo">{g.nombre}</p>
+          <GraficoTorta segmentos={g.segmentos} unidad={unidad} alto={260} />
+        </div>
+      ))}
     </div>
+  )
+}
+
+/** Barras agrupadas p50 / p95 por tipo de acción: el eje Y es el tiempo que tarda una llamada. */
+export function GraficoDuraciones({ filas }: { filas: { kind: string; p50Ms: number; p95Ms: number }[] }) {
+  return (
+    <Lienzo alto={260}>
+      <BarChart data={filas} margin={{ top: 4, right: 16, bottom: 24, left: 8 }} barGap={2}>
+        <CartesianGrid {...GRILLA} vertical={false} />
+        <XAxis dataKey="kind" tick={TICK} interval={0} label={{ value: "Tipo de acción", position: "insideBottom", offset: -14, ...ROTULO }} />
+        <YAxis tick={TICK} tickFormatter={(ms: number) => duracion(ms)} width={64} label={{ value: "Duración", angle: -90, position: "insideLeft", style: { textAnchor: "middle" }, ...ROTULO }} />
+        <Tooltip {...TOOLTIP} formatter={(v) => duracion(Number(v))} />
+        <Legend verticalAlign="top" height={28} iconType="circle" wrapperStyle={{ fontSize: 13, color: "var(--texto)" }} />
+        <Bar dataKey="p50Ms" name="Mediana (p50)" fill="var(--kind-leer)" radius={[4, 4, 0, 0]} {...ANIMACION} />
+        <Bar dataKey="p95Ms" name="Peor caso habitual (p95)" fill="var(--kind-escribir)" radius={[4, 4, 0, 0]} {...ANIMACION} />
+      </BarChart>
+    </Lienzo>
   )
 }
 
@@ -136,79 +342,44 @@ export function Indicador({ etiqueta, valor, nota }: { etiqueta: string; valor: 
   )
 }
 
-export type Segmento = { nombre: string; valor: number; color: string }
-
-/** Una barra al 100 % por fila, partida en segmentos; la leyenda nombra cada segmento. */
-export function GraficoApilado({ filas }: { filas: { etiqueta: string; color: string; segmentos: Segmento[] }[] }) {
-  const nombres = new Map<string, string>()
-  for (const f of filas) for (const s of f.segmentos) nombres.set(s.nombre, s.color)
-  return (
-    <>
-      <ul className="apilado">
-        {filas.map((f) => {
-          const total = f.segmentos.reduce((n, s) => n + s.valor, 0)
-          return (
-            <li key={f.etiqueta}>
-              <span className="barra-etiqueta">
-                <span className="leyenda-color" style={{ background: f.color }} aria-hidden="true" />
-                {f.etiqueta}
-              </span>
-              <span className="apilado-barra" aria-hidden="true">
-                {f.segmentos.map((s) => (
-                  <span key={s.nombre} style={{ width: `${(s.valor / total) * 100}%`, background: s.color }} title={`${s.nombre}: ${s.valor}`} />
-                ))}
-              </span>
-              <span className="barra-valor">{total}</span>
-            </li>
-          )
-        })}
-      </ul>
-      <Leyenda items={[...nombres].map(([nombre, color]) => ({ nombre, color }))} />
-    </>
-  )
-}
-
 export type DatosLinea = { duracionMs: number; puntos: { t: number; tipo: "herramienta" | "prompt" | "fin"; kind?: string; falla?: boolean }[] }
 
-/** Una línea de tiempo con un carril por tipo de acción; los prompts cruzan todos los carriles y las fallas son marcas más altas. */
+/**
+ * Línea de tiempo de una sesión: eje X en segundos desde el inicio, eje Y con un carril por tipo de acción.
+ * Cada punto es una llamada a herramienta; las fallas van en rojo. Las líneas verticales marcan prompts (punteadas) y fines de turno (llenas).
+ */
 export function LineaDeTiempo({ datos }: { datos: DatosLinea }) {
-  const carriles = [...new Set(datos.puntos.flatMap((p) => (p.tipo === "herramienta" ? [p.kind ?? "otro"] : [])))]
-  const ancho = 1000
-  const alto = 22
-  const x = (t: number) => (datos.duracionMs === 0 ? 0 : (t / datos.duracionMs) * ancho)
+  const herramientas = datos.puntos.filter((p) => p.tipo === "herramienta")
+  const carriles = [...new Set(herramientas.map((p) => p.kind ?? "otro"))]
+  const punto = (p: DatosLinea["puntos"][number]) => ({ s: Math.round(p.t / 100) / 10, carril: carriles.indexOf(p.kind ?? "otro"), kind: p.kind ?? "otro" })
+  const fallas = herramientas.filter((p) => p.falla).map(punto)
+  const fin = Math.max(1, Math.ceil(datos.duracionMs / 1000))
   return (
-    <div className="tabla-scroll">
-      <div className="linea">
-        <ul className="linea-carriles" aria-hidden="true">
+    <Lienzo alto={Math.max(180, carriles.length * 36 + 90)}>
+        <ScatterChart margin={{ top: 8, right: 16, bottom: 24, left: 8 }}>
+          <CartesianGrid {...GRILLA} />
+          <XAxis
+            type="number"
+            dataKey="s"
+            domain={[0, fin]}
+            ticks={Array.from({ length: 6 }, (_, i) => Math.round((fin * i) / 5))}
+            tickFormatter={(s: number) => (s === 0 ? "0" : duracion(s * 1000))}
+            tick={TICK}
+            label={{ value: "Tiempo desde el inicio de la sesión", position: "insideBottom", offset: -14, ...ROTULO }}
+          />
+          <YAxis type="number" dataKey="carril" domain={[-0.5, carriles.length - 0.5]} ticks={carriles.map((_, i) => i)} tickFormatter={(i: number) => carriles[i] ?? ""} tick={TICK} width={80} reversed />
+          <Legend verticalAlign="top" height={28} iconType="circle" wrapperStyle={{ fontSize: 13, color: "var(--texto)" }} />
+          <Tooltip {...TOOLTIP} cursor={{ strokeDasharray: "3 3" }} formatter={(v, nombre) => (nombre === "s" ? [duracion(Number(v) * 1000), "Desde el inicio"] : [carriles[Number(v)] ?? v, "Tipo"])} />
+          {datos.puntos
+            .filter((p) => p.tipo !== "herramienta")
+            .map((p, i) => (
+              <ReferenceLine key={i} x={Math.round(p.t / 100) / 10} stroke="var(--texto)" strokeWidth={1.5} strokeDasharray={p.tipo === "prompt" ? "5 4" : undefined} />
+            ))}
           {carriles.map((c) => (
-            <li key={c} style={{ height: alto }}>
-              <span className="leyenda-color" style={{ background: colorKind(c) }} />
-              {c}
-            </li>
+            <Scatter key={c} name={c} data={herramientas.filter((p) => !p.falla && (p.kind ?? "otro") === c).map(punto)} fill={colorKind(c)} shape="circle" {...ANIMACION} />
           ))}
-        </ul>
-        <svg viewBox={`0 0 ${ancho} ${Math.max(carriles.length, 1) * alto}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
-          {carriles.map((c, i) => (
-            <line key={c} x1="0" x2={ancho} y1={i * alto + alto} y2={i * alto + alto} stroke="var(--linea-suave)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-          ))}
-          {datos.puntos.map((p, i) => {
-            if (p.tipo === "herramienta") {
-              const fila = carriles.indexOf(p.kind ?? "otro")
-              return (
-                <line key={i} x1={x(p.t)} x2={x(p.t)} y1={fila * alto + (p.falla ? 1 : 5)} y2={fila * alto + alto - 3} stroke={p.falla ? "var(--error)" : colorKind(p.kind ?? "otro")} strokeWidth={p.falla ? 4 : 3} vectorEffect="non-scaling-stroke" />
-              )
-            }
-            return (
-              <line key={i} x1={x(p.t)} x2={x(p.t)} y1="0" y2={carriles.length * alto} stroke="var(--texto)" strokeWidth="1.5" strokeDasharray={p.tipo === "prompt" ? "4 3" : undefined} vectorEffect="non-scaling-stroke" />
-            )
-          })}
-        </svg>
-      </div>
-      <p className="serie-ejes">
-        <span>0 s</span>
-        <span>Línea punteada: prompt · línea llena: fin de turno · marca roja alta: falla</span>
-        <span>{Math.round(datos.duracionMs / 1000)} s</span>
-      </p>
-    </div>
+          {fallas.length > 0 && <Scatter name="falla" data={fallas} fill="var(--error)" shape="cross" {...ANIMACION} />}
+        </ScatterChart>
+    </Lienzo>
   )
 }
