@@ -1,0 +1,162 @@
+# Ejercicio 1 — Respuestas
+
+**Nombre:** _Sin completar en Mi perfil._
+**¿Intervinieron durante la tarea?** _Sin completar en Mi perfil._
+
+## Parte A — Lo que pasó
+
+### 1. El ciclo
+
+**1.1** ¿Cuántas llamadas a herramientas hizo el agente en total?
+
+━━━ Sesión cline · conv_1793460590634_xx9cdx9
+Inicio: 31/10/2026, 12:29:54 p.m.  ·  Duración: 429 s
+Turnos: 1  ·  Llamadas a herramientas: 46  ·  Eventos registrados: 92
+
+Por tipo de acción:
+    33  ejecutar
+     8  leer
+     5  escribir
+
+**1.2** ¿Qué herramienta usó más?
+
+Herramientas usadas:
+    33  run_commands
+     8  read_files
+     5  editor
+
+Salida que volvió al modelo (caracteres, por herramienta):
+     81846  run_commands
+     75698  read_files
+
+### 2. Explorar antes de actuar
+
+**2.1** ¿Cuántas herramientas usó **antes** de su primera edición de archivo?
+
+Se ejecutaron 27 comandos y se leyeron 7 archivos antes de la primera edicion.
+
+**2.2** ¿Qué archivos leyó?
+
+Archivos leídos:
+     2  server/domain
+     2  server/routes
+     2  server/services
+     2  server/repositories
+     2  server/services/sesiones.ts
+     1  [{"path": "C://Users//Alumno//Desktop//utn-genai-talk-exercises//.specify//memory//constitution.md"}, {"path": "C://Users//Alumno//Desktop//utn-genai-talk-exercises//shared/types.ts"}, {"path": "C://Users//Alumno//Desktop//utn-genai-talk-exercises//specs/001-reservar-sesion"}, {"path": "C://Users//Alumno//Desktop//utn-genai-talk-exercises//server"}, {"path": "C://Users//Alumno//Desktop//utn-genai-talk-exercises//tests"}
+     1  .specify/memory/constitution.md
+     1  shared/types.ts
+     1  specs/001-reservar-sesion
+     1  server/app.ts
+     1  server/config.ts
+     1  server/index.ts
+     1  specs/001-reservar-sesion/spec.md
+     1  specs/001-reservar-sesion/plan.md
+     1  specs/001-reservar-sesion/data-model.md
+     1  specs/001-reservar-sesion/tasks.md
+     1  server/domain/horarios.ts
+     1  server/domain/validaciones.ts
+     1  server/services/errores.ts
+     1  server/routes/sesiones.ts
+     1  server/repositories/index.ts
+     1  server/repositories/json-store.ts
+     1  tests/server/api/sesiones.test.ts
+     1  tests/server/api/helpers.ts
+     1  tests/server/domain/horarios.test.ts
+     1  tests/server/domain/validaciones.test.ts
+     1  package.json
+     1  server/domain/fechas.ts
+
+**2.3** ¿Leyó la constitution que menciona el prompt?
+
+Si, en el log anterior se ve que despues de leer los archivos contenidos en la carpeta server/ se leyo la constitucion.
+
+### 3. Comandos de terminal
+
+**3.1** Listá todos los comandos que ejecutó.
+
+Comandos de terminal:
+  $ ls -la "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/server/" && echo "---SERVER CONTENT---" && ls -la "C:/Users/Alumno/Desktop/utn-gena…
+  $ ls -la "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/server/"
+  $ ls -la "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/tests/"
+  $ ls -la "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/specs/001-reservar-sesion/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/server/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/tests/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/specs/001-reservar-sesion/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/tests/server/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/server/domain/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/server/services/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/server/routes/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/server/repositories/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/tests/server/api/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/tests/server/domain/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/tests/server/hooks/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/data/"
+  $ dir "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/" /AD
+  $ test -d "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/node_modules" && echo "node_modules EXISTE" || echo "node_modules NO EXISTE"
+  $ ls "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/vitest.config.ts" "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/eslint.config.js" "…
+  $ test -d "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/node_modules"
+  $ test -f "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/vitest.config.ts"
+  $ test -f "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/eslint.config.js"
+  $ test -f "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/tsconfig.json"
+  $ if (Test-Path "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/node_modules") { "node_modules EXISTE" } else { "node_modules NO EXISTE" }
+  $ if (Test-Path "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/vitest.config.ts") { "vitest.config.ts EXISTE" } else { "vitest.config.ts NO…
+  $ if (Test-Path "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/eslint.config.js") { "eslint.config.js EXISTE" } else { "eslint.config.js NO…
+  $ if (Test-Path "C:/Users/Alumno/Desktop/utn-genai-talk-exercises/tsconfig.json") { "tsconfig.json EXISTE" } else { "tsconfig.json NO EXISTE" …
+  $ cd "C:/Users/Alumno/Desktop/utn-genai-talk-exercises" && npx vitest run 2>&1
+  $ npx vitest run 2>&1
+  $ npx eslint . 2>&1
+  $ npx tsc --noEmit 2>&1
+  $ git -C "C:/Users/Alumno/Desktop/utn-genai-talk-exercises" status --short 2>&1 | head -20
+  $ git -C "C:/Users/Alumno/Desktop/utn-genai-talk-exercises" status --short 2>&1
+
+**3.2** ¿Alguno no lo pediste vos? ¿Alguno te generó dudas al aprobarlo?
+
+Ninguno me genero duda, fueron bastante explicitos.
+
+**3.3** Clasificá cada uno con el semáforo de la charla: verde (lectura), amarillo (validación local) o rojo (escritura o producción).
+
+null
+
+### 4. Errores y reintentos
+
+**4.1** ¿Alguna herramienta falló (`PostToolUseFailure` o un `output` con error)?
+
+No, ninguna herramienta fallo.
+
+**4.2** ¿Qué hizo el agente después?
+
+Despues de finalizar la edicion, el agente envio un resumen sobre todos los cambios realizados y los testeos hechos para corroborar el funcionamiento.
+
+## Parte B — Lo que pensás
+
+### 5. Contexto
+
+**5.1** Sumá aproximadamente el tamaño de las salidas: ¿qué herramienta "llenó" más la ventana?
+
+Salida que volvió al modelo (caracteres, por herramienta):
+     81846  run_commands
+     75698  read_files
+
+run_commands fue la que mas lleno la ventana.
+
+**5.2** ¿Había lecturas que se podían evitar? Por ejemplo: ¿leyó `data/sesiones.json` entero para entender el formato, en lugar de `shared/types.ts`?
+
+No, hizo las llamadas necesarias para la resolución.
+
+### 6. Hooks como control
+
+Propongo un hook de tipo bloqueo (veto) en el evento PreToolUse.
+Qué bloquearía
+1. Que nadie edite archivos dentro de data/ (incluido data/sesiones.json, que la constitución dice que no se versiona y se genera con npm run seed).
+2. Que un archivo de server/domain/ importe node:fs o express (el dominio debe ser puro: sin IO, sin Express, para que se pueda testear sin levantar el servidor).
+
+### 7. Riesgos
+
+Los hooks son poderosos para gobernanza (como el que propusiste para data/ y server/domain/), pero deben ser ligeros, preventivos (PreToolUse), con timeouts, sin PII en logs, con limpieza de recursos, y con mensajes de error claros para que el agente entienda por qué se bloqueó una acción. Lo ideal es que validen reglas estáticas (imports, rutas) y deleguen lo pesado (tests completos, build) a pasos separados y opcionales.
+
+## Para cerrar
+
+**Modelo:** Nemotron 3.5 Super VL
+
+**Agente:** Cline
