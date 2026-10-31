@@ -5,7 +5,7 @@
 // o que logs:limpiar movió).
 import { watch, type FSWatcher } from "node:fs"
 import type { AgenteLog, FiltrosMetricas, MetricasAgentes, OrigenDisponible, OrigenLogs, TablaPrecios } from "../../tipos"
-import { calcularMetricas } from "../domain/metricas-agentes"
+import { calcularMetricas, modeloDeLog } from "../domain/metricas-agentes"
 import type { LectorLogs, RepositorioLogs } from "../repositories/logs-agentes"
 import type { SesionDeLog, crearRepositorioTranscripciones } from "../repositories/transcripciones-agentes"
 import { ErrorDeNegocio } from "../../../server/services/errores"
@@ -56,7 +56,7 @@ export function crearServicioMetricas(
       if (!e.session || !["claude", "codex", "cline"].includes(String(e.agent))) continue
       const agente = e.agent as AgenteLog
       const previa = sesiones.get(`${agente}:${e.session}`)
-      sesiones.set(`${agente}:${e.session}`, { agente, sesion: e.session, transcriptPath: e.transcriptPath ?? previa?.transcriptPath, modelo: e.model ?? previa?.modelo })
+      sesiones.set(`${agente}:${e.session}`, { agente, sesion: e.session, transcriptPath: e.transcriptPath ?? previa?.transcriptPath, modelo: modeloDeLog(e.model) ?? previa?.modelo })
     }
     return [...sesiones.values()]
   }
