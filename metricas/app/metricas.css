@@ -1,5 +1,4 @@
-/* Dashboard de Métricas: solo lo que no está en client/src/styles.css (usa sus variables).
-   Estilo "Viñeta" liviano: trazo y sombra corta en los paneles, sin recargar los datos. */
+/* Dashboard de Métricas: solo lo que no está en client/src/styles.css (usa sus variables). */
 
 .metricas {
   /* Paleta categórica validada (dataviz): tres agentes con los primeros slots, tipos de acción con los siguientes. */
@@ -77,9 +76,16 @@
 
 .indicadores {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  /* 8 indicadores: 4 por fila en escritorio, 2 en celular; nunca uno suelto en la última fila. */
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.75rem;
   margin-bottom: 1.25rem;
+}
+
+@media (max-width: 40rem) {
+  .indicadores {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .indicador {
@@ -101,9 +107,11 @@
 
 .indicador-valor {
   font-family: var(--fuente-titulos);
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: 1.9rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
   line-height: 1.1;
+  text-wrap: balance;
 }
 
 .indicador-nota {
@@ -116,7 +124,7 @@
   padding: 0.5rem 0.75rem;
   border: 2px solid var(--linea);
   border-radius: var(--radio-chico);
-  background: color-mix(in srgb, var(--resaltador) 55%, var(--superficie));
+  background: color-mix(in srgb, var(--resaltador) 40%, var(--superficie));
   box-shadow: var(--sombra-chica);
   font-family: var(--fuente-codigo);
   font-size: 0.85rem;
@@ -131,11 +139,11 @@
 
 .grafico {
   margin: 0;
-  padding: 0.75rem 1rem 1rem;
+  padding: 0.85rem 1.1rem 1rem;
   border: var(--borde);
   border-radius: var(--radio);
   background: var(--superficie);
-  box-shadow: var(--sombra-chica);
+  box-shadow: var(--sombra);
   min-width: 0;
 }
 
@@ -146,15 +154,103 @@
 .grafico-cabecera {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 0.25rem 1rem;
   margin-bottom: 0.75rem;
 }
 
+.grafico-titulo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Descripción a demanda (globo de diálogo en tinta): el gráfico se lee sin texto alrededor y el detalle está a un hover/foco. */
+.info-boton {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  padding: 0;
+  border: 2px solid var(--linea);
+  border-radius: 50%;
+  background: var(--resaltador);
+  color: var(--texto);
+  font: italic 700 0.7rem/1 var(--fuente-titulos);
+  cursor: help;
+}
+
+/* El círculo mide 18 px; el área táctil se agranda a 32 px sin cambiar el dibujo. */
+.info-boton::before {
+  content: "";
+  position: absolute;
+  inset: -0.4rem;
+}
+
+.info-boton:focus-visible,
+.boton-texto.grafico-alternar:focus-visible {
+  outline: 2px solid var(--acento-texto);
+  outline-offset: 2px;
+}
+
+.info-boton:hover,
+.info-boton:focus-visible {
+  box-shadow: 2px 2px 0 var(--linea);
+}
+
+.info-texto {
+  position: absolute;
+  top: calc(100% + 0.65rem);
+  left: 0;
+  z-index: 10;
+  width: max-content;
+  max-width: min(18rem, 80vw);
+  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+  background: var(--texto);
+  box-shadow: 3px 3px 0 var(--acento);
+  color: var(--invertido);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.info-texto::before {
+  content: "";
+  position: absolute;
+  top: -0.45rem;
+  left: 1rem;
+  border: 0.5rem solid transparent;
+  border-top: 0;
+  border-bottom-color: var(--texto);
+}
+
+.info-texto[hidden] {
+  display: none;
+}
+
+/* Alternar gráfico/tabla: acción secundaria, no compite con el título. */
+.boton-texto.grafico-alternar {
+  padding: 0.1rem 0.6rem;
+  border: 2px solid var(--linea);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 var(--linea);
+  color: var(--texto);
+  font-size: 0.75rem;
+  text-decoration: none;
+}
+
+.boton-texto.grafico-alternar:hover {
+  background: color-mix(in srgb, var(--resaltador) 35%, var(--superficie));
+}
+
 .grafico figcaption {
   font-family: var(--fuente-titulos);
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 800;
 }
 
 .boton-texto {
@@ -174,62 +270,28 @@
   color: var(--texto-suave);
 }
 
-.barras {
+.grafico-lienzo {
+  min-width: 0;
+}
+
+.tortas {
   display: grid;
-  gap: 0.35rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+
+.torta-titulo {
   margin: 0;
-  padding: 0;
-  list-style: none;
+  font-weight: 700;
+  text-align: center;
 }
 
-.barras li {
-  display: grid;
-  grid-template-columns: minmax(6rem, 40%) 1fr auto;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-}
-
-.barra-etiqueta {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--fuente-codigo);
-}
-
-.barra-pista {
-  height: 0.9rem;
-  border-radius: 0 4px 4px 0;
-  background: var(--grilla);
-}
-
-.barra-relleno {
-  display: block;
-  height: 100%;
-  min-width: 2px;
-  border-radius: 0 4px 4px 0;
-}
-
-.barra-valor {
-  min-width: 2ch;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-}
-
-.serie svg {
-  display: block;
-  width: 100%;
-  height: 8rem;
-}
-
-.serie-ejes {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-  font-size: 0.75rem;
+.metricas-conexion .metricas-actualizado {
   color: var(--texto-suave);
+}
+
+.leyenda-texto {
+  color: var(--texto);
 }
 
 .leyenda {
@@ -267,6 +329,10 @@
   border-bottom: 1px solid var(--linea-suave);
   text-align: left;
   white-space: nowrap;
+}
+
+.metricas td {
+  font-variant-numeric: tabular-nums;
 }
 
 .metricas thead th {
@@ -314,65 +380,13 @@
   overflow-wrap: anywhere;
 }
 
-.apilado {
-  display: grid;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.apilado li {
-  display: grid;
-  grid-template-columns: minmax(5rem, 25%) 1fr auto;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-}
-
-.apilado-barra {
-  display: flex;
-  gap: 2px;
-  height: 1.1rem;
-}
-
-.apilado-barra span {
-  min-width: 2px;
-  border-radius: 2px;
-}
-
-.linea {
-  display: grid;
-  grid-template-columns: auto minmax(30rem, 1fr);
-  gap: 0.5rem;
-}
-
-.linea-carriles {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.75rem;
-}
-
-.linea-carriles li {
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-}
-
-.linea svg {
-  display: block;
-  width: 100%;
-  background: var(--grilla);
-}
-
 /* Aviso arriba de todo: el tablero se usa después de aprender a leer el log en el ejercicio 1. */
 .metricas-aviso {
   margin: 0 0 1rem;
   padding: 0.75rem 1rem;
   border: 2px solid var(--linea);
   border-radius: var(--radio-chico);
-  background: color-mix(in srgb, var(--resaltador) 55%, var(--superficie));
+  background: color-mix(in srgb, var(--resaltador) 40%, var(--superficie));
   box-shadow: var(--sombra-chica);
   font-size: 0.9375rem;
 }

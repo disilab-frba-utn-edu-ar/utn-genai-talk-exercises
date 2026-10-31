@@ -44,9 +44,9 @@ export function simularServidor(snapshot: MetricasAgentes | null) {
   return f
 }
 
-export function renderPagina() {
+export function renderPagina(ruta = "/metricas") {
   return render(
-    <MemoryRouter initialEntries={["/metricas"]}>
+    <MemoryRouter initialEntries={[ruta]}>
       <App />
     </MemoryRouter>,
   )
