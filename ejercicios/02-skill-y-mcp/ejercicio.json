@@ -404,7 +404,6 @@
       "titulo": "El tablero de Métricas",
       "archivo": "metricas",
       "insertarDespuesDe": "> vas a usar para comprobar que la skill y el MCP se activaron.",
-      "soloSiTerminado": "01-observabilidad-con-hooks",
       "markdown": [
         "### Antes de empezar: el tablero de Métricas",
         "",

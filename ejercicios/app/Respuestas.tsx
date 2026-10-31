@@ -19,7 +19,7 @@ import {
 import ConsignaPorEtapas from "./Etapas"
 import Markdown from "./Markdown"
 import { conEjercicio, delEjercicio, type Perfil } from "./perfil"
-import { HABILITA_METRICAS, marcarTerminado, publicarRespondidas } from "./progreso"
+import { marcarTerminado, publicarRespondidas } from "./progreso"
 import { ID_SDD, tituloPrincipal, useTablero } from "./tablero"
 
 type Estado = { tipo: "editando" } | { tipo: "guardando" } | { tipo: "guardado"; hora: string } | { tipo: "error"; mensaje: string }
@@ -81,7 +81,7 @@ function Editor({ ejercicio, inicial, perfil, consigna, historia }: PropsEditor)
   const conDatosGenerales = plantillaConCampos(ejercicio) || inicial.general.trim() !== ejercicio.plantillaRespuestas.join("\n").trim()
   const respondidas = contarRespondidas(ejercicio, datos.porPregunta)
   const siguiente = siguienteDe(ejercicio)
-  const descripcionTerminar = `Guarda tus respuestas${ejercicio.id === HABILITA_METRICAS ? ", habilita Métricas" : ""} y ${
+  const descripcionTerminar = `Guarda tus respuestas y ${
     siguiente ? `pasa al ejercicio ${siguiente.numero}.` : ejercicio.id === ID_SDD ? "cierra la actividad con Rocco." : "vuelve al índice."
   }`
 
