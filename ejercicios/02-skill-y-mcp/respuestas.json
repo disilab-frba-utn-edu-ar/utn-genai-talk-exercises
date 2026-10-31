@@ -1,0 +1,71 @@
+{
+  "ejercicio": "02-skill-y-mcp",
+  "guardado": "2026-10-31T15:38:06.114Z",
+  "general": [
+    "# Ejercicio 2 — Respuestas",
+    "",
+    "**Intentos hasta que la skill se disparó sola:** 1 (session 2f38c78c-631e-47a3-8abb-24ec90814be1)"
+  ],
+  "respuestas": {
+    "1.1": [
+      "description: Agrega un endpoint nuevo a la API de Express de este repo (ruta en server/routes, servicio, dominio, tipos compartidos y tests con supertest), respetando la constitution. Usala cuando pidan crear, agregar o exponer un endpoint, una ruta, un handler o un recurso nuevo bajo /api."
+    ],
+    "1.2": [
+      "Una sola versión. Se disparó sola en la primera prueba, en la sesión 2f38c78c-631e-47a3-8abb-24ec90814be1. En el prompt no nombré la skill. Evidencia (npm run logs:resumen): \"Skills activadas o leídas: nuevo-endpoint GET /api/sesiones/:id — detalle de una sesión por id; 404 si no existe.\""
+    ],
+    "1.3": [
+      "La description no cambió: con la primera ya se disparó. Lo que sí cambié antes de probar fue el cuerpo (el criterio): pasé de un borrador corto a cubrir los 7 puntos pedidos (preguntas previas, capas, contrato de API, convenciones del dominio, privacidad, TDD con supertest y casos borde). Además, en una sesión nueva le pregunté \"¿Cuándo usarías la skill nuevo-endpoint?\" y la respuesta coincidió con lo que buscaba (crear/agregar/exponer endpoints, rutas o handlers bajo /api), así que no hizo falta ajustarla."
+    ],
+    "2.1": [
+      "Antes de leer código. En npm run logs:timeline, dentro del turno 1, mi prompt entra en +523s y la línea \"skill\" (nuevo-endpoint) aparece en +534s, antes del primer \"ejecutar\" (cat .specify/memory/constitution.md shared/types.ts ...) en +539s. Es lo primero que hizo: decidió cargarla solo a partir de la description, sin haber mirado el código todavía, y después leyó la constitution y los tipos como pedía la skill."
+    ],
+    "3.1": [
+      "1) Vista pública explícita (privacidad, principio IV). En server/services/sesiones.ts, la función aSesionPublica tenía:",
+      "   const { contactoNombre, contactoEmail, ...publica } = sesion",
+      "y la reemplazó por un objeto que elige los campos uno por uno (id, mentoraId, tipoAsesoriaId, colectivoId, proyecto, fecha, horaInicio, horaFin, estado), tal como pide la skill (\"no hagas { ...sesion }\"). Además agregó el test \"no incluye los datos de contacto del colectivo (Principio IV)\", que verifica que contactoNombre y contactoEmail no están en la respuesta.",
+      "",
+      "2) TDD con supertest (principio I). En logs:timeline: editó tests/server/api/sesiones.test.ts en +559s, corrió vitest en +561s (\"rojo: 2 falló · 15 pasaron\"), recién después implementó repositorio (+575s), servicio y ruta (+582s), y cerró con npm test + lint + typecheck en +583s (\"verde: 388 pasaron\").",
+      "",
+      "También respetó las capas: buscar(id) en server/repositories/index.ts, obtener(id) en server/services/sesiones.ts (lanza noEncontrado) y la ruta en server/routes/sesiones.ts solo hace res.json(sesiones.obtener(req.params.id)), sin acceder a repositorios. Y cubrió el caso borde: 404 para un id inexistente y para uno mal formado (\"no-es-un-uuid\")."
+    ],
+    "3.2": [
+      "Ignoró \"Antes de escribir, preguntá\": no me hizo ninguna pregunta. Evidencia: logs:resumen muestra \"Turnos: 2\", que son solo mis dos prompts (el endpoint y el navegador); si hubiera preguntado y yo hubiera respondido, habría más turnos. Decidió solo (por ejemplo, excluir los datos de contacto).",
+      "Creo que pasó porque la regla era condicional: decía \"Si el pedido no lo aclara, preguntale...\". El pedido traía ruta y caso de error, así que el agente juzgó que era claro. Si quiero que pregunte siempre, la regla tiene que ser incondicional."
+    ],
+    "4.2": [
+      "No conviene tenerlos todos conectados siempre. Cada MCP suma nombres y descripciones de herramientas al contexto, aumenta la chance de que el modelo elija una herramienta equivocada y amplía lo que el agente puede hacer (más riesgo). En el log se ve que Claude Code mitiga parte del costo: en +975s aparece \"buscar select:mcp__playwright__browser_navigate,mcp__playwright__browser_snapshot,...\" (ToolSearch, 1022 caracteres), y recién en +979s la primera llamada MCP. O sea, cargó las definiciones de las herramientas de Playwright cuando las necesitó, no desde el principio. Aun así, lo razonable es conectar solo los MCP que la tarea necesita."
+    ],
+    "4.1": [
+      "El servidor playwright expone 25 herramientas según /mcp. En esta sesión el agente usó 11 distintas, con 31 llamadas en total (logs:resumen, \"Por tipo de acción: 31 mcp\")."
+    ],
+    "5.1": [
+      "No reportó un problema real nuevo. Su conclusión final (logs:timeline, cierre del turno 2): \"Reservé la sesión desde el navegador visible y quedó guardada con los datos correctos. Ninguna respuesta de la API incluye el email de una mentora.\"",
+      "Lo que revisó, según el log: antes de abrir el navegador comprobó con curl que la web y la API respondían (+966s) y que el endpoint nuevo devolvía 404 para un id inexistente (+972s). Después hizo el flujo con Playwright, revisó las requests de red (browser_network_requests / browser_network_request) buscando datos privados, los errores de consola (browser_console_messages) y la pantalla a 375 px de ancho (leyó mentora-375.png en +1152s)."
+    ],
+    "5.2": [
+      "En su mensaje final no reportó nada que no haya podido verificar. Desde el log, lo que quedó fuera de su alcance: que alguien reciba un aviso real de la reserva (no hay envío de emails para probar), la accesibilidad con un lector de pantalla real (solo vio snapshots y una captura a 375 px) y el comportamiento con varios usuarios reservando el mismo horario al mismo tiempo."
+    ],
+    "6.1": [
+      "11 herramientas distintas, 31 llamadas (logs:resumen, sección \"Herramientas MCP\"):",
+      "browser_snapshot 8, browser_click 6, browser_run_code_unsafe 5, browser_evaluate 3, browser_navigate 2, browser_fill_form 2, browser_press_key 1, browser_take_screenshot 1, browser_network_requests 1, browser_network_request 1, browser_console_messages 1."
+    ],
+    "6.2": [
+      "Entre las del MCP, browser_snapshot: 25.908 caracteres en 8 llamadas (es el árbol de la página que lee el modelo). Pero lo que más contexto consumió en toda la sesión fue Read, con 257.805 caracteres, por leer dos imágenes PNG (mentora-375.png y captura-confirmacion.png). Las capturas cuestan muchísimo más contexto que los snapshots. También me llamó la atención browser_run_code_unsafe (5 llamadas): ejecuta código arbitrario en el navegador y, en auto mode, no lo aprobé a mano."
+    ],
+    "7.1": [
+      "Una skill \"verificar-flujo-reserva\": que el agente recorra con Playwright MCP un flujo de la app (por ejemplo, reservar una sesión) y lo compare contra los escenarios de su spec en specs/. Usa lo aprendido en este log: preferir snapshots a capturas (las imágenes llenaron el contexto), revisar la red para que no se filtren datos de contacto, probar a 375 px y dejar los datos limpios al final."
+    ],
+    "7.2": [
+      "---",
+      "name: verificar-flujo-reserva",
+      "description: Verifica en el navegador, con Playwright MCP, un flujo de la app (por ejemplo, reservar una sesión) contra los escenarios de su spec. Usala cuando pidan probar, verificar o recorrer un flujo en el navegador o validar una pantalla de punta a punta.",
+      "---",
+      "- Con npm run dev corriendo, navegá a http://127.0.0.1:5173 y recorré el flujo paso a paso según los escenarios de specs/.",
+      "- Preferí browser_snapshot a capturas: las imágenes llenan el contexto. Como máximo, una captura final.",
+      "- Revisá las requests de red: ninguna respuesta puede traer el contacto de la mentora (principio IV).",
+      "- Repetí el flujo a 375 px de ancho (principio VII).",
+      "- No uses browser_run_code_unsafe salvo que no haya otra herramienta.",
+      "- Al terminar, corré npm run seed y reportá qué escenario pasó, cuál falló y qué no pudiste verificar."
+    ]
+  }
+}
