@@ -19,7 +19,7 @@ function renderApp(ruta: string) {
 }
 
 describe("Navegación principal", () => {
-  it.each(["/", "/ejercicios", "/configurar-entorno", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
+  it.each(["/", "/ejercicios", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
     "%s: el link a Métricas aparece recién cuando se terminó el ejercicio 1",
     async (ruta) => {
       renderApp(ruta)
@@ -31,18 +31,18 @@ describe("Navegación principal", () => {
     },
   )
 
-  it.each(["/", "/ejercicios", "/configurar-entorno", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
-    "%s: el encabezado tiene los links a Ejercicios y Configurar entorno",
+  it.each(["/", "/ejercicios", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
+    "%s: el encabezado tiene los links a Mentoras y Ejercicios, sin Configurar entorno",
     async (ruta) => {
       renderApp(ruta)
       const nav = await screen.findByRole("navigation", { name: "Principal" })
       expect(within(nav).getByRole("link", { name: "Ejercicios" })).toHaveAttribute("href", "/ejercicios")
-      expect(within(nav).getByRole("link", { name: "Configurar entorno" })).toHaveAttribute("href", "/configurar-entorno")
+      expect(within(nav).queryByRole("link", { name: "Configurar entorno" })).not.toBeInTheDocument()
       expect(within(nav).getByRole("link", { name: "Mentoras" })).toHaveAttribute("href", "/")
     },
   )
 
-  it.each(["/", "/ejercicios", "/configurar-entorno", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
+  it.each(["/", "/ejercicios", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
     "%s: el encabezado enlaza a la UTN FRBA en una pestaña nueva",
     async (ruta) => {
       renderApp(ruta)
@@ -55,19 +55,17 @@ describe("Navegación principal", () => {
   )
 
   it("marca la sección actual", async () => {
-    renderApp("/configurar-entorno")
+    renderApp("/ejercicios")
     const nav = await screen.findByRole("navigation", { name: "Principal" })
-    expect(within(nav).getByRole("link", { name: "Configurar entorno" })).toHaveAttribute("aria-current", "page")
-    expect(within(nav).getByRole("link", { name: "Ejercicios" })).not.toHaveAttribute("aria-current")
+    expect(within(nav).getByRole("link", { name: "Ejercicios" })).toHaveAttribute("aria-current", "page")
+    expect(within(nav).getByRole("link", { name: "Mentoras" })).not.toHaveAttribute("aria-current")
   })
 
-  it("desde el inicio se llega a Ejercicios y a Configurar entorno", async () => {
+  it("desde el inicio se llega a Ejercicios", async () => {
     renderApp("/")
     const nav = await screen.findByRole("navigation", { name: "Principal" })
     await userEvent.click(within(nav).getByRole("link", { name: "Ejercicios" }))
     expect(await screen.findByRole("heading", { level: 1, name: "Ejercicios" })).toBeInTheDocument()
-    await userEvent.click(within(nav).getByRole("link", { name: "Configurar entorno" }))
-    expect(await screen.findByRole("heading", { level: 1, name: setup.titulo })).toBeInTheDocument()
   })
 })
 
@@ -93,72 +91,21 @@ describe("Ejercicios (índice)", () => {
     expect(screen.queryByText(/Se habilita al terminar/)).not.toBeInTheDocument()
   })
 
-  it("enlaza a la guía de setup desde la introducción", async () => {
+  it("los ejercicios terminados llevan el tilde y los demás no", async () => {
+    localStorage.setItem("ejercicios:terminados", JSON.stringify([ejercicios[0].id]))
     renderApp("/ejercicios")
-    const enlaces = await screen.findAllByRole("link", { name: "Configurar entorno" })
-    expect(enlaces.some((a) => a.getAttribute("href") === "/configurar-entorno" && !a.closest("nav"))).toBe(true)
-  })
-})
-
-describe("Configurar entorno", () => {
-  it("muestra los pasos en orden con los comandos de Windows", async () => {
-    renderApp("/configurar-entorno")
-    expect(await screen.findByRole("heading", { level: 1, name: setup.titulo })).toBeInTheDocument()
-
-    const pasos = screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)
-    expect(pasos).toEqual([
-      "1. Requisitos",
-      "2. Instalar el proyecto",
-      "3. Instalar un agente",
-      "4. Verificar",
-      "5. Antes del ejercicio 2",
-      "6. Antes del ejercicio 3",
-    ])
-
-    for (const comando of [
-      "winget install OpenJS.NodeJS.LTS",
-      "winget install Git.Git",
-      "Set-ExecutionPolicy -Scope CurrentUser RemoteSigned",
-      "irm https://claude.ai/install.ps1 | iex",
-      "curl -fsSL https://claude.ai/install.sh | bash",
-      "brew install node@22 git",
-      "nvm install 22",
-      "sudo apt install git",
-      "npm i -g cline",
-      "uv tool install specify-cli",
-      "uv python install 3.12",
-      "npm i -g @openai/codex",
-      "npm test",
-      "npm run dev",
-    ]) {
-      expect(screen.getAllByText(new RegExp(comando.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), { selector: "code" }).length).toBeGreaterThan(0)
-    }
+    await screen.findByRole("heading", { name: ejercicios[0].titulo })
+    const tarjetas = screen.getAllByRole("article")
+    expect(within(tarjetas[0]).getByRole("img", { name: "Terminado" })).toHaveTextContent("✓")
+    expect(within(tarjetas[1]).queryByRole("img", { name: "Terminado" })).not.toBeInTheDocument()
   })
 
-  it("enlaza a la documentación de Cline, uv y Spec Kit", async () => {
-    renderApp("/configurar-entorno")
-    await screen.findByRole("heading", { level: 1, name: setup.titulo })
-    for (const href of [
-      "https://cline.bot/cli",
-      "https://docs.cline.bot/cline-cli/installation",
-      "https://code.claude.com/docs/en/setup",
-      "https://docs.astral.sh/uv/getting-started/installation/",
-      "https://github.com/github/spec-kit",
-    ]) {
-      expect(screen.getAllByRole("link").some((a) => a.getAttribute("href") === href)).toBe(true)
-    }
-  })
-
-  it("marca como solo Windows lo que no aplica a macOS y Linux", async () => {
-    renderApp("/configurar-entorno")
-    await screen.findByRole("heading", { level: 1, name: setup.titulo })
-    expect(screen.getByText(/Solo Windows:/)).toBeInTheDocument()
-  })
-
-  it("cada bloque de comandos tiene su botón de copiar", async () => {
-    renderApp("/configurar-entorno")
-    await screen.findByRole("heading", { level: 1, name: setup.titulo })
-    expect(screen.getAllByRole("button", { name: "Copiar" }).length).toBeGreaterThanOrEqual(8)
+  it("arriba pide crear la rama del grupo y el aviso se va al confirmarlo", async () => {
+    renderApp("/ejercicios")
+    const aviso = await screen.findByRole("region", { name: "Rama del grupo" })
+    expect(aviso).toHaveTextContent("git switch -c ejercicios/<nombre-de-grupo>")
+    await userEvent.click(within(aviso).getByRole("button", { name: "Ya creamos la rama" }))
+    expect(screen.queryByRole("region", { name: "Rama del grupo" })).not.toBeInTheDocument()
   })
 })
 

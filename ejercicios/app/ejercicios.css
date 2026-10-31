@@ -1269,79 +1269,6 @@
   background: repeating-linear-gradient(-45deg, var(--texto) 0 5px, var(--acento) 5px 10px);
 }
 
-/* Estructura del repo (ejercicio 1): una fila por carpeta; en server, las capas en orden. */
-.repo {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.repo > li {
-  display: grid;
-  grid-template-columns: 5.5rem minmax(0, 1fr);
-  align-items: baseline;
-  gap: 0.2rem 0.75rem;
-  margin: 0;
-  padding: 0.55rem 0;
-  border-bottom: 1px dashed var(--linea-suave);
-}
-
-.repo > li:last-child {
-  border-bottom: 0;
-}
-
-.repo-carpeta {
-  grid-row: span 2;
-  font: 700 0.875rem var(--fuente-codigo);
-}
-
-.repo-desc {
-  font-weight: 600;
-}
-
-.repo-chips {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.repo-etiqueta {
-  color: var(--texto-suave);
-  font-size: 0.8125rem;
-}
-
-.repo-chip {
-  padding: 0.1rem 0.5rem;
-  border: 1.5px solid var(--linea-suave);
-  border-radius: var(--radio-chico);
-  font: 0.75rem var(--fuente-codigo);
-}
-
-.repo-capas {
-  gap: 0.35rem 1.4rem;
-}
-
-.repo-capas .repo-etiqueta {
-  margin-right: -0.9rem;
-}
-
-.repo-capas .repo-chip {
-  position: relative;
-  border-color: var(--texto);
-  background: var(--texto);
-  color: var(--invertido);
-  font-weight: 600;
-}
-
-.repo-capas .repo-chip:not(:last-child)::after {
-  content: "→";
-  position: absolute;
-  right: -1.15rem;
-  color: var(--texto);
-  font-weight: 400;
-}
-
 /* Angosto: los pasos se apilan. */
 @container (max-width: 48rem) {
   .pasos {
@@ -1362,7 +1289,7 @@
   }
 }
 
-/* Muy angosto: las puertas y el repo pasan a una columna. */
+/* Muy angosto: las puertas pasan a una columna. */
 @container (max-width: 36rem) {
   .puertas > li {
     grid-template-columns: auto minmax(0, 1fr);
@@ -1380,14 +1307,6 @@
   .puerta-barrera {
     grid-column: 1 / -1;
     margin-left: 0;
-  }
-
-  .repo > li {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .repo-carpeta {
-    grid-row: auto;
   }
 }
 
@@ -1956,4 +1875,209 @@
   font-size: 0.8125rem;
   line-height: 1;
   transform: translate(-50%, 50%);
+}
+
+/* ── Índice ─────────────────────────────────────────────── */
+
+/* Tres tarjetas centradas, no estiradas a todo el ancho. Doble clase: styles.css carga después y pisa .grilla. */
+.grilla.grilla-ejercicios {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 22rem));
+  justify-content: center;
+}
+
+.crear-rama {
+  max-width: var(--ancho-lectura);
+  margin: 0 auto var(--espacio-seccion);
+}
+
+.crear-rama .markdown h2 {
+  margin-top: 0;
+}
+
+/* ── Ejercicio 1: probar la API ─────────────────────────── */
+
+.pedido + .pedido {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 2px dashed var(--linea-suave);
+}
+
+.pedido-nota,
+.pedido-titulo {
+  margin: 0 0 0.6rem;
+}
+
+.pedido-titulo {
+  font-weight: 700;
+}
+
+.pedido-linea {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.pedido-metodo {
+  padding: 0.2rem 0.55rem;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--resaltador);
+  font-family: var(--fuente-codigo);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.pedido-ruta {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.6rem;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  color: var(--texto);
+  font-family: var(--fuente-codigo);
+  font-size: 0.875rem;
+}
+
+.pedido-etiqueta {
+  display: block;
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.pedido-cuerpo {
+  min-height: 15rem;
+}
+
+.pedido-error {
+  color: var(--acento-texto);
+  font-weight: 600;
+}
+
+.pedido-respuesta {
+  margin-top: 0.75rem;
+}
+
+.pedido-respuesta pre {
+  margin: 0.4rem 0 0;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--fondo);
+  font-size: 0.875rem;
+}
+
+.pedido-estado {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--acento-suave);
+  font-family: var(--fuente-codigo);
+  font-weight: 700;
+}
+
+.pedido-estado[data-ok="true"] {
+  background: var(--menta);
+}
+
+/* Gantt de los dos turnos: una pista por llamada, el tramo compartido rayado. */
+.gantt {
+  margin: 0 0 1.25rem;
+}
+
+.gantt-fila {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.gantt-fila + .gantt-fila {
+  margin-top: 0.35rem;
+}
+
+.gantt-etiqueta {
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.gantt-pista {
+  position: relative;
+  height: 1.9rem;
+  border-radius: var(--radio-chico);
+  background: repeating-linear-gradient(90deg, var(--linea-suave) 0 1px, transparent 1px 25%);
+}
+
+.gantt-barra,
+.gantt-cruce {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.gantt-barra {
+  display: flex;
+  align-items: center;
+  padding-inline: 0.5rem;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--cielo);
+  font-family: var(--fuente-codigo);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.gantt-cruce {
+  border: 1.5px solid var(--linea);
+  background: repeating-linear-gradient(-45deg, var(--acento) 0 4px, transparent 4px 8px);
+  pointer-events: none;
+}
+
+.gantt-eje {
+  height: 1rem;
+  background: none;
+}
+
+.gantt-eje span {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: var(--fuente-codigo);
+  font-size: 0.7rem;
+  color: var(--texto-suave);
+}
+
+.gantt-eje span:first-child {
+  transform: none;
+}
+
+.gantt-eje span:last-child {
+  transform: translateX(-100%);
+}
+
+/* El tilde de un ejercicio terminado: el de la sesión confirmada, como sticker en la esquina. */
+.mentora:has(> .tarjeta-tilde) {
+  position: relative;
+}
+
+.tarjeta-tilde {
+  position: absolute;
+  top: -1rem;
+  right: -0.75rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: var(--borde);
+  border-radius: 50%;
+  background: var(--menta);
+  color: var(--texto);
+  box-shadow: var(--sombra-chica);
+  font-size: 1.5rem;
+  font-weight: 800;
+  transform: rotate(-6deg);
 }

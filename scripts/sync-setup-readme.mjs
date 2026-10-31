@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// La guía de setup para Windows vive en ejercicios/setup.json (la muestra la web en /configurar-entorno).
+// La guía de setup vive en ejercicios/setup.json.
 // Este script copia el mismo texto al README, entre las marcas <!-- setup:inicio --> y <!-- setup:fin -->.
 // npm run docs:setup → reescribe el README · npm run docs:setup -- --check → falla si quedó desactualizado
 
