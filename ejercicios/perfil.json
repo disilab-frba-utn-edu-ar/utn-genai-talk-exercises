@@ -1,8 +1,8 @@
 {
-  "nombre": "",
-  "integrantes": [],
-  "modelo": "",
-  "agente": "",
+  "nombre": "Alejo",
+  "integrantes": ["Alejo","Santiago"],
+  "modelo": "Opus 5.5",
+  "agente": "Claude",
   "puntaje": null,
   "comentario": "",
   "ejercicios": {
