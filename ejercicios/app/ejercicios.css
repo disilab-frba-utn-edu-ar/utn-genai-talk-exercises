@@ -27,6 +27,411 @@
   padding: 1.35rem;
 }
 
+/* ── Video de introducción ──────────────────────────────── */
+
+/* Una viñeta que se abre sobre la página: recuadro de narración, título, la "pantalla" con sombra
+   de acento como los botones, y abajo la nota a mano y la acción para seguir. */
+.video-intro {
+  width: min(52rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  padding: 0;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra-alzada);
+}
+
+.video-intro[open] {
+  animation: video-intro-entrar 0.4s var(--ease);
+}
+
+@keyframes video-intro-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.96) rotate(-1deg);
+  }
+}
+
+/* Tinta con trama de puntos, como la impresión de una historieta. */
+.video-intro::backdrop {
+  background-color: color-mix(in srgb, var(--texto) 55%, transparent);
+  background-image: radial-gradient(color-mix(in srgb, var(--fondo) 22%, transparent) 1.2px, transparent 1.5px);
+  background-size: 14px 14px;
+}
+
+.video-intro-caja {
+  padding: 1.25rem 1.5rem 1.4rem;
+}
+
+.video-intro-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.video-intro-cabecera .sobretitulo {
+  margin-bottom: 0.55rem;
+}
+
+.video-intro-titulo {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: clamp(1.3rem, 3vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.video-intro-minimizar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: var(--borde);
+  border-radius: 12px;
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra-chica);
+  cursor: pointer;
+  transition:
+    transform 0.12s var(--ease),
+    box-shadow 0.12s var(--ease),
+    background-color 0.12s;
+}
+
+.video-intro-minimizar svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.video-intro-minimizar:hover {
+  background: var(--resaltador);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--sombra);
+}
+
+.video-intro-minimizar:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.video-intro-pantalla {
+  overflow: hidden;
+  border: var(--borde);
+  border-radius: 12px;
+  background: var(--texto);
+  box-shadow: 6px 6px 0 var(--acento);
+}
+
+.video-intro-pantalla video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+.video-intro-descripcion {
+  max-width: 62ch;
+  margin: 1.1rem 0 0;
+  color: var(--texto-suave);
+  font-size: 0.9375rem;
+}
+
+.video-intro-pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 2px dashed var(--linea-suave);
+}
+
+.video-intro-nota {
+  margin: 0;
+  font-size: 1.35rem;
+  transform: rotate(-1.5deg);
+}
+
+/* Minimizado: un sticker abajo a la derecha, apenas torcido; se endereza al pasar el mouse. */
+.video-intro-mini {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0.9rem 0.4rem 0.4rem;
+  border: var(--borde);
+  border-radius: 14px;
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transform: rotate(-1.5deg);
+  animation: video-intro-mini-entrar 0.45s var(--ease);
+  transition:
+    transform 0.15s var(--ease),
+    box-shadow 0.15s var(--ease),
+    background-color 0.15s;
+}
+
+@keyframes video-intro-mini-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem) rotate(4deg);
+  }
+}
+
+.video-intro-mini:hover {
+  background: var(--resaltador);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sombra-alzada);
+}
+
+.video-intro-mini:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--sombra-chica);
+}
+
+.video-intro-mini:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 3px;
+}
+
+/* La miniatura con un botón de play encima: círculo de acento y triángulo de papel. */
+.video-intro-mini-miniatura {
+  position: relative;
+  flex-shrink: 0;
+  width: 5rem;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 2px solid var(--linea);
+  border-radius: 8px;
+}
+
+.video-intro-mini-miniatura img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-intro-mini-miniatura::before,
+.video-intro-mini-miniatura::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+}
+
+.video-intro-mini-miniatura::before {
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 2px solid var(--linea);
+  border-radius: 999px;
+  background: var(--acento);
+}
+
+.video-intro-mini-miniatura::after {
+  width: 0;
+  height: 0;
+  translate: 1.5px 0;
+  border-block: 0.32rem solid transparent;
+  border-left: 0.5rem solid var(--superficie);
+}
+
+.video-intro-mini-texto {
+  display: grid;
+  gap: 0.1rem;
+  line-height: 1.2;
+}
+
+.video-intro-mini-texto > :first-child {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.video-intro-mini-duracion {
+  color: var(--texto-suave);
+  font-family: var(--fuente-codigo);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 30rem) {
+  .video-intro-caja {
+    padding: 1rem;
+  }
+
+  .video-intro-pie .boton {
+    width: 100%;
+  }
+
+  /* En el celular, solo la miniatura: el texto queda para el lector de pantalla. */
+  .video-intro-mini {
+    padding: 0.35rem;
+  }
+
+  .video-intro-mini-texto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* ── Candado: cada ejercicio se habilita al terminar el anterior ── */
+
+.candado {
+  width: 1.15em;
+  height: 1.15em;
+  flex-shrink: 0;
+}
+
+/* La tarjeta bloqueada queda "tachada" con una trama y sin levantarse al pasar el mouse. */
+.mentora[data-bloqueado] {
+  position: relative;
+  background-image: repeating-linear-gradient(-45deg, var(--trama) 0 1.5px, transparent 1.5px 10px);
+  box-shadow: var(--sombra-chica);
+}
+
+.mentora[data-bloqueado]:hover {
+  transform: none;
+  box-shadow: var(--sombra-chica);
+}
+
+.mentora[data-bloqueado]:hover .mentora-nombre {
+  color: inherit;
+}
+
+.mentora[data-bloqueado] > :not(.tarjeta-aviso, dialog) {
+  opacity: 0.68;
+}
+
+/* El candado como sticker sobre la esquina de la tarjeta. */
+.tarjeta-candado,
+.bloqueado-candado {
+  display: grid;
+  place-items: center;
+  border: var(--borde);
+  border-radius: 999px;
+  background: var(--resaltador);
+  box-shadow: var(--sombra-chica);
+  transform: rotate(8deg);
+}
+
+/* Va dentro del botón del aviso, pero se ubica contra la tarjeta (el botón no está posicionado). */
+.tarjeta-candado {
+  position: absolute;
+  top: -1rem;
+  right: -0.75rem;
+  z-index: 2;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.35rem;
+}
+
+.tarjeta-aviso {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.5rem 0.85rem;
+  border: 2px dashed var(--linea);
+  border-radius: 12px;
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+/* El botón se estira sobre toda la tarjeta: tocar el candado (o cualquier parte) pregunta si avanzar igual. */
+.tarjeta-aviso::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radio);
+}
+
+.mentora[data-bloqueado]:hover .tarjeta-aviso,
+.tarjeta-aviso:focus-visible {
+  background: var(--resaltador);
+}
+
+.tarjeta-aviso:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 3px;
+}
+
+/* El candado se sacude un poco al pasar el mouse, como invitando a tocarlo. */
+.mentora[data-bloqueado]:hover .tarjeta-candado {
+  transform: rotate(-8deg) scale(1.08);
+}
+
+.tarjeta-candado {
+  transition: transform 0.2s var(--ease);
+}
+
+/* La pregunta para avanzar igual: el detalle del tablero, más angosto y con el candado de sticker. */
+.confirmar {
+  width: min(32rem, calc(100% - 2rem));
+  overflow: visible;
+}
+
+.confirmar .detalle-caja {
+  position: relative;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.confirmar h2 {
+  margin: 0;
+  padding-right: 3.5rem;
+  font-family: var(--fuente-titulos);
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.confirmar p {
+  margin: 0;
+  color: var(--texto-suave);
+}
+
+.confirmar-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.bloqueado {
+  position: relative;
+}
+
+.bloqueado-candado {
+  position: absolute;
+  top: -1.1rem;
+  right: 1.25rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.6rem;
+}
+
 /* ── Markdown de las consignas ──────────────────────────── */
 
 /* break-word (no anywhere): las tablas hacen scroll en vez de partir palabras. */
@@ -258,15 +663,6 @@
   margin: 0.25rem 0;
 }
 
-.respuestas-seguir {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem 1rem;
-  margin-top: 1.5rem;
-}
-
 /* Pegado abajo mientras se ven las preguntas: se puede guardar en cualquier momento. */
 .respuestas-acciones {
   position: sticky;
@@ -288,6 +684,45 @@
   margin: 0;
   font-size: 0.875rem;
   color: var(--texto-suave);
+}
+
+/* Sin nada que avisar no ocupa lugar. */
+.respuestas-estado:empty {
+  display: none;
+}
+
+/* En pantallas angostas los dos botones van en una fila ("Guardar" a secas; el lector de pantalla
+   sigue leyendo "Guardar respuestas") y el aviso, si hay, abajo. */
+@media (max-width: 40rem) {
+  .respuestas-acciones .respuestas-estado {
+    order: 1;
+    flex-basis: 100%;
+  }
+
+  .respuestas-largo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* Terminé, en la punta derecha de la barra: amarillo resaltador para que no pase de largo. */
+.boton-terminar {
+  margin-left: auto;
+  background: var(--resaltador);
+  color: var(--texto);
+  box-shadow: 3px 3px 0 var(--linea);
+}
+
+.boton-terminar:hover:not(:disabled) {
+  box-shadow: 5px 5px 0 var(--linea);
+}
+
+.boton-terminar:active:not(:disabled) {
+  box-shadow: 0 0 0 var(--linea);
 }
 
 /* ── Temporizador ───────────────────────────────────────── */

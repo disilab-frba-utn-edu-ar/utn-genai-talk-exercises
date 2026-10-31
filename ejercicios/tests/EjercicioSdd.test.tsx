@@ -86,10 +86,11 @@ describe("Ejercicio 3", () => {
   it("al hacer clic en una tarjeta se ve el detalle con sus casos borde", async () => {
     renderSdd({ estado: vacio })
     await userEvent.click(screen.getByRole("button", { name: new RegExp(primera.titulo) }))
-    const detalle = screen.getByRole("dialog")
+    // Por nombre: en la página también está el popup del video.
+    const detalle = screen.getByRole("dialog", { name: primera.titulo })
     expect(within(detalle).getByText(primera.casosBorde[0])).toBeInTheDocument()
     await userEvent.click(within(detalle).getByRole("button", { name: "Cerrar" }))
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    expect(screen.queryByRole("dialog", { name: primera.titulo })).not.toBeInTheDocument()
   })
 
   it("arrastrar a In Progress elige la tarea, la guarda y habilita las pestañas", () => {
@@ -155,6 +156,31 @@ describe("Ejercicio 3", () => {
     await userEvent.click(screen.getByRole("button", { name: "Tablero" }))
     expect(screen.getByRole("heading", { name: /^To Do/ })).toBeVisible()
     expect(screen.getByRole("button", { name: "Tablero" })).toHaveAttribute("aria-pressed", "true")
+  })
+
+  it("el video de introducción se abre en un popup al llegar al tablero, no antes", async () => {
+    localStorage.setItem(CLAVE, JSON.stringify({ ...vacio, introVista: false }))
+    renderSdd()
+    expect(screen.queryByRole("dialog", { name: "Video de introducción", hidden: true })).not.toBeInTheDocument()
+
+    while (!screen.queryByRole("button", { name: "Ir al tablero" })) {
+      await userEvent.click(screen.getByRole("button", { name: "Siguiente" }))
+    }
+    await userEvent.click(screen.getByRole("button", { name: "Ir al tablero" }))
+    const popup = screen.getByRole("dialog", { name: "Video de introducción" })
+    expect(popup).toHaveAttribute("open")
+    expect(popup.querySelector("video")).toHaveAttribute("src", "/videos/03-sdd.mp4")
+  })
+
+  it("minimizado, el botón para volver a verlo sigue a mano en la pestaña Consigna", async () => {
+    renderSdd({ estado: { ...vacio, elegidas: [primera.id] } })
+    expect(screen.getByRole("button", { name: "Consigna" })).toHaveAttribute("aria-pressed", "true")
+    const popup = screen.getByRole("dialog", { name: "Video de introducción" })
+    await userEvent.click(within(popup).getByRole("button", { name: "Minimizar" }))
+    expect(popup).not.toHaveAttribute("open")
+
+    await userEvent.click(screen.getByRole("button", { name: /^Ver video de introducción/ }))
+    expect(popup).toHaveAttribute("open")
   })
 })
 

@@ -53,19 +53,30 @@ export function useGuardado(clave: string): unknown {
   }
 }
 
-const terminados = (valor: unknown): string[] =>
+/** Ejercicios que se abrieron con el candado puesto: se eligió "Avanzar igual" sin terminar el anterior. */
+const CLAVE_AVANZAR_IGUAL = "ejercicios:avanzar-igual"
+
+const ids = (valor: unknown): string[] =>
   Array.isArray(valor) ? valor.filter((x): x is string => typeof x === "string") : []
 
-export function marcarTerminado(id: string) {
+function agregar(clave: string, id: string) {
   let valor: unknown
   try {
-    valor = JSON.parse(leer(CLAVE) ?? "[]")
+    valor = JSON.parse(leer(clave) ?? "[]")
   } catch {
     valor = []
   }
-  guardar(CLAVE, [...new Set([...terminados(valor), id])])
+  guardar(clave, [...new Set([...ids(valor), id])])
 }
 
+export const marcarTerminado = (id: string) => agregar(CLAVE, id)
+
 export function useTerminado(id: string): boolean {
-  return terminados(useGuardado(CLAVE)).includes(id)
+  return ids(useGuardado(CLAVE)).includes(id)
+}
+
+export const marcarAvanzarIgual = (id: string) => agregar(CLAVE_AVANZAR_IGUAL, id)
+
+export function useAvanzoIgual(id: string): boolean {
+  return ids(useGuardado(CLAVE_AVANZAR_IGUAL)).includes(id)
 }
