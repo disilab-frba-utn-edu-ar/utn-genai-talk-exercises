@@ -1,7 +1,7 @@
 import { cpSync, mkdtempSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import type { Sesion } from "@shared/types"
+import type { Mentora, Sesion } from "@shared/types"
 import request from "supertest"
 import { createApp } from "../../../server/app"
 
@@ -40,4 +40,31 @@ export function sesionDePrueba(extra: Partial<Sesion> = {}): Sesion {
     estado: "confirmada",
     ...extra,
   }
+}
+
+const sinDisponibilidad: Mentora["disponibilidad"] = {
+  lunes: null,
+  martes: null,
+  miercoles: null,
+  jueves: null,
+  viernes: null,
+  sabado: null,
+  domingo: null,
+}
+
+export function mentoraDePrueba(extra: Partial<Mentora> = {}): Mentora {
+  return {
+    id: "00000000-0000-4000-8000-0000000000aa",
+    nombre: "Mentora de prueba",
+    presentacion: "Presentación de prueba.",
+    habilidades: ["testing_unitario"],
+    disponibilidad: sinDisponibilidad,
+    contacto: { email: "prueba@example.org" },
+    ...extra,
+  }
+}
+
+/** Reemplaza mentoras.json del DATA_DIR temporal (el json-store lo relee en cada request). */
+export function escribirMentoras(dataDir: string, mentoras: Mentora[]) {
+  writeFileSync(join(dataDir, "mentoras.json"), JSON.stringify(mentoras), "utf-8")
 }

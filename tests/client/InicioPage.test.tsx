@@ -44,4 +44,11 @@ describe("InicioPage", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("no encontrado")
     expect(screen.getByRole("button", { name: "Reintentar" })).toBeInTheDocument()
   })
+
+  it("ofrece reservar por tipo de asesoría a quien no sabe a quién elegir", async () => {
+    simularApi({ "/api/habilidades": habilidades, "/api/mentoras": [valentina, camila] })
+    renderConRuta(<InicioPage />)
+
+    expect(await screen.findByRole("link", { name: /Reservá por tipo de asesoría/ })).toHaveAttribute("href", "/reservar-por-tipo")
+  })
 })

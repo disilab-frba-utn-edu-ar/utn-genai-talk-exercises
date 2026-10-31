@@ -867,6 +867,43 @@ h1 .acento {
   font-weight: 600;
 }
 
+/* ── Reserva por tipo de asesoría ───────────────────────── */
+
+.atajo-por-tipo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+  font-weight: 600;
+}
+
+.mentora-asignada {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.mentora-asignada-nombre {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.mentora-asignada .mentora-presentacion {
+  margin: 0;
+}
+
+.aviso-cambio {
+  margin: 0 0 0.5rem;
+  padding: 0.85rem 1rem;
+  border: var(--borde);
+  border-radius: var(--radio-chico);
+  background: color-mix(in srgb, var(--resaltador) 45%, var(--superficie));
+  box-shadow: var(--sombra-chica);
+  font-weight: 600;
+}
+
 /* ── Estados ────────────────────────────────────────────── */
 
 .estado {

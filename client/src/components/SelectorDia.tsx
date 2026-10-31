@@ -7,13 +7,20 @@ type Props = {
   dias: DiaDisponible[]
   seleccionado: string | null
   onSeleccionar: (fecha: string) => void
+  /** Explicación del estado vacío (por defecto, la de la reserva con mentora). */
+  mensajeVacio?: string
 }
 
-export default function SelectorDia({ dias, seleccionado, onSeleccionar }: Props) {
+export default function SelectorDia({
+  dias,
+  seleccionado,
+  onSeleccionar,
+  mensajeVacio = "Esta mentora no tiene horarios libres para este tipo de asesoría.",
+}: Props) {
   if (dias.length === 0) {
     return (
       <Vacio titulo="No hay lugar en los próximos 14 días">
-        <p>Esta mentora no tiene horarios libres para este tipo de asesoría.</p>
+        <p>{mensajeVacio}</p>
         <Link to="/" className="boton boton-secundario">
           Ver otras mentoras
         </Link>

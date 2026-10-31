@@ -7,9 +7,11 @@ import { crearRepositorios } from "./repositories"
 import { rutasCatalogos } from "./routes/catalogos"
 import { rutasMentoras } from "./routes/mentoras"
 import { rutasSesiones } from "./routes/sesiones"
+import { rutasTiposAsesoria } from "./routes/tipos-asesoria"
 import { crearServicioCatalogos } from "./services/catalogos"
 import { ErrorDeNegocio } from "./services/errores"
 import { crearServicioMentoras } from "./services/mentoras"
+import { crearServicioReservaPorTipo } from "./services/reserva-por-tipo"
 import { crearServicioSesiones } from "./services/sesiones"
 
 type Opciones = {
@@ -31,6 +33,7 @@ export function createApp({ dataDir = DEFAULT_DATA_DIR, logsDir = DEFAULT_LOGS_D
     res.json({ status: "ok" })
   })
   api.use(rutasCatalogos(crearServicioCatalogos(repos)))
+  api.use("/tipos-asesoria", rutasTiposAsesoria(crearServicioReservaPorTipo(repos, reloj)))
   api.use("/mentoras", rutasMentoras(crearServicioMentoras(repos, reloj)))
   api.use("/sesiones", rutasSesiones(crearServicioSesiones(repos, reloj)))
   // Métricas de agentes: separadas del producto (como /ejercicios), solo desde loopback.

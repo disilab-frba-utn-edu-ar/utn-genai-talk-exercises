@@ -1,9 +1,10 @@
 import type { Colectivo, MentoraPublica, Sesion, TipoAsesoria } from "@shared/types"
-import { useState, type ReactNode } from "react"
+import { useState } from "react"
 import { Link, useNavigate, useParams } from "react-router"
 import { api, ErrorDeApi } from "../api/client"
 import { Cargando, ErrorCarga } from "../components/Estado"
 import FormularioContacto, { type DatosContacto } from "../components/FormularioContacto"
+import Paso from "../components/Paso"
 import SelectorDia from "../components/SelectorDia"
 import SelectorHorario from "../components/SelectorHorario"
 import SelectorTipo from "../components/SelectorTipo"
@@ -16,20 +17,6 @@ export type EstadoConfirmacion = {
   mentora: MentoraPublica
   tipo: TipoAsesoria
   colectivo: Colectivo
-}
-
-function Paso({ numero, titulo, children }: { numero: number; titulo: string; children: ReactNode }) {
-  return (
-    <section className="paso" aria-labelledby={`paso-${numero}`}>
-      <h2 id={`paso-${numero}`} className="paso-titulo">
-        <span className="paso-numero" aria-hidden="true">
-          {numero}
-        </span>
-        {titulo}
-      </h2>
-      {children}
-    </section>
-  )
 }
 
 export default function ReservaPage() {

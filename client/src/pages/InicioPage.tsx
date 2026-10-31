@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router"
+import { Link, useSearchParams } from "react-router"
 import { api } from "../api/client"
 import Chip from "../components/Chip"
 import { Cargando, ErrorCarga, Vacio } from "../components/Estado"
@@ -39,6 +39,13 @@ export default function InicioPage() {
           </p>
         </div>
       </section>
+
+      <p className="atajo-por-tipo">
+        ¿No sabés a quién elegir?{" "}
+        <Link to="/reservar-por-tipo" className="boton boton-secundario">
+          Reservá por tipo de asesoría <span aria-hidden="true">→</span>
+        </Link>
+      </p>
 
       {habilidades.estado === "lista" && (
         <section className="filtros" aria-label="Filtrar por habilidad">

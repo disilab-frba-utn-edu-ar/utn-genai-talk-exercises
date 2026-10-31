@@ -48,5 +48,11 @@ export const api = {
     pedir<DiaDisponible[]>(
       `/mentoras/${encodeURIComponent(mentoraId)}/disponibilidad?tipoAsesoriaId=${encodeURIComponent(tipoAsesoriaId)}`,
     ),
+  disponibilidadPorTipo: (tipoAsesoriaId: string) =>
+    pedir<DiaDisponible[]>(`/tipos-asesoria/${encodeURIComponent(tipoAsesoriaId)}/disponibilidad`),
+  asignacion: (tipoAsesoriaId: string, fecha: string, horaInicio: string) =>
+    pedir<MentoraPublica>(
+      `/tipos-asesoria/${encodeURIComponent(tipoAsesoriaId)}/asignacion?fecha=${encodeURIComponent(fecha)}&horaInicio=${encodeURIComponent(horaInicio)}`,
+    ),
   crearSesion: (datos: NuevaSesion) => pedir<Sesion>("/sesiones", { method: "POST", body: JSON.stringify(datos) }),
 }
