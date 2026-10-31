@@ -52,6 +52,35 @@ describe("API · GET /api/sesiones", () => {
   })
 })
 
+describe("API · GET /api/sesiones/:id", () => {
+  it("devuelve la sesión sin datos de contacto (Principio IV)", async () => {
+    const sesion = sesionDePrueba()
+    const { api } = crearAppDePrueba([sesion])
+    const res = await api.get(`/api/sesiones/${sesion.id}`)
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({
+      id: sesion.id,
+      mentoraId: sesion.mentoraId,
+      tipoAsesoriaId: sesion.tipoAsesoriaId,
+      colectivoId: sesion.colectivoId,
+      proyecto: sesion.proyecto,
+      fecha: sesion.fecha,
+      horaInicio: sesion.horaInicio,
+      horaFin: sesion.horaFin,
+      estado: sesion.estado,
+    })
+    expect(res.body).not.toHaveProperty("contactoEmail")
+    expect(res.body).not.toHaveProperty("contactoNombre")
+  })
+
+  it("404 si la sesión no existe", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba()])
+    const res = await api.get("/api/sesiones/00000000-0000-4000-8000-000000000002")
+    expect(res.status).toBe(404)
+    expect(res.body).toEqual({ error: expect.any(String) })
+  })
+})
+
 describe("API · POST /api/sesiones", () => {
   it("crea la sesión, calcula la hora de fin y la guarda", async () => {
     const { api, dataDir } = crearAppDePrueba()
