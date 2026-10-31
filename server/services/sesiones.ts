@@ -3,6 +3,7 @@ import type { Sesion, SesionPublica } from "@shared/types"
 import { aHora, aMinutos, fechaDe } from "../domain/fechas"
 import { estaDentroDeDisponibilidad } from "../domain/horarios"
 import { puedeDar } from "../domain/mentoras"
+import { haySuperposicion } from "../domain/superposicion"
 import { validarNuevaSesion } from "../domain/validaciones"
 import type { Repositorios } from "../repositories"
 import { conflicto, invalido, noEncontrado } from "./errores"
@@ -58,6 +59,10 @@ export function crearServicioSesiones(repos: Repositorios, reloj: () => Date) {
             s.horaInicio === nueva.horaInicio,
         )
       if (ocupado) throw conflicto("El horario ya está reservado")
+
+      if (haySuperposicion(repos.sesiones.listar(), { mentoraId: nueva.mentoraId, fecha: nueva.fecha, horaInicio: nueva.horaInicio, horaFin })) {
+        throw conflicto("El horario se superpone con otra sesión de la mentora")
+      }
 
       const sesion: Sesion = { id: randomUUID(), ...nueva, horaFin, estado: "confirmada" }
       repos.sesiones.agregar(sesion)

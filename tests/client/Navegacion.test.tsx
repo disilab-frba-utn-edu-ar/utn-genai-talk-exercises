@@ -119,7 +119,8 @@ describe("Ejercicios (índice)", () => {
 
 describe("README", () => {
   it("la guía de setup del README es la misma que muestra la web (npm run docs:setup la regenera)", () => {
-    const readme = readFileSync("README.md", "utf-8")
+    // En Windows git (autocrlf) deja el README con CRLF: se normaliza a LF para comparar.
+    const readme = readFileSync("README.md", "utf-8").replace(/\r\n/g, "\n")
     const bloque = readme.match(/<!-- setup:inicio -->\n\n([\s\S]*?)\n\n<!-- setup:fin -->/)?.[1]
     expect(bloque).toBe(setup.markdown.join("\n"))
   })
