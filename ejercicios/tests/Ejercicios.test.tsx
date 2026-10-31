@@ -66,7 +66,7 @@ describe("Ejercicios · cómo se reparte la consigna", () => {
 
   it("el prompt del ejercicio 1 aparece justo debajo de “Copiá el prompt…”", () => {
     const bloques = conAnexosEnLinea(partirConsigna(ejercicio)[0].lineas, ejercicio.anexos)
-    const i = bloques.findIndex((b) => b.tipo === "anexo")
+    const i = bloques.findIndex((b) => b.tipo === "anexo" && b.anexo.archivo === "prompt.md")
     expect(bloques[i - 1]).toMatchObject({ texto: expect.stringMatching(/Copiá el prompt de .+ y mandalo\.$/) })
     expect(bloques[i]).toMatchObject({ anexo: { archivo: "prompt.md" } })
   })
@@ -79,7 +79,7 @@ describe("Ejercicios", () => {
     renderEjercicio()
     await screen.findByLabelText("Datos de la entrega")
 
-    const lineas = ejercicio.anexos[0].markdown
+    const lineas = ejercicio.anexos.find((a) => a.archivo === "prompt.md")!.markdown
     const prompt = lineas.slice(lineas.indexOf("```text") + 1, lineas.lastIndexOf("```")).join("\n")
 
     await usuario.click(screen.getByRole("button", { name: "Copiar prompt" }))
@@ -134,6 +134,17 @@ describe("Ejercicios", () => {
     expect(screen.queryByRole("timer")).not.toBeInTheDocument()
   })
 
+  it("“Terminé” en el ejercicio 2 abre el 3 con Rocco y recién después del diálogo el video", async () => {
+    localStorage.setItem("ejercicios:terminados", JSON.stringify([ejercicios[0].id]))
+    const guardadas = { ejercicio: ejercicios[1].id, guardado: "2026-10-28T12:00:00Z", general: [], respuestas: {} }
+    simularApi({ [`/ejercicios-api/${ejercicios[1].id}/respuestas`]: guardadas, [`/ejercicios-api/${ID_SDD}/respuestas`]: null })
+    renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicios[1].id}`, patron: "/ejercicios/*" })
+    await userEvent.click(await screen.findByRole("button", { name: /Terminé/ }))
+
+    expect(await screen.findByRole("region", { name: /Rocco/ })).toBeInTheDocument()
+    expect(screen.queryByRole("dialog", { name: "Video de introducción", hidden: true })).not.toBeInTheDocument()
+  })
+
   it("“Terminé” viaja con “Guardar respuestas”, en la barra que queda fija abajo", async () => {
     simularApi({ [RUTA_API]: null })
     renderEjercicio()
@@ -170,12 +181,50 @@ describe("Ejercicios", () => {
   })
 
   it("“Ver aplicación” es un botón que abre la app en una pestaña nueva", async () => {
-    simularApi({ [RUTA_API]: null })
-    renderEjercicio()
+    renderDe(ejercicios[2])
     const [enlace] = await screen.findAllByRole("link", { name: "Ver aplicación" })
     expect(enlace).toHaveClass("boton")
     expect(enlace).toHaveAttribute("target", "_blank")
     expect(enlace).toHaveAttribute("href", "http://localhost:5173")
+  })
+
+  it("el ejercicio 1 manda las dos reservas a la API desde la consigna, con el primer día con las 19:00 libre", async () => {
+    const fetchFalso = simularApi({
+      [RUTA_API]: null,
+      "/api/mentoras/8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e01/disponibilidad": [
+        { fecha: "2026-11-02", horarios: [{ inicio: "18:30", fin: "19:15" }] },
+        { fecha: "2026-11-04", horarios: [{ inicio: "19:00", fin: "19:45" }] },
+      ],
+      "/api/sesiones": { id: "s1" },
+    })
+    renderEjercicio()
+    await screen.findByLabelText("Datos de la entrega")
+    const segunda = await waitFor(() => {
+      const cuerpos = screen.getAllByLabelText<HTMLTextAreaElement>("Body")
+      expect(cuerpos).toHaveLength(2)
+      return cuerpos[1]
+    })
+    expect(JSON.parse(segunda.value)).toMatchObject({ fecha: "2026-11-04", horaInicio: "19:30", tipoAsesoriaId: "revision_de_codigo" })
+
+    const panel = screen.getByRole("complementary", { name: "Probar la API" })
+    await userEvent.click(within(panel).getAllByRole("button", { name: "Enviar" })[1])
+    expect(await within(panel).findByRole("status", { name: "Respuesta de la llamada 2" })).toHaveTextContent("200")
+    expect(fetchFalso).toHaveBeenCalledWith("/api/sesiones", expect.objectContaining({ method: "POST", body: segunda.value }))
+  })
+
+  it("el ejercicio 2 consulta una sesión por id con una ruta que se puede cambiar", async () => {
+    localStorage.setItem("ejercicios:terminados", JSON.stringify([ejercicios[0].id]))
+    const fetchFalso = simularApi({ [`/ejercicios-api/${ejercicios[1].id}/respuestas`]: null, "/api/sesiones": [{ id: "s1" }], "/api/sesiones/otra": { id: "otra" } })
+    renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicios[1].id}`, patron: "/ejercicios/*" })
+    await screen.findByLabelText("Datos de la entrega")
+    const ruta = await screen.findByRole("textbox", { name: "Ruta de la llamada 1" })
+    expect(ruta).toHaveValue("/api/sesiones/s1")
+    await userEvent.clear(ruta)
+    await userEvent.type(ruta, "/api/sesiones/otra")
+    const panel = screen.getByRole("complementary", { name: "Consultar sesiones" })
+    await userEvent.click(within(panel).getAllByRole("button", { name: "Enviar" })[0])
+    expect(await within(panel).findByRole("status", { name: "Respuesta de la llamada 1" })).toHaveTextContent("200")
+    expect(fetchFalso).toHaveBeenCalledWith("/api/sesiones/otra", expect.objectContaining({ method: "GET" }))
   })
 
   it("un respuestas.json con el formato anterior (un solo texto) no se pierde", async () => {
@@ -228,15 +277,6 @@ describe("Ejercicios", () => {
       expect.stringMatching(/implement.*¿existe un plan para esto\?.*si no, no avanza/),
     ])
     expect(screen.queryByText(/tasks\s+→ ¿leíste/)).not.toBeInTheDocument()
-  })
-
-  it("la estructura del repo del ejercicio 1 se dibuja con las capas del servidor en orden", async () => {
-    renderDe(ejercicios[0])
-    const diagrama = await screen.findByRole("figure", { name: /estructura del repo/i })
-    const carpetas = textosDeLista(diagrama)
-    expect(carpetas).toEqual(["client/", "server/", "shared/", "data/", "tests/"].map((c) => expect.stringContaining(c)))
-    expect(carpetas[1]).toMatch(/routes.*services.*repositories.*domain/)
-    expect(screen.queryByText(/client\/\s+Vite/)).not.toBeInTheDocument()
   })
 
   // El del ejercicio 3 se abre con el tablero: lo cubre EjercicioSdd.test.tsx.

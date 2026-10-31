@@ -119,7 +119,6 @@
       "id": "solicitudes",
       "titulo": "Solicitudes de sesión y revelado de contacto",
       "tamano": "Grande",
-      "recomendada": "Grupos de 2-3, fuera de clase",
       "historia": "Como mentora, quiero aceptar o rechazar cada pedido antes de comprometer mi tiempo. Como colectivo, quiero escribirle a la mentora una vez confirmada la sesión.",
       "criterios": [
         "Al reservar, la sesión queda pendiente y el horario, tomado de forma provisoria.",

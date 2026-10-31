@@ -3,11 +3,12 @@ import { useState, type ReactNode } from "react"
 import { Link, Route, Routes, useParams } from "react-router"
 import NoEncontradaPage from "../../client/src/pages/NoEncontradaPage"
 import Bloqueado, { Candado, ConfirmarAvance } from "./Bloqueado"
-import { anteriorDe, conAnexosEnLinea, ejercicios, introduccion, type Anexo, type Ejercicio } from "./contenido"
+import { anteriorDe, conAnexosEnLinea, ejercicios, rama, type Anexo, type Ejercicio } from "./contenido"
 import EjercicioSdd from "./EjercicioSdd"
 import "./ejercicios.css"
 import Markdown from "./Markdown"
-import { useAvanzoIgual, useTerminado } from "./progreso"
+import ProbarApi, { ConsultarSesiones } from "./ProbarApi"
+import { guardar, useAvanzoIgual, useGuardado, useTerminado } from "./progreso"
 import Respuestas from "./Respuestas"
 import { ID_SDD } from "./tablero"
 import Temporizador from "./Temporizador"
@@ -38,11 +39,19 @@ function useAnteriorPendiente(ejercicio: Ejercicio | undefined): Ejercicio | und
 }
 
 // Mismas tarjetas que las mentoras del inicio; con el anterior sin terminar, con candado: tocarlo pregunta si avanzar igual.
+// Ya terminado, con el tilde verde.
 function TarjetaEjercicio({ ejercicio: e }: { ejercicio: Ejercicio }) {
   const pendiente = useAnteriorPendiente(e)
+  const terminado = useTerminado(e.id)
   const [preguntando, setPreguntando] = useState(false)
   return (
     <article className="tarjeta mentora" data-bloqueado={pendiente ? true : undefined}>
+      {/* El mismo tilde de la sesión confirmada, en la esquina donde va el candado. */}
+      {terminado && (
+        <span className="tarjeta-tilde" role="img" aria-label="Terminado">
+          ✓
+        </span>
+      )}
       <div>
         <p className="sobretitulo">Ejercicio {e.numero}</p>
         <h2 className="mentora-nombre">{e.titulo}</h2>
@@ -72,6 +81,21 @@ function TarjetaEjercicio({ ejercicio: e }: { ejercicio: Ejercicio }) {
   )
 }
 
+const CLAVE_RAMA = "ejercicios:rama-creada"
+
+/** Cómo crear la rama del grupo; se oculta (en este navegador) al confirmar que ya la crearon. */
+function CrearRama() {
+  if (useGuardado(CLAVE_RAMA) === true) return null
+  return (
+    <section className="tarjeta documento crear-rama" aria-label="Rama del grupo">
+      <Markdown texto={rama} />
+      <button type="button" className="boton" onClick={() => guardar(CLAVE_RAMA, true)}>
+        Ya creamos la rama
+      </button>
+    </section>
+  )
+}
+
 function IndicePage() {
   return (
     <>
@@ -83,14 +107,12 @@ function IndicePage() {
         <p className="bajada">Hacelos en orden: cada uno usa lo que armaste en el anterior.</p>
       </section>
 
-      <section className="grilla" aria-label="Ejercicios">
+      <CrearRama />
+
+      <section className="grilla grilla-ejercicios" aria-label="Ejercicios">
         {ejercicios.map((e) => (
           <TarjetaEjercicio key={e.id} ejercicio={e} />
         ))}
-      </section>
-
-      <section className="tarjeta documento" aria-label="Sobre los ejercicios">
-        <Markdown texto={introduccion} />
       </section>
     </>
   )
@@ -99,6 +121,8 @@ function IndicePage() {
 function AnexoEnLinea({ anexo }: { anexo: Anexo }) {
   const habilitado = useTerminado(anexo.soloSiTerminado ?? "")
   if (anexo.soloSiTerminado && !habilitado) return null
+  if (anexo.componente === "probar-api") return <ProbarApi />
+  if (anexo.componente === "consultar-sesiones") return <ConsultarSesiones />
   return (
     <aside id={anexo.archivo} className="anexo-en-linea" aria-label={anexo.titulo}>
       <Markdown texto={anexo.markdown.join("\n")} />

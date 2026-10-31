@@ -1,11 +1,7 @@
-// Páginas de texto de los ejercicios. La guía de setup para Windows viene de ejercicios/setup.json, el mismo
-// que se copia al README (npm run docs:setup); el resumen de SDD, de ejercicios/sdd.json.
+// Página de texto de los ejercicios: el resumen de SDD, de ejercicios/sdd.json.
 import sdd from "../sdd.json"
-import setup from "../setup.json"
 import "./ejercicios.css"
 import Markdown from "./Markdown"
-
-export const tituloSetup = setup.titulo
 
 function Pagina({ titulo, bajada, etiqueta, markdown }: { titulo: string; bajada: string; etiqueta: string; markdown: string[] }) {
   return (
@@ -22,10 +18,6 @@ function Pagina({ titulo, bajada, etiqueta, markdown }: { titulo: string; bajada
       </section>
     </>
   )
-}
-
-export default function SetupPage() {
-  return <Pagina titulo={tituloSetup} bajada="Una sola vez, antes del primer ejercicio." etiqueta="Pasos de configuración" markdown={setup.markdown} />
 }
 
 export function SddPage() {

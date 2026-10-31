@@ -59,6 +59,26 @@ export const guardarCaptura = (id: string, imagen: Blob) =>
 
 export const borrarCaptura = (id: string) => pedirCaptura(id, { method: "DELETE" })
 
+// El panel del ejercicio 1 que prueba la API de Mentorías como un Postman simple.
+export type RespuestaApi = { estado: number; cuerpo: unknown }
+
+export async function llamarApi(metodo: "GET" | "POST", ruta: string, cuerpo?: string): Promise<RespuestaApi> {
+  let respuesta: Response
+  try {
+    respuesta = await fetch(ruta, { method: metodo, headers: { "Content-Type": "application/json" }, body: cuerpo })
+  } catch {
+    throw new Error("No pudimos conectarnos con la API. ¿Está corriendo npm run dev?")
+  }
+  const texto = await respuesta.text()
+  let json: unknown = texto
+  try {
+    json = JSON.parse(texto)
+  } catch {
+    // no es JSON: se muestra tal cual
+  }
+  return { estado: respuesta.status, cuerpo: json }
+}
+
 // Cada historia tomada del tablero deja ejercicios/<id>/tarea-<historia>.md: así queda en la entrega.
 async function pedirTarea(id: string, historia: string, method: "PUT" | "DELETE") {
   let respuesta: Response
