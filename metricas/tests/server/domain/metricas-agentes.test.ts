@@ -156,6 +156,19 @@ describe("calcularMetricas: tiempo", () => {
     expect(calcular(largo).porTiempo.pasoMin).toBe(10)
   })
 
+  it("con varias sesiones, el paso sale del rango completo y los tramos van en orden", () => {
+    // Las sesiones llegan con la más reciente primero: sin ordenar, la línea iba y volvía en diagonal.
+    const dosSesiones: EntradaLog[] = [
+      { ts: "2026-10-27T10:00:00Z", agent: "claude", event: "SessionStart", session: "vieja" },
+      { ts: "2026-10-27T10:05:00Z", agent: "claude", event: "Stop", session: "vieja" },
+      { ts: "2026-10-30T10:00:00Z", agent: "cline", event: "SessionStart", session: "nueva" },
+      { ts: "2026-10-30T10:05:00Z", agent: "cline", event: "Stop", session: "nueva" },
+    ]
+    const { porTiempo } = calcular(dosSesiones)
+    expect(porTiempo.pasoMin).toBe(60)
+    expect(porTiempo.puntos.map((p) => p.t)).toEqual(["2026-10-27T10:00:00.000Z", "2026-10-30T10:00:00.000Z"])
+  })
+
   it("la ventana descarta lo anterior", () => {
     const m = calcular(TODAS, { ventanaMin: 8 }, new Date("2026-10-27T17:12:00.000Z")) // desde las 17:04
     expect(m.sesiones.map((s) => s.agente)).toEqual(["claude"])
