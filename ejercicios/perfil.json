@@ -8,6 +8,14 @@
   "agente": "Cline",
   "puntaje": null,
   "comentario": "",
-  "ejercicios": {},
-  "guardado": "2026-10-31T15:26:53.762Z"
+  "ejercicios": {
+    "01-observabilidad-con-hooks": {
+      "modelo": "Opus 5.5",
+      "agente": "Claude",
+      "intervino": "",
+      "intervencion": "",
+      "feedback": ""
+    }
+  },
+  "guardado": "2026-10-31T16:00:42.074Z"
 }

@@ -1,0 +1,54 @@
+- generic [ref=e3]:
+  - link "Saltar al contenido" [ref=e4] [cursor=pointer]:
+    - /url: "#contenido"
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - link "UTN FRBA (abre en otra pestaña)" [ref=e7] [cursor=pointer]:
+        - /url: https://www.frba.utn.edu.ar
+        - generic [aria-hidden] [ref=e10]:
+          - text: UTN
+          - strong [ref=e11]: FRBA
+      - link [ref=e14] [cursor=pointer]:
+        - /url: /
+        - generic [aria-hidden] [ref=e15]: ›
+        - generic [ref=e16]:
+          - text: Mentorías
+          - emphasis [ref=e17]: a Voluntad
+    - navigation "Principal" [ref=e18]:
+      - link "Mentoras" [ref=e19] [cursor=pointer]:
+        - /url: /
+      - link "Ejercicios" [ref=e20] [cursor=pointer]:
+        - /url: /ejercicios
+      - link "Mi perfil" [ref=e21] [cursor=pointer]:
+        - /url: /ejercicios/perfil
+      - link "Métricas" [ref=e22] [cursor=pointer]:
+        - /url: /metricas
+  - main [ref=e23]:
+    - generic [ref=e139]:
+      - link "Todas las mentoras" [ref=e140] [cursor=pointer]:
+        - /url: /
+        - text: ← Todas las mentoras
+      - generic [ref=e141]:
+        - paragraph [ref=e142]: // Reservar sesión con
+        - heading "Camila Sosa" [level=1] [ref=e143]
+        - paragraph [ref=e144]: QA de oficio. Te ayudo a armar una estrategia de testing que el equipo realmente sostenga.
+      - region [ref=e146]:
+        - heading "¿Qué tipo de ayuda necesitan?" [level=2] [ref=e147]:
+          - generic [aria-hidden] [ref=e148]: "1"
+          - text: ¿Qué tipo de ayuda necesitan?
+        - group "Tipo de asesoría" [ref=e149]:
+          - generic [ref=e151] [cursor=pointer]:
+            - 'radio "Revisión de código 30 min Una mirada externa sobre un PR o un módulo: legibilidad, errores y próximos pasos." [ref=e152]'
+            - generic [ref=e153]: Revisión de código
+            - generic [ref=e154]: 30 min
+            - generic [ref=e155]: "Una mirada externa sobre un PR o un módulo: legibilidad, errores y próximos pasos."
+          - generic [ref=e156] [cursor=pointer]:
+            - radio "Estrategia de testing 45 min Qué testear, cómo y con qué herramientas para no romper lo que funciona." [ref=e157]
+            - generic [ref=e158]: Estrategia de testing
+            - generic [ref=e159]: 45 min
+            - generic [ref=e160]: Qué testear, cómo y con qué herramientas para no romper lo que funciona.
+  - contentinfo [ref=e36]:
+    - generic [ref=e37]:
+      - text: Parte del ecosistema
+      - strong [ref=e38]: Código a Voluntad
+    - generic [ref=e39]: Proyecto de práctica · UTN FRBA
