@@ -101,6 +101,12 @@ describe("log-hook: Cline (nombres tolerantes donde la doc no los confirma)", ()
     expect(entrada).toMatchObject({ event: "UserPromptSubmit", prompt: "hola" })
     expect(entrada.toolUseId).toBeUndefined()
   })
+
+  it("guarda el timestamp en formato ISO con huso horario local", () => {
+    const { entrada } = registrar("cline", { taskId: "k4", hookName: "prompt_submit", userPromptSubmit: { prompt: "hola" } })
+    expect(entrada.ts).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{2}:\d{2}$/)
+    expect(Math.abs(Date.parse(entrada.ts as string) - Date.now())).toBeLessThan(5000)
+  })
 })
 
 describe("clasificar: rutas de apply_patch", () => {

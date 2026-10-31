@@ -48,7 +48,7 @@ const entries = files
   .filter(Boolean)  // Logs escritos antes de normalizar los eventos de Cline 3.x traen nombres en snake_case.
   .map((entry) => ({ ...entry, event: EVENTOS_VIEJOS[entry.event] ?? entry.event }))
   .filter((entry) => !agente || entry.agent === agente)
-  .sort((a, b) => String(a.ts).localeCompare(String(b.ts)))
+  .sort((a, b) => (Date.parse(a.ts) || 0) - (Date.parse(b.ts) || 0))
 
 const sessions = new Map()
 for (const entry of entries) {
@@ -58,7 +58,7 @@ for (const entry of entries) {
 }
 
 // Ordenadas por su último evento, así "la última" es la más reciente aunque venga de otro provider.
-const keys = [...sessions.keys()].sort((a, b) => String(sessions.get(a).at(-1).ts).localeCompare(String(sessions.get(b).at(-1).ts)))
+const keys = [...sessions.keys()].sort((a, b) => (Date.parse(sessions.get(a).at(-1)?.ts) || 0) - (Date.parse(sessions.get(b).at(-1)?.ts) || 0))
 // Algunos agentes abren sesiones sin prompts ni herramientas (solo SessionStart/SessionEnd): no cuentan como "la última".
 const conActividad = keys.filter((key) => sessions.get(key).some((e) => e.event === "UserPromptSubmit" || e.event === "PreToolUse"))
 const selected = args.has("--todas") ? keys : (conActividad.length ? conActividad : keys).slice(-1)

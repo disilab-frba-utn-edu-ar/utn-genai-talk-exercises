@@ -75,6 +75,27 @@ const CLINE_EVENTS = {
 
 // Devuelve el primer valor que exista. Sirve para campos que cada agente nombra distinto
 // o que la documentación no confirma: probamos los nombres posibles y, si no está, queda undefined.
+// Genera fecha y hora local con su huso horario (ej: 2026-10-31T19:10:50.683-03:00)
+// para que el log sea legible directamente sin perder compatibilidad con ISO 8601.
+function localISOString(date = new Date()) {
+  const pad = (n, len = 2) => String(n).padStart(len, "0")
+  const year = date.getFullYear()
+  const month = pad(date.getMonth() + 1)
+  const day = pad(date.getDate())
+  const hours = pad(date.getHours())
+  const minutes = pad(date.getMinutes())
+  const seconds = pad(date.getSeconds())
+  const ms = pad(date.getMilliseconds(), 3)
+
+  const offset = date.getTimezoneOffset()
+  const sign = offset > 0 ? "-" : "+"
+  const absOffset = Math.abs(offset)
+  const offsetHours = pad(Math.floor(absOffset / 60))
+  const offsetMinutes = pad(absOffset % 60)
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${ms}${sign}${offsetHours}:${offsetMinutes}`
+}
+
 const primerDefinido = (...valores) => valores.find((valor) => valor !== undefined && valor !== null)
 
 // Cada agente manda un payload con forma distinta. Lo llevamos a un formato común.
@@ -113,7 +134,7 @@ function normalize(payload) {
   const sinSalida = kind === "leer" || kind === "escribir" || kind === "skill"
 
   return {
-    ts: new Date().toISOString(),
+    ts: localISOString(),
     agent,
     event,
     session: payload.session_id ?? payload.taskId ?? undefined,
