@@ -245,8 +245,11 @@ const pasoPara = (desde: number, hasta: number) => {
   return rangoMin <= 180 ? 1 : rangoMin <= 24 * 60 ? 10 : 60
 }
 
-function porTiempo(eventos: Evento[]): MetricasAgentes["porTiempo"] {
-  if (eventos.length === 0) return { pasoMin: 1, puntos: [] }
+function porTiempo(todos: Evento[]): MetricasAgentes["porTiempo"] {
+  if (todos.length === 0) return { pasoMin: 1, puntos: [] }
+  // Llegan agrupados por sesión (la más reciente primero): sin ordenar, el paso saldría del rango
+  // equivocado y los tramos quedarían fuera de orden.
+  const eventos = [...todos].sort((x, y) => x.t - y.t)
   const pasoMin = pasoPara(eventos[0].t, eventos.at(-1)!.t)
   const paso = pasoMin * 60_000
   const tramos = new Map<number, Partial<Record<AgenteLog, number>>>()

@@ -280,6 +280,20 @@
   gap: 1rem;
 }
 
+/* Anillo de tamaño fijo con la leyenda al costado; en un ancho chico la leyenda baja. */
+.torta-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1.25rem;
+}
+
+.torta-fila .leyenda {
+  flex-direction: column;
+  margin: 0;
+}
+
 .torta-titulo {
   margin: 0;
   font-weight: 700;

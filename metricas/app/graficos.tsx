@@ -15,6 +15,7 @@ import {
   LineChart,
   Pie,
   PieChart,
+  Rectangle,
   ReferenceLine,
   ResponsiveContainer,
   Scatter,
@@ -22,6 +23,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  type RectangleProps,
 } from "recharts"
 import type { AgenteLog } from "../tipos"
 import { duracion, formatoNumero, hora } from "./formato"
@@ -132,30 +134,49 @@ function Lienzo({ alto, children }: { alto: number; children: ReactElement }) {
   )
 }
 
-/** Etiqueta corta para el eje: las herramientas MCP pierden el prefijo (mcp__servidor__tool → servidor · tool). */
-function recortar(texto: string, max = 24) {
+/**
+ * Etiqueta corta: las herramientas MCP pierden el prefijo (mcp__servidor__tool → servidor · tool) y las
+ * rutas se recortan por el principio, porque lo que identifica al archivo es el final. El nombre completo
+ * queda en el tooltip y en la tabla.
+ */
+export function recortar(texto: string, max = 44) {
   const corto = texto.replace(/^mcp__(.+?)__(.+)$/, "$1 · $2")
-  return corto.length > max ? `${corto.slice(0, max - 1)}…` : corto
+  if (corto.length <= max) return corto
+  return corto.includes("/") ? `…${corto.slice(-(max - 1))}` : `${corto.slice(0, max - 1)}…`
+}
+
+/** Nombre de la fila arriba de su barra: así no compite por el ancho con la barra y entra entero. */
+function EtiquetaArriba(props: { x?: number | string; y?: number | string; value?: number | string | boolean | null }) {
+  return (
+    <text x={Number(props.x)} y={Number(props.y) - 5} fill="var(--texto)" fontSize={12}>
+      {recortar(String(props.value ?? ""))}
+    </text>
+  )
 }
 
 export type FilaBarra = { etiqueta: string; valor: number; texto?: string; color?: string }
 
-/** Barras horizontales: el eje Y nombra cada fila, el eje X dice qué se cuenta y el valor va escrito al final de la barra. */
+/**
+ * Barras horizontales: el nombre de cada fila va arriba de su barra (con todo el ancho, para que las rutas
+ * no se corten), el eje X dice qué se cuenta y el valor va escrito al final de la barra.
+ */
 export function GraficoBarras({ filas, eje, formato = formatoNumero }: { filas: FilaBarra[]; eje: string; formato?: (n: number) => string }) {
   const datos = filas.map((f) => ({ ...f, texto: f.texto ?? formato(f.valor) }))
   return (
-    <Lienzo alto={Math.max(140, datos.length * 30 + 60)}>
-      <BarChart accessibilityLayer={false} data={datos} layout="vertical" margin={{ top: 4, right: Math.min(150, 16 + 7 * Math.max(...datos.map((d) => d.texto.length))), bottom: 24, left: 8 }} barCategoryGap={4}>
+    <Lienzo alto={Math.max(140, datos.length * 36 + 60)}>
+      <BarChart accessibilityLayer={false} data={datos} layout="vertical" margin={{ top: 4, right: Math.min(190, 16 + 7 * Math.max(...datos.map((d) => d.texto.length))), bottom: 24, left: 8 }} barSize={14}>
         <CartesianGrid {...GRILLA} horizontal={false} />
         <XAxis type="number" tick={TICK} tickFormatter={formato} allowDecimals={false} label={{ value: eje, position: "insideBottom", offset: -14, ...ROTULO }} />
-        <YAxis type="category" dataKey="etiqueta" width={150} tick={TICK} tickFormatter={(t: string) => recortar(t)} interval={0} />
-        <Tooltip {...TOOLTIP} formatter={(_v, _n, item) => [(item.payload as FilaBarra).texto, eje]} />
-        <Bar dataKey="valor" radius={[0, 4, 4, 0]} {...ANIMACION}>
+        {/* El eje Y ordena las filas pero no ocupa ancho: el nombre lo dibuja EtiquetaArriba. */}
+        <YAxis type="category" dataKey="etiqueta" hide />
+        <Tooltip {...TOOLTIP} labelFormatter={(etiqueta) => String(etiqueta).replace(/^mcp__(.+?)__(.+)$/, "$1 · $2")} formatter={(_v, _n, item) => [(item.payload as FilaBarra).texto, eje]} />
+        <Bar dataKey="valor" radius={[0, 4, 4, 0]} minPointSize={2} {...ANIMACION}>
           {datos.map((f) => (
             <Cell key={f.etiqueta} fill={f.color ?? "var(--agente-claude)"} />
           ))}
+          <LabelList dataKey="etiqueta" content={EtiquetaArriba} />
           {/* width grande: sin él Recharts parte la etiqueta en dos líneas. */}
-          <LabelList dataKey="texto" position="right" fill="var(--texto)" fontSize={12} width={200} />
+          <LabelList dataKey="texto" position="right" fill="var(--texto)" fontSize={12} width={400} />
         </Bar>
       </BarChart>
     </Lienzo>
@@ -168,23 +189,31 @@ export type PuntoSerie = { t: string; valores: Record<string, number> }
 const fechaHora = (t: number) => new Date(t).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
 
 /**
- * El servidor solo manda los tramos con actividad. Entre dos tramos separados agrega un 0 justo
- * después del primero y otro justo antes del segundo, para que la línea baje a cero en el hueco
- * en vez de unir los puntos como si hubiera habido actividad en el medio.
+ * El servidor solo manda los tramos con actividad, en orden. Después de cada tramo seguido de un hueco
+ * agrega un 0 (también después del último): como las líneas y áreas van en escalones, cada tramo se
+ * dibuja plano durante todo su paso y baja a cero en el hueco, sin diagonales que sugieran actividad
+ * en el medio.
  */
 function conHuecos(puntos: PuntoSerie[], pasoMin: number): { t: number; valores: Record<string, number> }[] {
   const paso = pasoMin * 60_000
+  const ordenados = puntos.map((p) => ({ t: new Date(p.t).getTime(), valores: p.valores })).sort((a, b) => a.t - b.t)
   const resultado: { t: number; valores: Record<string, number> }[] = []
-  for (const p of puntos) {
-    const t = new Date(p.t).getTime()
-    const anterior = resultado.at(-1)?.t
-    if (anterior !== undefined && t - anterior > paso) {
-      resultado.push({ t: anterior + paso, valores: {} })
-      if (t - paso > anterior + paso) resultado.push({ t: t - paso, valores: {} })
-    }
-    resultado.push({ t, valores: p.valores })
+  for (const [i, p] of ordenados.entries()) {
+    resultado.push(p)
+    const siguiente = ordenados[i + 1]?.t
+    if (siguiente === undefined || siguiente - p.t > paso) resultado.push({ t: p.t + paso, valores: {} })
   }
   return resultado
+}
+
+/**
+ * Barra de al menos 4 px de ancho, centrada en su tramo: en un eje de tiempo de varios días Recharts
+ * las afina (y no deja agrandarlas con barSize) hasta que en un celular no se ven.
+ */
+function BarraMinima(props: RectangleProps) {
+  const ancho = props.width ?? 0
+  const visible = Math.max(ancho, 4)
+  return <Rectangle {...props} x={(props.x ?? 0) + ancho / 2 - visible / 2} width={visible} />
 }
 
 /**
@@ -195,7 +224,9 @@ function conHuecos(puntos: PuntoSerie[], pasoMin: number): { t: number; valores:
  */
 export function GraficoSerie({ puntos, series, pasoMin, ejeY, tipo = "lineas", formato = formatoNumero }: { puntos: PuntoSerie[]; series: SerieDef[]; pasoMin: number; ejeY: string; tipo?: "lineas" | "area" | "barras"; formato?: (n: number) => string }) {
   const presentes = series.filter((s) => puntos.some((p) => p.valores[s.id]))
-  const datos = conHuecos(puntos, pasoMin).map((p) => ({ t: p.t, ...Object.fromEntries(presentes.map((s) => [s.id, p.valores[s.id] ?? 0])) }))
+  // Las barras ya ocupan su tramo: no necesitan los ceros de cierre.
+  const conCierre = tipo === "barras" ? puntos.map((p) => ({ t: new Date(p.t).getTime(), valores: p.valores })).sort((a, b) => a.t - b.t) : conHuecos(puntos, pasoMin)
+  const datos = conCierre.map((p) => ({ t: p.t, ...Object.fromEntries(presentes.map((s) => [s.id, p.valores[s.id] ?? 0])) }))
   // Eje de tiempo real (no categorías): una hora sin actividad ocupa una hora en el gráfico.
   const variosDias = datos.length > 1 && datos.at(-1)!.t - datos[0].t > 20 * 3_600_000
   const formatoT = (t: number) => (variosDias ? fechaHora(t) : hora(new Date(t).toISOString()))
@@ -216,7 +247,7 @@ export function GraficoSerie({ puntos, series, pasoMin, ejeY, tipo = "lineas", f
         minTickGap={8}
         label={{ value: variosDias ? "Fecha y hora" : "Hora", position: "insideBottom", offset: -14, ...ROTULO }}
       />
-      <YAxis tick={TICK} tickFormatter={formato} width={64} allowDecimals={false} label={{ value: ejeY, angle: -90, position: "insideLeft", style: { textAnchor: "middle" }, ...ROTULO }} />
+      <YAxis tick={TICK} tickFormatter={formato} width={80} allowDecimals={false} label={{ value: ejeY, angle: -90, position: "insideLeft", style: { textAnchor: "middle" }, ...ROTULO }} />
       <Tooltip {...TOOLTIP} formatter={(v) => formato(Number(v))} labelFormatter={(t) => `Desde ${fechaHora(Number(t))}`} />
       {/* Con una sola serie la leyenda sobra: el título ya la nombra. */}
       {presentes.length > 1 && <Legend verticalAlign="top" height={28} {...LEYENDA} />}
@@ -229,21 +260,21 @@ export function GraficoSerie({ puntos, series, pasoMin, ejeY, tipo = "lineas", f
         <BarChart accessibilityLayer={false} data={datos} margin={margen}>
           {comunes}
           {presentes.map((s, i) => (
-            <Bar key={s.id} dataKey={s.id} name={s.nombre} stackId="total" fill={s.color} stroke="var(--superficie)" strokeWidth={1} radius={i === presentes.length - 1 ? [4, 4, 0, 0] : 0} {...ANIMACION} />
+            <Bar key={s.id} dataKey={s.id} name={s.nombre} stackId="total" fill={s.color} shape={BarraMinima} radius={i === presentes.length - 1 ? [2, 2, 0, 0] : 0} {...ANIMACION} />
           ))}
         </BarChart>
       ) : tipo === "area" ? (
         <AreaChart accessibilityLayer={false} data={datos} margin={margen}>
           {comunes}
           {presentes.map((s) => (
-            <Area key={s.id} type="linear" dataKey={s.id} name={s.nombre} stackId="total" stroke={s.color} strokeWidth={2} fill={s.color} fillOpacity={0.35} {...ANIMACION} />
+            <Area key={s.id} type="stepAfter" dataKey={s.id} name={s.nombre} stackId="total" stroke={s.color} strokeWidth={2} fill={s.color} fillOpacity={0.35} {...ANIMACION} />
           ))}
         </AreaChart>
       ) : (
         <LineChart accessibilityLayer={false} data={datos} margin={margen}>
           {comunes}
           {presentes.map((s) => (
-            <Line key={s.id} type="linear" dataKey={s.id} name={s.nombre} stroke={s.color} strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} {...ANIMACION} />
+            <Line key={s.id} type="stepAfter" dataKey={s.id} name={s.nombre} stroke={s.color} strokeWidth={2} dot={false} activeDot={{ r: 4 }} {...ANIMACION} />
           ))}
         </LineChart>
       )}
@@ -261,20 +292,23 @@ function agruparResto(segmentos: Segmento[], max = 6): Segmento[] {
   return [...ordenados.slice(0, max - 1), { nombre: "otros", valor: resto, color: "var(--kind-otro)" }]
 }
 
-/** Torta (anillo) con el total en el centro y el porcentaje de cada porción en la leyenda: muestra proporciones de un todo. */
-export function GraficoTorta({ segmentos: todos, unidad, formato = formatoNumero, alto = 240 }: { segmentos: Segmento[]; unidad: string; formato?: (n: number) => string; alto?: number }) {
+/**
+ * Torta (anillo) con el total en el centro y el porcentaje de cada porción en la leyenda: muestra proporciones
+ * de un todo. El anillo tiene tamaño fijo y la leyenda va al costado (abajo si no entra), sin espacio vacío.
+ */
+export function GraficoTorta({ segmentos: todos, unidad, formato = formatoNumero, lado = 180 }: { segmentos: Segmento[]; unidad: string; formato?: (n: number) => string; lado?: number }) {
   const segmentos = agruparResto(todos)
   const total = segmentos.reduce((n, s) => n + s.valor, 0)
   const pct = (v: number) => (total ? `${Math.round((v / total) * 100)} %` : "0 %")
   return (
-    <Lienzo alto={alto}>
-      <PieChart accessibilityLayer={false}>
+    <div className="torta-fila">
+      <PieChart accessibilityLayer={false} width={lado} height={lado}>
         <Pie
           data={segmentos}
           dataKey="valor"
           nameKey="nombre"
-          innerRadius="50%"
-          outerRadius="78%"
+          innerRadius={lado * 0.31}
+          outerRadius={lado / 2 - 4}
           paddingAngle={1}
           stroke="var(--superficie)"
           strokeWidth={2}
@@ -285,18 +319,18 @@ export function GraficoTorta({ segmentos: todos, unidad, formato = formatoNumero
             <Cell key={s.nombre} fill={s.color} />
           ))}
         </Pie>
-        <text x="50%" y="50%" textAnchor="middle" dominantBaseline="central" fill="var(--texto)">
-          <tspan x="50%" dy="-0.5em" fontSize={18} fontWeight={700}>
+        <text x={lado / 2} y={lado / 2} textAnchor="middle" dominantBaseline="central" fill="var(--texto)">
+          <tspan x={lado / 2} dy="-0.5em" fontSize={18} fontWeight={700}>
             {formato(total)}
           </tspan>
-          <tspan x="50%" dy="1.3em" fontSize={11} fill="var(--texto-suave)">
+          <tspan x={lado / 2} dy="1.3em" fontSize={11} fill="var(--texto-suave)">
             {unidad}
           </tspan>
         </text>
         <Tooltip {...TOOLTIP} formatter={(v, nombre) => [`${formato(Number(v))} ${unidad} (${pct(Number(v))})`, nombre]} />
-        <Legend {...LEYENDA} formatter={(nombre: string) => <span className="leyenda-texto">{`${nombre} · ${pct(segmentos.find((s) => s.nombre === nombre)?.valor ?? 0)}`}</span>} />
       </PieChart>
-    </Lienzo>
+      <Leyenda items={segmentos.map((s) => ({ nombre: `${s.nombre} · ${pct(s.valor)}`, color: s.color }))} />
+    </div>
   )
 }
 
@@ -307,7 +341,7 @@ export function TortasPorGrupo({ grupos, unidad }: { grupos: { nombre: string; s
       {grupos.map((g) => (
         <div key={g.nombre} className="torta">
           <p className="torta-titulo">{g.nombre}</p>
-          <GraficoTorta segmentos={g.segmentos} unidad={unidad} alto={260} />
+          <GraficoTorta segmentos={g.segmentos} unidad={unidad} lado={160} />
         </div>
       ))}
     </div>
@@ -320,7 +354,8 @@ export function GraficoDuraciones({ filas }: { filas: { kind: string; p50Ms: num
     <Lienzo alto={260}>
       <BarChart accessibilityLayer={false} data={filas} margin={{ top: 4, right: 16, bottom: 24, left: 8 }} barGap={2}>
         <CartesianGrid {...GRILLA} vertical={false} />
-        <XAxis dataKey="kind" tick={TICK} interval={0} label={{ value: "Tipo de acción", position: "insideBottom", offset: -14, ...ROTULO }} />
+        {/* Inclinadas: con siete tipos los nombres se pisaban en un ancho chico. */}
+        <XAxis dataKey="kind" tick={{ ...TICK, textAnchor: "end" }} angle={-35} height={56} interval={0} label={{ value: "Tipo de acción", position: "insideBottom", offset: -14, ...ROTULO }} />
         <YAxis tick={TICK} tickFormatter={(ms: number) => duracion(ms)} width={64} label={{ value: "Duración", angle: -90, position: "insideLeft", style: { textAnchor: "middle" }, ...ROTULO }} />
         <Tooltip {...TOOLTIP} formatter={(v) => duracion(Number(v))} />
         <Legend verticalAlign="top" height={28} {...LEYENDA} />

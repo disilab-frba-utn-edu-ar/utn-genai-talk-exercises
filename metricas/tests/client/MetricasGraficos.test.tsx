@@ -1,5 +1,6 @@
 import { screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { recortar } from "../../app/graficos"
 import { metricasDePrueba } from "./metricas-fixture"
 import { FuenteFalsa, renderPagina, simularServidor } from "./metricas-helpers"
 
@@ -89,5 +90,16 @@ describe("Métricas: todos los gráficos", () => {
     for (const titulo of [/Línea de tiempo/, /Duración por tipo/, /Archivos escritos/, /Comandos de shell/, /Subagentes, skills y MCP/]) {
       expect(screen.getByRole("figure", { name: titulo })).toHaveTextContent("Sin datos")
     }
+  })
+})
+
+describe("Métricas: etiquetas de las barras", () => {
+  it("las rutas largas se recortan por el principio, para que se vea el archivo", () => {
+    expect(recortar("(fuera del repo)/src/server/services/horarios/disponibilidad.ts", 30)).toBe("…es/horarios/disponibilidad.ts")
+  })
+
+  it("los nombres largos que no son rutas se recortan al final y las herramientas MCP pierden el prefijo", () => {
+    expect(recortar("mcp__Claude_Browser__read_console_messages")).toBe("Claude_Browser · read_console_messages")
+    expect(recortar("un comando con un nombre larguísimo", 20)).toBe("un comando con un n…")
   })
 })
