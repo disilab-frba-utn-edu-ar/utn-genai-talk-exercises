@@ -103,7 +103,7 @@ describe("Ejercicios", () => {
     renderEjercicio()
 
     await userEvent.type(await screen.findByLabelText(/¿Cuántas llamadas a herramientas hizo el agente en total\?/), "Listo")
-    expect(within(screen.getByRole("region", { name: "1. El ciclo" })).getByText("1/3")).toBeInTheDocument()
+    expect(within(screen.getByRole("region", { name: "1. El ciclo" })).getByText("1/2")).toBeInTheDocument()
     await userEvent.click(screen.getByRole("button", { name: "Guardar respuestas" }))
 
     const [url, opciones] = fetchFalso.mock.calls.at(-1) as unknown as [string, RequestInit]

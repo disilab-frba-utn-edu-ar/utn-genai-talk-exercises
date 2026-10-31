@@ -237,8 +237,6 @@
     "1. **El ciclo.**",
     "   - ¿Cuántas llamadas a herramientas hizo el agente en total?",
     "   - ¿Qué herramienta usó más?",
-    "   - Agrupalas en las familias de la charla: búsqueda de código, control de",
-    "     versiones, validación local, navegador, servicios.",
     "2. **Explorar antes de actuar.**",
     "   - ¿Cuántas herramientas usó **antes** de su primera edición de archivo?",
     "   - ¿Qué archivos leyó?",
