@@ -21,9 +21,9 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "logs:resumen": "node scripts/agent-logs/resumen.mjs",
-    "logs:timeline": "node scripts/agent-logs/resumen.mjs --timeline",
-    "logs:limpiar": "node scripts/agent-logs/limpiar.mjs"
+    "logs:resumen": "node scripts/agent-logs/resumen.mjs 2>&1 | cat",
+    "logs:timeline": "node scripts/agent-logs/resumen.mjs --timeline 2>&1 | cat",
+    "logs:limpiar": "node scripts/agent-logs/limpiar.mjs 2>&1 | cat"
   },
   "dependencies": {
     "express": "^5.3.0",
