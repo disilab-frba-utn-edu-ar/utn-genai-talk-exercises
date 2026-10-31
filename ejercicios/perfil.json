@@ -1,0 +1,18 @@
+{
+  "nombre": "",
+  "integrantes": [],
+  "modelo": "",
+  "agente": "",
+  "puntaje": null,
+  "comentario": "",
+  "ejercicios": {
+    "01-observabilidad-con-hooks": {
+      "modelo": "Sonnet 5.5",
+      "agente": "Claude",
+      "intervino": "",
+      "intervencion": "",
+      "feedback": ""
+    }
+  },
+  "guardado": "2026-10-31T13:24:06.028Z"
+}

@@ -41,6 +41,27 @@ describe("API · GET /api/mentoras/:id/disponibilidad", () => {
   })
 })
 
+describe("API · GET /api/sesiones/:id", () => {
+  it("devuelve el detalle de la sesión sin datos de contacto (Principio IV)", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba()])
+    const res = await api.get(`/api/sesiones/${sesionDePrueba().id}`)
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({ id: sesionDePrueba().id, mentoraId: VALENTINA, estado: "confirmada" })
+    expect(res.body).not.toHaveProperty("contactoEmail")
+    expect(res.body).not.toHaveProperty("contactoNombre")
+    expect(JSON.stringify(res.body)).not.toContain("@example.org")
+  })
+
+  it("404 con { error } si la sesión no existe o el id está mal formado", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba()])
+    for (const id of ["00000000-0000-4000-8000-0000000000ff", "no-es-un-uuid"]) {
+      const res = await api.get(`/api/sesiones/${id}`)
+      expect(res.status).toBe(404)
+      expect(res.body).toEqual({ error: "La sesión no existe" })
+    }
+  })
+})
+
 describe("API · GET /api/sesiones", () => {
   it("lista sesiones filtradas sin datos de contacto (Principio IV)", async () => {
     const { api } = crearAppDePrueba([sesionDePrueba(), sesionDePrueba({ id: "otra", fecha: "2026-10-21" })])

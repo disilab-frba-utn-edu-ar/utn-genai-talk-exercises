@@ -1,0 +1,20 @@
+{
+  "ejercicio": "01-observabilidad-con-hooks",
+  "guardado": "2026-10-31T13:24:25.685Z",
+  "general": [
+    "# Ejercicio 1 — Respuestas"
+  ],
+  "respuestas": {
+    "1.1": [
+      "15"
+    ],
+    "1.2": [
+      "17665  Read"
+    ],
+    "2.2": [
+      "sesiones.ts",
+      "horarios.ts",
+      "helpers.ts"
+    ]
+  }
+}
