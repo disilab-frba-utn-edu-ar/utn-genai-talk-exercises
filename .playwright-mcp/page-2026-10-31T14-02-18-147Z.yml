@@ -1,0 +1,86 @@
+- generic [ref=e3]:
+  - link "Saltar al contenido" [ref=e4] [cursor=pointer]:
+    - /url: "#contenido"
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - link "UTN FRBA (abre en otra pestaña)" [ref=e7] [cursor=pointer]:
+        - /url: https://www.frba.utn.edu.ar
+        - generic [aria-hidden] [ref=e10]:
+          - text: UTN
+          - strong [ref=e11]: FRBA
+      - link [ref=e14] [cursor=pointer]:
+        - /url: /
+        - generic [aria-hidden] [ref=e15]: ›
+        - generic [ref=e16]:
+          - text: Mentorías
+          - emphasis [ref=e17]: a Voluntad
+    - navigation "Principal" [ref=e18]:
+      - link "Mentoras" [ref=e19] [cursor=pointer]:
+        - /url: /
+      - link "Ejercicios" [ref=e20] [cursor=pointer]:
+        - /url: /ejercicios
+  - main [ref=e21]:
+    - generic [ref=e115]:
+      - link "Todas las mentoras" [ref=e116] [cursor=pointer]:
+        - /url: /
+        - text: ← Todas las mentoras
+      - generic [ref=e117]:
+        - paragraph [ref=e118]: // Reservar sesión con
+        - heading "Valentina Ríos" [level=1] [ref=e119]
+        - paragraph [ref=e120]: Frontend hace 8 años. Me encanta ayudar a equipos chicos a ordenar sus componentes y empezar a testear.
+      - generic [ref=e121]:
+        - region [ref=e122]:
+          - heading "¿Qué tipo de ayuda necesitan?" [level=2] [ref=e123]:
+            - generic [aria-hidden] [ref=e124]: "1"
+            - text: ¿Qué tipo de ayuda necesitan?
+          - group "Tipo de asesoría" [ref=e125]:
+            - generic [ref=e127] [cursor=pointer]:
+              - 'radio "Revisión de código 30 min Una mirada externa sobre un PR o un módulo: legibilidad, errores y próximos pasos." [checked] [ref=e128]'
+              - generic [ref=e129]: Revisión de código
+              - generic [ref=e130]: 30 min
+              - generic [ref=e131]: "Una mirada externa sobre un PR o un módulo: legibilidad, errores y próximos pasos."
+            - generic [ref=e132] [cursor=pointer]:
+              - radio "Estrategia de testing 45 min Qué testear, cómo y con qué herramientas para no romper lo que funciona." [ref=e133]
+              - generic [ref=e134]: Estrategia de testing
+              - generic [ref=e135]: 45 min
+              - generic [ref=e136]: Qué testear, cómo y con qué herramientas para no romper lo que funciona.
+            - generic [ref=e137] [cursor=pointer]:
+              - radio "Auditoría de accesibilidad 30 min Recorrer la app con teclado y lector de pantalla y priorizar arreglos." [ref=e138]
+              - generic [ref=e139]: Auditoría de accesibilidad
+              - generic [ref=e140]: 30 min
+              - generic [ref=e141]: Recorrer la app con teclado y lector de pantalla y priorizar arreglos.
+        - region [ref=e142]:
+          - heading "¿Qué día?" [level=2] [ref=e143]:
+            - generic [aria-hidden] [ref=e144]: "2"
+            - text: ¿Qué día?
+          - group "Días con lugar" [ref=e145]:
+            - button "lunes, 2 de noviembre, 4 horarios libres" [active] [pressed] [ref=e146] [cursor=pointer]:
+              - generic [ref=e147]: lun
+              - generic [ref=e148]: "2"
+              - generic [ref=e149]: nov
+            - button "miércoles, 4 de noviembre, 4 horarios libres" [ref=e150] [cursor=pointer]:
+              - generic [ref=e151]: mié
+              - generic [ref=e152]: "4"
+              - generic [ref=e153]: nov
+            - button "lunes, 9 de noviembre, 5 horarios libres" [ref=e154] [cursor=pointer]:
+              - generic [ref=e155]: lun
+              - generic [ref=e156]: "9"
+              - generic [ref=e157]: nov
+            - button "miércoles, 11 de noviembre, 6 horarios libres" [ref=e158] [cursor=pointer]:
+              - generic [ref=e159]: mié
+              - generic [ref=e160]: "11"
+              - generic [ref=e161]: nov
+        - region [ref=e162]:
+          - heading "¿A qué hora? · lunes, 2 de noviembre" [level=2] [ref=e163]:
+            - generic [aria-hidden] [ref=e164]: "3"
+            - text: ¿A qué hora? · lunes, 2 de noviembre
+          - group "Horarios libres" [ref=e165]:
+            - button "18:00 – 18:30" [ref=e166] [cursor=pointer]
+            - button "18:30 – 19:00" [ref=e167] [cursor=pointer]
+            - button "20:00 – 20:30" [ref=e168] [cursor=pointer]
+            - button "20:30 – 21:00" [ref=e169] [cursor=pointer]
+  - contentinfo [ref=e34]:
+    - generic [ref=e35]:
+      - text: Parte del ecosistema
+      - strong [ref=e36]: Código a Voluntad
+    - generic [ref=e37]: Proyecto de práctica · UTN FRBA

@@ -1,0 +1,28 @@
+- generic [ref=e3]:
+  - link "Saltar al contenido" [ref=e4] [cursor=pointer]:
+    - /url: "#contenido"
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - link "UTN FRBA (abre en otra pestaña)" [ref=e7] [cursor=pointer]:
+        - /url: https://www.frba.utn.edu.ar
+        - generic [aria-hidden] [ref=e10]:
+          - text: UTN
+          - strong [ref=e11]: FRBA
+      - link [ref=e14] [cursor=pointer]:
+        - /url: /
+        - generic [aria-hidden] [ref=e15]: ›
+        - generic [ref=e16]:
+          - text: Mentorías
+          - emphasis [ref=e17]: a Voluntad
+    - navigation "Principal" [ref=e18]:
+      - link "Mentoras" [ref=e19] [cursor=pointer]:
+        - /url: /
+      - link "Ejercicios" [ref=e20] [cursor=pointer]:
+        - /url: /ejercicios
+  - main [ref=e21]:
+    - status [ref=e22]: Cargando…
+  - contentinfo [ref=e24]:
+    - generic [ref=e25]:
+      - text: Parte del ecosistema
+      - strong [ref=e26]: Código a Voluntad
+    - generic [ref=e27]: Proyecto de práctica · UTN FRBA

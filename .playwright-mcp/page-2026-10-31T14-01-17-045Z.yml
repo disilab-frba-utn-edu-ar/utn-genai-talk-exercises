@@ -1,0 +1,40 @@
+- generic [ref=e3]:
+  - link "Saltar al contenido" [ref=e4] [cursor=pointer]:
+    - /url: "#contenido"
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - link "UTN FRBA (abre en otra pestaña)" [ref=e7] [cursor=pointer]:
+        - /url: https://www.frba.utn.edu.ar
+        - generic [aria-hidden] [ref=e10]:
+          - text: UTN
+          - strong [ref=e11]: FRBA
+      - link [ref=e14] [cursor=pointer]:
+        - /url: /
+        - generic [aria-hidden] [ref=e15]: ›
+        - generic [ref=e16]:
+          - text: Mentorías
+          - emphasis [ref=e17]: a Voluntad
+    - navigation "Principal" [ref=e18]:
+      - link "Mentoras" [ref=e19] [cursor=pointer]:
+        - /url: /
+      - link "Ejercicios" [ref=e20] [cursor=pointer]:
+        - /url: /ejercicios
+  - main [ref=e21]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - paragraph [ref=e24]: // Para colectivos▋
+        - heading "Encontrá a alguien que te ayude a destrabar tu proyecto" [level=1] [ref=e25]
+        - paragraph [ref=e26]: Personas con experiencia en desarrollo donan horas de mentoría. Elegí según lo que necesitás y reservá una sesión gratuita.
+      - generic [aria-hidden] [ref=e27]:
+        - paragraph [ref=e28]:
+          - generic [ref=e29]: Colectivo
+          - text: Nuestra API creció sin orden y ya no sabemos dónde tocar…
+        - paragraph [ref=e30]:
+          - generic [ref=e31]: Mentora
+          - text: ¡Charlemos de capas! En una hora lo ordenamos.
+    - status [ref=e32]: Buscando mentoras…
+  - contentinfo [ref=e34]:
+    - generic [ref=e35]:
+      - text: Parte del ecosistema
+      - strong [ref=e36]: Código a Voluntad
+    - generic [ref=e37]: Proyecto de práctica · UTN FRBA

@@ -1,0 +1,55 @@
+- generic [ref=e3]:
+  - link "Saltar al contenido" [ref=e4] [cursor=pointer]:
+    - /url: "#contenido"
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - link "UTN FRBA (abre en otra pestaña)" [ref=e7] [cursor=pointer]:
+        - /url: https://www.frba.utn.edu.ar
+      - link [ref=e14] [cursor=pointer]:
+        - /url: /
+        - generic [aria-hidden] [ref=e15]: ›
+        - generic [ref=e16]:
+          - text: Mentorías
+          - emphasis [ref=e17]: a Voluntad
+    - navigation "Principal" [ref=e18]:
+      - link "Mentoras" [ref=e19] [cursor=pointer]:
+        - /url: /
+      - link "Ejercicios" [ref=e20] [cursor=pointer]:
+        - /url: /ejercicios
+  - main [ref=e21]:
+    - region [ref=e192]:
+      - generic [aria-hidden] [ref=e193]: ✓
+      - heading "¡Sesión confirmada!" [level=1] [ref=e194]
+      - paragraph [ref=e195]: Guardá estos datos y el código de la sesión. Ese horario ya quedó reservado con Valentina Ríos.
+      - generic [ref=e196]:
+        - generic [ref=e197]:
+          - term [ref=e198]: Mentora
+          - definition [ref=e199]: Valentina Ríos
+        - generic [ref=e200]:
+          - term [ref=e201]: Asesoría
+          - definition [ref=e202]: Revisión de código (30 min)
+        - generic [ref=e203]:
+          - term [ref=e204]: Día
+          - definition [ref=e205]: lunes, 2 de noviembre
+        - generic [ref=e206]:
+          - term [ref=e207]: Horario
+          - definition [ref=e208]: 18:00 a 18:30
+        - generic [ref=e209]:
+          - term [ref=e210]: Colectivo
+          - definition [ref=e211]: Fundación Huerta Viva
+        - generic [ref=e212]:
+          - term [ref=e213]: Proyecto
+          - definition [ref=e214]: Queremos revisar el formulario de inscripción de la huerta comunitaria antes de publicarlo.
+        - generic [ref=e215]:
+          - term [ref=e216]: Contacto
+          - definition [ref=e217]: Ana Prueba · ana.prueba@example.org
+      - paragraph [ref=e218]:
+        - text: "Código de la sesión:"
+        - code [ref=e219]: 98e8d4ba-b191-4d30-85ac-16086dad97a3
+      - link "Volver al inicio" [ref=e220] [cursor=pointer]:
+        - /url: /
+  - contentinfo [ref=e34]:
+    - generic [ref=e35]:
+      - text: Parte del ecosistema
+      - strong [ref=e36]: Código a Voluntad
+    - generic [ref=e37]: Proyecto de práctica · UTN FRBA
