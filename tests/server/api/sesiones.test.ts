@@ -52,6 +52,51 @@ describe("API · GET /api/sesiones", () => {
   })
 })
 
+describe("API · GET /api/sesiones/:id", () => {
+  it("devuelve el detalle de la sesión", async () => {
+    const sesion = sesionDePrueba()
+    const { api } = crearAppDePrueba([sesion, sesionDePrueba({ id: "otra" })])
+    const res = await api.get(`/api/sesiones/${sesion.id}`)
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual({
+      id: sesion.id,
+      mentoraId: VALENTINA,
+      tipoAsesoriaId: "revision_de_codigo",
+      colectivoId: HUERTA_VIVA,
+      proyecto: "Revisar el formulario de inscripción",
+      fecha: LUNES,
+      horaInicio: "18:00",
+      horaFin: "18:30",
+      estado: "confirmada",
+    })
+  })
+
+  it("no expone los datos de contacto del colectivo (Principio IV)", async () => {
+    const sesion = sesionDePrueba()
+    const { api } = crearAppDePrueba([sesion])
+    const res = await api.get(`/api/sesiones/${sesion.id}`)
+    expect(res.body).not.toHaveProperty("contactoNombre")
+    expect(res.body).not.toHaveProperty("contactoEmail")
+    expect(JSON.stringify(res.body)).not.toContain("ana@example.org")
+  })
+
+  it("también devuelve sesiones canceladas", async () => {
+    const sesion = sesionDePrueba({ estado: "cancelada" })
+    const { api } = crearAppDePrueba([sesion])
+    const res = await api.get(`/api/sesiones/${sesion.id}`)
+    expect(res.status).toBe(200)
+    expect(res.body.estado).toBe("cancelada")
+  })
+
+  it("404 si la sesión no existe o el id está mal formado", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba()])
+    const inexistente = await api.get("/api/sesiones/00000000-0000-4000-8000-000000000099")
+    expect(inexistente.status).toBe(404)
+    expect(inexistente.body).toEqual({ error: "La sesión no existe" })
+    expect((await api.get("/api/sesiones/no-es-un-uuid")).status).toBe(404)
+  })
+})
+
 describe("API · POST /api/sesiones", () => {
   it("crea la sesión, calcula la hora de fin y la guarda", async () => {
     const { api, dataDir } = crearAppDePrueba()

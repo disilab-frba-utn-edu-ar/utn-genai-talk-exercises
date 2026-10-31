@@ -1,6 +1,6 @@
 # Ejercicio 2 — Respuestas
 
-**Intentos hasta que la skill se disparó sola:**
+**Intentos hasta que la skill se disparó sola:** 1
 
 **Nombre:** _Sin completar en Mi perfil._
 **¿Intervinieron durante la tarea?** _Sin completar en Mi perfil._
@@ -11,29 +11,76 @@
 
 **1.1** Pegá tu `description` final.
 
-_Sin responder._
+```text
+Crea o modifica un endpoint de la API REST de Express en este repo (una ruta nueva en server/routes, un handler GET/POST/PUT/PATCH/DELETE bajo /api, con su servicio, repositorio, tipos y tests con supertest). Usala SIEMPRE que el usuario pida un endpoint, una ruta o un recurso nuevo de la API (por ejemplo "necesito un endpoint para...", "GET /api/...", "agregá una ruta que devuelva..."), o cambiar lo que devuelve o valida uno existente, antes de leer o escribir código del server.
+```
 
 **1.2** ¿Cuántas versiones probaste hasta que se disparó sola en una sesión nueva? Indicá el `session` del log de la prueba que funcionó.
 
-_Sin responder._
+Una sola versión: se disparó con la primera. Session: `3d2b4261-96a6-46ce-a90a-4d024ee6703b`, turno 2 (+859 s), con el evento `skill` "nuevo-endpoint GET /api/sesiones/:id" a los +866 s.
+
+Aclaración: la prueba no se hizo en una sesión limpia. En el turno 1 de esa misma sesión pregunté "¿Cuándo usarías la skill nuevo-endpoint?" y el agente ya había leído el `SKILL.md` (Read a los +201 s). Por eso esta prueba demuestra menos que lo que pide A.3: el agente ya conocía la skill cuando le llegó el pedido.
 
 **1.3** ¿Qué cambió entre la primera y la última?
 
-_Sin responder._
+No hubo cambios: la primera versión fue la final. Desde el principio la armé siguiendo la regla de la charla: nombra el trabajo (crear o modificar un endpoint de la API de Express), las palabras del pedido (endpoint, ruta, `GET /api/...`, `server/routes`, handler, supertest) y el momento ("SIEMPRE que el usuario pida...", "antes de leer o escribir código del server").
 
 ### 2. Cuándo se cargó
 
-_Sin responder._
+Antes de leer código. Línea de tiempo del turno 2 (`npm run logs:timeline`):
+
+```text
+2. +859s  Necesito un endpoint para obtener el detalle de una sesión por su id: GET /api/sesiones/:i…
+   + 866s  skill              nuevo-endpoint GET /api/sesiones/:id — detalle de una sesión por id; 404 si no existe.
+   + 870s  ejecutar           ls server server/* tests/server/api; cat server/routes/sesiones.ts server/services/sesion…
+   + 877s  ejecutar           grep -n "Sesion\|interface\|^}" shared/types.ts | head -60; cat server/repositories/index…
+   + 892s  escribir (editar)  tests/server/api/sesiones.test.ts
+```
+
+Lo primero que hizo fue invocar la skill. Recién después leyó código, con `cat` y `grep`. La `description` le pedía justamente eso: "antes de leer o escribir código del server".
 
 ### 3. ¿Siguió el criterio?
 
 **3.1** Elegí **dos** reglas de tu skill y mostrá en el diff que el agente las cumplió. Por ejemplo: la capa en la que puso cada cosa, o el test con `DATA_DIR` temporal.
 
-_Sin responder._
+**Regla 1: TDD con supertest y `DATA_DIR` temporal (sección 6).** Primero editó `tests/server/api/sesiones.test.ts` (+892 s) y lo corrió solo (`npx vitest run ... -t "GET /api/sesiones/:id"`, +893 s). Falló como se esperaba (`Expected { "error": "La sesión no existe" } / Received { "error": "Recurso no encontrado" }`), y recién después tocó el repositorio, el servicio y la ruta (+908 s a +914 s). Los tests usan `crearAppDePrueba`, que levanta la app sin abrir el puerto y con un `DATA_DIR` temporal:
+
+```diff
++describe("API · GET /api/sesiones/:id", () => {
++  it("devuelve el detalle de la sesión", async () => {
++    const sesion = sesionDePrueba()
++    const { api } = crearAppDePrueba([sesion, sesionDePrueba({ id: "otra" })])
++    const res = await api.get(`/api/sesiones/${sesion.id}`)
+```
+
+También cumplió el caso borde de la sección 7 (404 con id inexistente y con id mal formado) y corrió `npm test` (393 pasaron), `npm run lint` y `npm run typecheck`.
+
+**Regla 2: privacidad con una vista pública explícita (sección 5).** Reescribió `aSesionPublica` para elegir los campos uno por uno, en lugar de copiar todo y descartar los de contacto. Además agregó el test que verifica que el dato privado no sale:
+
+```diff
+-  const { contactoNombre, contactoEmail, ...publica } = sesion
+-  return publica
++  return {
++    id: sesion.id,
++    mentoraId: sesion.mentoraId,
++    ...
++    estado: sesion.estado,
++  }
+```
+```diff
++  it("no expone los datos de contacto del colectivo (Principio IV)", async () => {
++    expect(res.body).not.toHaveProperty("contactoNombre")
++    expect(res.body).not.toHaveProperty("contactoEmail")
++    expect(JSON.stringify(res.body)).not.toContain("ana@example.org")
+```
+
+Las capas también quedaron como pide la sección 2: la ruta solo delega (`router.get("/:id", ...)`), el servicio lanza `noEncontrado("La sesión no existe")` y el repositorio suma `sesiones.buscar(id)`.
 
 **3.2** ¿Alguna la ignoró? ¿Por qué creés que pasó?
 
-_Sin responder._
+Se salteó "Antes de escribir, preguntá". No hizo ninguna pregunta: implementó directamente y al final listó los "Supuestos que tomé y conviene confirmar" (no hay autenticación, así que el contacto no sale para nadie; también devuelve las sesiones canceladas; no agregó la función de fetch en el client). La skill lo permite a medias ("preguntá (o decí qué supuesto tomás)"), pero los supuestos llegaron después de escribir el código, no antes. Creo que pasó porque el pedido parecía cerrado (método, ruta y el 404), y los agentes tienden a avanzar en vez de cortar para preguntar. Además, el modo automático empuja a terminar la tarea. Si quiero que pregunte, la skill tendría que decir "frená y preguntá antes de la primera edición".
+
+Los tipos y `client/src/api/` no los tocó, pero no fue ignorar la regla: `SesionPublica` ya existía y ninguna pantalla consume el endpoint todavía. Así lo justificó en su resumen.
 
 ## Pregunta sobre el MCP conectado
 
@@ -41,11 +88,16 @@ _Sin responder._
 
 **4.1** ¿Cuántas expone?
 
-_Sin responder._
+25 herramientas: `browser_navigate`, `browser_navigate_back`, `browser_click`, `browser_type`, `browser_fill_form`, `browser_select_option`, `browser_press_key`, `browser_hover`, `browser_drag`, `browser_drop`, `browser_file_upload`, `browser_handle_dialog`, `browser_snapshot`, `browser_take_screenshot`, `browser_find`, `browser_evaluate`, `browser_run_code_unsafe`, `browser_console_messages`, `browser_network_requests`, `browser_network_request`, `browser_emulate_media`, `browser_resize`, `browser_tabs`, `browser_wait_for` y `browser_close`.
 
 **4.2** ¿Conviene tener muchos MCP conectados todo el tiempo? ¿Qué le cuesta eso al contexto?
 
-_Sin responder._
+No conviene. Cada herramienta entra al contexto con su nombre, su descripción y el esquema JSON de sus parámetros. Solo las definiciones de las 25 herramientas de Playwright suman unos 20.000 caracteres (unos 5.000 tokens), y se pagan en cada turno aunque no se abra el navegador. Con varios MCP conectados todo el tiempo pasa esto:
+- Se come ventana que debería ir al código y a las salidas de las herramientas, y sube el costo de cada pedido.
+- Hay más herramientas parecidas entre las que elegir, así que el agente se confunde más fácil o usa una que no corresponde.
+- Hay más superficie de riesgo: `browser_run_code_unsafe` y `browser_evaluate` ejecutan código arbitrario.
+
+Claude Code mitiga parte de esto difiriendo las herramientas (solo carga el nombre y trae el esquema cuando las necesita), pero igual conviene conectar el MCP por proyecto, solo donde se usa, y apagarlo cuando no hace falta. Es lo mismo que vimos en context engineering: las skills y los MCP tienen que entrar al contexto solo cuando se usan.
 
 ## Pregunta sobre lo que hizo en el navegador
 
@@ -53,11 +105,11 @@ _Sin responder._
 
 **5.1** ¿Encontró algún problema real en la app usando el navegador que no se veía con los tests? Por ejemplo: de usabilidad, de accesibilidad o un dato privado en la red.
 
-_Sin responder._
+_Pendiente: falta correr B.2 (la reserva con el navegador)._
 
 **5.2** ¿Qué no pudo verificar?
 
-_Sin responder._
+_Pendiente: falta correr B.2 (la reserva con el navegador)._
 
 ## Preguntas sobre las herramientas del MCP
 
@@ -65,21 +117,33 @@ _Sin responder._
 
 **6.1** ¿Qué herramientas del MCP usó el agente y cuántas veces cada una?
 
-_Sin responder._
+_Pendiente: falta correr B.2 (la reserva con el navegador)._
 
 **6.2** ¿Cuál devolvió las salidas más grandes?
 
-_Sin responder._
+_Pendiente: falta correr B.2 (la reserva con el navegador)._
 
 ### 7. Una skill que usa el MCP
 
 **7.1** Proponé una skill para este repo que **use** el MCP de Playwright. Por ejemplo: "verificar un flujo de reserva contra los escenarios de una spec".
 
-_Sin responder._
+Una skill `verificar-flujo-en-navegador`: toma los escenarios de aceptación de una spec de `specs/` y los recorre en la app con Playwright MCP, como lo haría un colectivo o una mentora. Reporta cuáles se cumplen, con evidencia (captura y requests). Cubre lo que los tests de supertest y jsdom no ven: la pantalla real, la navegación con teclado, el layout en mobile y lo que viaja por la red.
 
 **7.2** Escribí solo el encabezado y 5-6 líneas de criterio.
 
-_Sin responder._
+```markdown
+---
+name: verificar-flujo-en-navegador
+description: Verifica en el navegador, con Playwright MCP, un flujo de la app (reservar, cancelar o ver la agenda) contra los escenarios de aceptación de una spec de specs/. Usala cuando pidan "probá el flujo", "verificá la spec en la app" o "revisá la pantalla de...", o antes de dar por terminada una historia que toca el client.
+---
+
+- Antes de abrir el navegador, leé la spec y listá sus escenarios (Dado/Cuando/Entonces). Cada uno es un caso a verificar.
+- Chequeá que `npm run dev` esté corriendo (5173/3001). Usá datos de `npm run seed` y al terminar volvé a correr `npm run seed`.
+- Navegá con `browser_snapshot` (árbol de accesibilidad) antes que con capturas: es más barato para el contexto y revela si los controles tienen nombre accesible.
+- En cada escenario revisá `browser_network_requests`: ninguna respuesta puede incluir el `contacto` de una mentora ni el contacto de un colectivo ajeno (principio IV).
+- Repetí el flujo solo con teclado y con `browser_resize` a 375px de ancho.
+- Cerrá con una tabla escenario → ✅/❌ + evidencia (captura en `ejercicios/` o la request), sin modificar código: si algo falla, reportalo.
+```
 
 ## Para cerrar
 

@@ -10,6 +10,10 @@ export function rutasSesiones(sesiones: ReturnType<typeof crearServicioSesiones>
     res.json(sesiones.listar({ mentoraId: texto(req.query.mentoraId), fecha: texto(req.query.fecha) }))
   })
 
+  router.get("/:id", (req, res) => {
+    res.json(sesiones.obtener(req.params.id))
+  })
+
   router.post("/", (req, res) => {
     res.status(201).json(sesiones.crear(req.body))
   })

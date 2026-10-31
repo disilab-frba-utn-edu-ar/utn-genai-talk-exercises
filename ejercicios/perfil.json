@@ -7,9 +7,9 @@
   "comentario": "",
   "ejercicios": {
     "01-observabilidad-con-hooks": {
-      "modelo": "Opus ",
+      "modelo": "Opus",
       "agente": "Claude",
-      "intervino": "",
+      "intervino": "No",
       "intervencion": "",
       "feedback": ""
     }
