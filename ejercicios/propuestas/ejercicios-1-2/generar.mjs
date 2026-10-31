@@ -4,6 +4,7 @@
 //   node --experimental-strip-types ejercicios/propuestas/ejercicios-1-2/generar.mjs
 //
 // Escribe index.html al lado de este archivo.
+/* global console */
 import { readFileSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -112,7 +113,7 @@ function tramo(ejercicio, desde, hasta) {
 function pantalla(ejercicio, p) {
   let html = p.anexo ? anexoHtml(ejercicio.anexos.find((a) => a.titulo === p.anexo)) : tramo(ejercicio, p.desde, p.hasta)
   if (p.agregar === "probar-api-arreglado") html += probarApi(true)
-  return { titulo: p.titulo, html }
+  return { titulo: p.titulo, html, check: p.check ?? "" }
 }
 
 /* ── Preguntas: una caja por cada sub-pregunta ── */
@@ -166,29 +167,29 @@ const ETAPAS = {
     { nombre: "Contexto técnico", bajada: "Qué es un hook, cómo está configurado tu agente y cómo comprobar que el log graba.", pantallas: [
       { titulo: "Qué es un hook", desde: "## Qué es un hook", hasta: "Acá todos los hooks llaman al mismo script," },
       { titulo: "Cómo está configurado cada agente", desde: "Acá todos los hooks llaman al mismo script,", hasta: "## Antes de empezar" },
-      { titulo: "Activá los hooks", desde: "Después, activá los hooks según tu agente:", hasta: "### Verificá que funciona" },
-      { titulo: "Verificá que funciona", desde: "### Verificá que funciona", hasta: "## Paso 1 — Darle la tarea al agente" },
+      { titulo: "Activá los hooks", check: "Activé los hooks de mi agente", desde: "Después, activá los hooks según tu agente:", hasta: "### Verificá que funciona" },
+      { titulo: "Verificá que funciona", check: "Vi el log con un mensaje de prueba y lo limpié", desde: "### Verificá que funciona", hasta: "## Paso 1 — Darle la tarea al agente" },
     ] },
     { nombre: "Contexto del ejercicio", bajada: "Qué vas a observar, la regla que el agente tiene que respetar y el bug que va a arreglar.", pantallas: [
       { titulo: "Objetivo", desde: "## Objetivo", hasta: "## Qué es un hook" },
-      { titulo: "La constitution", desde: "## Antes de empezar", hasta: "Después, activá los hooks según tu agente:" },
-      { titulo: "Mirá el bug", desde: "### Antes: mirá el bug con tus propios ojos", hasta: "### Ahora sí: el pedido" },
+      { titulo: "La constitution", check: "Leí la constitution", desde: "## Antes de empezar", hasta: "Después, activá los hooks según tu agente:" },
+      { titulo: "Mirá el bug", check: "Reproduje el bug (las dos llamadas dieron 201) y corrí npm run seed", desde: "### Antes: mirá el bug con tus propios ojos", hasta: "### Ahora sí: el pedido" },
     ] },
     { nombre: "Qué tenés que hacer", bajada: "Pasarle el prompt al agente, leer el log y probar el arreglo.", pantallas: [
-      { titulo: "El pedido", desde: "### Ahora sí: el pedido", hasta: "3. Dejalo trabajar. Aprobá o rechazá los permisos que pida **leyendo qué" },
-      { titulo: "Mientras trabaja", desde: "3. Dejalo trabajar. Aprobá o rechazá los permisos que pida **leyendo qué", hasta: "## Paso 2 — Leer los logs" },
-      { titulo: "Leer los logs", desde: "## Paso 2 — Leer los logs", hasta: "## Paso 3 — Probar la app modificada" },
-      { titulo: "Probar la app modificada", desde: "## Paso 3 — Probar la app modificada", hasta: "## Paso 4 — Responder", agregar: "probar-api-arreglado" },
-      { titulo: "Entrega", desde: "## Entrega" },
+      { titulo: "El pedido", check: "Le pasé el prompt al agente en una sesión nueva", desde: "### Ahora sí: el pedido", hasta: "3. Dejalo trabajar. Aprobá o rechazá los permisos que pida **leyendo qué" },
+      { titulo: "Mientras trabaja", check: "El agente terminó y anoté si intervine", desde: "3. Dejalo trabajar. Aprobá o rechazá los permisos que pida **leyendo qué", hasta: "## Paso 2 — Leer los logs" },
+      { titulo: "Leer los logs", check: "Revisé logs:resumen y logs:timeline", desde: "## Paso 2 — Leer los logs", hasta: "## Paso 3 — Probar la app modificada" },
+      { titulo: "Probar la app modificada", check: "La segunda llamada ahora da 409", desde: "## Paso 3 — Probar la app modificada", hasta: "## Paso 4 — Responder", agregar: "probar-api-arreglado" },
+      { titulo: "Entrega", check: "Hice commit y push a la rama del grupo", desde: "## Entrega" },
     ] },
   ],
   "02-skill-y-mcp": [
     { nombre: "Contexto técnico", bajada: "Qué es una skill, qué es un MCP y dónde va cada uno según tu agente.", pantallas: [
-      { titulo: "Skill y MCP", desde: "## Objetivo", hasta: "---" },
-      { titulo: "El tablero de Métricas", anexo: "El tablero de Métricas" },
+      { titulo: "Skill y MCP", check: "Limpié el log para medir solo este ejercicio", desde: "## Objetivo", hasta: "---" },
+      { titulo: "El tablero de Métricas", check: "Abrí el tablero de Métricas", anexo: "El tablero de Métricas" },
       { titulo: "Dónde va la skill", desde: "Creá la skill en la carpeta que lee tu agente:", hasta: "Tiene que tener las dos partes que vimos en la charla:" },
-      { titulo: "El encabezado de la skill", desde: "Tiene que tener las dos partes que vimos en la charla:", hasta: "**Abajo, el criterio** (markdown común): cómo lo hacemos *nosotros*. Como" },
-      { titulo: "Conectar el MCP", desde: "### B.1 Conectalo", hasta: "### Pregunta sobre el MCP conectado" },
+      { titulo: "El encabezado de la skill", check: "Creé el SKILL.md con su encabezado", desde: "Tiene que tener las dos partes que vimos en la charla:", hasta: "**Abajo, el criterio** (markdown común): cómo lo hacemos *nosotros*. Como" },
+      { titulo: "Conectar el MCP", check: "Conecté Playwright MCP y lo vi en /mcp", desde: "### B.1 Conectalo", hasta: "### Pregunta sobre el MCP conectado" },
     ] },
     { nombre: "Contexto del ejercicio", bajada: "Por qué nace la skill y qué decisión de privacidad tiene el endpoint que le vas a pedir.", pantallas: [
       { titulo: "El problema", desde: "### A.1 El problema", hasta: "### A.2 Escribila" },
@@ -196,17 +197,54 @@ const ETAPAS = {
     ] },
     { nombre: "Qué tenés que hacer", bajada: "Escribir la skill, comprobar que se dispara, conectar el navegador y usarlo.", pantallas: [
       { titulo: "El criterio de la skill (1 de 2)", desde: "**Abajo, el criterio** (markdown común): cómo lo hacemos *nosotros*. Como", hasta: "- [ ] **Convenciones del dominio** (principio V)." },
-      { titulo: "El criterio de la skill (2 de 2)", desde: "- [ ] **Convenciones del dominio** (principio V).", hasta: "### A.3 ¿Se dispara?" },
-      { titulo: "¿Se dispara?", desde: "### A.3 ¿Se dispara?", hasta: "### Preguntas sobre la skill" },
-      { titulo: "Verificá el endpoint", desde: "Verificalo vos, cuando el agente haya creado `GET /api/sesiones/:id`: pedí una sesión", hasta: "### Preguntas sobre la privacidad y el contexto" },
-      { titulo: "Usá el navegador", desde: "### B.2 Usalo", hasta: "### Preguntas sobre lo que hizo en el navegador" },
-      { titulo: "Mirá lo que pasó", desde: "### B.3 Mirá lo que pasó", hasta: "### Preguntas sobre las herramientas del MCP" },
+      { titulo: "El criterio de la skill (2 de 2)", check: "Escribí el criterio de la skill", desde: "- [ ] **Convenciones del dominio** (principio V).", hasta: "### A.3 ¿Se dispara?" },
+      { titulo: "¿Se dispara?", check: "La skill se disparó sola en una sesión nueva", desde: "### A.3 ¿Se dispara?", hasta: "### Preguntas sobre la skill" },
+      { titulo: "Verificá el endpoint", check: "Revisé el endpoint: sin contactoEmail y 404 si no existe", desde: "Verificalo vos, cuando el agente haya creado `GET /api/sesiones/:id`: pedí una sesión", hasta: "### Preguntas sobre la privacidad y el contexto" },
+      { titulo: "Usá el navegador", check: "El agente reservó una sesión con el navegador y guardó la captura", desde: "### B.2 Usalo", hasta: "### Preguntas sobre lo que hizo en el navegador" },
+      { titulo: "Mirá lo que pasó", check: "Revisé las herramientas MCP en el resumen", desde: "### B.3 Mirá lo que pasó", hasta: "### Preguntas sobre las herramientas del MCP" },
       { titulo: "Parte C, opcional (1 de 3)", desde: "## Parte C (opcional) — Una skill que se dispara por el archivo: códigos de habilidad", hasta: "### C.2 Separá script de criterio" },
       { titulo: "Parte C, opcional (2 de 3)", desde: "### C.2 Separá script de criterio", hasta: "### C.3 Probalo sin nombrarla" },
-      { titulo: "Parte C, opcional (3 de 3)", desde: "### C.3 Probalo sin nombrarla", hasta: "### Pregunta sobre la Parte C (si la hiciste)" },
-      { titulo: "Entrega", desde: "## Entrega" },
+      { titulo: "Parte C, opcional (3 de 3)", check: "Opcional: hice la parte C", desde: "### C.3 Probalo sin nombrarla", hasta: "### Pregunta sobre la Parte C (si la hiciste)" },
+      { titulo: "Entrega", check: "Hice commit y push a la rama del grupo", desde: "## Entrega" },
     ] },
   ],
+}
+
+/* Cambios a las preguntas que propone esta maqueta (por número de la consigna actual). */
+const AJUSTES = {
+  "01-observabilidad-con-hooks": {
+    sacar: [3, 6, 8, 10],
+    agregar: [{
+      despuesDe: 9, n: "riesgos-hooks", titulo: "Riesgos",
+      subs: ["¿Qué riesgos encontrás a la hora de utilizar hooks en agentes de código? Pensá en casos como acciones a realizar, requests, scripts ejecutables, logs o tiempo de procesamiento, así como la gestión de recursos."],
+    }],
+  },
+}
+
+/* Siempre igual al final de cada ejercicio: modelo y agente, por separado (el perfil lee estas mismas respuestas). */
+const CIERRE = {
+  nombre: "Para cerrar",
+  preguntas: [
+    { n: "modelo", titulo: "Modelo", intro: "", pista: "", opcional: false, subs: ["¿Qué modelo usaste en este ejercicio?"] },
+    { n: "agente", titulo: "Agente", intro: "", pista: "", opcional: false, subs: ["¿Qué agente usaste en este ejercicio (Claude Code, Codex, Cline…)?"] },
+  ],
+}
+
+function ajustarPreguntas(id, partes) {
+  const { sacar = [], agregar = [] } = AJUSTES[id] ?? {}
+  const resultado = partes.map((p) => {
+    const preguntas = []
+    for (const q of p.preguntas) {
+      if (!sacar.includes(q.n)) preguntas.push(q)
+      for (const nueva of agregar.filter((a) => a.despuesDe === q.n)) preguntas.push({ intro: "", pista: "", opcional: false, ...nueva, subs: nueva.subs.map(enLinea) })
+    }
+    return { ...p, preguntas }
+  }).filter((p) => p.preguntas.length)
+  resultado.push(CIERRE)
+  // Numeración de corrido para mostrar; `n` queda como clave estable de las respuestas.
+  let num = 0
+  for (const p of resultado) for (const q of p.preguntas) q.num = p === CIERRE ? "" : ++num
+  return resultado
 }
 
 const datos = {}
@@ -220,7 +258,7 @@ for (const [id, etapas] of Object.entries(ETAPAS)) {
     minutos: ejercicio.minutos,
     charla: md(ejercicio.consigna.slice(1, fin)),
     etapas: etapas.map((e) => ({ nombre: e.nombre, bajada: e.bajada, pantallas: e.pantallas.map((p) => pantalla(ejercicio, p)) })),
-    partes: preguntas(ejercicio),
+    partes: ajustarPreguntas(id, preguntas(ejercicio)),
     placeholder: ejercicio.placeholder ?? "",
   }
 }

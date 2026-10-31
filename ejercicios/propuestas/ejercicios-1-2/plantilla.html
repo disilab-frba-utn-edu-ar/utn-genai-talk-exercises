@@ -103,6 +103,45 @@
 .pp-sub.lista textarea { border-color: var(--menta); box-shadow: 0 0 0 2px var(--menta); }
 .pp-opcional { font-size: 0.68rem; font-weight: 700; border: 1.5px dashed var(--linea); border-radius: 999px; padding: 0 0.35rem; margin-left: 0.35rem; vertical-align: 1px; }
 
+/* Check de cada pantalla y hoja de checks */
+.pp-pie-izq { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; align-items: center; min-width: 0; }
+.pp-check { display: inline-flex; gap: 0.45rem; align-items: flex-start; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
+.pp-check input { width: 1.15rem; height: 1.15rem; margin-top: 0.12rem; accent-color: var(--acento); flex: none; }
+.pp-check input:checked + span { color: var(--texto-suave); text-decoration: line-through; text-decoration-thickness: 2px; }
+.pp-hoja-boton { border: var(--borde); border-radius: 999px; background: var(--menta); color: var(--texto); font: inherit; font-weight: 700; font-size: 0.88rem; padding: 0.25rem 0.8rem; cursor: pointer; box-shadow: var(--sombra-chica); }
+.pp-hoja { width: min(34rem, calc(100% - 2rem)); max-height: calc(100% - 2rem); padding: 0; border: var(--borde); border-radius: var(--radio); background: var(--superficie); color: var(--texto); box-shadow: var(--sombra); }
+.pp-hoja::backdrop { background: color-mix(in srgb, var(--texto) 45%, transparent); }
+.pp-hoja-cabecera { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1.1rem; border-bottom: 2px solid var(--linea); background: color-mix(in srgb, var(--menta) 45%, var(--superficie)); }
+.pp-hoja-cabecera h2 { margin: 0; font-size: 1.15rem; }
+.pp-hoja-cuerpo { padding: 0.9rem 1.1rem 1.2rem; overflow: auto; }
+.pp-lista-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.pp-lista-checks li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem; align-items: start; }
+.pp-lista-checks li:has(.pp-check-auto) { grid-template-columns: auto minmax(0, 1fr) auto; font-size: 0.88rem; font-weight: 600; }
+.pp-check-auto { width: 1.15rem; height: 1.15rem; border: 2px solid var(--linea); border-radius: 4px; display: grid; place-items: center; font-size: 0.75rem; font-weight: 800; }
+.pp-check-auto.ok { background: var(--menta); }
+.pp-ir-chico { font-size: 0.85rem; }
+.pp-bloq { font-size: 0.8rem; }
+
+/* Mi perfil */
+.pp-perfil { display: grid; gap: 1.6rem; align-content: start; }
+.pp-bloque-perfil { display: grid; gap: 0.8rem; }
+.pp-bloque-perfil h2 { margin: 0; font-size: 1.25rem; }
+.pp-campo-etiqueta { display: grid; gap: 0.3rem; font-size: 0.88rem; font-weight: 600; }
+.pp-campo { font: inherit; font-weight: 400; font-size: 0.92rem; border: 2px solid var(--linea); border-radius: var(--radio-chico); padding: 0.45rem 0.6rem; background: var(--fondo); color: var(--texto); width: 100%; }
+.pp-sub.lista .pp-campo { border-color: var(--menta); box-shadow: 0 0 0 2px var(--menta); }
+.pp-dos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 0.8rem; }
+.pp-integrantes { list-style: none; margin: 0.2rem 0; padding: 0; display: grid; gap: 0.4rem; }
+.pp-integrantes li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem; align-items: center; }
+.pp-tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1rem; }
+.pp-tarjeta-ej { border: var(--borde); border-radius: var(--radio); padding: 1rem; display: grid; gap: 0.6rem; background: var(--superficie); box-shadow: var(--sombra-chica); align-content: start; }
+.pp-tarjeta-ej h3 { margin: 0; font-size: 1rem; }
+.pp-barra-avance { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 3rem; gap: 0.6rem; align-items: center; font-size: 0.82rem; }
+.pp-num { font-family: var(--fuente-codigo); font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.pp-perfil-texto { min-height: 3.4rem; }
+.pp-puntaje { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; font-weight: 400; }
+.pp-puntaje button { width: 2.4rem; height: 2.4rem; border: var(--borde); border-radius: 50%; background: var(--superficie); font: inherit; font-weight: 800; cursor: pointer; color: var(--texto); }
+.pp-puntaje button[aria-pressed="true"] { background: var(--acento); color: var(--tinta, #17140f); }
+
 @media (max-width: 600px) {
   .pp-marco { height: max(22rem, calc(100vh - 19rem)); }
   .pp-detalle, .pp-largo { display: none; }
@@ -117,44 +156,65 @@
     <span class="pp-sobre">Propuesta · la consigna por etapas · contenido tomado de main</span>
     <div class="pp-titulo"><h1 id="titulo"></h1><span class="pp-reloj" id="reloj"></span></div>
     <div class="pp-fila">
-      <div class="pp-segmentado" id="selector" role="group" aria-label="Ejercicio"></div>
-      <details class="pp-charla"><summary>De qué bloques de la charla sale</summary><div id="charla"></div></details>
+      <div class="pp-segmentado" id="selector" role="group" aria-label="Vista"></div>
+      <div class="pp-fila" style="gap:.5rem 1rem">
+        <button type="button" class="pp-hoja-boton" id="boton-hoja" aria-haspopup="dialog"></button>
+        <details class="pp-charla" id="charla-caja"><summary>De qué bloques de la charla sale</summary><div id="charla"></div></details>
+      </div>
     </div>
   </header>
   <ol class="pp-hilo" id="hilo" aria-label="Secciones"></ol>
   <section class="pp-marco" id="marco" aria-live="polite"></section>
 </main>
 
+<dialog class="pp-hoja" id="hoja" aria-labelledby="hoja-titulo">
+  <div class="pp-hoja-cabecera"><h2 id="hoja-titulo">Hoja de checks</h2><button type="button" class="pp-enlace" data-cerrar-hoja>Cerrar</button></div>
+  <div class="pp-hoja-cuerpo" id="hoja-cuerpo"></div>
+</dialog>
+
 <script>
 /*DATOS*/
 
-/* ── Estado ── */
+/* ── Estado (en este navegador) ── */
 function leer(clave, defecto) { try { const v = localStorage.getItem(clave); return v === null ? defecto : JSON.parse(v); } catch { return defecto; } }
 function guardar(clave, valor) { try { localStorage.setItem(clave, JSON.stringify(valor)); } catch {} }
 const PREGUNTAS = 'preguntas';
+const PERFIL = 'perfil';
 const IDS = Object.keys(DATOS);
-const estado = { ej: IDS[0], porEj: Object.fromEntries(IDS.map((id) => [id, { pos: 0, alcanzada: 0, ultima: 0, respuestas: {} }])) };
-for (const [id, p] of Object.entries(leer('consigna-por-etapas', {}))) if (estado.porEj[id]) estado.porEj[id] = p;
-const prog = () => estado.porEj[estado.ej];
-const persistir = () => guardar('consigna-por-etapas', estado.porEj);
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const nuevoProgreso = () => ({ pos: 0, alcanzada: 0, ultima: 0, respuestas: {}, checks: {} });
+const estado = {
+  vista: IDS[0],
+  porEj: Object.fromEntries(IDS.map((id) => [id, nuevoProgreso()])),
+  perfil: { nombre: '', integrantes: [], modelo: '', agente: '', intervenciones: {}, puntaje: 0, feedback: '', feedbackPorEj: {} },
+};
+for (const [id, p] of Object.entries(leer('consigna-por-etapas', {}))) if (estado.porEj[id]) estado.porEj[id] = { ...nuevoProgreso(), ...p };
+Object.assign(estado.perfil, leer('consigna-perfil', {}));
+const enPerfil = () => estado.vista === PERFIL;
+const prog = (id = estado.vista) => estado.porEj[id];
+const persistir = () => { guardar('consigna-por-etapas', estado.porEj); guardar('consigna-perfil', estado.perfil); };
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 /* Todas las pantallas del ejercicio, en orden, con la etapa a la que pertenecen. */
 function pantallas(ej) {
   return ej.etapas.flatMap((e, i) => e.pantallas.map((p, j) => ({ ...p, etapa: i, j, de: e.pantallas.length })));
 }
 
-function contar(ej) {
-  const r = prog().respuestas;
+/* Avance de un ejercicio: pantallas vistas, checks tildados y cajas respondidas (sin las opcionales). */
+function avance(id) {
+  const ej = DATOS[id], p = prog(id), todas = pantallas(ej);
+  const vistas = Math.min(p.alcanzada + 1, todas.length);
+  const conCheck = todas.map((x, k) => ({ ...x, k })).filter((x) => x.check);
+  const obligatorios = conCheck.filter((x) => !x.check.startsWith('Opcional'));
+  const checks = obligatorios.filter((x) => p.checks[x.k]).length;
   let total = 0, hechas = 0;
   ej.partes.forEach((pt) => pt.preguntas.forEach((q) => {
     if (q.opcional) return;
-    q.subs.forEach((_, j) => { total++; if ((r[`${q.n}.${j}`] || '').trim()) hechas++; });
+    q.subs.forEach((_, j) => { total++; if ((p.respuestas[`${q.n}.${j}`] || '').trim()) hechas++; });
   }));
-  return { total, hechas };
+  return { vistas, pantallas: todas.length, checks, totalChecks: obligatorios.length, conCheck, hechas, total };
 }
 
-/* ── Render ── */
+/* ── Ejercicio: secciones, pantallas y preguntas ── */
 function renderHilo(ej, todas) {
   const p = prog();
   const items = ej.etapas.map((e, i) => {
@@ -166,9 +226,14 @@ function renderHilo(ej, todas) {
     const puntos = suyas.map((x) => `<i class="${x.k === p.pos ? 'aca' : x.k <= p.alcanzada ? 'visto' : ''}"></i>`).join('');
     return `<li class="${clase}"><button type="button" data-ir="${primera}" ${bloqueada ? 'disabled' : ''} ${actual ? 'aria-current="step"' : ''}><span class="pp-barra"></span><span class="pp-nombre">${bloqueada ? '🔒 ' : ''}${i + 1}. ${e.nombre}</span><span class="pp-puntos">${puntos}</span></button></li>`;
   });
-  const { total, hechas } = contar(ej);
+  const { hechas, total } = avance(estado.vista);
   items.push(`<li class="siempre ${p.pos === PREGUNTAS ? 'actual' : ''}"><button type="button" data-ir="${PREGUNTAS}"><span class="pp-barra"></span><span class="pp-nombre">✎ Preguntas · ${hechas}/${total}</span><span class="pp-puntos">siempre abierta</span></button></li>`);
   document.getElementById('hilo').innerHTML = items.join('');
+}
+
+function casillaCheck(k, texto) {
+  const id = `check-${estado.vista}-${k}`;
+  return `<label class="pp-check" for="${id}"><input type="checkbox" id="${id}" data-check="${k}" ${prog().checks[k] ? 'checked' : ''}><span>${esc(texto)}</span></label>`;
 }
 
 function renderPantalla(ej, todas) {
@@ -177,67 +242,152 @@ function renderPantalla(ej, todas) {
   const etapa = ej.etapas[x.etapa];
   const puntos = todas.filter((y) => y.etapa === x.etapa).map((y) => `<i class="${y.j === x.j ? 'aca' : 'visto'}"></i>`).join('');
   const largo = !sig ? 'Ir a las preguntas' : sig.etapa !== x.etapa ? `Siguiente etapa: ${ej.etapas[sig.etapa].nombre}` : `Siguiente: ${esc(sig.titulo)}`;
-  const etiquetaSig = `<span class="pp-largo">${largo}</span><span class="pp-corto">${sig ? 'Siguiente' : 'Preguntas'}</span>`;
   return `
     <div class="pp-marco-cabecera"><span class="pp-sobre">Etapa ${x.etapa + 1} · ${etapa.nombre} · ${esc(x.titulo)}</span><span class="pp-puntos">${puntos}<span>${x.j + 1} de ${x.de}</span></span></div>
     <div class="pp-cuerpo">${x.html}</div>
     <div class="pp-pie">
-      <div>${ant ? `<button type="button" class="pp-enlace" data-ir="${p.pos - 1}">← <span class="pp-largo">Anterior: ${esc(ant.titulo)}</span><span class="pp-corto">Anterior</span></button>` : ''}</div>
-      <button type="button" class="boton" data-siguiente>${etiquetaSig} →</button>
+      <div class="pp-pie-izq">${ant ? `<button type="button" class="pp-enlace" data-ir="${p.pos - 1}">← <span class="pp-largo">Anterior: ${esc(ant.titulo)}</span><span class="pp-corto">Anterior</span></button>` : ''}${x.check ? casillaCheck(p.pos, x.check) : ''}</div>
+      <button type="button" class="boton" data-siguiente><span class="pp-largo">${largo}</span><span class="pp-corto">${sig ? 'Siguiente' : 'Preguntas'}</span> →</button>
     </div>`;
 }
 
-function renderPreguntas(ej) {
-  const p = prog();
-  const { total, hechas } = contar(ej);
-  const lista = ej.partes.map((pt) => `<h3 class="pp-parte">${esc(pt.nombre)}</h3>` + pt.preguntas.map((q) => {
+function cajasDePreguntas(ej, id = estado.vista) {
+  const p = prog(id);
+  return ej.partes.map((pt) => `<h3 class="pp-parte">${esc(pt.nombre)}</h3>` + pt.preguntas.map((q) => {
     const listas = q.subs.filter((_, j) => (p.respuestas[`${q.n}.${j}`] || '').trim()).length;
     const subs = q.subs.map((texto, j) => {
-      const id = `resp-${estado.ej}-${q.n}-${j}`;
+      const idCaja = `resp-${id}-${q.n}-${j}`;
       const valor = p.respuestas[`${q.n}.${j}`] || '';
-      return `<div class="pp-sub ${valor.trim() ? 'lista' : ''}"><label for="${id}"><span class="pp-sub-n">${q.n}.${j + 1}</span>${texto}</label><textarea id="${id}" class="editor-respuestas" data-respuesta="${q.n}.${j}" placeholder="${esc(ej.placeholder || 'Con evidencia del log')}">${esc(valor)}</textarea></div>`;
+      const etiqueta = q.subs.length > 1 ? `<span class="pp-sub-n">${q.num}.${j + 1}</span>` : '';
+      const corta = q.n === 'modelo' || q.n === 'agente';
+      return `<div class="pp-sub ${valor.trim() ? 'lista' : ''}"><label for="${idCaja}">${etiqueta}${texto}</label>${corta
+        ? `<input id="${idCaja}" class="pp-campo" data-respuesta="${q.n}.${j}" data-ej="${id}" value="${esc(valor)}" placeholder="${q.n === 'modelo' ? 'Ej.: Sonnet, gpt-5…' : 'Ej.: Claude Code, Codex, Cline…'}">`
+        : `<textarea id="${idCaja}" class="editor-respuestas" data-respuesta="${q.n}.${j}" data-ej="${id}" placeholder="${esc(ej.placeholder || 'Con evidencia del log')}">${esc(valor)}</textarea>`}</div>`;
     }).join('');
     return `<div class="pp-pregunta ${listas === q.subs.length ? 'completa' : ''}" data-subs="${q.subs.length}">
-      <div class="pp-pregunta-cabecera"><span class="pp-n">${q.n}.</span><span><span class="pp-pregunta-titulo">${q.titulo}</span>${q.opcional ? '<span class="pp-opcional">opcional</span>' : ''}${q.intro && q.subs.length > 1 ? `<div class="pp-intro">${q.intro}</div>` : ''}${q.pista ? `<div class="pp-pista">${q.pista.replace(/^Pista:\s*/, '')}</div>` : ''}</span><span class="pp-avance">${listas}/${q.subs.length}</span></div>
+      <div class="pp-pregunta-cabecera"><span class="pp-n">${q.num ? `${q.num}.` : ''}</span><span><span class="pp-pregunta-titulo">${q.titulo}</span>${q.opcional ? '<span class="pp-opcional">opcional</span>' : ''}${q.intro && q.subs.length > 1 ? `<div class="pp-intro">${q.intro}</div>` : ''}${q.pista ? `<div class="pp-pista">${q.pista.replace(/^Pista:\s*/, '')}</div>` : ''}</span><span class="pp-avance">${listas}/${q.subs.length}</span></div>
       <div class="pp-subs">${subs}</div>
     </div>`;
   }).join('')).join('');
+}
+
+function renderPreguntas(ej) {
+  const { hechas, total } = avance(estado.vista);
   return `
     <div class="pp-marco-cabecera de-preguntas">
       <div class="pp-fila"><h2>Preguntas</h2><span class="pp-contador" style="font-size:.85rem;color:var(--texto-suave)">${hechas} de ${total} respondidas</span></div>
       <div class="pp-progreso"><div style="width:${(hechas / total) * 100}%"></div></div>
     </div>
-    <div class="pp-cuerpo">${lista}</div>
+    <div class="pp-cuerpo">${cajasDePreguntas(ej)}</div>
     <div class="pp-pie">
-      <div><button type="button" class="pp-enlace" data-ir="${p.ultima}">← Volver a la consigna</button></div>
+      <div><button type="button" class="pp-enlace" data-ir="${prog().ultima}">← Volver a la consigna</button></div>
       <button type="button" class="boton" data-guardar>Guardar respuestas</button>
     </div>`;
 }
 
+/* ── Hoja de checks del ejercicio ── */
+function renderHoja() {
+  const id = estado.vista, ej = DATOS[id], a = avance(id), p = prog(id);
+  const porEtapa = ej.etapas.map((e, i) => {
+    const items = a.conCheck.filter((x) => x.etapa === i);
+    if (!items.length) return '';
+    return `<h3 class="pp-parte">${i + 1}. ${esc(e.nombre)}</h3><ul class="pp-lista-checks">${items.map((x) => `<li>${casillaCheck(x.k, x.check)}${x.k <= p.alcanzada ? `<button type="button" class="pp-enlace pp-ir-chico" data-ir="${x.k}" data-cerrar-hoja>Ir</button>` : '<span class="pp-bloq">🔒</span>'}</li>`).join('')}</ul>`;
+  }).join('');
+  document.getElementById('hoja-titulo').textContent = `Hoja de checks · Ejercicio ${ej.numero}`;
+  document.getElementById('hoja-cuerpo').innerHTML = `
+    ${barra('Checks', a.checks, a.totalChecks)}
+    ${porEtapa}
+    <h3 class="pp-parte">Preguntas</h3>
+    <ul class="pp-lista-checks"><li><span class="pp-check-auto ${a.hechas === a.total ? 'ok' : ''}">${a.hechas === a.total ? '✓' : ''}</span><span>Respondí las preguntas (${a.hechas} de ${a.total})</span><button type="button" class="pp-enlace pp-ir-chico" data-ir="${PREGUNTAS}" data-cerrar-hoja>Ir</button></li></ul>`;
+}
+
+/* ── Mi perfil ── */
+const barra = (nombre, n, total) => `<div class="pp-barra-avance"><span>${nombre}</span><div class="pp-progreso"><div style="width:${total ? (n / total) * 100 : 0}%"></div></div><span class="pp-num">${n}/${total}</span></div>`;
+
+function renderPerfil() {
+  const pf = estado.perfil;
+  const tarjetas = IDS.map((id) => {
+    const ej = DATOS[id], a = avance(id), r = prog(id).respuestas;
+    return `<article class="pp-tarjeta-ej">
+      <div class="pp-fila"><h3>Ejercicio ${ej.numero} · ${esc(ej.titulo)}</h3><button type="button" class="pp-enlace" data-vista="${id}">Abrir</button></div>
+      ${barra('Pantallas', a.vistas, a.pantallas)}${barra('Checks', a.checks, a.totalChecks)}${barra('Preguntas', a.hechas, a.total)}
+      <div class="pp-dos">
+        <label class="pp-campo-etiqueta">Modelo<input class="pp-campo" data-respuesta="modelo.0" data-ej="${id}" value="${esc(r['modelo.0'])}" placeholder="${esc(pf.modelo || 'Ej.: Sonnet, gpt-5…')}"></label>
+        <label class="pp-campo-etiqueta">Agente<input class="pp-campo" data-respuesta="agente.0" data-ej="${id}" value="${esc(r['agente.0'])}" placeholder="${esc(pf.agente || 'Ej.: Claude Code, Codex, Cline…')}"></label>
+      </div>
+      <label class="pp-campo-etiqueta">¿Intervinieron durante la tarea? Si sí, cuándo y por qué
+        <textarea class="editor-respuestas pp-perfil-texto" data-perfil-ej="intervenciones" data-ej="${id}">${esc(pf.intervenciones[id])}</textarea></label>
+      <label class="pp-campo-etiqueta">Feedback de este ejercicio
+        <textarea class="editor-respuestas pp-perfil-texto" data-perfil-ej="feedbackPorEj" data-ej="${id}" placeholder="Qué te sirvió, qué te trabó, qué cambiarías">${esc(pf.feedbackPorEj[id])}</textarea></label>
+    </article>`;
+  }).join('');
+  return `
+    <div class="pp-marco-cabecera"><span class="pp-sobre">Mi perfil · se guarda en este navegador</span></div>
+    <div class="pp-cuerpo pp-perfil">
+      <section class="pp-bloque-perfil">
+        <h2>Quiénes son</h2>
+        <label class="pp-campo-etiqueta">Nombre personal o del equipo<input class="pp-campo" data-perfil="nombre" value="${esc(pf.nombre)}" placeholder="Ej.: Los Hooks Felices"></label>
+        <div class="pp-campo-etiqueta">Integrantes <span class="suave">(si son un equipo)</span>
+          <ul class="pp-integrantes">${pf.integrantes.map((n, i) => `<li><input class="pp-campo" data-integrante="${i}" value="${esc(n)}" aria-label="Integrante ${i + 1}"><button type="button" class="pp-enlace" data-quitar="${i}" aria-label="Quitar a ${esc(n) || 'este integrante'}">Quitar</button></li>`).join('')}</ul>
+          <button type="button" class="pp-enlace" data-agregar-integrante>+ Agregar integrante</button>
+        </div>
+        <div class="pp-dos">
+          <label class="pp-campo-etiqueta">Modelo que usaron en general<input class="pp-campo" data-perfil="modelo" value="${esc(pf.modelo)}" placeholder="Ej.: Sonnet, gpt-5…"></label>
+          <label class="pp-campo-etiqueta">Agente que usaron en general<input class="pp-campo" data-perfil="agente" value="${esc(pf.agente)}" placeholder="Ej.: Claude Code, Codex, Cline…"></label>
+        </div>
+        <p class="pp-intro">Si en algún ejercicio usaron otro, cargalo en ese ejercicio: es la misma caja de "Para cerrar".</p>
+      </section>
+      <section class="pp-bloque-perfil"><h2>Progreso por ejercicio</h2><div class="pp-tarjetas">${tarjetas}</div></section>
+      <section class="pp-bloque-perfil">
+        <h2>Feedback</h2>
+        <div class="pp-campo-etiqueta">¿Qué tan útiles les resultaron los ejercicios?
+          <div class="pp-puntaje" role="group" aria-label="Puntaje del 1 al 5">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-puntaje="${n}" aria-pressed="${pf.puntaje === n}">${n}</button>`).join('')}<span class="suave">1 = nada · 5 = muy útiles</span></div>
+        </div>
+        <label class="pp-campo-etiqueta">Comentarios generales<textarea class="editor-respuestas pp-perfil-texto" data-perfil="feedback" placeholder="Lo que quieras contarnos sobre la charla y los ejercicios">${esc(pf.feedback)}</textarea></label>
+      </section>
+    </div>
+    <div class="pp-pie"><div></div><button type="button" class="boton" data-guardar>Guardar perfil</button></div>`;
+}
+
+/* ── Render ── */
 function render() {
-  const ej = DATOS[estado.ej];
-  const p = prog();
-  const todas = pantallas(ej);
+  const botones = IDS.map((id) => `<button type="button" data-vista="${id}" aria-pressed="${id === estado.vista}">Ejercicio ${DATOS[id].numero}</button>`);
+  botones.push(`<button type="button" data-vista="${PERFIL}" aria-pressed="${enPerfil()}">👤 Mi perfil</button>`);
+  document.getElementById('selector').innerHTML = botones.join('');
+  document.getElementById('hilo').hidden = enPerfil();
+  document.getElementById('charla-caja').hidden = enPerfil();
+  const botonHoja = document.getElementById('boton-hoja');
+  botonHoja.hidden = enPerfil();
+  if (enPerfil()) {
+    document.getElementById('titulo').textContent = estado.perfil.nombre ? `Mi perfil · ${estado.perfil.nombre}` : 'Mi perfil';
+    document.getElementById('reloj').hidden = true;
+    document.getElementById('marco').innerHTML = renderPerfil();
+    return;
+  }
+  const ej = DATOS[estado.vista], p = prog(), todas = pantallas(ej);
   if (p.pos !== PREGUNTAS && p.pos >= todas.length) p.pos = 0;
-  document.getElementById('selector').innerHTML = IDS.map((id) => `<button type="button" data-ej="${id}" aria-pressed="${id === estado.ej}">Ejercicio ${DATOS[id].numero}</button>`).join('');
   document.getElementById('titulo').textContent = `Ejercicio ${ej.numero} · ${ej.titulo}`;
-  document.getElementById('reloj').textContent = `${ej.minutos}:00`;
+  const reloj = document.getElementById('reloj');
+  reloj.hidden = false; reloj.textContent = `${ej.minutos}:00`;
   document.getElementById('charla').innerHTML = ej.charla;
+  const a = avance(estado.vista);
+  botonHoja.textContent = `☑ Hoja de checks · ${a.checks}/${a.totalChecks}`;
   renderHilo(ej, todas);
   document.getElementById('marco').innerHTML = p.pos === PREGUNTAS ? renderPreguntas(ej) : renderPantalla(ej, todas);
+  if (document.getElementById('hoja').open) renderHoja();
 }
 
 /* ── Navegación ── */
 function ir(destino) {
   const p = prog();
-  const total = pantallas(DATOS[estado.ej]).length;
+  const total = pantallas(DATOS[estado.vista]).length;
   if (destino === PREGUNTAS || destino >= total) { if (p.pos !== PREGUNTAS) p.ultima = p.pos; p.pos = PREGUNTAS; }
   else if (destino >= 0 && destino <= p.alcanzada) p.pos = destino;
   persistir(); render();
 }
 function siguiente() {
   const p = prog();
-  if (p.pos === PREGUNTAS) return;
+  if (enPerfil() || p.pos === PREGUNTAS) return;
   p.alcanzada = Math.max(p.alcanzada, p.pos + 1);
   ir(p.pos + 1);
 }
@@ -251,7 +401,10 @@ async function copiar(boton, texto, etiqueta) {
 document.addEventListener('click', (e) => {
   const b = e.target.closest('button');
   if (!b) return;
-  if (b.dataset.ej) { estado.ej = b.dataset.ej; render(); }
+  const hoja = document.getElementById('hoja');
+  if (b.dataset.cerrarHoja !== undefined && hoja.open) hoja.close();
+  if (b.dataset.vista) { estado.vista = b.dataset.vista; render(); }
+  else if (b.id === 'boton-hoja') { renderHoja(); hoja.showModal(); }
   else if (b.dataset.siguiente !== undefined) siguiente();
   else if (b.dataset.ir !== undefined) ir(b.dataset.ir === PREGUNTAS ? PREGUNTAS : Number(b.dataset.ir));
   else if (b.dataset.copiar !== undefined) copiar(b, b.nextElementSibling?.textContent ?? '', b.textContent);
@@ -260,32 +413,52 @@ document.addEventListener('click', (e) => {
     const r = JSON.parse(b.dataset.simular);
     b.closest('.pedido').querySelector('.pp-respuesta').innerHTML = `<div class="pedido-respuesta" role="status"><span class="pedido-estado" data-ok="${r.estado < 400}">${r.estado}</span><pre>${esc(JSON.stringify(r.cuerpo, null, 2))}</pre></div>`;
   }
-  else if (b.dataset.guardar !== undefined) { persistir(); b.textContent = 'Guardado'; setTimeout(() => { b.textContent = 'Guardar respuestas'; }, 1500); }
+  else if (b.dataset.agregarIntegrante !== undefined) { estado.perfil.integrantes.push(''); persistir(); render(); document.querySelector(`[data-integrante="${estado.perfil.integrantes.length - 1}"]`)?.focus(); }
+  else if (b.dataset.quitar !== undefined) { estado.perfil.integrantes.splice(Number(b.dataset.quitar), 1); persistir(); render(); }
+  else if (b.dataset.puntaje) { estado.perfil.puntaje = Number(b.dataset.puntaje); persistir(); render(); }
+  else if (b.dataset.guardar !== undefined) { persistir(); const t = b.textContent; b.textContent = 'Guardado'; setTimeout(() => { b.textContent = t; }, 1500); }
+});
+
+// Checks: se tildan en la pantalla o en la hoja, y los dos lugares quedan iguales.
+document.addEventListener('change', (e) => {
+  const k = e.target.dataset && e.target.dataset.check;
+  if (k === undefined) return;
+  prog().checks[k] = e.target.checked;
+  persistir();
+  document.querySelectorAll(`[data-check="${k}"]`).forEach((c) => { c.checked = e.target.checked; });
+  const a = avance(estado.vista);
+  document.getElementById('boton-hoja').textContent = `☑ Hoja de checks · ${a.checks}/${a.totalChecks}`;
+  if (document.getElementById('hoja').open) { const foco = e.target.id; renderHoja(); document.getElementById(foco)?.focus(); }
 });
 
 // Flechas del teclado para pasar de pantalla, salvo mientras se escribe.
 document.addEventListener('keydown', (e) => {
-  if (e.target.closest('textarea, input') || e.altKey || e.metaKey || e.ctrlKey) return;
+  if (e.target.closest('textarea, input, dialog') || e.altKey || e.metaKey || e.ctrlKey) return;
   const p = prog();
   if (e.key === 'ArrowRight') siguiente();
-  else if (e.key === 'ArrowLeft' && p.pos !== PREGUNTAS && p.pos > 0) ir(p.pos - 1);
+  else if (e.key === 'ArrowLeft' && !enPerfil() && p.pos !== PREGUNTAS && p.pos > 0) ir(p.pos - 1);
 });
 
-// Las respuestas se guardan al escribir; se actualizan los contadores sin redibujar los recuadros.
+// Lo que se escribe se guarda al toque; se actualizan los contadores sin redibujar los recuadros.
 document.addEventListener('input', (e) => {
-  const clave = e.target.dataset && e.target.dataset.respuesta;
-  if (!clave) return;
-  prog().respuestas[clave] = e.target.value;
+  const d = e.target.dataset || {};
+  const pf = estado.perfil;
+  if (d.perfil) { pf[d.perfil] = e.target.value; persistir(); if (d.perfil === 'nombre') document.getElementById('titulo').textContent = pf.nombre ? `Mi perfil · ${pf.nombre}` : 'Mi perfil'; return; }
+  if (d.perfilEj) { pf[d.perfilEj][d.ej] = e.target.value; persistir(); return; }
+  if (d.integrante !== undefined) { pf.integrantes[Number(d.integrante)] = e.target.value; persistir(); return; }
+  if (!d.respuesta) return;
+  prog(d.ej).respuestas[d.respuesta] = e.target.value;
   persistir();
-  const ej = DATOS[estado.ej];
-  const { total, hechas } = contar(ej);
+  if (enPerfil()) return;
+  const ej = DATOS[estado.vista];
+  const { hechas, total } = avance(estado.vista);
   e.target.closest('.pp-sub').classList.toggle('lista', !!e.target.value.trim());
   const fila = e.target.closest('.pp-pregunta');
   const listas = fila.querySelectorAll('.pp-sub.lista').length;
   fila.querySelector('.pp-avance').textContent = `${listas}/${fila.dataset.subs}`;
   fila.classList.toggle('completa', listas === Number(fila.dataset.subs));
   document.querySelector('.pp-contador').textContent = `${hechas} de ${total} respondidas`;
-  document.querySelector('.pp-progreso div').style.width = `${(hechas / total) * 100}%`;
+  document.querySelector('.de-preguntas .pp-progreso div').style.width = `${(hechas / total) * 100}%`;
   renderHilo(ej, pantallas(ej));
 });
 
