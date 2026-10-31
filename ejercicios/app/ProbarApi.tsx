@@ -1,5 +1,4 @@
-// Llamadas a la API listas para mandar desde la consigna: las reservas superpuestas del ejercicio 1
-// y el endpoint por id del ejercicio 2.
+// Llamadas a la API listas para mandar desde la consigna: las reservas superpuestas del ejercicio 1.
 import { useEffect, useId, useState } from "react"
 import type { DiaDisponible } from "@shared/types"
 import { llamarApi, type RespuestaApi } from "./api"
@@ -165,36 +164,6 @@ function useAlMontar<T>(buscar: () => Promise<T>): T | undefined {
     }
   }, [buscar])
   return valor
-}
-
-/** El id de la primera sesión guardada, para pedirla por id; si no hay, queda el texto para reemplazar. */
-async function primeraSesion(): Promise<string> {
-  try {
-    const { cuerpo } = await llamarApi("GET", RUTA)
-    const id = (cuerpo as { id: string }[])[0]?.id
-    if (id) return id
-  } catch {
-    // queda el texto para reemplazar
-  }
-  return "<id>"
-}
-
-/** Ejercicio 2, A.4: el endpoint nuevo con una sesión que existe y con una que no. */
-export function ConsultarSesiones() {
-  const id = useAlMontar(primeraSesion)
-  return (
-    <aside className="anexo-en-linea probar-api" aria-label="Consultar sesiones">
-      {id === undefined ? (
-        <p>Buscando una sesión guardada…</p>
-      ) : (
-        <>
-          <Pedido numero={1} titulo="Una sesión que existe" metodo="GET" rutaInicial={`${RUTA}/${id}`} />
-          <Pedido numero={2} titulo="Una sesión que no existe" metodo="GET" rutaInicial={`${RUTA}/no-existe`} />
-          <Pedido numero={3} titulo="El listado que ya existía" metodo="GET" rutaInicial={RUTA} />
-        </>
-      )}
-    </aside>
-  )
 }
 
 export default function ProbarApi() {

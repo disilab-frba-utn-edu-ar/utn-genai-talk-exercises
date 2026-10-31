@@ -2081,3 +2081,523 @@
   font-weight: 800;
   transform: rotate(-6deg);
 }
+
+/* ── Consigna por etapas (ejercicios 1 y 2) ─────────────── */
+
+/* Mismo ancho de lectura que la consigna corrida: pestañas, marco y avisos alineados. */
+.etapas-consigna,
+.ejercicio-pagina:has(.etapas-consigna) .aviso-error {
+  width: 100%;
+  max-width: var(--ancho-lectura);
+  margin-inline: auto;
+}
+
+.etapas-consigna {
+  display: grid;
+  /* minmax(0, …): la fila de pestañas (que en celular no corta) no estira la página. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+/* position: relative para que los textos .sr-only de las pestañas no se escapen cuando la fila scrollea (celular). */
+.etapas-pestanas {
+  position: relative;
+}
+
+/* Las pestañas de etapa son los chips del visor (como las del ejercicio 3), con su avance al lado. */
+.etapas-pestanas .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.etapas-cuenta {
+  font-family: var(--fuente-codigo);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
+/* Bloqueada: con el candado, sin levantarse al pasar el mouse. */
+.etapas-pestanas .chip:disabled {
+  border-style: dashed;
+  color: var(--texto-suave);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* El marco: alto fijo, con la cabecera y el pie siempre a la vista. Lo de adentro entra sin scroll de página;
+   si una pantalla no entra (pantallas chicas), el que scrollea es el cuerpo del marco. */
+.ejercicio-pagina .etapa-marco {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: clamp(22rem, calc(100dvh - 16.5rem), 50rem);
+  padding: 0;
+  overflow: hidden;
+}
+
+.etapa-marco[hidden] {
+  display: none;
+}
+
+.etapa-cabecera {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem clamp(1rem, 3vw, 1.35rem) 0.75rem;
+  border-bottom: 2px dashed var(--linea-suave);
+}
+
+.etapa-ubicacion {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  font-family: var(--fuente-codigo);
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+}
+
+.etapa-titulo {
+  margin: 0;
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+}
+
+.etapa-titulo:focus {
+  outline: none;
+}
+
+.etapa-titulo:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 3px;
+}
+
+/* position: relative para que lo absoluto de adentro (los textos .sr-only) scrollee con el cuerpo
+   en lugar de estirar la página. */
+.etapa-cuerpo {
+  position: relative;
+  padding: 0.25rem clamp(1rem, 3vw, 1.35rem) 1rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.etapa-bajada {
+  margin: 0.75rem 0 0;
+  color: var(--texto-suave);
+}
+
+.etapa-pie {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem clamp(1rem, 3vw, 1.35rem);
+  border-top: 2px solid var(--linea);
+}
+
+.etapa-check {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.etapa-check input {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.15rem;
+  accent-color: var(--texto);
+}
+
+.etapa-check input:checked + span {
+  color: var(--texto-suave);
+  text-decoration: line-through;
+}
+
+/* Preguntas: la cabecera celeste las distingue de la consigna; el cuerpo es lo único que scrollea. */
+.etapa-preguntas .etapa-cabecera {
+  background: color-mix(in srgb, var(--cielo) 35%, var(--superficie));
+}
+
+/* Barra de avance: nombre, pista y números a la vista (la barra es solo el dibujo). */
+.avance {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr) 3.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.avance-pista {
+  height: 0.6rem;
+  overflow: hidden;
+  border: 2px solid var(--linea);
+  border-radius: 999px;
+  background: var(--superficie);
+}
+
+.avance-pista > span {
+  display: block;
+  height: 100%;
+  background: var(--menta);
+}
+
+.avance-numero {
+  font-family: var(--fuente-codigo);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Una pregunta con una caja por sub-pregunta: el título y su avance (1/3) arriba. */
+.pregunta-cajas .pregunta-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px dashed var(--linea-suave);
+}
+
+.pregunta-cajas .pregunta-titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  font-family: var(--fuente);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.pregunta-avance {
+  font-family: var(--fuente-codigo);
+  font-variant-numeric: tabular-nums;
+}
+
+.pregunta-cajas[data-completa] .pregunta-avance {
+  background: var(--menta);
+}
+
+.caja-respuesta {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.85rem;
+}
+
+.caja-respuesta label {
+  font-size: 0.9375rem;
+}
+
+.caja-numero {
+  margin-right: 0.4rem;
+  font-family: var(--fuente-codigo);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--texto-suave);
+}
+
+.pregunta-cajas .editor-respuestas {
+  min-height: 5rem;
+  margin-top: 0;
+}
+
+/* Para cerrar: el modelo y el agente, en dos cajas. */
+.cierre {
+  padding: 0.75rem 1rem 1rem;
+}
+
+.cierre .pregunta-titulo {
+  margin: 0 0 0.6rem;
+  font-family: var(--fuente);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.cierre-nota,
+.perfil-nota {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+/* La barra de Guardar y Terminé es el pie de la sección Preguntas: sin caja propia, con la línea del pie. */
+.etapa-preguntas .respuestas-acciones {
+  position: static;
+  margin: 0;
+  padding: 0.75rem clamp(1rem, 3vw, 1.35rem);
+  border: 0;
+  border-top: 2px solid var(--linea);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* La hoja de checks: el diálogo del tablero, con un check por fila y el "Ir" al costado. */
+.hoja-checks {
+  overscroll-behavior: contain;
+}
+
+.hoja-checks h3 {
+  margin-top: 1.25rem;
+}
+
+.hoja-lista {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hoja-checks .hoja-lista li + li {
+  margin-top: 0;
+}
+
+.hoja-lista li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hoja-lista .chip {
+  min-height: 2rem;
+  padding: 0.15rem 0.85rem;
+}
+
+.hoja-bloqueada {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  color: var(--texto-suave);
+}
+
+/* Herramientas del ejercicio en la cabecera: la hoja de checks y Mi perfil. */
+.ejercicio-herramientas .chip {
+  text-decoration: none;
+}
+
+.indice-perfil {
+  margin-top: 1rem;
+}
+
+/* ── Mi perfil ──────────────────────────────────────────── */
+
+.perfil-pagina .portada,
+.perfil {
+  width: 100%;
+  max-width: var(--ancho-lectura);
+  margin-inline: auto;
+}
+
+.perfil {
+  gap: 1.25rem;
+}
+
+.perfil .campo + .campo,
+.perfil .campo + .campos-fila,
+.perfil .campos-fila + .campo,
+.perfil .perfil-integrantes,
+.perfil .perfil-integrantes + .campos-fila {
+  margin-top: 1rem;
+}
+
+/* Dentro de una fila de dos columnas los campos van alineados arriba (los pisa el campo + campo). */
+.perfil .campos-fila > .campo + .campo {
+  margin-top: 0;
+}
+
+.perfil-integrantes {
+  margin-inline: 0;
+  padding: 0;
+  border: 0;
+}
+
+.perfil-integrantes legend {
+  padding: 0;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.perfil-opcional {
+  font-weight: 400;
+  color: var(--texto-suave);
+}
+
+.perfil-integrantes ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.perfil-integrantes li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.perfil-integrantes button {
+  align-self: flex-start;
+}
+
+.perfil-ejercicios {
+  margin-top: 1rem;
+}
+
+.perfil-ejercicio {
+  display: grid;
+  align-content: start;
+  gap: 0.9rem;
+  padding: 1.1rem;
+}
+
+.perfil-ejercicio-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.perfil-ejercicio h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.perfil-ejercicio .chip {
+  text-decoration: none;
+}
+
+.perfil-avance {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.perfil-ejercicio .campos-fila {
+  gap: 0.75rem;
+}
+
+@media (max-width: 40rem) {
+  /* Las pestañas en una sola fila que se desliza de costado: apiladas ocupaban media pantalla. */
+  /* .etapas-consigna adelante: client/src/styles.css (que define .chips) se carga después. */
+  .etapas-consigna .etapas-pestanas {
+    flex-wrap: nowrap;
+    margin-inline: calc(-1 * var(--gutter));
+    padding: 0.2rem var(--gutter) 0.45rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .etapas-pestanas .chip {
+    flex: none;
+  }
+
+  .ejercicio-pagina .etapa-marco {
+    height: clamp(20rem, calc(100dvh - 23.5rem), 44rem);
+  }
+
+  /* El check pasa arriba de Anterior / Siguiente, a todo el ancho. */
+  .etapa-pie {
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+  }
+
+  .etapa-pie .etapa-check {
+    grid-column: 1 / -1;
+    order: -1;
+  }
+
+  .etapa-pie > span:empty {
+    display: none;
+  }
+
+  .avance {
+    grid-template-columns: 5.5rem minmax(0, 1fr) 3rem;
+  }
+}
+
+/* Por etapas, la cabecera es una sola fila: volver, herramientas y, a la derecha, el temporizador. */
+.ejercicio-cabecera-etapas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.ejercicio-cabecera-etapas .volver {
+  margin-bottom: 0;
+}
+
+.ejercicio-cabecera-etapas .temporizador {
+  position: static;
+  margin: 0 0 0 auto;
+  padding-block: 0.35rem;
+}
+
+/* El video minimizado, como un chip más de la cabecera de la consigna por etapas. */
+.video-intro-mini-en-linea {
+  position: static;
+  gap: 0.5rem;
+  padding: 0.25rem 0.8rem 0.25rem 0.3rem;
+  border-radius: 999px;
+  box-shadow: var(--sombra-chica);
+}
+
+.video-intro-mini-en-linea .video-intro-mini-miniatura {
+  width: 3.2rem;
+  border-radius: 999px;
+}
+
+/* Dentro del marco todo un poco más compacto, para que cada pantalla entre sin scroll:
+   las llamadas a la API lado a lado (si hay lugar) y los bloques largos con su propio scroll. */
+.etapa-cuerpo {
+  font-size: 0.95rem;
+}
+
+.etapa-cuerpo .markdown {
+  line-height: 1.5;
+}
+
+.etapa-cuerpo .codigo pre {
+  max-height: 11rem;
+  overflow: auto;
+}
+
+.etapa-cuerpo .probar-api {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: 0.75rem 1.25rem;
+  align-items: start;
+}
+
+.etapa-cuerpo .probar-api > :not(.pedido) {
+  grid-column: 1 / -1;
+}
+
+.etapa-cuerpo .probar-api .gantt {
+  margin-bottom: 0;
+}
+
+.etapa-cuerpo .pedido + .pedido {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.etapa-cuerpo .pedido-cuerpo {
+  min-height: 8rem;
+}
+
+.etapa-cuerpo .pedido-respuesta pre {
+  max-height: 9rem;
+  overflow: auto;
+}

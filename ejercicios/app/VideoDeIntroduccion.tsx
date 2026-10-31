@@ -46,13 +46,17 @@ function useDistanciaAbajo(activo: boolean): number {
   return distancia
 }
 
-export default function VideoDeIntroduccion({ ejercicio }: { ejercicio: Ejercicio }) {
+/**
+ * `enLinea`: minimizado, el botón queda donde se monta el componente en lugar de flotar abajo a la derecha.
+ * Lo usa la consigna por etapas, que ocupa toda la pantalla: flotando taparía los botones del marco.
+ */
+export default function VideoDeIntroduccion({ ejercicio, enLinea = false }: { ejercicio: Ejercicio; enLinea?: boolean }) {
   const { id, numero, titulo } = ejercicio
   const video = videosIntro[id]
   const [abierto, setAbierto] = useState(true)
   const dialogo = useRef<HTMLDialogElement>(null)
   const reproductor = useRef<HTMLVideoElement>(null)
-  const abajo = useDistanciaAbajo(!abierto)
+  const abajo = useDistanciaAbajo(!abierto && !enLinea)
 
   useEffect(() => {
     const d = dialogo.current
@@ -108,7 +112,12 @@ export default function VideoDeIntroduccion({ ejercicio }: { ejercicio: Ejercici
         </div>
       </dialog>
       {!abierto && (
-        <button type="button" className="video-intro-mini" style={{ bottom: abajo }} onClick={() => setAbierto(true)}>
+        <button
+          type="button"
+          className={`video-intro-mini${enLinea ? " video-intro-mini-en-linea" : ""}`}
+          style={enLinea ? undefined : { bottom: abajo }}
+          onClick={() => setAbierto(true)}
+        >
           <span className="video-intro-mini-miniatura">
             <img src={video.poster} alt="" />
           </span>

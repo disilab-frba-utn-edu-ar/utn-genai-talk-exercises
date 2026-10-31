@@ -81,6 +81,58 @@ function atenderCaptura(id: string, req: Connect.IncomingMessage, res: ServerRes
   })
 }
 
+/** Leer todo el cuerpo del pedido, hasta LIMITE_BYTES. */
+function leerCuerpo(req: Connect.IncomingMessage, alTerminar: (cuerpo: string) => void) {
+  let cuerpo = ""
+  req.on("data", (parte) => {
+    cuerpo += parte
+    if (cuerpo.length > LIMITE_BYTES) req.destroy()
+  })
+  req.on("end", () => alTerminar(cuerpo))
+}
+
+const esTexto = (valor: unknown) => typeof valor === "string"
+
+/**
+ * Mi perfil, en ejercicios/perfil.json: uno solo para todos los ejercicios. Reemplaza los datos de la
+ * entrega que antes iban en cada RESPUESTAS.md, así que vive con las respuestas y se entrega en el mismo commit.
+ */
+function atenderPerfil(req: Connect.IncomingMessage, res: ServerResponse) {
+  const archivo = join(DIR, "perfil.json")
+  if (req.method === "GET") return responder(res, 200, existsSync(archivo) ? JSON.parse(readFileSync(archivo, "utf-8")) : null)
+  if (req.method !== "PUT") return responder(res, 405, { error: "Método no permitido" })
+  leerCuerpo(req, (cuerpo) => {
+    let perfil: Record<string, unknown> | null = null
+    try {
+      perfil = JSON.parse(cuerpo)
+    } catch {
+      // cuerpo inválido: se responde 400 abajo
+    }
+    const ejercicios = perfil?.ejercicios
+    const valido =
+      perfil !== null &&
+      typeof perfil === "object" &&
+      [perfil.nombre, perfil.modelo, perfil.agente, perfil.comentario].every(esTexto) &&
+      Array.isArray(perfil.integrantes) &&
+      perfil.integrantes.every(esTexto) &&
+      (perfil.puntaje === null || (Number.isInteger(perfil.puntaje) && (perfil.puntaje as number) >= 1 && (perfil.puntaje as number) <= 5)) &&
+      typeof ejercicios === "object" &&
+      ejercicios !== null &&
+      Object.entries(ejercicios).every(
+        ([id, e]) =>
+          /^\d{2}-[a-z0-9-]+$/.test(id) &&
+          existsSync(join(DIR, id, "ejercicio.json")) &&
+          typeof e === "object" &&
+          e !== null &&
+          Object.values(e).every(esTexto),
+      )
+    if (!valido) return responder(res, 400, { error: "El perfil no tiene el formato esperado" })
+    const guardado = { ...perfil, guardado: new Date().toISOString() }
+    writeFileSync(archivo, JSON.stringify(guardado, null, 2) + "\n")
+    responder(res, 200, guardado)
+  })
+}
+
 function responder(res: ServerResponse, status: number, cuerpo: unknown) {
   res.statusCode = status
   res.setHeader("Content-Type", "application/json")
@@ -98,6 +150,7 @@ export function respuestasEjercicios(): Plugin {
         res.end(readFileSync(join(DIR, "propuestas", "ejercicios-1-2", "index.html")))
       })
       server.middlewares.use("/ejercicios-api", (req, res) => {
+        if (req.url === "/perfil") return atenderPerfil(req, res)
         // El id se valida contra las carpetas existentes: nada de rutas arbitrarias en disco.
         const [, id, recurso, historia] = req.url?.match(/^\/(\d{2}-[a-z0-9-]+)\/(respuestas|captura|tareas)(?:\/([a-z0-9-]+))?$/) ?? []
         if (!id || !existsSync(join(DIR, id, "ejercicio.json"))) {

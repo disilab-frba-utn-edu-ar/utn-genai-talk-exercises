@@ -8,6 +8,95 @@
       "hasta": "## Entrega"
     }
   ],
+  "etapas": [
+    {
+      "nombre": "Contexto técnico",
+      "bajada": "Qué es un hook, cómo está configurado tu agente y cómo comprobar que el log graba.",
+      "pantallas": [
+        {
+          "titulo": "Qué es un hook",
+          "desde": "## Qué es un hook",
+          "hasta": "Acá todos los hooks llaman al mismo script,"
+        },
+        {
+          "titulo": "Cómo está configurado cada agente",
+          "desde": "Acá todos los hooks llaman al mismo script,",
+          "hasta": "## Antes de empezar"
+        },
+        {
+          "titulo": "Activá los hooks",
+          "check": "Activé los hooks de mi agente",
+          "desde": "Después, activá los hooks según tu agente:",
+          "hasta": "### Verificá que funciona"
+        },
+        {
+          "titulo": "Verificá que funciona",
+          "check": "Vi el log con un mensaje de prueba y lo limpié",
+          "desde": "### Verificá que funciona",
+          "hasta": "## Paso 1 — Darle la tarea al agente"
+        }
+      ]
+    },
+    {
+      "nombre": "Contexto del ejercicio",
+      "bajada": "Qué vas a observar, la regla que el agente tiene que respetar y el bug que va a arreglar.",
+      "pantallas": [
+        {
+          "titulo": "Objetivo",
+          "desde": "## Objetivo",
+          "hasta": "## Qué es un hook"
+        },
+        {
+          "titulo": "La constitution",
+          "check": "Leí la constitution",
+          "desde": "## Antes de empezar",
+          "hasta": "Después, activá los hooks según tu agente:"
+        },
+        {
+          "titulo": "Mirá el bug",
+          "check": "Reproduje el bug (las dos llamadas dieron 201) y corrí npm run seed",
+          "desde": "### Antes: mirá el bug con tus propios ojos",
+          "hasta": "### Ahora sí: el pedido"
+        }
+      ]
+    },
+    {
+      "nombre": "Qué tenés que hacer",
+      "bajada": "Pasarle el prompt al agente, leer el log y probar el arreglo.",
+      "pantallas": [
+        {
+          "titulo": "El pedido",
+          "check": "Le pasé el prompt al agente en una sesión nueva",
+          "desde": "### Ahora sí: el pedido",
+          "hasta": "3. Dejalo trabajar. Aprobá o rechazá los permisos que pida **leyendo qué"
+        },
+        {
+          "titulo": "Mientras trabaja",
+          "check": "El agente terminó y anoté si intervine",
+          "desde": "3. Dejalo trabajar. Aprobá o rechazá los permisos que pida **leyendo qué",
+          "hasta": "## Paso 2 — Leer los logs"
+        },
+        {
+          "titulo": "Leer los logs",
+          "check": "Revisé logs:resumen y logs:timeline",
+          "desde": "## Paso 2 — Leer los logs",
+          "hasta": "## Paso 3 — Probar la app modificada"
+        },
+        {
+          "titulo": "Probar la app modificada",
+          "check": "La segunda llamada ahora da 409",
+          "desde": "## Paso 3 — Probar la app modificada",
+          "hasta": "## Paso 4 — Responder",
+          "agregar": "probar-api"
+        },
+        {
+          "titulo": "Entrega",
+          "check": "Hice commit y push a la rama del grupo",
+          "desde": "## Entrega"
+        }
+      ]
+    }
+  ],
   "consigna": [
     "# Ejercicio 1 — Observar al agente con hooks",
     "",
@@ -111,9 +200,9 @@
     "   recientes viene activado).",
     "3. En el panel de Cline, abrí la pestaña **Hooks** (ícono de balanza abajo) y",
     "   verificá que aparezcan los hooks del workspace y estén encendidos.",
-    "4. **macOS / Linux:** los scripts sin extensión tienen que ser ejecutables. Si",
+    "3. **macOS / Linux:** los scripts sin extensión tienen que ser ejecutables. Si",
     "   no aparecen, corré `chmod +x .clinerules/hooks/*`.",
-    "5. **Windows:** Cline usa los archivos `.ps1` de la misma carpeta.",
+    "4. **Windows:** Cline usa los archivos `.ps1` de la misma carpeta.",
     "",
     "</details>",
     "",
@@ -216,40 +305,18 @@
     "   > Pista: en `npm run logs:timeline` las acciones de cada turno están en orden.",
     "   > Un agente también puede leer archivos desde la terminal (`cat`, `sed`,",
     "   > `Get-Content`): esos aparecen como `ejecutar`, no en \"Archivos leídos\".",
-    "3. **TDD de verdad.** El prompt pide escribir los tests, correrlos y verlos",
-    "   fallar antes de implementar.",
-    "   - Usando la línea de tiempo, ¿lo cumplió? Mostrá el orden: edición del",
-    "     test → `npm test` (falla) → edición de `server/domain/...` → `npm test`",
-    "     (pasa).",
-    "   - ¿Por qué falló el test? No es lo mismo que falle porque *no compila* (la",
-    "     función todavía no existe) que porque *la regla no se cumple*. ¿Cuál de",
-    "     los dos viste?",
-    "",
-    "   > Pista: mirá cómo terminó cada corrida de tests al final de su línea en",
-    "   > `npm run logs:timeline`. Si dice \"resultado no detectado\" (por ejemplo, porque",
-    "   > el agente filtró la salida), buscá esa llamada en el JSONL de la sesión.",
-    "4. **Comandos de terminal.**",
+    "3. **Comandos de terminal.**",
     "   - Listá todos los comandos que ejecutó.",
     "   - ¿Alguno no lo pediste vos? ¿Alguno te generó dudas al aprobarlo?",
     "   - Clasificá cada uno con el semáforo de la charla: verde (lectura),",
     "     amarillo (validación local) o rojo (escritura o producción).",
-    "5. **Errores y reintentos.**",
+    "4. **Errores y reintentos.**",
     "   - ¿Alguna herramienta falló (`PostToolUseFailure` o un `output` con error)?",
     "   - ¿Qué hizo el agente después?",
-    "6. **El resultado.**",
-    "   - Corré vos `npm test`, `npm run lint` y `npm run typecheck` (este último",
-    "     el prompt no lo pidió). ¿Coinciden con lo que el agente te dijo al final?",
-    "     Mirá el evento `Stop` o `TaskComplete`.",
-    "   - ¿Hizo algo que el prompt prohibía, como tocar `data/` o correr",
-    "     `npm run seed`?",
-    "   - ¿Modificó algún test existente? Si lo hizo, ¿te avisó y explicó por qué",
-    "     era necesario?",
-    "   - ¿Respetó las capas de la constitution (principio II)? ¿La función quedó en",
-    "     `server/domain/` **sin IO** y la ruta no habla directo con el repositorio?",
     "",
     "### Parte B — Lo que pensás",
     "",
-    "7. **Contexto.** Cada `output` del log volvió al modelo como contexto.",
+    "5. **Contexto.** Cada `output` del log volvió al modelo como contexto.",
     "   - Sumá aproximadamente el tamaño de las salidas: ¿qué herramienta \"llenó\"",
     "     más la ventana?",
     "   - ¿Había lecturas que se podían evitar? Por ejemplo: ¿leyó",
@@ -258,30 +325,15 @@
     "",
     "   > Pista: `npm run logs:resumen` muestra cuántos caracteres devolvió cada",
     "   > herramienta al modelo.",
-    "8. **Comparar** (opcional, si te sobra tiempo). Juntate con alguien que haya usado **otro agente** (o el mismo",
-    "   con otro modelo) y comparen los resúmenes.",
-    "   - ¿Qué diferencias de estrategia ven con el mismo prompt?",
-    "9. **Hooks como control.** Este hook solo *observa*. Proponé **un** hook que",
+    "6. **Hooks como control.** Este hook solo *observa*. Proponé **un** hook que",
     "   *bloquee* algo en este proyecto: por ejemplo, que no deje editar `data/`, o",
     "   que no deje que un archivo de `server/domain/` importe `fs` o `express`.",
     "   - ¿En qué evento lo pondrías?",
     "   - ¿Por qué tiene que ser un hook y no una instrucción en `AGENTS.md` o en la",
     "     constitution?",
-    "10. **Riesgos.** El log guarda prompts, comandos y salidas.",
-    "    - Buscá en tu log si aparece algún email y de dónde salió. Buscar solo `@`",
-    "      da falsos positivos (`@shared/types`), así que conviene una expresión",
-    "      regular. En macOS/Linux:",
-    "      `grep -rhoE '[[:alnum:]._%+-]+@[[:alnum:].-]+\\.[[:alpha:]]{2,}' logs/ | sort | uniq -c`.",
-    "      En PowerShell:",
-    "      `Get-ChildItem logs -Recurse -Filter *.jsonl | Select-String '[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}' -AllMatches | ForEach-Object { $_.Matches.Value } | Group-Object | Select-Object Count, Name`.",
-    "      También podés abrir el `.jsonl` de la sesión en el editor y buscar con",
-    "      `Ctrl+F`, activando la opción de expresión regular, el patrón",
-    "      `[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}`.",
-    "    - El principio IV de la constitution dice que los datos de contacto nunca",
-    "      salen por la API… pero el agente puede leer `data/` directamente. ¿Qué",
-    "      datos sensibles podrían terminar en el log en un proyecto real (por",
-    "      ejemplo, en el TP con MongoDB)?",
-    "    - ¿El log debería versionarse? (Pista: mirá el `.gitignore`.)",
+    "7. **Riesgos.**",
+    "   - ¿Qué riesgos encontrás a la hora de utilizar hooks en agentes de código? Pensá en casos como acciones a",
+    "     realizar, requests, scripts ejecutables, logs o tiempo de procesamiento, así como la gestión de recursos.",
     "",
     "## Entrega",
     "",
@@ -357,11 +409,7 @@
     }
   ],
   "plantillaRespuestas": [
-    "# Ejercicio 1 — Respuestas",
-    "",
-    "**Nombre:**",
-    "**Agente y modelo usados:** <!-- ej: Claude Code + Sonnet, Codex + gpt-5, Cline + ... -->",
-    "**¿Interviniste durante la tarea?** <!-- sí/no; si sí, cuándo y por qué -->"
+    "# Ejercicio 1 — Respuestas"
   ],
   "minutos": 20
 }

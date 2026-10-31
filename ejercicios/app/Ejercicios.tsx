@@ -3,11 +3,13 @@ import { useState, type ReactNode } from "react"
 import { Link, Route, Routes, useParams } from "react-router"
 import NoEncontradaPage from "../../client/src/pages/NoEncontradaPage"
 import Bloqueado, { Candado, ConfirmarAvance } from "./Bloqueado"
-import { anteriorDe, conAnexosEnLinea, ejercicios, rama, type Anexo, type Ejercicio } from "./contenido"
+import Consigna from "./Consigna"
+import { anexosEnLinea, anteriorDe, ejercicios, rama, type Ejercicio } from "./contenido"
 import EjercicioSdd from "./EjercicioSdd"
 import "./ejercicios.css"
+import { HojaDeChecks } from "./Etapas"
 import Markdown from "./Markdown"
-import ProbarApi, { ConsultarSesiones } from "./ProbarApi"
+import PerfilPage from "./PerfilPage"
 import { guardar, useAvanzoIgual, useGuardado, useTerminado } from "./progreso"
 import Respuestas from "./Respuestas"
 import { ID_SDD } from "./tablero"
@@ -105,6 +107,9 @@ function IndicePage() {
           <span className="acento">Ejercicios</span>
         </h1>
         <p className="bajada">Hacelos en orden: cada uno usa lo que armaste en el anterior.</p>
+        <Link to="perfil" className="boton boton-secundario indice-perfil">
+          Mi perfil <span aria-hidden="true">→</span>
+        </Link>
       </section>
 
       <CrearRama />
@@ -115,25 +120,6 @@ function IndicePage() {
         ))}
       </section>
     </>
-  )
-}
-
-function AnexoEnLinea({ anexo }: { anexo: Anexo }) {
-  const habilitado = useTerminado(anexo.soloSiTerminado ?? "")
-  if (anexo.soloSiTerminado && !habilitado) return null
-  if (anexo.componente === "probar-api") return <ProbarApi />
-  if (anexo.componente === "consultar-sesiones") return <ConsultarSesiones />
-  return (
-    <aside id={anexo.archivo} className="anexo-en-linea" aria-label={anexo.titulo}>
-      <Markdown texto={anexo.markdown.join("\n")} />
-    </aside>
-  )
-}
-
-/** Un tramo de la consigna, con los anexos en línea (el prompt aparece justo debajo de "Copiá el prompt…"). */
-function Consigna({ lineas, anexos }: { lineas: string[]; anexos: Anexo[] }) {
-  return conAnexosEnLinea(lineas, anexos).map((b, i) =>
-    b.tipo === "markdown" ? <Markdown key={i} texto={b.texto} /> : <AnexoEnLinea key={i} anexo={b.anexo} />,
   )
 }
 
@@ -158,7 +144,7 @@ function EjercicioPage() {
     )
   }
 
-  const enLinea = ejercicio.anexos.filter((a) => a.insertarDespuesDe)
+  const enLinea = anexosEnLinea(ejercicio)
   const consigna = (lineas: string[]) => <Consigna lineas={lineas} anexos={enLinea} />
 
   // La consigna va entera, en el orden del documento, con las preguntas intercaladas entre los pasos.
@@ -170,12 +156,16 @@ function EjercicioPage() {
   ]
 
   const sdd = ejercicio.id === ID_SDD
+  const porEtapas = Boolean(ejercicio.etapas)
   // Fuera de la cabecera para quedar fijo mientras se scrollea la consigna.
   const temporizador = <Temporizador key={ejercicio.id} id={ejercicio.id} minutos={ejercicio.minutos} />
   // En el ejercicio 3 se abre con el tablero, para verlo antes de elegir la historia.
   // La key lo reinicia al pasar a otro ejercicio; distinta de la del temporizador, su hermano.
   const video = <VideoDeIntroduccion key={`video-${ejercicio.id}`} ejercicio={ejercicio} />
-  const cuerpo = (
+  // Por etapas, la consigna va en un marco de alto fijo, sin la sección numerada de la consigna corrida.
+  const cuerpo = porEtapas ? (
+    <Respuestas ejercicio={ejercicio} consigna={consigna} />
+  ) : (
     <div className="reserva">
       {secciones.map((s, i) => (
         <Seccion key={s.id} numero={i + 1} id={s.id} titulo={s.titulo}>
@@ -184,6 +174,27 @@ function EjercicioPage() {
       ))}
     </div>
   )
+
+  // Por etapas no hay scroll de página: volver, la hoja de checks, Mi perfil, el
+  // video minimizado y el temporizador van en una sola fila.
+  if (porEtapas) {
+    return (
+      <div className="ejercicio-pagina">
+        <div className="ejercicio-cabecera ejercicio-cabecera-etapas">
+          {volver}
+          <div className="chips ejercicio-herramientas">
+            <HojaDeChecks ejercicio={ejercicio} />
+            <Link to="/ejercicios/perfil" className="chip">
+              Mi perfil
+            </Link>
+          </div>
+          <VideoDeIntroduccion key={`video-${ejercicio.id}`} ejercicio={ejercicio} enLinea />
+          {temporizador}
+        </div>
+        {cuerpo}
+      </div>
+    )
+  }
 
   return (
     <div className="ejercicio-pagina">
@@ -217,6 +228,7 @@ export default function Ejercicios() {
   return (
     <Routes>
       <Route index element={<IndicePage />} />
+      <Route path="perfil" element={<PerfilPage />} />
       <Route path=":id" element={<EjercicioPage />} />
     </Routes>
   )
