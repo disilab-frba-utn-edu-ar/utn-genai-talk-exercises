@@ -110,4 +110,17 @@ describe("API · POST /api/sesiones", () => {
     expect(res.status).toBe(409)
     expect(res.body).toEqual({ error: "El horario ya está reservado" })
   })
+
+  it("409 si hay una sesión confirmada que se superpone (misma mentora, misma fecha, horas coinciden o se solapan)", async () => {
+    // Lu Fernández tiene disponibilidad lunes 10:00-13:00, así que 10:30 está dentro de su rango
+    const { api } = crearAppDePrueba([sesionDePrueba({ horaInicio: "10:00", horaFin: "11:00", mentoraId: "8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e03" })])
+    // Esta sesión nueva se solapa con la existente (10:30 - 11:15, dentro de su disponibilidad 10:00-13:00)
+    const res = await api.post("/api/sesiones").send({
+      ...nueva(),
+      mentoraId: "8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e03",
+      horaInicio: "10:30",
+    })
+    expect(res.status).toBe(409)
+    expect(res.body).toEqual({ error: "El horario se superpone con otra sesión de la mentora" })
+  })
 })

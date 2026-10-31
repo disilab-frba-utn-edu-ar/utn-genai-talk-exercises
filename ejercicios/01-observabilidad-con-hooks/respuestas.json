@@ -1,0 +1,128 @@
+{
+  "ejercicio": "01-observabilidad-con-hooks",
+  "guardado": "2026-10-31T16:23:18.122Z",
+  "general": [
+    "# Ejercicio 1 — Respuestas"
+  ],
+  "respuestas": {
+    "1.1": [
+      "Herramientas usadas:",
+      "    25  run_commands",
+      "    18  editor",
+      "    16  read_files"
+    ],
+    "1.2": [
+      "Lo que mas uso fue run_commands"
+    ],
+    "2.1": [
+      "//services//sesion…",
+      "       + 343s  ejecutar           npm run typecheck",
+      "       + 347s  ejecutar           npm run lint",
+      "       + 353s  ejecutar           npm run dev",
+      "       + 384s  ejecutar           node server/index.js 2>&1",
+      "       + 386s  ejecutar           tsx server/index.ts",
+      "       + 388s  ejecutar           node_modules/.bin/tsx server/index.ts",
+      "",
+      "estos son los primeros que ejecuto por la cantidad de segundos, y en el log primero que armamos dio que uso 3 herramientas.",
+      ""
+    ],
+    "2.2": [
+      "Archivos leídos:",
+      "     6  server/services/sesiones.ts",
+      "     2  tests/server/domain/fechas.test.ts",
+      "     2  tests/server/api/sesiones.test.ts",
+      "     2  tests/server/api/helpers.ts",
+      "     1  .specify/memory/constitution.md",
+      "     1  server/domain",
+      "     1  tests",
+      "     1  server/services",
+      "     1  server/domain/fechas.ts",
+      "     1  server/domain/horarios.ts",
+      "     1  server/domain/mentoras.ts",
+      "     1  server/domain/validaciones.ts",
+      "     1  server/routes/sesiones.ts",
+      "     1  shared/types.ts",
+      "     1  tests/server/domain/superposicion.test.ts",
+      "     1  data/mentoras.json"
+    ],
+    "2.3": [
+      "Si, lo leyo."
+    ],
+    "3.1": [
+      "$ ls -la C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\server\\domain\\",
+      "  $ [\"Get-ChildItem -Path 'C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\server\\domain\\'\"]  ",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\server\\domain",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\tests\\server",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\tests\\server\\domain",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\tests\\server\\api",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\server\\services",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\server\\routes",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\shared",
+      "  $ npm test -- --run tests/server/domain/superposicion.test.ts",
+      "  $ npm test -- --run tests/server/domain/superposicion.test.ts",
+      "  $ npm test -- --run tests/server/domain/superposicion.test.ts",
+      "  $ npm test -- --run tests/server/domain/superposicion.test.ts",
+      "  $ npm test -- --run tests/server/domain/superposicion.test.ts",
+      "  $ npm test -- --run tests/server/api/sesiones.test.ts",
+      "  $ [\"node -e \" \"const { crearAppDePrueba } = require('./tests/server/api/helpers'); const { sesionDePrueba } = require('./tests/server/api/help…",
+      "  $ [\"powershell -Command \\\"\\$npm_test = npm test -- --run 'tests/server/api/sesiones.test.ts\\$tests/server/api/sesiones.test.ts 409 si hay una …",
+      "  $ [\"powershell -Command \\\"(Get-Content 'C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\tests\\server\\api\\helpe…",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\data",
+      "  $ [\"powershell -Command \\\"(Get-Content 'C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\tests\\server\\api\\helpe…",
+      "  $ npm test -- --run tests/server/api/sesiones.test.ts",
+      "  $ npm test -- --run tests/server/api/sesiones.test.ts",
+      "  $ {\"commands\":\"[\\\"powershell -Command \\\"\\n\\\" Set-Content -Path 'C:\\\\Users\\\\Alumno\\\\Desktop\\\\Practica_Shih_Tropeano_DISILAB\\\\utn-genai-talk-exe…",
+      "  $ cat C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\server\\services\\sesiones.ts | head -60",
+      "  $ [\"powershell -Command \\\"Get-Content -Path 'C:\\\\Users\\\\Alumno\\\\Desktop\\\\Practica_Shih_Tropeano_DISILAB\\\\utn-genai-talk-exercises\\\\server\\\\ser…"
+    ],
+    "3.2": [
+      "Algunos no fueron pedidos, y algunos generaron dudas, pero las justificaciones de Cline para utilizarlos nos llamaban a que le demos permiso."
+    ],
+    "3.3": [
+      " $ ls -la C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\server\\domain\\",
+      "  $ [\"Get-ChildItem -Path 'C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\server\\domain\\'\"]  ",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\server\\domain",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\tests\\server",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\tests\\server\\domain",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\tests\\server\\api",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\server\\services",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\server\\routes",
+      "  $ dir C:\\Users\\Alumno\\Desktop\\Practica_Shih_Tropeano_DISILAB\\utn-genai-talk-exercises\\shared",
+      "  $ npm test -- --run tests/server/domain/superposicion.test.ts",
+      "  $ npm test -- --run tests/server/domain/superposicion.test.ts",
+      "  $ npm test -- --run tests/server/domain/superposicion.test.ts",
+      "  $ npm test -- --run tests/server/domain/superposicion.test.ts",
+      "  $ npm test -- --run tests/server/domain/superposicion.test.ts",
+      "  $ npm test -- --run tests/server/api/sesiones.test.ts",
+      "",
+      "los npm test son amarillo por la validación del programa",
+      "los comandos dir son verde por la lectura de cada carpeta para seguir trabajando."
+    ],
+    "4.1": [
+      "No, ninguna herramienta fallo. El unico fallo fue cuando cancelamos una peticion."
+    ],
+    "4.2": [
+      "Siguio trabajando, busco otra alternativa y nos volvio a pedir verificación."
+    ],
+    "5.1": [
+      "Salida que volvió al modelo (caracteres, por herramienta):",
+      "     72195  read_files",
+      "     46433  run_commands",
+      "",
+      "la suma da: 118528 caracteres"
+    ],
+    "5.2": [
+      "El agente leyo shared/types.ts, asi que se ahorro el leer todo el formato para entender que tenia que hacer o de que manera trabajar.",
+      "",
+      "Archivos leídos:",
+      "     8  server/services/sesiones.ts",
+      "     1  server/index.ts",
+      "     1  server/config.ts",
+      "     1  server/app.ts",
+      "     1  server/repositories/index.ts",
+      "     1  server/repositories/json-store.ts",
+      "     1  shared/types.ts",
+      "     1  server/domain/mentoras.ts"
+    ]
+  }
+}
