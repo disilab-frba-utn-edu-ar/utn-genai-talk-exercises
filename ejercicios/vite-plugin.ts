@@ -91,6 +91,12 @@ export function respuestasEjercicios(): Plugin {
   return {
     name: "respuestas-ejercicios",
     configureServer(server) {
+      // La maqueta de la consigna por etapas (ejercicios/propuestas/): se abre en /propuesta.
+      server.middlewares.use("/propuesta", (req, res, next) => {
+        if (req.url !== "/" && req.url !== "") return next()
+        res.setHeader("Content-Type", "text/html; charset=utf-8")
+        res.end(readFileSync(join(DIR, "propuestas", "ejercicios-1-2", "index.html")))
+      })
       server.middlewares.use("/ejercicios-api", (req, res) => {
         // El id se valida contra las carpetas existentes: nada de rutas arbitrarias en disco.
         const [, id, recurso, historia] = req.url?.match(/^\/(\d{2}-[a-z0-9-]+)\/(respuestas|captura|tareas)(?:\/([a-z0-9-]+))?$/) ?? []
