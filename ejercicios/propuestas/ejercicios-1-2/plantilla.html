@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ejercicios 1 y 2 por etapas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap">
+<!-- Generado por generar.mjs: no editar a mano. El CSS de abajo es el del visor (client/src/styles.css + ejercicios/app/ejercicios.css). -->
+<style>
+/*CSS-DEL-VISOR*/
+</style>
+<style>
+/* Maqueta: la consigna partida en pantallas (contexto técnico → contexto del ejercicio → qué hacer) y las
+   preguntas como sección siempre abierta. Usa los tokens del visor; todo lo propio lleva el prefijo pp-. */
+[hidden] { display: none !important; }
+.pp-pagina {
+  max-width: 76rem; margin: 0 auto; display: grid; gap: 0.9rem;
+  padding-block: 1rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.pp-cabecera { display: grid; gap: 0.5rem; }
+.pp-sobre { font-family: var(--fuente-codigo); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--acento-texto); }
+.pp-titulo { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem 1rem; }
+.pp-titulo h1 { margin: 0; font-size: clamp(1.4rem, 3.4vw, 2rem); }
+.pp-reloj { font-family: var(--fuente-codigo); font-weight: 700; border: var(--borde); border-radius: 999px; padding: 0.15rem 0.7rem; background: var(--superficie); font-variant-numeric: tabular-nums; }
+.pp-fila { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; }
+.pp-segmentado { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.pp-segmentado button { border: var(--borde); border-radius: 999px; background: var(--superficie); padding: 0.25rem 0.8rem; font: inherit; font-weight: 600; font-size: 0.88rem; cursor: pointer; color: var(--texto); }
+.pp-segmentado button[aria-pressed="true"] { background: var(--texto); color: var(--fondo); }
+.pp-charla { font-size: 0.85rem; color: var(--texto-suave); position: relative; }
+.pp-charla summary { cursor: pointer; font-weight: 600; }
+.pp-charla[open] > div { position: absolute; right: 0; z-index: 5; width: min(36rem, 90vw); margin-top: 0.4rem; }
+.pp-charla .markdown blockquote { margin: 0; }
+.pp-pedidos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 0.6rem 1.2rem; align-items: start; }
+.pp-pedidos > .pedido + .pedido { margin-top: 0; padding-top: 0; border-top: none; }
+.pp-body summary { cursor: pointer; list-style: none; }
+.pp-body summary::-webkit-details-marker { display: none; }
+.pp-body summary::before { content: "▸ "; }
+.pp-body[open] summary::before { content: "▾ "; }
+.pp-body summary::after { content: " (ver o editar)"; font-weight: 400; color: var(--texto-suave); }
+.pp-body[open] summary::after { content: ""; }
+.pp-cuerpo .pedido-respuesta pre { max-height: 9rem; overflow: auto; }
+.pp-corto { display: none; }
+
+/* Secciones */
+.pp-hilo { list-style: none; margin: 0; padding: 0 0 0.2rem; display: flex; gap: 0.4rem; overflow-x: auto; }
+.pp-hilo li { flex: 1 0 8.5rem; }
+.pp-hilo button { width: 100%; text-align: left; border: none; background: none; padding: 0.2rem 0.1rem; display: grid; gap: 0.3rem; font: inherit; color: var(--texto); cursor: pointer; }
+.pp-hilo button:disabled { cursor: not-allowed; color: var(--texto-suave); }
+.pp-barra { height: 7px; border-radius: 999px; background: var(--linea-suave); }
+.pp-hilo .hecha .pp-barra { background: var(--texto); }
+.pp-hilo .actual .pp-barra { background: var(--acento); }
+.pp-hilo .siempre .pp-barra { height: 9px; border: 1.5px solid var(--linea); background: repeating-linear-gradient(90deg, var(--cielo) 0 10px, transparent 10px 14px); }
+.pp-nombre { font-size: 0.82rem; font-weight: 600; line-height: 1.25; }
+.pp-puntos { display: flex; gap: 0.2rem; align-items: center; font-size: 0.72rem; color: var(--texto-suave); }
+.pp-puntos i { width: 0.42rem; height: 0.42rem; border-radius: 50%; background: var(--linea-suave); }
+.pp-puntos i.visto { background: var(--texto); }
+.pp-puntos i.aca { background: var(--acento); }
+
+/* Marco: una pantalla por vez */
+.pp-marco {
+  height: clamp(24rem, calc(100vh - 14.5rem), 48rem);
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  background: var(--superficie); border: var(--borde); border-radius: var(--radio); box-shadow: var(--sombra); overflow: hidden;
+}
+.pp-marco-cabecera { padding: 0.75rem clamp(1rem, 3vw, 1.5rem); border-bottom: 2px solid var(--linea); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.4rem 1rem; }
+.pp-marco-cabecera.de-preguntas { display: grid; justify-content: stretch; gap: 0.4rem; background: color-mix(in srgb, var(--cielo) 30%, var(--superficie)); }
+.pp-marco-cabecera h2 { margin: 0; font-size: 1.2rem; }
+.pp-cuerpo { padding: clamp(1rem, 3vw, 1.5rem); overflow: auto; animation: pp-entrar 0.3s var(--ease); }
+.pp-cuerpo > .markdown:empty { display: none; }
+/* Un poco más compacto que el visor, para que cada pantalla entre sin scroll. */
+.pp-cuerpo { font-size: 0.95rem; }
+.pp-cuerpo .markdown { line-height: 1.5; }
+.pp-cuerpo .codigo pre { max-height: 11rem; overflow: auto; }
+.pp-cuerpo .diagrama { margin-block: 0.5rem; }
+.pp-cuerpo .anexo-en-linea { margin-block: 0.8rem; }
+.pp-bajada { margin: 0 0 1rem; color: var(--texto-suave); max-width: 62ch; }
+@keyframes pp-entrar { from { opacity: 0; transform: translateX(10px); } }
+.pp-pie { padding: 0.65rem clamp(1rem, 3vw, 1.5rem); border-top: 2px solid var(--linea); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.75rem; align-items: center; }
+.pp-enlace { border: none; background: none; padding: 0; font: inherit; font-weight: 700; color: var(--acento-texto); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pp-maqueta { font-size: 0.75rem; font-style: italic; color: var(--texto-suave); margin: 0.4rem 0 0; }
+.pp-respuesta:empty { display: none; }
+
+/* Preguntas: la única sección con scroll */
+.pp-progreso { height: 8px; border: 1.5px solid var(--linea); border-radius: 999px; overflow: hidden; background: var(--superficie); }
+.pp-progreso div { height: 100%; background: var(--menta); transition: width 0.3s var(--ease); }
+.pp-parte { font-family: var(--fuente-codigo); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); margin: 1.1rem 0 0.4rem; }
+.pp-parte:first-child { margin-top: 0; }
+.pp-pregunta { display: grid; gap: 0.55rem; padding: 0.7rem 0 1rem; border-bottom: 1.5px dashed var(--linea-suave); }
+.pp-pregunta-cabecera { display: grid; grid-template-columns: 1.8rem minmax(0, 1fr) auto; gap: 0.4rem; align-items: baseline; }
+.pp-n { font-family: var(--fuente-codigo); font-weight: 700; }
+.pp-pregunta-titulo { font-weight: 700; }
+.pp-intro, .pp-pista { font-size: 0.86rem; color: var(--texto-suave); }
+.pp-pista::before { content: "Pista: "; font-weight: 700; color: var(--acento-texto); }
+.pp-avance { font-family: var(--fuente-codigo); font-size: 0.72rem; font-weight: 700; border: 2px solid var(--linea); border-radius: 999px; padding: 0 0.4rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pp-pregunta.completa .pp-avance { background: var(--menta); }
+.pp-subs { display: grid; gap: 0.7rem; padding-left: 2.2rem; }
+.pp-sub { display: grid; gap: 0.3rem; }
+.pp-sub label { font-size: 0.9rem; line-height: 1.4; }
+.pp-sub-n { font-family: var(--fuente-codigo); font-size: 0.72rem; font-weight: 700; color: var(--texto-suave); margin-right: 0.25rem; }
+.pp-sub textarea { min-height: 3.4rem; }
+.pp-sub.lista textarea { border-color: var(--menta); box-shadow: 0 0 0 2px var(--menta); }
+.pp-opcional { font-size: 0.68rem; font-weight: 700; border: 1.5px dashed var(--linea); border-radius: 999px; padding: 0 0.35rem; margin-left: 0.35rem; vertical-align: 1px; }
+
+/* Check de cada pantalla y hoja de checks */
+.pp-pie-izq { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; align-items: center; min-width: 0; }
+.pp-check { display: inline-flex; gap: 0.45rem; align-items: flex-start; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
+.pp-check input { width: 1.15rem; height: 1.15rem; margin-top: 0.12rem; accent-color: var(--acento); flex: none; }
+.pp-check input:checked + span { color: var(--texto-suave); text-decoration: line-through; text-decoration-thickness: 2px; }
+.pp-hoja-boton { border: var(--borde); border-radius: 999px; background: var(--menta); color: var(--texto); font: inherit; font-weight: 700; font-size: 0.88rem; padding: 0.25rem 0.8rem; cursor: pointer; box-shadow: var(--sombra-chica); }
+.pp-hoja { width: min(34rem, calc(100% - 2rem)); max-height: calc(100% - 2rem); padding: 0; border: var(--borde); border-radius: var(--radio); background: var(--superficie); color: var(--texto); box-shadow: var(--sombra); }
+.pp-hoja::backdrop { background: color-mix(in srgb, var(--texto) 45%, transparent); }
+.pp-hoja-cabecera { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1.1rem; border-bottom: 2px solid var(--linea); background: color-mix(in srgb, var(--menta) 45%, var(--superficie)); }
+.pp-hoja-cabecera h2 { margin: 0; font-size: 1.15rem; }
+.pp-hoja-cuerpo { padding: 0.9rem 1.1rem 1.2rem; overflow: auto; }
+.pp-lista-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.pp-lista-checks li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem; align-items: start; }
+.pp-lista-checks li:has(.pp-check-auto) { grid-template-columns: auto minmax(0, 1fr) auto; font-size: 0.88rem; font-weight: 600; }
+.pp-check-auto { width: 1.15rem; height: 1.15rem; border: 2px solid var(--linea); border-radius: 4px; display: grid; place-items: center; font-size: 0.75rem; font-weight: 800; }
+.pp-check-auto.ok { background: var(--menta); }
+.pp-ir-chico { font-size: 0.85rem; }
+.pp-bloq { font-size: 0.8rem; }
+
+/* Mi perfil */
+.pp-perfil { display: grid; gap: 1.6rem; align-content: start; }
+.pp-bloque-perfil { display: grid; gap: 0.8rem; }
+.pp-bloque-perfil h2 { margin: 0; font-size: 1.25rem; }
+.pp-campo-etiqueta { display: grid; gap: 0.3rem; font-size: 0.88rem; font-weight: 600; }
+.pp-campo { font: inherit; font-weight: 400; font-size: 0.92rem; border: 2px solid var(--linea); border-radius: var(--radio-chico); padding: 0.45rem 0.6rem; background: var(--fondo); color: var(--texto); width: 100%; }
+.pp-sub.lista .pp-campo { border-color: var(--menta); box-shadow: 0 0 0 2px var(--menta); }
+.pp-dos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 0.8rem; }
+.pp-integrantes { list-style: none; margin: 0.2rem 0; padding: 0; display: grid; gap: 0.4rem; }
+.pp-integrantes li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem; align-items: center; }
+.pp-tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1rem; }
+.pp-tarjeta-ej { border: var(--borde); border-radius: var(--radio); padding: 1rem; display: grid; gap: 0.6rem; background: var(--superficie); box-shadow: var(--sombra-chica); align-content: start; }
+.pp-tarjeta-ej h3 { margin: 0; font-size: 1rem; }
+.pp-barra-avance { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 3rem; gap: 0.6rem; align-items: center; font-size: 0.82rem; }
+.pp-num { font-family: var(--fuente-codigo); font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.pp-perfil-texto { min-height: 3.4rem; }
+.pp-puntaje { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; font-weight: 400; }
+.pp-puntaje button { width: 2.4rem; height: 2.4rem; border: var(--borde); border-radius: 50%; background: var(--superficie); font: inherit; font-weight: 800; cursor: pointer; color: var(--texto); }
+.pp-puntaje button[aria-pressed="true"] { background: var(--acento); color: var(--tinta, #17140f); }
+
+@media (max-width: 600px) {
+  .pp-marco { height: max(22rem, calc(100vh - 19rem)); }
+  .pp-detalle, .pp-largo { display: none; }
+  .pp-corto { display: inline; }
+  .pp-subs { padding-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .pp-cuerpo { animation: none; } }
+</style>
+
+<main class="pp-pagina">
+  <header class="pp-cabecera">
+    <span class="pp-sobre">Propuesta · la consigna por etapas · contenido tomado de main</span>
+    <div class="pp-titulo"><h1 id="titulo"></h1><span class="pp-reloj" id="reloj"></span></div>
+    <div class="pp-fila">
+      <div class="pp-segmentado" id="selector" role="group" aria-label="Vista"></div>
+      <div class="pp-fila" style="gap:.5rem 1rem">
+        <button type="button" class="pp-hoja-boton" id="boton-hoja" aria-haspopup="dialog"></button>
+        <details class="pp-charla" id="charla-caja"><summary>De qué bloques de la charla sale</summary><div id="charla"></div></details>
+      </div>
+    </div>
+  </header>
+  <ol class="pp-hilo" id="hilo" aria-label="Secciones"></ol>
+  <section class="pp-marco" id="marco" aria-live="polite"></section>
+</main>
+
+<dialog class="pp-hoja" id="hoja" aria-labelledby="hoja-titulo">
+  <div class="pp-hoja-cabecera"><h2 id="hoja-titulo">Hoja de checks</h2><button type="button" class="pp-enlace" data-cerrar-hoja>Cerrar</button></div>
+  <div class="pp-hoja-cuerpo" id="hoja-cuerpo"></div>
+</dialog>
+
+<script>
+/*DATOS*/
+
+/* ── Estado (en este navegador) ── */
+function leer(clave, defecto) { try { const v = localStorage.getItem(clave); return v === null ? defecto : JSON.parse(v); } catch { return defecto; } }
+function guardar(clave, valor) { try { localStorage.setItem(clave, JSON.stringify(valor)); } catch {} }
+const PREGUNTAS = 'preguntas';
+const PERFIL = 'perfil';
+const IDS = Object.keys(DATOS);
+const nuevoProgreso = () => ({ pos: 0, alcanzada: 0, ultima: 0, respuestas: {}, checks: {} });
+const estado = {
+  vista: IDS[0],
+  porEj: Object.fromEntries(IDS.map((id) => [id, nuevoProgreso()])),
+  perfil: { nombre: '', integrantes: [], modelo: '', agente: '', intervenciones: {}, puntaje: 0, feedback: '', feedbackPorEj: {} },
+};
+for (const [id, p] of Object.entries(leer('consigna-por-etapas', {}))) if (estado.porEj[id]) estado.porEj[id] = { ...nuevoProgreso(), ...p };
+Object.assign(estado.perfil, leer('consigna-perfil', {}));
+const enPerfil = () => estado.vista === PERFIL;
+const prog = (id = estado.vista) => estado.porEj[id];
+const persistir = () => { guardar('consigna-por-etapas', estado.porEj); guardar('consigna-perfil', estado.perfil); };
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* Todas las pantallas del ejercicio, en orden, con la etapa a la que pertenecen. */
+function pantallas(ej) {
+  return ej.etapas.flatMap((e, i) => e.pantallas.map((p, j) => ({ ...p, etapa: i, j, de: e.pantallas.length })));
+}
+
+/* Avance de un ejercicio: pantallas vistas, checks tildados y cajas respondidas (sin las opcionales). */
+function avance(id) {
+  const ej = DATOS[id], p = prog(id), todas = pantallas(ej);
+  const vistas = Math.min(p.alcanzada + 1, todas.length);
+  const conCheck = todas.map((x, k) => ({ ...x, k })).filter((x) => x.check);
+  const obligatorios = conCheck.filter((x) => !x.check.startsWith('Opcional'));
+  const checks = obligatorios.filter((x) => p.checks[x.k]).length;
+  let total = 0, hechas = 0;
+  ej.partes.forEach((pt) => pt.preguntas.forEach((q) => {
+    if (q.opcional) return;
+    q.subs.forEach((_, j) => { total++; if ((p.respuestas[`${q.n}.${j}`] || '').trim()) hechas++; });
+  }));
+  return { vistas, pantallas: todas.length, checks, totalChecks: obligatorios.length, conCheck, hechas, total };
+}
+
+/* ── Ejercicio: secciones, pantallas y preguntas ── */
+function renderHilo(ej, todas) {
+  const p = prog();
+  const items = ej.etapas.map((e, i) => {
+    const suyas = todas.map((x, k) => ({ ...x, k })).filter((x) => x.etapa === i);
+    const primera = suyas[0].k;
+    const bloqueada = primera > p.alcanzada;
+    const actual = p.pos !== PREGUNTAS && todas[p.pos].etapa === i;
+    const clase = actual ? 'actual' : suyas.every((x) => x.k <= p.alcanzada) ? 'hecha' : '';
+    const puntos = suyas.map((x) => `<i class="${x.k === p.pos ? 'aca' : x.k <= p.alcanzada ? 'visto' : ''}"></i>`).join('');
+    return `<li class="${clase}"><button type="button" data-ir="${primera}" ${bloqueada ? 'disabled' : ''} ${actual ? 'aria-current="step"' : ''}><span class="pp-barra"></span><span class="pp-nombre">${bloqueada ? '🔒 ' : ''}${i + 1}. ${e.nombre}</span><span class="pp-puntos">${puntos}</span></button></li>`;
+  });
+  const { hechas, total } = avance(estado.vista);
+  items.push(`<li class="siempre ${p.pos === PREGUNTAS ? 'actual' : ''}"><button type="button" data-ir="${PREGUNTAS}"><span class="pp-barra"></span><span class="pp-nombre">✎ Preguntas · ${hechas}/${total}</span><span class="pp-puntos">siempre abierta</span></button></li>`);
+  document.getElementById('hilo').innerHTML = items.join('');
+}
+
+function casillaCheck(k, texto) {
+  const id = `check-${estado.vista}-${k}`;
+  return `<label class="pp-check" for="${id}"><input type="checkbox" id="${id}" data-check="${k}" ${prog().checks[k] ? 'checked' : ''}><span>${esc(texto)}</span></label>`;
+}
+
+function renderPantalla(ej, todas) {
+  const p = prog();
+  const x = todas[p.pos], ant = todas[p.pos - 1], sig = todas[p.pos + 1];
+  const etapa = ej.etapas[x.etapa];
+  const puntos = todas.filter((y) => y.etapa === x.etapa).map((y) => `<i class="${y.j === x.j ? 'aca' : 'visto'}"></i>`).join('');
+  const largo = !sig ? 'Ir a las preguntas' : sig.etapa !== x.etapa ? `Siguiente etapa: ${ej.etapas[sig.etapa].nombre}` : `Siguiente: ${esc(sig.titulo)}`;
+  return `
+    <div class="pp-marco-cabecera"><span class="pp-sobre">Etapa ${x.etapa + 1} · ${etapa.nombre} · ${esc(x.titulo)}</span><span class="pp-puntos">${puntos}<span>${x.j + 1} de ${x.de}</span></span></div>
+    <div class="pp-cuerpo">${x.html}</div>
+    <div class="pp-pie">
+      <div class="pp-pie-izq">${ant ? `<button type="button" class="pp-enlace" data-ir="${p.pos - 1}">← <span class="pp-largo">Anterior: ${esc(ant.titulo)}</span><span class="pp-corto">Anterior</span></button>` : ''}${x.check ? casillaCheck(p.pos, x.check) : ''}</div>
+      <button type="button" class="boton" data-siguiente><span class="pp-largo">${largo}</span><span class="pp-corto">${sig ? 'Siguiente' : 'Preguntas'}</span> →</button>
+    </div>`;
+}
+
+function cajasDePreguntas(ej, id = estado.vista) {
+  const p = prog(id);
+  return ej.partes.map((pt) => `<h3 class="pp-parte">${esc(pt.nombre)}</h3>` + pt.preguntas.map((q) => {
+    const listas = q.subs.filter((_, j) => (p.respuestas[`${q.n}.${j}`] || '').trim()).length;
+    const subs = q.subs.map((texto, j) => {
+      const idCaja = `resp-${id}-${q.n}-${j}`;
+      const valor = p.respuestas[`${q.n}.${j}`] || '';
+      const etiqueta = q.subs.length > 1 ? `<span class="pp-sub-n">${q.num}.${j + 1}</span>` : '';
+      const corta = q.n === 'modelo' || q.n === 'agente';
+      return `<div class="pp-sub ${valor.trim() ? 'lista' : ''}"><label for="${idCaja}">${etiqueta}${texto}</label>${corta
+        ? `<input id="${idCaja}" class="pp-campo" data-respuesta="${q.n}.${j}" data-ej="${id}" value="${esc(valor)}" placeholder="${q.n === 'modelo' ? 'Ej.: Sonnet, gpt-5…' : 'Ej.: Claude Code, Codex, Cline…'}">`
+        : `<textarea id="${idCaja}" class="editor-respuestas" data-respuesta="${q.n}.${j}" data-ej="${id}" placeholder="${esc(ej.placeholder || 'Con evidencia del log')}">${esc(valor)}</textarea>`}</div>`;
+    }).join('');
+    return `<div class="pp-pregunta ${listas === q.subs.length ? 'completa' : ''}" data-subs="${q.subs.length}">
+      <div class="pp-pregunta-cabecera"><span class="pp-n">${q.num ? `${q.num}.` : ''}</span><span><span class="pp-pregunta-titulo">${q.titulo}</span>${q.opcional ? '<span class="pp-opcional">opcional</span>' : ''}${q.intro && q.subs.length > 1 ? `<div class="pp-intro">${q.intro}</div>` : ''}${q.pista ? `<div class="pp-pista">${q.pista.replace(/^Pista:\s*/, '')}</div>` : ''}</span><span class="pp-avance">${listas}/${q.subs.length}</span></div>
+      <div class="pp-subs">${subs}</div>
+    </div>`;
+  }).join('')).join('');
+}
+
+function renderPreguntas(ej) {
+  const { hechas, total } = avance(estado.vista);
+  return `
+    <div class="pp-marco-cabecera de-preguntas">
+      <div class="pp-fila"><h2>Preguntas</h2><span class="pp-contador" style="font-size:.85rem;color:var(--texto-suave)">${hechas} de ${total} respondidas</span></div>
+      <div class="pp-progreso"><div style="width:${(hechas / total) * 100}%"></div></div>
+    </div>
+    <div class="pp-cuerpo">${cajasDePreguntas(ej)}</div>
+    <div class="pp-pie">
+      <div><button type="button" class="pp-enlace" data-ir="${prog().ultima}">← Volver a la consigna</button></div>
+      <button type="button" class="boton" data-guardar>Guardar respuestas</button>
+    </div>`;
+}
+
+/* ── Hoja de checks del ejercicio ── */
+function renderHoja() {
+  const id = estado.vista, ej = DATOS[id], a = avance(id), p = prog(id);
+  const porEtapa = ej.etapas.map((e, i) => {
+    const items = a.conCheck.filter((x) => x.etapa === i);
+    if (!items.length) return '';
+    return `<h3 class="pp-parte">${i + 1}. ${esc(e.nombre)}</h3><ul class="pp-lista-checks">${items.map((x) => `<li>${casillaCheck(x.k, x.check)}${x.k <= p.alcanzada ? `<button type="button" class="pp-enlace pp-ir-chico" data-ir="${x.k}" data-cerrar-hoja>Ir</button>` : '<span class="pp-bloq">🔒</span>'}</li>`).join('')}</ul>`;
+  }).join('');
+  document.getElementById('hoja-titulo').textContent = `Hoja de checks · Ejercicio ${ej.numero}`;
+  document.getElementById('hoja-cuerpo').innerHTML = `
+    ${barra('Checks', a.checks, a.totalChecks)}
+    ${porEtapa}
+    <h3 class="pp-parte">Preguntas</h3>
+    <ul class="pp-lista-checks"><li><span class="pp-check-auto ${a.hechas === a.total ? 'ok' : ''}">${a.hechas === a.total ? '✓' : ''}</span><span>Respondí las preguntas (${a.hechas} de ${a.total})</span><button type="button" class="pp-enlace pp-ir-chico" data-ir="${PREGUNTAS}" data-cerrar-hoja>Ir</button></li></ul>`;
+}
+
+/* ── Mi perfil ── */
+const barra = (nombre, n, total) => `<div class="pp-barra-avance"><span>${nombre}</span><div class="pp-progreso"><div style="width:${total ? (n / total) * 100 : 0}%"></div></div><span class="pp-num">${n}/${total}</span></div>`;
+
+function renderPerfil() {
+  const pf = estado.perfil;
+  const tarjetas = IDS.map((id) => {
+    const ej = DATOS[id], a = avance(id), r = prog(id).respuestas;
+    return `<article class="pp-tarjeta-ej">
+      <div class="pp-fila"><h3>Ejercicio ${ej.numero} · ${esc(ej.titulo)}</h3><button type="button" class="pp-enlace" data-vista="${id}">Abrir</button></div>
+      ${barra('Pantallas', a.vistas, a.pantallas)}${barra('Checks', a.checks, a.totalChecks)}${barra('Preguntas', a.hechas, a.total)}
+      <div class="pp-dos">
+        <label class="pp-campo-etiqueta">Modelo<input class="pp-campo" data-respuesta="modelo.0" data-ej="${id}" value="${esc(r['modelo.0'])}" placeholder="${esc(pf.modelo || 'Ej.: Sonnet, gpt-5…')}"></label>
+        <label class="pp-campo-etiqueta">Agente<input class="pp-campo" data-respuesta="agente.0" data-ej="${id}" value="${esc(r['agente.0'])}" placeholder="${esc(pf.agente || 'Ej.: Claude Code, Codex, Cline…')}"></label>
+      </div>
+      <label class="pp-campo-etiqueta">¿Intervinieron durante la tarea? Si sí, cuándo y por qué
+        <textarea class="editor-respuestas pp-perfil-texto" data-perfil-ej="intervenciones" data-ej="${id}">${esc(pf.intervenciones[id])}</textarea></label>
+      <label class="pp-campo-etiqueta">Feedback de este ejercicio
+        <textarea class="editor-respuestas pp-perfil-texto" data-perfil-ej="feedbackPorEj" data-ej="${id}" placeholder="Qué te sirvió, qué te trabó, qué cambiarías">${esc(pf.feedbackPorEj[id])}</textarea></label>
+    </article>`;
+  }).join('');
+  return `
+    <div class="pp-marco-cabecera"><span class="pp-sobre">Mi perfil · se guarda en este navegador</span></div>
+    <div class="pp-cuerpo pp-perfil">
+      <section class="pp-bloque-perfil">
+        <h2>Quiénes son</h2>
+        <label class="pp-campo-etiqueta">Nombre personal o del equipo<input class="pp-campo" data-perfil="nombre" value="${esc(pf.nombre)}" placeholder="Ej.: Los Hooks Felices"></label>
+        <div class="pp-campo-etiqueta">Integrantes <span class="suave">(si son un equipo)</span>
+          <ul class="pp-integrantes">${pf.integrantes.map((n, i) => `<li><input class="pp-campo" data-integrante="${i}" value="${esc(n)}" aria-label="Integrante ${i + 1}"><button type="button" class="pp-enlace" data-quitar="${i}" aria-label="Quitar a ${esc(n) || 'este integrante'}">Quitar</button></li>`).join('')}</ul>
+          <button type="button" class="pp-enlace" data-agregar-integrante>+ Agregar integrante</button>
+        </div>
+        <div class="pp-dos">
+          <label class="pp-campo-etiqueta">Modelo que usaron en general<input class="pp-campo" data-perfil="modelo" value="${esc(pf.modelo)}" placeholder="Ej.: Sonnet, gpt-5…"></label>
+          <label class="pp-campo-etiqueta">Agente que usaron en general<input class="pp-campo" data-perfil="agente" value="${esc(pf.agente)}" placeholder="Ej.: Claude Code, Codex, Cline…"></label>
+        </div>
+        <p class="pp-intro">Si en algún ejercicio usaron otro, cargalo en ese ejercicio: es la misma caja de "Para cerrar".</p>
+      </section>
+      <section class="pp-bloque-perfil"><h2>Progreso por ejercicio</h2><div class="pp-tarjetas">${tarjetas}</div></section>
+      <section class="pp-bloque-perfil">
+        <h2>Feedback</h2>
+        <div class="pp-campo-etiqueta">¿Qué tan útiles les resultaron los ejercicios?
+          <div class="pp-puntaje" role="group" aria-label="Puntaje del 1 al 5">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-puntaje="${n}" aria-pressed="${pf.puntaje === n}">${n}</button>`).join('')}<span class="suave">1 = nada · 5 = muy útiles</span></div>
+        </div>
+        <label class="pp-campo-etiqueta">Comentarios generales<textarea class="editor-respuestas pp-perfil-texto" data-perfil="feedback" placeholder="Lo que quieras contarnos sobre la charla y los ejercicios">${esc(pf.feedback)}</textarea></label>
+      </section>
+    </div>
+    <div class="pp-pie"><div></div><button type="button" class="boton" data-guardar>Guardar perfil</button></div>`;
+}
+
+/* ── Render ── */
+function render() {
+  const botones = IDS.map((id) => `<button type="button" data-vista="${id}" aria-pressed="${id === estado.vista}">Ejercicio ${DATOS[id].numero}</button>`);
+  botones.push(`<button type="button" data-vista="${PERFIL}" aria-pressed="${enPerfil()}">👤 Mi perfil</button>`);
+  document.getElementById('selector').innerHTML = botones.join('');
+  document.getElementById('hilo').hidden = enPerfil();
+  document.getElementById('charla-caja').hidden = enPerfil();
+  const botonHoja = document.getElementById('boton-hoja');
+  botonHoja.hidden = enPerfil();
+  if (enPerfil()) {
+    document.getElementById('titulo').textContent = estado.perfil.nombre ? `Mi perfil · ${estado.perfil.nombre}` : 'Mi perfil';
+    document.getElementById('reloj').hidden = true;
+    document.getElementById('marco').innerHTML = renderPerfil();
+    return;
+  }
+  const ej = DATOS[estado.vista], p = prog(), todas = pantallas(ej);
+  if (p.pos !== PREGUNTAS && p.pos >= todas.length) p.pos = 0;
+  document.getElementById('titulo').textContent = `Ejercicio ${ej.numero} · ${ej.titulo}`;
+  const reloj = document.getElementById('reloj');
+  reloj.hidden = false; reloj.textContent = `${ej.minutos}:00`;
+  document.getElementById('charla').innerHTML = ej.charla;
+  const a = avance(estado.vista);
+  botonHoja.textContent = `☑ Hoja de checks · ${a.checks}/${a.totalChecks}`;
+  renderHilo(ej, todas);
+  document.getElementById('marco').innerHTML = p.pos === PREGUNTAS ? renderPreguntas(ej) : renderPantalla(ej, todas);
+  if (document.getElementById('hoja').open) renderHoja();
+}
+
+/* ── Navegación ── */
+function ir(destino) {
+  const p = prog();
+  const total = pantallas(DATOS[estado.vista]).length;
+  if (destino === PREGUNTAS || destino >= total) { if (p.pos !== PREGUNTAS) p.ultima = p.pos; p.pos = PREGUNTAS; }
+  else if (destino >= 0 && destino <= p.alcanzada) p.pos = destino;
+  persistir(); render();
+}
+function siguiente() {
+  const p = prog();
+  if (enPerfil() || p.pos === PREGUNTAS) return;
+  p.alcanzada = Math.max(p.alcanzada, p.pos + 1);
+  ir(p.pos + 1);
+}
+
+async function copiar(boton, texto, etiqueta) {
+  try { await navigator.clipboard.writeText(texto); boton.textContent = '¡Copiado!'; }
+  catch { boton.textContent = 'No se pudo copiar'; }
+  setTimeout(() => { boton.textContent = etiqueta; }, 2000);
+}
+
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  const hoja = document.getElementById('hoja');
+  if (b.dataset.cerrarHoja !== undefined && hoja.open) hoja.close();
+  if (b.dataset.vista) { estado.vista = b.dataset.vista; render(); }
+  else if (b.id === 'boton-hoja') { renderHoja(); hoja.showModal(); }
+  else if (b.dataset.siguiente !== undefined) siguiente();
+  else if (b.dataset.ir !== undefined) ir(b.dataset.ir === PREGUNTAS ? PREGUNTAS : Number(b.dataset.ir));
+  else if (b.dataset.copiar !== undefined) copiar(b, b.nextElementSibling?.textContent ?? '', b.textContent);
+  else if (b.dataset.simular) {
+    // Respuesta simulada: el visor real manda el pedido a la API.
+    const r = JSON.parse(b.dataset.simular);
+    b.closest('.pedido').querySelector('.pp-respuesta').innerHTML = `<div class="pedido-respuesta" role="status"><span class="pedido-estado" data-ok="${r.estado < 400}">${r.estado}</span><pre>${esc(JSON.stringify(r.cuerpo, null, 2))}</pre></div>`;
+  }
+  else if (b.dataset.agregarIntegrante !== undefined) { estado.perfil.integrantes.push(''); persistir(); render(); document.querySelector(`[data-integrante="${estado.perfil.integrantes.length - 1}"]`)?.focus(); }
+  else if (b.dataset.quitar !== undefined) { estado.perfil.integrantes.splice(Number(b.dataset.quitar), 1); persistir(); render(); }
+  else if (b.dataset.puntaje) { estado.perfil.puntaje = Number(b.dataset.puntaje); persistir(); render(); }
+  else if (b.dataset.guardar !== undefined) { persistir(); const t = b.textContent; b.textContent = 'Guardado'; setTimeout(() => { b.textContent = t; }, 1500); }
+});
+
+// Checks: se tildan en la pantalla o en la hoja, y los dos lugares quedan iguales.
+document.addEventListener('change', (e) => {
+  const k = e.target.dataset && e.target.dataset.check;
+  if (k === undefined) return;
+  prog().checks[k] = e.target.checked;
+  persistir();
+  document.querySelectorAll(`[data-check="${k}"]`).forEach((c) => { c.checked = e.target.checked; });
+  const a = avance(estado.vista);
+  document.getElementById('boton-hoja').textContent = `☑ Hoja de checks · ${a.checks}/${a.totalChecks}`;
+  if (document.getElementById('hoja').open) { const foco = e.target.id; renderHoja(); document.getElementById(foco)?.focus(); }
+});
+
+// Flechas del teclado para pasar de pantalla, salvo mientras se escribe.
+document.addEventListener('keydown', (e) => {
+  if (e.target.closest('textarea, input, dialog') || e.altKey || e.metaKey || e.ctrlKey) return;
+  const p = prog();
+  if (e.key === 'ArrowRight') siguiente();
+  else if (e.key === 'ArrowLeft' && !enPerfil() && p.pos !== PREGUNTAS && p.pos > 0) ir(p.pos - 1);
+});
+
+// Lo que se escribe se guarda al toque; se actualizan los contadores sin redibujar los recuadros.
+document.addEventListener('input', (e) => {
+  const d = e.target.dataset || {};
+  const pf = estado.perfil;
+  if (d.perfil) { pf[d.perfil] = e.target.value; persistir(); if (d.perfil === 'nombre') document.getElementById('titulo').textContent = pf.nombre ? `Mi perfil · ${pf.nombre}` : 'Mi perfil'; return; }
+  if (d.perfilEj) { pf[d.perfilEj][d.ej] = e.target.value; persistir(); return; }
+  if (d.integrante !== undefined) { pf.integrantes[Number(d.integrante)] = e.target.value; persistir(); return; }
+  if (!d.respuesta) return;
+  prog(d.ej).respuestas[d.respuesta] = e.target.value;
+  persistir();
+  if (enPerfil()) return;
+  const ej = DATOS[estado.vista];
+  const { hechas, total } = avance(estado.vista);
+  e.target.closest('.pp-sub').classList.toggle('lista', !!e.target.value.trim());
+  const fila = e.target.closest('.pp-pregunta');
+  const listas = fila.querySelectorAll('.pp-sub.lista').length;
+  fila.querySelector('.pp-avance').textContent = `${listas}/${fila.dataset.subs}`;
+  fila.classList.toggle('completa', listas === Number(fila.dataset.subs));
+  document.querySelector('.pp-contador').textContent = `${hechas} de ${total} respondidas`;
+  document.querySelector('.de-preguntas .pp-progreso div').style.width = `${(hechas / total) * 100}%`;
+  renderHilo(ej, pantallas(ej));
+});
+
+render();
+</script>
+</html>

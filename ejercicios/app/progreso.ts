@@ -1,5 +1,5 @@
-// Progreso de quien resuelve los ejercicios: qué terminó y, en el 3, su tablero. Vive en este
-// navegador: es progreso personal, no algo que se entregue.
+// Progreso de quien resuelve los ejercicios: qué terminó, por dónde va en la consigna por etapas y, en el 3,
+// su tablero. Vive en este navegador: es progreso personal, no algo que se entregue.
 import { useSyncExternalStore } from "react"
 
 const CLAVE = "ejercicios:terminados"
@@ -79,4 +79,33 @@ export const marcarAvanzarIgual = (id: string) => agregar(CLAVE_AVANZAR_IGUAL, i
 
 export function useAvanzoIgual(id: string): boolean {
   return ids(useGuardado(CLAVE_AVANZAR_IGUAL)).includes(id)
+}
+
+/* ── Consigna por etapas ─────────────────────────────────── */
+
+/**
+ * Dónde está cada quien en la consigna por etapas: la pantalla actual (o las preguntas), la más lejana
+ * a la que llegó (hasta ahí se puede volver; lo que sigue está bloqueado) y los checks tildados (por su texto).
+ * `visitado` distingue "nunca lo abrió" de "está en la primera pantalla".
+ */
+export type AvanceEtapas = { pos: number | "preguntas"; alcanzada: number; checks: string[]; visitado: boolean }
+
+const claveEtapas = (id: string) => `ejercicios:etapas:${id}`
+
+export function useEtapas(id: string): AvanceEtapas {
+  const v = useGuardado(claveEtapas(id)) as Partial<AvanceEtapas> | undefined
+  const alcanzada = typeof v?.alcanzada === "number" && v.alcanzada >= 0 ? v.alcanzada : 0
+  const pos = v?.pos === "preguntas" || (typeof v?.pos === "number" && v.pos >= 0 && v.pos <= alcanzada) ? v.pos : 0
+  return { pos, alcanzada, checks: ids(v?.checks), visitado: v !== undefined }
+}
+
+export const guardarEtapas = (id: string, avance: Omit<AvanceEtapas, "visitado">) => guardar(claveEtapas(id), avance)
+
+/** Cuántas preguntas tiene respondidas (en el recuadro, guarde o no): la hoja de checks lo muestra al lado de los checks. */
+export const publicarRespondidas = (id: string, cuenta: { hechas: number; total: number }) =>
+  guardar(`ejercicios:respondidas:${id}`, cuenta)
+
+export function useRespondidas(id: string): { hechas: number; total: number } | undefined {
+  const v = useGuardado(`ejercicios:respondidas:${id}`) as { hechas?: unknown; total?: unknown } | undefined
+  return typeof v?.hechas === "number" && typeof v.total === "number" ? { hechas: v.hechas, total: v.total } : undefined
 }

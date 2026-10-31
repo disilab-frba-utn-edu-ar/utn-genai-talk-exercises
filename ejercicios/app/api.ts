@@ -1,4 +1,6 @@
 // Único lugar de los ejercicios que hace fetch. Lo atiende ejercicios/vite-plugin.ts.
+import { normalizarPerfil, type Perfil } from "./perfil"
+
 export type RespuestasGuardadas = {
   ejercicio: string
   guardado: string
@@ -28,6 +30,28 @@ export const leerRespuestas = (id: string) => pedir<RespuestasGuardadas | null>(
 
 export const guardarRespuestas = (id: string, datos: { general: string; respuestas: Record<string, string>; markdown: string }) =>
   pedir<RespuestasGuardadas>(id, { method: "PUT", body: JSON.stringify(datos) })
+
+// Mi perfil: uno para todos los ejercicios, en ejercicios/perfil.json.
+async function pedirPerfil(opciones?: RequestInit): Promise<unknown> {
+  let respuesta: Response
+  try {
+    respuesta = await fetch("/ejercicios-api/perfil", { ...opciones, headers: { "Content-Type": "application/json" } })
+  } catch {
+    throw new Error("No pudimos conectarnos. ¿Está corriendo npm run dev?")
+  }
+  // Sin el servidor de desarrollo (o sin perfil todavía) se empieza de cero; al guardar, es un error.
+  if (respuesta.status === 404 && !opciones?.method) return null
+  const cuerpo = await respuesta.json().catch(() => {
+    throw new Error("El perfil solo se puede guardar con npm run dev.")
+  })
+  if (!respuesta.ok) throw new Error(cuerpo?.error ?? "No se pudo guardar el perfil")
+  return cuerpo
+}
+
+export const leerPerfil = async () => normalizarPerfil(await pedirPerfil())
+
+export const guardarPerfil = async (perfil: Perfil) =>
+  normalizarPerfil(await pedirPerfil({ method: "PUT", body: JSON.stringify(perfil) }))
 
 // La captura de pantalla (opcional) se guarda aparte, como imagen: ejercicios/<id>/captura.<ext>.
 const urlCaptura = (id: string) => `/ejercicios-api/${encodeURIComponent(id)}/captura`

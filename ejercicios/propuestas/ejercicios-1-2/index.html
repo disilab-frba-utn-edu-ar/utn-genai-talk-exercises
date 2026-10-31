@@ -1,0 +1,3596 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ejercicios 1 y 2 por etapas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap">
+<!-- Generado por generar.mjs: no editar a mano. El CSS de abajo es el del visor (client/src/styles.css + ejercicios/app/ejercicios.css). -->
+<style>
+/* Mentorías a Voluntad — estilos globales.
+   CSS plano con variables (Principio VI). Sistema de diseño "Viñeta": cómic minimalista
+   sobre la base papel + tinta + naranja de la charla. Trazo de tinta grueso, sombras duras
+   desplazadas (sin difuminado), trama de puntos, colores "de sticker" solo como fondo de
+   texto en tinta, Bricolage Grotesque para títulos, IBM Plex Sans para el resto y Caveat
+   para anotaciones a mano. Solo tema claro. */
+
+:root {
+  --fondo: #fbf6ea; /* papel */
+  --superficie: #fffdf7;
+  --texto: #17140f; /* tinta */
+  --texto-suave: #4f4a42;
+  --linea: #17140f;
+  --linea-suave: color-mix(in srgb, #17140f 16%, transparent);
+  --grilla: color-mix(in srgb, #17140f 6%, transparent);
+  --trama: color-mix(in srgb, #17140f 13%, transparent);
+  --acento: #e8482b;
+  /* El acento puro no llega a 4.5:1 sobre papel: para texto chico se oscurece. */
+  --acento-texto: #c2361b;
+  --acento-suave: color-mix(in srgb, #e8482b 12%, transparent);
+  --invertido: #fbf6ea; /* texto sobre tinta */
+  /* Colores "de sticker": solo como fondo, siempre con texto en tinta (contraste > 10:1). */
+  --resaltador: #ffd84d;
+  --cielo: #9fd8ff;
+  --menta: #a6e8c9;
+  --rosa: #ffb3c7;
+  --error: #b42318;
+  --error-suave: color-mix(in srgb, #b42318 10%, transparent);
+
+  --radio: 16px;
+  --radio-chico: 10px;
+  --borde: 2.5px solid var(--linea);
+  /* Sombra de cómic: dura y desplazada, nunca difuminada. */
+  --sombra: 5px 5px 0 var(--linea);
+  --sombra-chica: 3px 3px 0 var(--linea);
+  --sombra-alzada: 8px 8px 0 var(--linea);
+  --trama-tam: 18px;
+
+  --fuente: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fuente-titulos: "Bricolage Grotesque", var(--fuente);
+  --fuente-mano: "Caveat", "Segoe Print", cursive;
+  --fuente-codigo: "IBM Plex Mono", ui-monospace, monospace;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layout a todo el ancho: margen lateral fluido, tope suave y medidas de lectura. */
+  --gutter: clamp(0.75rem, 2.5vw, 2rem);
+  --ancho-maximo: 120rem;
+  --ancho-lectura: 64rem;
+  --ancho-formulario: 56rem;
+  --espacio-seccion: clamp(1.25rem, 3vw, 2rem);
+
+  color-scheme: light;
+}
+
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--fondo);
+  /* Trama de puntos, como la impresión de una historieta. */
+  background-image: radial-gradient(var(--trama) 1.2px, transparent 1.4px);
+  background-size: var(--trama-tam) var(--trama-tam);
+  background-attachment: fixed;
+  color: var(--texto);
+  font-family: var(--fuente);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2 {
+  font-family: var(--fuente-titulos);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2.1rem, 5.5vw, 3.6rem);
+  letter-spacing: -0.025em;
+}
+
+a {
+  color: var(--texto);
+  text-decoration-color: var(--acento);
+  text-underline-offset: 0.2em;
+}
+
+code {
+  font-family: var(--fuente-codigo);
+  font-size: 0.92em;
+}
+
+::selection {
+  background: var(--acento);
+  color: var(--invertido);
+}
+
+:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.acento {
+  color: var(--acento-texto);
+}
+
+/* En los títulos, la palabra destacada lleva un trazo de resaltador debajo. */
+h1 .acento {
+  padding-inline: 0.05em;
+  background: linear-gradient(transparent 62%, var(--resaltador) 62% 92%, transparent 92%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Anotación a mano: notas al margen, nunca texto principal. */
+.nota-mano {
+  font-family: var(--fuente-mano);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--acento-texto);
+}
+
+/* ── Estructura ─────────────────────────────────────────── */
+
+.pagina {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.saltar {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 1;
+  padding: 0.5rem 1rem;
+  background: var(--texto);
+  color: var(--invertido);
+  border-radius: var(--radio-chico);
+}
+
+.saltar:focus {
+  top: 1rem;
+}
+
+.encabezado,
+.contenido,
+.pie {
+  width: 100%;
+  margin: 0;
+  /* De borde a borde; el contenido se detiene en --ancho-maximo y se centra. */
+  padding-inline: max(var(--gutter), calc((100% - var(--ancho-maximo)) / 2));
+}
+
+.encabezado {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+  padding-block: 0.75rem;
+  border-bottom: var(--borde);
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--fuente-titulos);
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: 0.01em;
+  color: var(--texto);
+  text-decoration: none;
+}
+
+.marca em {
+  font-style: normal;
+  color: var(--acento-texto);
+}
+
+.marcas {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.marca-utn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--texto);
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.marca-utn-logo {
+  height: 2rem;
+  width: auto;
+}
+
+.marca-utn strong {
+  font-weight: 700;
+}
+
+.marcas-separador {
+  width: 2px;
+  height: 1.75rem;
+  background: var(--linea-suave);
+}
+
+.marca-icono {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--acento);
+  color: var(--invertido);
+  box-shadow: var(--sombra-chica);
+  transform: rotate(-4deg);
+  font-family: var(--fuente-codigo);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.navegacion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.navegacion a {
+  padding: 0.2rem 0.15rem;
+  color: var(--texto-suave);
+  text-decoration: none;
+  transition: background-size 0.2s var(--ease), color 0.2s var(--ease);
+  /* Resaltador que crece de 0 al ancho completo en la página actual. */
+  background: linear-gradient(var(--resaltador), var(--resaltador)) no-repeat left 85% / 0% 40%;
+}
+
+.navegacion a:hover {
+  color: var(--texto);
+  background-size: 100% 40%;
+}
+
+.navegacion a[aria-current="page"] {
+  color: var(--texto);
+  background-size: 100% 40%;
+}
+
+.encabezado-lema {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.contenido {
+  flex: 1;
+  padding-block: var(--espacio-seccion) 2.5rem;
+}
+
+.pie {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding-block: 0.75rem 1rem;
+  border-top: var(--borde);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.pie strong {
+  color: var(--texto);
+  font-weight: 600;
+}
+
+/* ── Textos ─────────────────────────────────────────────── */
+
+/* Recuadro de narración de historieta: amarillo, con trazo y apenas inclinado. */
+.sobretitulo {
+  display: inline-block;
+  margin: 0 0 0.9rem;
+  padding: 0.15rem 0.65rem;
+  border: 2px solid var(--linea);
+  background: var(--resaltador);
+  box-shadow: var(--sombra-chica);
+  color: var(--texto);
+  font-family: var(--fuente-codigo);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transform: rotate(-1.5deg);
+}
+
+.sobretitulo::before {
+  content: "// ";
+}
+
+/* Cursor de terminal, como los prompts de la charla. */
+.prompt::after {
+  content: "▋";
+  margin-left: 0.15em;
+  animation: parpadear 1.05s steps(1, end) infinite;
+}
+
+.bajada {
+  max-width: 42rem;
+  margin: 1rem 0 0;
+  font-size: 1.125rem;
+  color: var(--texto-suave);
+}
+
+.portada {
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px dashed var(--linea-suave);
+}
+
+.portada h1 {
+  max-width: 18ch;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  line-height: 0.98;
+}
+
+/* Portada con ilustración al costado (inicio): en pantallas chicas la viñeta se oculta. */
+.portada-con-vineta {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(16rem, 1fr);
+  align-items: center;
+  gap: 2rem 3rem;
+}
+
+.vineta {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border: var(--borde);
+  border-radius: 22px;
+  background: var(--cielo);
+  box-shadow: var(--sombra);
+}
+
+/* Globo de diálogo: la colita es un cuadrado girado con el mismo trazo. */
+.globo {
+  position: relative;
+  max-width: 17rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: var(--borde);
+  border-radius: 18px;
+  background: var(--superficie);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.globo::after {
+  content: "";
+  position: absolute;
+  bottom: -0.6rem;
+  left: 1.75rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-right: var(--borde);
+  border-bottom: var(--borde);
+  background: inherit;
+  transform: rotate(45deg);
+}
+
+.globo-respuesta {
+  justify-self: end;
+  background: var(--resaltador);
+}
+
+.globo-respuesta::after {
+  left: auto;
+  right: 1.75rem;
+}
+
+.globo-quien {
+  display: block;
+  font-family: var(--fuente-mano);
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+@media (max-width: 56rem) {
+  .portada-con-vineta {
+    grid-template-columns: 1fr;
+  }
+
+  .vineta {
+    display: none;
+  }
+}
+
+/* ── Botones, chips y etiquetas ─────────────────────────── */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.6rem 1.25rem;
+  border: var(--borde);
+  border-radius: 12px;
+  background: var(--texto);
+  color: var(--invertido);
+  box-shadow: 3px 3px 0 var(--acento);
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.12s var(--ease),
+    box-shadow 0.12s var(--ease);
+}
+
+/* Se levanta al pasar el mouse y se hunde al hacer clic, como un botón físico. */
+.boton:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--acento);
+}
+
+.boton:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--acento);
+}
+
+.boton:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.boton-secundario {
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra-chica);
+}
+
+.boton-secundario:hover:not(:disabled) {
+  box-shadow: 5px 5px 0 var(--linea);
+}
+
+.boton-secundario:active:not(:disabled) {
+  box-shadow: 0 0 0 var(--linea);
+}
+
+.boton-grande {
+  width: 100%;
+  min-height: 3.25rem;
+  font-size: 1.0625rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+/* Stickers: píldora con trazo y sombra corta; el activo queda en tinta y apenas girado. */
+.chip {
+  min-height: 2.5rem;
+  padding: 0.4rem 1rem;
+  border: 2px solid var(--linea);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: 2px 2px 0 var(--linea);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.15s var(--ease),
+    box-shadow 0.15s var(--ease),
+    background 0.15s var(--ease);
+}
+
+.chip:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--linea);
+  background: color-mix(in srgb, var(--resaltador) 35%, var(--superficie));
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--texto);
+  color: var(--invertido);
+  transform: rotate(-2deg);
+}
+
+.etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.etiqueta {
+  padding: 0.1rem 0.55rem;
+  border: 1.5px solid var(--linea);
+  border-radius: 6px;
+  background: var(--superficie);
+  color: var(--texto);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* ── Listado de mentoras ────────────────────────────────── */
+
+.filtros {
+  margin-bottom: 2rem;
+}
+
+.grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  /* Más aire que antes: las sombras desplazadas necesitan lugar. */
+  gap: 1.6rem;
+}
+
+.tarjeta {
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+}
+
+.mentora {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.35rem;
+  transition:
+    transform 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
+}
+
+.mentora:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: var(--sombra-alzada);
+}
+
+.mentora-nombre {
+  font-size: 1.75rem;
+  transition: color 0.2s var(--ease);
+}
+
+.mentora:hover .mentora-nombre {
+  color: var(--acento-texto);
+}
+
+.mentora-meta {
+  margin: 0.15rem 0 0;
+  min-height: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+.mentora-presentacion {
+  flex: 1;
+  margin: 0;
+}
+
+.mentora-accion {
+  align-self: flex-start;
+}
+
+/* ── Reserva ────────────────────────────────────────────── */
+
+.volver {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.volver:hover {
+  color: var(--acento-texto);
+}
+
+.reserva-cabecera {
+  margin-bottom: 2.5rem;
+}
+
+.reserva-pagina {
+  max-width: var(--ancho-formulario);
+  margin-inline: auto;
+}
+
+.reserva {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.paso {
+  padding: 1.35rem;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+  animation: aparecer 0.45s var(--ease);
+}
+
+.paso-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+  font-size: 1.35rem;
+}
+
+.paso-numero {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 2px solid var(--linea);
+  border-radius: 50%;
+  background: var(--resaltador);
+  color: var(--texto);
+  box-shadow: 2px 2px 0 var(--linea);
+  font-family: var(--fuente-titulos);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.opciones-tipo {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.opcion-tipo {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.3rem 0.5rem;
+  padding: 0.95rem 1rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  cursor: pointer;
+  transition:
+    transform 0.15s var(--ease),
+    box-shadow 0.15s var(--ease),
+    background 0.15s var(--ease);
+}
+
+.opcion-tipo:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--sombra-chica);
+}
+
+.opcion-tipo[data-activo="true"] {
+  background: color-mix(in srgb, var(--resaltador) 45%, var(--superficie));
+  box-shadow: var(--sombra-chica);
+}
+
+.opcion-tipo:has(input:focus-visible) {
+  outline: 3px solid var(--acento);
+  outline-offset: 3px;
+}
+
+.opcion-tipo input {
+  position: absolute;
+  opacity: 0;
+}
+
+.opcion-tipo-nombre {
+  font-weight: 700;
+}
+
+.opcion-tipo-duracion {
+  font-family: var(--fuente-codigo);
+  font-size: 0.8125rem;
+  color: var(--acento-texto);
+}
+
+.opcion-tipo-descripcion {
+  grid-column: 1 / -1;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+.dias {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.25rem 0.25rem 0.5rem;
+  margin-inline: -0.25rem;
+}
+
+/* Centrado con márgenes auto (no justify-content): si los días desbordan y
+   hay scroll horizontal, el primero no queda cortado a la izquierda. */
+.dia:first-child {
+  margin-left: auto;
+}
+
+.dia:last-child {
+  margin-right: auto;
+}
+
+.horarios {
+  justify-content: center;
+}
+
+.dia {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  width: 4.25rem;
+  padding: 0.6rem 0;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: 2px 2px 0 var(--linea);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    transform 0.15s var(--ease),
+    background 0.15s var(--ease);
+}
+
+.dia:hover {
+  transform: translate(-1px, -1px);
+  background: color-mix(in srgb, var(--resaltador) 35%, var(--superficie));
+}
+
+.dia[aria-pressed="true"] {
+  border-color: var(--texto);
+  background: var(--texto);
+  color: var(--invertido);
+}
+
+.dia-semana,
+.dia-mes {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.dia-numero {
+  font-family: var(--fuente-titulos);
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.dia[aria-pressed="true"] .dia-numero {
+  color: var(--resaltador);
+}
+
+/* ── Formulario ─────────────────────────────────────────── */
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.campos-fila {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 0 1rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.campo label {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+  transition: box-shadow 0.15s var(--ease);
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  box-shadow: var(--sombra-chica);
+}
+
+.campo input:focus-visible,
+.campo select:focus-visible,
+.campo textarea:focus-visible {
+  outline-offset: 1px;
+}
+
+.campo [aria-invalid="true"] {
+  border-color: var(--error);
+  border-width: 2px;
+}
+
+.campo-error {
+  min-height: 1.25rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--error);
+}
+
+.aviso-error {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 2.5px solid var(--error);
+  border-radius: var(--radio-chico);
+  background: var(--error-suave);
+  box-shadow: 3px 3px 0 var(--error);
+  color: var(--error);
+  font-weight: 600;
+}
+
+/* ── Estados ────────────────────────────────────────────── */
+
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--texto-suave);
+}
+
+.estado p {
+  margin: 0;
+}
+
+.estado-titulo {
+  font-family: var(--fuente-titulos);
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  color: var(--texto);
+}
+
+.estado-error {
+  color: var(--error);
+}
+
+.spinner {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 3px solid var(--linea-suave);
+  border-top-color: var(--linea);
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+.no-encontrada h1 {
+  color: var(--texto);
+}
+
+/* ── Confirmación ───────────────────────────────────────── */
+
+.confirmacion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 38rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.confirmacion .bajada {
+  margin-top: 0;
+}
+
+.confirmacion-icono {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border: var(--borde);
+  border-radius: 50%;
+  background: var(--menta);
+  color: var(--texto);
+  box-shadow: var(--sombra);
+  font-size: 2rem;
+  font-weight: 800;
+  transform: rotate(-6deg);
+  animation: aparecer 0.5s var(--ease);
+}
+
+.resumen {
+  width: 100%;
+  margin: 0.5rem 0 0;
+  padding: 0.35rem 1.35rem;
+  text-align: left;
+}
+
+.resumen-fila {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--linea-suave);
+}
+
+.resumen-fila:last-child {
+  border-bottom: 0;
+}
+
+.resumen dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+  padding-top: 0.15rem;
+}
+
+.resumen dd {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.confirmacion-id {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--texto-suave);
+  overflow-wrap: anywhere;
+}
+
+.confirmacion-id code {
+  color: var(--texto);
+}
+
+/* ── Animaciones ────────────────────────────────────────── */
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes parpadear {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 80rem) {
+  .encabezado-lema {
+    display: none;
+  }
+}
+
+/* Encabezado: una fila desde 64rem; en pantallas chicas las zonas se apilan. */
+@media (max-width: 64rem) {
+  .encabezado {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 30rem) {
+  .encabezado-lema {
+    display: none;
+  }
+
+  .marca-utn-texto,
+  .marcas-separador {
+    display: none;
+  }
+
+  .resumen-fila {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+  }
+}
+
+/* Visor de ejercicios: solo lo que no está en client/src/styles.css (usa sus variables). */
+
+/* Medida de lectura: --ancho-lectura (client/src/styles.css). */
+.ejercicio-cabecera,
+.ejercicio-pagina .paso {
+  width: 100%;
+  max-width: var(--ancho-lectura);
+  margin-inline: auto;
+}
+
+.ejercicio-cabecera {
+  margin-bottom: 1.5rem;
+}
+
+.ejercicio-cabecera .chip {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.paso {
+  scroll-margin-top: 1rem;
+}
+
+.documento {
+  margin-top: var(--espacio-seccion);
+  padding: 1.35rem;
+}
+
+/* ── Video de introducción ──────────────────────────────── */
+
+/* Una viñeta que se abre sobre la página: recuadro de narración, título, la "pantalla" con sombra
+   de acento como los botones, y abajo la nota a mano y la acción para seguir. */
+.video-intro {
+  width: min(52rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  padding: 0;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra-alzada);
+}
+
+.video-intro[open] {
+  animation: video-intro-entrar 0.4s var(--ease);
+}
+
+@keyframes video-intro-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.96) rotate(-1deg);
+  }
+}
+
+/* Tinta con trama de puntos, como la impresión de una historieta. */
+.video-intro::backdrop {
+  background-color: color-mix(in srgb, var(--texto) 55%, transparent);
+  background-image: radial-gradient(color-mix(in srgb, var(--fondo) 22%, transparent) 1.2px, transparent 1.5px);
+  background-size: 14px 14px;
+}
+
+.video-intro-caja {
+  padding: 1.25rem 1.5rem 1.4rem;
+}
+
+.video-intro-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.video-intro-cabecera .sobretitulo {
+  margin-bottom: 0.55rem;
+}
+
+.video-intro-titulo {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: clamp(1.3rem, 3vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.video-intro-minimizar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: var(--borde);
+  border-radius: 12px;
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra-chica);
+  cursor: pointer;
+  transition:
+    transform 0.12s var(--ease),
+    box-shadow 0.12s var(--ease),
+    background-color 0.12s;
+}
+
+.video-intro-minimizar svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.video-intro-minimizar:hover {
+  background: var(--resaltador);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--sombra);
+}
+
+.video-intro-minimizar:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.video-intro-pantalla {
+  overflow: hidden;
+  border: var(--borde);
+  border-radius: 12px;
+  background: var(--texto);
+  box-shadow: 6px 6px 0 var(--acento);
+}
+
+.video-intro-pantalla video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+.video-intro-descripcion {
+  max-width: 62ch;
+  margin: 1.1rem 0 0;
+  color: var(--texto-suave);
+  font-size: 0.9375rem;
+}
+
+.video-intro-pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 2px dashed var(--linea-suave);
+}
+
+.video-intro-nota {
+  margin: 0;
+  font-size: 1.35rem;
+  transform: rotate(-1.5deg);
+}
+
+/* Minimizado: un sticker abajo a la derecha, apenas torcido; se endereza al pasar el mouse. */
+.video-intro-mini {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0.9rem 0.4rem 0.4rem;
+  border: var(--borde);
+  border-radius: 14px;
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transform: rotate(-1.5deg);
+  animation: video-intro-mini-entrar 0.45s var(--ease);
+  transition:
+    transform 0.15s var(--ease),
+    box-shadow 0.15s var(--ease),
+    background-color 0.15s;
+}
+
+@keyframes video-intro-mini-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem) rotate(4deg);
+  }
+}
+
+.video-intro-mini:hover {
+  background: var(--resaltador);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sombra-alzada);
+}
+
+.video-intro-mini:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--sombra-chica);
+}
+
+.video-intro-mini:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 3px;
+}
+
+/* La miniatura con un botón de play encima: círculo de acento y triángulo de papel. */
+.video-intro-mini-miniatura {
+  position: relative;
+  flex-shrink: 0;
+  width: 5rem;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 2px solid var(--linea);
+  border-radius: 8px;
+}
+
+.video-intro-mini-miniatura img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-intro-mini-miniatura::before,
+.video-intro-mini-miniatura::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+}
+
+.video-intro-mini-miniatura::before {
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 2px solid var(--linea);
+  border-radius: 999px;
+  background: var(--acento);
+}
+
+.video-intro-mini-miniatura::after {
+  width: 0;
+  height: 0;
+  translate: 1.5px 0;
+  border-block: 0.32rem solid transparent;
+  border-left: 0.5rem solid var(--superficie);
+}
+
+.video-intro-mini-texto {
+  display: grid;
+  gap: 0.1rem;
+  line-height: 1.2;
+}
+
+.video-intro-mini-texto > :first-child {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.video-intro-mini-duracion {
+  color: var(--texto-suave);
+  font-family: var(--fuente-codigo);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 30rem) {
+  .video-intro-caja {
+    padding: 1rem;
+  }
+
+  .video-intro-pie .boton {
+    width: 100%;
+  }
+
+  /* En el celular, solo la miniatura: el texto queda para el lector de pantalla. */
+  .video-intro-mini {
+    padding: 0.35rem;
+  }
+
+  .video-intro-mini-texto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* ── Candado: cada ejercicio se habilita al terminar el anterior ── */
+
+.candado {
+  width: 1.15em;
+  height: 1.15em;
+  flex-shrink: 0;
+}
+
+/* La tarjeta bloqueada queda "tachada" con una trama y sin levantarse al pasar el mouse. */
+.mentora[data-bloqueado] {
+  position: relative;
+  background-image: repeating-linear-gradient(-45deg, var(--trama) 0 1.5px, transparent 1.5px 10px);
+  box-shadow: var(--sombra-chica);
+}
+
+.mentora[data-bloqueado]:hover {
+  transform: none;
+  box-shadow: var(--sombra-chica);
+}
+
+.mentora[data-bloqueado]:hover .mentora-nombre {
+  color: inherit;
+}
+
+.mentora[data-bloqueado] > :not(.tarjeta-aviso, dialog) {
+  opacity: 0.68;
+}
+
+/* El candado como sticker sobre la esquina de la tarjeta. */
+.tarjeta-candado,
+.bloqueado-candado {
+  display: grid;
+  place-items: center;
+  border: var(--borde);
+  border-radius: 999px;
+  background: var(--resaltador);
+  box-shadow: var(--sombra-chica);
+  transform: rotate(8deg);
+}
+
+/* Va dentro del botón del aviso, pero se ubica contra la tarjeta (el botón no está posicionado). */
+.tarjeta-candado {
+  position: absolute;
+  top: -1rem;
+  right: -0.75rem;
+  z-index: 2;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.35rem;
+}
+
+.tarjeta-aviso {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.5rem 0.85rem;
+  border: 2px dashed var(--linea);
+  border-radius: 12px;
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+/* El botón se estira sobre toda la tarjeta: tocar el candado (o cualquier parte) pregunta si avanzar igual. */
+.tarjeta-aviso::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radio);
+}
+
+.mentora[data-bloqueado]:hover .tarjeta-aviso,
+.tarjeta-aviso:focus-visible {
+  background: var(--resaltador);
+}
+
+.tarjeta-aviso:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 3px;
+}
+
+/* El candado se sacude un poco al pasar el mouse, como invitando a tocarlo. */
+.mentora[data-bloqueado]:hover .tarjeta-candado {
+  transform: rotate(-8deg) scale(1.08);
+}
+
+.tarjeta-candado {
+  transition: transform 0.2s var(--ease);
+}
+
+/* La pregunta para avanzar igual: el detalle del tablero, más angosto y con el candado de sticker. */
+.confirmar {
+  width: min(32rem, calc(100% - 2rem));
+  overflow: visible;
+}
+
+.confirmar .detalle-caja {
+  position: relative;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.confirmar h2 {
+  margin: 0;
+  padding-right: 3.5rem;
+  font-family: var(--fuente-titulos);
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.confirmar p {
+  margin: 0;
+  color: var(--texto-suave);
+}
+
+.confirmar-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.bloqueado {
+  position: relative;
+}
+
+.bloqueado-candado {
+  position: absolute;
+  top: -1.1rem;
+  right: 1.25rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.6rem;
+}
+
+/* ── Markdown de las consignas ──────────────────────────── */
+
+/* break-word (no anywhere): las tablas hacen scroll en vez de partir palabras. */
+.markdown {
+  overflow-wrap: break-word;
+}
+
+.markdown > :first-child {
+  margin-top: 0;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4 {
+  margin: 2rem 0 0.75rem;
+  font-family: var(--fuente-titulos);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.markdown h1 {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+}
+
+.markdown h2 {
+  padding-top: 1.25rem;
+  border-top: 2px dashed var(--linea-suave);
+  font-size: 1.45rem;
+}
+
+.markdown h3 {
+  font-size: 1.15rem;
+}
+
+.markdown h4 {
+  font-size: 1rem;
+}
+
+/* Las citas son el recuadro de narración de la consigna: amarillo, con trazo y sombra corta. */
+.markdown blockquote {
+  margin: 1.25rem 0;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: color-mix(in srgb, var(--resaltador) 40%, var(--superficie));
+  box-shadow: var(--sombra-chica);
+}
+
+.markdown blockquote p {
+  margin: 0.4rem 0;
+}
+
+.markdown :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--superficie);
+  border: 1.5px solid var(--linea);
+}
+
+.markdown table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.9375rem;
+}
+
+.markdown th,
+.markdown td {
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid var(--linea);
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown th {
+  background: var(--cielo);
+}
+
+.markdown li {
+  margin-block: 0.25rem;
+}
+
+.markdown li:has(> input[type="checkbox"]) {
+  list-style: none;
+}
+
+.markdown details {
+  margin: 0.75rem 0;
+  padding: 0.6rem 1rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  box-shadow: 2px 2px 0 var(--linea);
+}
+
+.markdown summary {
+  cursor: pointer;
+}
+
+.markdown hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 2px dashed var(--linea-suave);
+}
+
+.enlace-repo {
+  border-bottom: 1px dashed var(--texto-suave);
+}
+
+/* Bloques de código con botón de copiar (estética terminal). */
+.codigo {
+  position: relative;
+  margin: 1rem 0;
+}
+
+.codigo pre {
+  margin: 0;
+  padding: 2.6rem 1rem 1rem;
+  overflow-x: auto;
+  border: var(--borde);
+  border-radius: var(--radio-chico);
+  box-shadow: 3px 3px 0 var(--acento);
+  background: var(--texto);
+  color: var(--invertido);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.boton-copiar {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.7rem;
+  border: 1.5px solid var(--invertido);
+  border-radius: var(--radio-chico);
+  background: transparent;
+  color: var(--invertido);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton-copiar:hover {
+  border-color: var(--resaltador);
+  background: var(--resaltador);
+  color: var(--texto);
+}
+
+/* El prompt (u otro anexo) dentro de la consigna, justo donde se lo nombra. */
+.anexo-en-linea {
+  margin: 0.75rem 0 1.25rem;
+  padding: 1rem 1.15rem;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: 4px 4px 0 var(--acento);
+}
+
+.anexo-en-linea .markdown h1 {
+  font-size: 1.15rem;
+}
+
+/* ── Respuestas ─────────────────────────────────────────── */
+
+/* Cada pregunta en un desplegable, con su recuadro de respuesta adentro. */
+.respuestas .markdown h3 {
+  margin-top: 1.75rem;
+}
+
+.pregunta {
+  margin: 0.75rem 0;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
+}
+
+.pregunta summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.pregunta[open] summary {
+  border-bottom: 2px dashed var(--linea-suave);
+}
+
+.pregunta-cuerpo {
+  padding: 0.75rem 1rem 1rem;
+}
+
+.pregunta .editor-respuestas {
+  min-height: 10rem;
+  margin-top: 0.5rem;
+}
+
+.editor-respuestas {
+  width: 100%;
+  min-height: 8rem;
+  padding: 1rem;
+  border: none;
+  border-radius: var(--radio-chico);
+  background: var(--texto);
+  color: var(--invertido);
+  caret-color: var(--acento);
+  font-family: var(--fuente-codigo);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+/* Las preguntas intercaladas entre los pasos: un recuadro que las separa de la consigna. */
+.tramo-preguntas {
+  margin: 1.5rem 0;
+  padding: 0.25rem 1rem 0.75rem;
+  border-left: 4px dashed var(--acento);
+}
+
+/* Un enlace de la consigna con forma de botón (por ejemplo, "Ver aplicación"). */
+.boton-enlace {
+  margin: 0.25rem 0;
+}
+
+/* Pegado abajo mientras se ven las preguntas: se puede guardar en cualquier momento. */
+.respuestas-acciones {
+  position: sticky;
+  bottom: 0.75rem;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
+}
+
+.respuestas-estado {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+/* Sin nada que avisar no ocupa lugar. */
+.respuestas-estado:empty {
+  display: none;
+}
+
+/* En pantallas angostas los dos botones van en una fila ("Guardar" a secas; el lector de pantalla
+   sigue leyendo "Guardar respuestas") y el aviso, si hay, abajo. */
+@media (max-width: 40rem) {
+  .respuestas-acciones .respuestas-estado {
+    order: 1;
+    flex-basis: 100%;
+  }
+
+  .respuestas-largo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* Terminé, en la punta derecha de la barra: amarillo resaltador para que no pase de largo. */
+.boton-terminar {
+  margin-left: auto;
+  background: var(--resaltador);
+  color: var(--texto);
+  box-shadow: 3px 3px 0 var(--linea);
+}
+
+.boton-terminar:hover:not(:disabled) {
+  box-shadow: 5px 5px 0 var(--linea);
+}
+
+.boton-terminar:active:not(:disabled) {
+  box-shadow: 0 0 0 var(--linea);
+}
+
+/* ── Temporizador ───────────────────────────────────────── */
+
+/* Fijo arriba a la derecha mientras se scrollea la consigna. */
+.temporizador {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  width: fit-content;
+  max-width: 100%;
+  /* Alineado al borde derecho de la columna de lectura (--ancho-lectura). */
+  margin: 0 max(0px, calc((100% - var(--ancho-lectura)) / 2)) 1.5rem auto;
+  padding: 0.5rem 0.75rem;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
+}
+
+.temporizador-etiqueta {
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+.temporizador-tiempo {
+  font-family: var(--fuente-codigo);
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.temporizador[data-terminado="true"] {
+  background: var(--resaltador);
+}
+
+.temporizador .boton {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.875rem;
+}
+
+/* Diagramas que reemplazan bloques ASCII de las consignas (ver diagramas.ts). */
+.diagrama {
+  container-type: inline-size;
+  margin: 1.25rem 0;
+  padding: 1.25rem;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+}
+
+/* El ciclo necesita aire arriba para el hook Stop. */
+.ciclo {
+  padding: 2rem 1.25rem 1rem;
+}
+
+.diagrama figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  margin-top: 1.25rem;
+  color: var(--texto-suave);
+  font-size: 0.8125rem;
+}
+
+.diagrama figcaption > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+/* Ciclo agéntico (ejercicio 1): actores en papel, hooks en tinta. */
+.ciclo-mapa {
+  display: grid;
+  grid-template-columns: auto minmax(3.5rem, 1fr) auto minmax(1.5rem, 0.5fr) auto minmax(7rem, 1.4fr) auto;
+  grid-template-rows: auto 2.75rem auto 3rem auto;
+  grid-template-areas:
+    ".   .       .   .      stop   .     .      "
+    ".   .       .   .      fstop  .     .      "
+    "vos fprompt ups fentra modelo fpide pre    "
+    ".   .       .   .      fevid  .     fbaja  "
+    ".   .       .   .      post   fizq  harness";
+  align-items: center;
+  justify-items: center;
+  gap: 0.25rem;
+  padding-bottom: 1rem;
+}
+
+.ciclo-mapa > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ciclo-mapa > .ciclo-bucle {
+  z-index: 0;
+  grid-row: modelo-start / post-end;
+  grid-column: modelo-start / pre-end;
+  align-self: stretch;
+  justify-self: stretch;
+  margin: -0.75rem;
+  border: 2px dashed var(--acento);
+  border-radius: var(--radio);
+  background: var(--acento-suave);
+}
+
+.ciclo-bucle > span {
+  position: absolute;
+  bottom: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 0.5rem;
+  background: var(--superficie);
+  color: var(--acento-texto);
+  font: 600 0.75rem var(--fuente-codigo);
+  white-space: nowrap;
+}
+
+.ciclo-actor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.45rem 0.85rem;
+  border: var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  text-align: center;
+}
+
+.ciclo-nombre {
+  font-family: var(--fuente-titulos);
+  font-weight: 700;
+}
+
+.ciclo-detalle {
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.ciclo-hook {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radio-chico);
+  background: var(--texto);
+  color: var(--invertido);
+  font: 600 0.8125rem var(--fuente-codigo);
+  white-space: nowrap;
+  animation: 7s ease-in-out infinite;
+}
+
+.ciclo-tag {
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.ciclo-tag::before {
+  content: "◆ ";
+  color: var(--acento);
+}
+
+/* Los hooks se encienden en el orden en que el harness los corre: el bucle da dos vueltas y termina. */
+.ciclo-hook-ups { animation-name: ciclo-ups; }
+.ciclo-hook-pre { animation-name: ciclo-pre; }
+.ciclo-hook-post { animation-name: ciclo-post; }
+.ciclo-hook-stop { animation-name: ciclo-stop; }
+
+@keyframes ciclo-ups {
+  0%, 15%, 100% { background: var(--texto); color: var(--invertido); }
+  2%, 13% { background: var(--acento); color: var(--texto); }
+}
+
+@keyframes ciclo-pre {
+  0%, 16%, 30%, 48%, 62%, 100% { background: var(--texto); color: var(--invertido); }
+  18%, 28%, 50%, 60% { background: var(--acento); color: var(--texto); }
+}
+
+@keyframes ciclo-post {
+  0%, 32%, 46%, 64%, 78%, 100% { background: var(--texto); color: var(--invertido); }
+  34%, 44%, 66%, 76% { background: var(--acento); color: var(--texto); }
+}
+
+@keyframes ciclo-stop {
+  0%, 80%, 96%, 100% { background: var(--texto); color: var(--invertido); }
+  82%, 94% { background: var(--acento); color: var(--texto); }
+}
+
+.ciclo-flecha {
+  color: var(--texto-suave);
+  font: 0.75rem var(--fuente-codigo);
+}
+
+.ciclo-flecha::before,
+.ciclo-flecha::after {
+  content: "";
+  position: absolute;
+}
+
+.ciclo-flecha::before {
+  background: var(--linea);
+}
+
+.ciclo-flecha::after {
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+}
+
+.ciclo-der,
+.ciclo-izq {
+  justify-self: stretch;
+  height: 1.5rem;
+}
+
+.ciclo-der::before,
+.ciclo-izq::before {
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+.ciclo-der::after {
+  top: 50%;
+  right: -1px;
+  transform: translateY(-50%);
+  border-left: 8px solid var(--linea);
+  border-right-width: 0;
+}
+
+.ciclo-izq::after {
+  top: 50%;
+  left: -1px;
+  transform: translateY(-50%);
+  border-right: 8px solid var(--linea);
+  border-left-width: 0;
+}
+
+.ciclo-der > span,
+.ciclo-izq > span {
+  position: absolute;
+  bottom: 60%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.ciclo-arriba,
+.ciclo-abajo {
+  align-self: stretch;
+  width: 0;
+}
+
+.ciclo-arriba::before,
+.ciclo-abajo::before {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  transform: translateX(-50%);
+}
+
+.ciclo-abajo::after {
+  bottom: -1px;
+  left: 0;
+  transform: translateX(-50%);
+  border-top: 8px solid var(--linea);
+  border-bottom-width: 0;
+}
+
+.ciclo-arriba::after {
+  top: -1px;
+  left: 0;
+  transform: translateX(-50%);
+  border-bottom: 8px solid var(--linea);
+  border-top-width: 0;
+}
+
+.ciclo-arriba > span,
+.ciclo-abajo > span {
+  position: absolute;
+  top: 50%;
+  left: 0.6rem;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+
+.ciclo-solo-movil {
+  display: none;
+  font-style: normal;
+}
+
+.ciclo-muestra-hook,
+.ciclo-muestra-actor {
+  flex: none;
+  width: 1.1rem;
+  height: 0.75rem;
+  border-radius: 3px;
+}
+
+.ciclo-muestra-hook {
+  background: var(--texto);
+}
+
+.ciclo-muestra-actor {
+  border: var(--borde);
+  background: var(--superficie);
+}
+
+/* Angosto: el ciclo se lee de arriba hacia abajo y la vuelta al modelo se anota. */
+@container (max-width: 44rem) {
+  .ciclo-mapa {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-template-areas:
+      "vos" "fprompt" "ups" "fentra" "modelo" "fpide" "pre" "fbaja"
+      "harness" "fizq" "post" "fevid" "fstop" "stop";
+  }
+
+  .ciclo-mapa > .ciclo-bucle {
+    grid-row: modelo-start / fevid-end;
+    grid-column: 1 / -1;
+  }
+
+  .ciclo-mapa .ciclo-flecha {
+    justify-self: center;
+    align-self: stretch;
+    width: 0;
+    height: auto;
+    min-height: 2rem;
+  }
+
+  .ciclo-mapa .ciclo-flecha::before {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: 2px;
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  .ciclo-mapa .ciclo-flecha::after {
+    top: auto;
+    bottom: -1px;
+    left: 0;
+    right: auto;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top: 8px solid var(--linea);
+    border-bottom-width: 0;
+  }
+
+  .ciclo-mapa .ciclo-flecha > span {
+    top: 50%;
+    bottom: auto;
+    left: 0.6rem;
+    right: auto;
+    transform: translateY(-50%);
+    width: max-content;
+    max-width: calc(50cqi - 1.5rem);
+    white-space: normal;
+    text-align: left;
+  }
+
+  .ciclo-mapa .ciclo-retorno {
+    justify-self: stretch;
+    width: auto;
+    min-height: 0;
+    padding: 0.4rem 0.75rem;
+    text-align: center;
+  }
+
+  .ciclo-bucle > span {
+    display: none;
+  }
+
+  .ciclo-mapa .ciclo-retorno::before,
+  .ciclo-mapa .ciclo-retorno::after {
+    display: none;
+  }
+
+  .ciclo-mapa .ciclo-retorno > span {
+    position: static;
+    transform: none;
+    white-space: normal;
+    color: var(--acento-texto);
+    font-weight: 600;
+  }
+
+  .ciclo-solo-movil {
+    display: inline;
+  }
+}
+
+/* Pasos en fila (flujo SDD): tarjetas unidas por una línea, apiladas en angosto. */
+.pasos {
+  --pasos-hueco: 2.25rem;
+  display: grid;
+  grid-template-columns: repeat(var(--pasos-n), minmax(0, 1fr));
+  gap: var(--pasos-hueco);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pasos > li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.55rem 0.35rem 0.6rem;
+  border: var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  text-align: center;
+}
+
+.pasos > li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: calc(var(--pasos-hueco) + 4px);
+  height: 2px;
+  background: var(--linea);
+}
+
+.pasos-numero {
+  color: var(--acento-texto);
+  font: 600 0.6875rem var(--fuente-codigo);
+}
+
+.pasos-nombre {
+  font: 700 0.8125rem var(--fuente-titulos);
+}
+
+.pasos-detalle {
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+.pasos-control,
+.pasos-control-muestra {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: var(--borde);
+  border-radius: 50%;
+  background: var(--acento);
+  font-size: 0.8125rem;
+  line-height: 1;
+}
+
+.pasos-control {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: calc(100% + 2px + var(--pasos-hueco) / 2);
+  transform: translate(-50%, -50%);
+}
+
+.pasos-control-muestra {
+  width: 1.4rem;
+  height: 1.4rem;
+  align-self: center;
+  font-size: 0.6875rem;
+}
+
+/* Validaciones entre etapas (desafío extra del ejercicio 3). */
+.puertas {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.puertas > li {
+  display: grid;
+  grid-template-columns: 6.5rem 2.25rem minmax(0, 1fr) auto;
+  align-items: center;
+  margin: 0;
+}
+
+.puertas > li::before {
+  content: "→";
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--texto-suave);
+  text-align: center;
+}
+
+.puerta-etapa {
+  grid-column: 1;
+  grid-row: 1;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radio-chico);
+  background: var(--texto);
+  color: var(--invertido);
+  font: 600 0.8125rem var(--fuente-codigo);
+  text-align: center;
+}
+
+.puerta-pregunta {
+  grid-column: 3;
+  padding: 0.35rem 0.75rem;
+  border: 2px dashed var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  font-weight: 600;
+}
+
+.puerta-barrera {
+  grid-column: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.85rem;
+  color: var(--acento-texto);
+  font: 600 0.75rem var(--fuente-codigo);
+  white-space: nowrap;
+}
+
+.puerta-barrera::before {
+  content: "";
+  width: 1.9rem;
+  height: 0.8rem;
+  border-radius: 2px;
+  background: repeating-linear-gradient(-45deg, var(--texto) 0 5px, var(--acento) 5px 10px);
+}
+
+/* Angosto: los pasos se apilan. */
+@container (max-width: 48rem) {
+  .pasos {
+    grid-template-columns: minmax(0, 16rem);
+    justify-content: center;
+  }
+
+  .pasos > li:not(:last-child)::after {
+    top: 100%;
+    left: 50%;
+    width: 2px;
+    height: calc(var(--pasos-hueco) + 4px);
+  }
+
+  .pasos-control {
+    top: calc(100% + 2px + var(--pasos-hueco) / 2);
+    left: 50%;
+  }
+}
+
+/* Muy angosto: las puertas pasan a una columna. */
+@container (max-width: 36rem) {
+  .puertas > li {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.4rem 0.5rem;
+  }
+
+  .puertas > li::before {
+    display: none;
+  }
+
+  .puerta-pregunta {
+    grid-column: 2;
+  }
+
+  .puerta-barrera {
+    grid-column: 1 / -1;
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ciclo-hook {
+    animation: none;
+  }
+}
+
+/* ── Ejercicio 3: bloqueo, Rocco, tablero ───────────────── */
+
+/* El ejercicio 3 usa un ancho propio, más amplio que el de lectura: entra la consigna y, al costado, la tarea. */
+.ejercicio-pagina {
+  --ancho-sdd: calc(var(--ancho-lectura) + 30rem);
+}
+
+.bloqueado,
+.po,
+.sdd-pestanas,
+.kanban-contenedor {
+  width: 100%;
+  max-width: var(--ancho-lectura);
+  margin-inline: auto;
+}
+
+/* Ya en el tablero, cabecera, pestañas, temporizador, tablero y consigna se alinean al mismo ancho centrado. */
+.ejercicio-pagina:has(.kanban-contenedor) .ejercicio-cabecera,
+.sdd-pestanas,
+.kanban-contenedor {
+  max-width: var(--ancho-sdd);
+}
+
+/* El temporizador se alinea con --ancho-lectura: acá, con el ancho del ejercicio 3. */
+.sdd-temporizador {
+  display: contents;
+  --ancho-lectura: var(--ancho-sdd);
+}
+
+.bloqueado {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding: 1.35rem;
+}
+
+.bloqueado h2,
+.bloqueado p {
+  margin: 0;
+}
+
+/* Rocco en una viñeta celeste, como la del inicio: el logo a la izquierda y su globo de diálogo. */
+.po {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: var(--borde);
+  border-radius: 22px;
+  background: var(--cielo);
+  box-shadow: var(--sombra);
+  perspective: 900px;
+}
+
+/* El logo de la marca en grande, apenas girado hacia el globo. */
+.po-logo {
+  display: grid;
+  place-items: center;
+  width: clamp(7rem, 18vw, 11rem);
+  aspect-ratio: 1;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--texto);
+  color: var(--acento);
+  font-family: var(--fuente-codigo);
+  font-size: clamp(4.5rem, 12vw, 7.5rem);
+  line-height: 1;
+  transform: rotateY(16deg) rotateX(4deg);
+  box-shadow: 6px 6px 0 var(--acento);
+}
+
+/* Globo de diálogo: la colita es un cuadrado girado con el mismo trazo (como .globo). */
+.po-dialogo {
+  position: relative;
+  padding: 1.1rem 1.35rem;
+  border: var(--borde);
+  border-radius: 18px;
+  background: var(--superficie);
+}
+
+.po-dialogo::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -0.7rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-left: var(--borde);
+  border-bottom: var(--borde);
+  background: inherit;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.po-quien {
+  margin: 0 0 0.35rem;
+  font-family: var(--fuente-mano);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.po-quien span {
+  margin-left: 0.35rem;
+  font-family: var(--fuente-codigo);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--texto-suave);
+}
+
+.po-texto {
+  /* Reserva el alto del texto entero: el globo no salta mientras se escribe. */
+  min-height: 7.5em;
+  margin: 0;
+  font-family: var(--fuente-codigo);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+/* El cursor de bloque, titilando mientras escribe (usa el parpadear de styles.css). */
+.po-texto[data-escribiendo]::after {
+  content: "▋";
+  margin-left: 0.1em;
+  color: var(--acento);
+  animation: parpadear 1.05s steps(1, end) infinite;
+}
+
+.po-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.po-paso {
+  margin-right: auto;
+  font-family: var(--fuente-codigo);
+  font-size: 0.8125rem;
+  color: var(--texto-suave);
+}
+
+@media (max-width: 40rem) {
+  .po {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .po-dialogo::before {
+    top: -0.7rem;
+    left: 50%;
+    transform: translateX(-50%) rotate(135deg);
+  }
+}
+
+.sdd-pestanas {
+  margin-bottom: 1.25rem;
+}
+
+/* La ayuda del tablero, como anotación a mano. */
+.kanban-ayuda {
+  margin: 0 0 0.9rem;
+  font-family: var(--fuente-mano);
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.kanban-aviso {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.85rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: color-mix(in srgb, var(--resaltador) 55%, var(--superficie));
+  box-shadow: var(--sombra-chica);
+  font-size: 0.9375rem;
+}
+
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 48rem) {
+  .kanban {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kanban-columna {
+  min-height: 14rem;
+  padding: 0.85rem;
+  border: 2.5px dashed var(--linea-suave);
+  border-radius: var(--radio);
+  transition:
+    border-color 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+
+.kanban-columna[data-destino] {
+  border-color: var(--linea);
+  background: color-mix(in srgb, var(--resaltador) 30%, transparent);
+}
+
+/* El título de cada columna es un sticker de color. */
+.kanban-titulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.9rem;
+  padding: 0.2rem 0.8rem;
+  border: 2px solid var(--linea);
+  border-radius: 999px;
+  background: var(--resaltador);
+  box-shadow: 2px 2px 0 var(--linea);
+  font-family: var(--fuente-titulos);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.kanban-columna:nth-child(2) .kanban-titulo {
+  background: var(--cielo);
+}
+
+.kanban-columna:nth-child(3) .kanban-titulo {
+  background: var(--menta);
+}
+
+.kanban-cantidad {
+  font-family: var(--fuente-codigo);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.kanban-lista {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kanban-tarjeta {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.8rem 0.9rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
+  cursor: pointer;
+  transition:
+    transform 0.15s var(--ease),
+    box-shadow 0.15s var(--ease);
+}
+
+.kanban-tarjeta[draggable="true"] {
+  cursor: grab;
+}
+
+.kanban-tarjeta:hover,
+.kanban-tarjeta:focus-visible {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sombra);
+}
+
+.kanban-tarjeta:active {
+  transform: rotate(-2deg);
+}
+
+/* Lo que el equipo ya resolvió: sticker menta. */
+.kanban-tarjeta[data-hecha] {
+  background: color-mix(in srgb, var(--menta) 45%, var(--superficie));
+}
+
+.kanban-tarjeta-titulo {
+  font-weight: 700;
+}
+
+.etiqueta-principal {
+  border-color: var(--linea);
+  background: var(--resaltador);
+}
+
+.detalle {
+  width: min(40rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  padding: 0;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra-alzada);
+}
+
+.detalle::backdrop {
+  background: color-mix(in srgb, var(--texto) 45%, transparent);
+}
+
+.detalle-caja {
+  padding: 1.5rem;
+}
+
+.detalle h2,
+.sdd-elegida h2 {
+  margin: 0 0 0.6rem;
+  font-family: var(--fuente-titulos);
+  font-weight: 800;
+}
+
+.detalle h3 {
+  margin: 1.1rem 0 0.4rem;
+  font-size: 1rem;
+}
+
+.detalle ul:not(.etiquetas) {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.detalle li + li {
+  margin-top: 0.25rem;
+}
+
+.detalle-historia {
+  margin: 0.9rem 0 0;
+  font-size: 1.0625rem;
+}
+
+.detalle-apis code {
+  font-family: var(--fuente-codigo);
+  font-size: 0.875rem;
+}
+
+.detalle-nota {
+  margin: 0.5rem 0 1rem;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+/* La consigna con la historia elegida al costado, siempre a la vista. */
+.sdd-consigna {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 28rem);
+  align-items: start;
+  gap: 2rem;
+  max-width: var(--ancho-sdd);
+  margin-inline: auto;
+}
+
+/* La consigna ocupa toda su columna, alineada con la cabecera. */
+.sdd-consigna .paso {
+  max-width: none;
+}
+
+.sdd-consigna[hidden] {
+  display: none;
+}
+
+.sdd-consigna > :last-child {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.sdd-elegida {
+  position: sticky;
+  top: 5rem;
+  grid-column: 2;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  padding: 1.35rem 1.5rem;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+  font-size: 0.9375rem;
+}
+
+.sdd-elegida h2 {
+  font-size: 1.5rem;
+}
+
+.sdd-elegida h3 {
+  margin: 1rem 0 0.35rem;
+  font-size: 0.9375rem;
+}
+
+.sdd-elegida ul:not(.etiquetas) {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.sdd-elegida .detalle-historia {
+  font-size: 1rem;
+}
+
+@media (max-width: 72rem) {
+  .sdd-consigna {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: var(--ancho-lectura);
+  }
+
+  .sdd-consigna > :last-child,
+  .sdd-elegida {
+    grid-row: auto;
+    grid-column: 1;
+  }
+
+  .sdd-elegida {
+    position: static;
+    max-height: none;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* ── Captura de pantalla (opcional) ─────────────────────── */
+
+.captura {
+  margin-top: 1.5rem;
+}
+
+.captura h4 {
+  margin: 0 0 0.4rem;
+}
+
+.captura p {
+  margin: 0 0 0.75rem;
+}
+
+.captura-zona {
+  display: grid;
+  place-items: center;
+  min-height: 8rem;
+  padding: 1rem;
+  border: 2.5px dashed var(--linea-suave);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  color: var(--texto-suave);
+  font-size: 0.9375rem;
+  text-align: center;
+}
+
+.captura-zona:focus-visible,
+.captura-zona:hover {
+  border-color: var(--linea);
+  background: color-mix(in srgb, var(--resaltador) 25%, var(--superficie));
+}
+
+.captura-zona img {
+  max-width: 100%;
+  max-height: 24rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  box-shadow: var(--sombra-chica);
+}
+
+.captura-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+}
+
+/* Etapas del flujo SDD (ejercicio 3): una línea de tiempo vertical, con un ✋ entre etapa y etapa. */
+.etapas {
+  --etapas-hueco: 2.25rem;
+  display: grid;
+  gap: var(--etapas-hueco);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: etapa;
+}
+
+.etapas > li {
+  position: relative;
+  display: grid;
+  gap: 0.2rem;
+  margin: 0 0 0 3.25rem;
+  padding: 0.7rem 0.95rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  box-shadow: var(--sombra-chica);
+  counter-increment: etapa;
+}
+
+/* El número, como sticker, a la izquierda de cada etapa. */
+.etapas > li::before {
+  content: counter(etapa, decimal-leading-zero);
+  position: absolute;
+  top: 0.55rem;
+  left: -3.25rem;
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  border: 2px solid var(--linea);
+  border-radius: 50%;
+  background: var(--resaltador);
+  font: 600 0.8125rem var(--fuente-codigo);
+}
+
+/* La línea que une un número con el siguiente. */
+.etapas > li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 2.85rem;
+  bottom: calc(-1 * var(--etapas-hueco) - 0.55rem);
+  left: calc(-3.25rem + 1.15rem - 1px);
+  width: 2px;
+  background: var(--linea);
+}
+
+.etapas-nombre {
+  font: 800 1.0625rem var(--fuente-titulos);
+}
+
+.etapas-nombre span {
+  margin-left: 0.3rem;
+  font-family: var(--fuente-mano);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--acento-texto);
+}
+
+.etapas-hacer,
+.etapas-revisar {
+  font-size: 0.9375rem;
+}
+
+.etapas-revisar {
+  color: var(--texto-suave);
+}
+
+.etapas-revisar b {
+  color: var(--texto);
+}
+
+/* El ✋ sobre la línea, a mitad del hueco entre una etapa y la siguiente. */
+.etapas-control {
+  position: absolute;
+  z-index: 1;
+  bottom: calc(-1 * var(--etapas-hueco) / 2);
+  left: calc(-3.25rem + 1.15rem);
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: var(--borde);
+  border-radius: 50%;
+  background: var(--acento);
+  font-size: 0.8125rem;
+  line-height: 1;
+  transform: translate(-50%, 50%);
+}
+
+/* ── Índice ─────────────────────────────────────────────── */
+
+/* Tres tarjetas centradas, no estiradas a todo el ancho. Doble clase: styles.css carga después y pisa .grilla. */
+.grilla.grilla-ejercicios {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 22rem));
+  justify-content: center;
+}
+
+.crear-rama {
+  max-width: var(--ancho-lectura);
+  margin: 0 auto var(--espacio-seccion);
+}
+
+.crear-rama .markdown h2 {
+  margin-top: 0;
+}
+
+/* ── Ejercicio 1: probar la API ─────────────────────────── */
+
+.pedido + .pedido {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 2px dashed var(--linea-suave);
+}
+
+.pedido-nota,
+.pedido-titulo {
+  margin: 0 0 0.6rem;
+}
+
+.pedido-titulo {
+  font-weight: 700;
+}
+
+.pedido-linea {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.pedido-metodo {
+  padding: 0.2rem 0.55rem;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--resaltador);
+  font-family: var(--fuente-codigo);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.pedido-ruta {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.6rem;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  color: var(--texto);
+  font-family: var(--fuente-codigo);
+  font-size: 0.875rem;
+}
+
+.pedido-etiqueta {
+  display: block;
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.pedido-cuerpo {
+  min-height: 15rem;
+}
+
+.pedido-error {
+  color: var(--acento-texto);
+  font-weight: 600;
+}
+
+.pedido-respuesta {
+  margin-top: 0.75rem;
+}
+
+.pedido-respuesta pre {
+  margin: 0.4rem 0 0;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--fondo);
+  font-size: 0.875rem;
+}
+
+.pedido-estado {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--acento-suave);
+  font-family: var(--fuente-codigo);
+  font-weight: 700;
+}
+
+.pedido-estado[data-ok="true"] {
+  background: var(--menta);
+}
+
+/* Gantt de los dos turnos: una pista por llamada, el tramo compartido rayado. */
+.gantt {
+  margin: 0 0 1.25rem;
+}
+
+.gantt-fila {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.gantt-fila + .gantt-fila {
+  margin-top: 0.35rem;
+}
+
+.gantt-etiqueta {
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.gantt-pista {
+  position: relative;
+  height: 1.9rem;
+  border-radius: var(--radio-chico);
+  background: repeating-linear-gradient(90deg, var(--linea-suave) 0 1px, transparent 1px 25%);
+}
+
+.gantt-barra,
+.gantt-cruce {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.gantt-barra {
+  display: flex;
+  align-items: center;
+  padding-inline: 0.5rem;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--cielo);
+  font-family: var(--fuente-codigo);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.gantt-cruce {
+  border: 1.5px solid var(--linea);
+  background: repeating-linear-gradient(-45deg, var(--acento) 0 4px, transparent 4px 8px);
+  pointer-events: none;
+}
+
+.gantt-eje {
+  height: 1rem;
+  background: none;
+}
+
+.gantt-eje span {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: var(--fuente-codigo);
+  font-size: 0.7rem;
+  color: var(--texto-suave);
+}
+
+.gantt-eje span:first-child {
+  transform: none;
+}
+
+.gantt-eje span:last-child {
+  transform: translateX(-100%);
+}
+
+/* El tilde de un ejercicio terminado: el de la sesión confirmada, como sticker en la esquina. */
+.mentora:has(> .tarjeta-tilde) {
+  position: relative;
+}
+
+.tarjeta-tilde {
+  position: absolute;
+  top: -1rem;
+  right: -0.75rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: var(--borde);
+  border-radius: 50%;
+  background: var(--menta);
+  color: var(--texto);
+  box-shadow: var(--sombra-chica);
+  font-size: 1.5rem;
+  font-weight: 800;
+  transform: rotate(-6deg);
+}
+
+</style>
+<style>
+/* Maqueta: la consigna partida en pantallas (contexto técnico → contexto del ejercicio → qué hacer) y las
+   preguntas como sección siempre abierta. Usa los tokens del visor; todo lo propio lleva el prefijo pp-. */
+[hidden] { display: none !important; }
+.pp-pagina {
+  max-width: 76rem; margin: 0 auto; display: grid; gap: 0.9rem;
+  padding-block: 1rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.pp-cabecera { display: grid; gap: 0.5rem; }
+.pp-sobre { font-family: var(--fuente-codigo); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--acento-texto); }
+.pp-titulo { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem 1rem; }
+.pp-titulo h1 { margin: 0; font-size: clamp(1.4rem, 3.4vw, 2rem); }
+.pp-reloj { font-family: var(--fuente-codigo); font-weight: 700; border: var(--borde); border-radius: 999px; padding: 0.15rem 0.7rem; background: var(--superficie); font-variant-numeric: tabular-nums; }
+.pp-fila { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; }
+.pp-segmentado { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.pp-segmentado button { border: var(--borde); border-radius: 999px; background: var(--superficie); padding: 0.25rem 0.8rem; font: inherit; font-weight: 600; font-size: 0.88rem; cursor: pointer; color: var(--texto); }
+.pp-segmentado button[aria-pressed="true"] { background: var(--texto); color: var(--fondo); }
+.pp-charla { font-size: 0.85rem; color: var(--texto-suave); position: relative; }
+.pp-charla summary { cursor: pointer; font-weight: 600; }
+.pp-charla[open] > div { position: absolute; right: 0; z-index: 5; width: min(36rem, 90vw); margin-top: 0.4rem; }
+.pp-charla .markdown blockquote { margin: 0; }
+.pp-pedidos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 0.6rem 1.2rem; align-items: start; }
+.pp-pedidos > .pedido + .pedido { margin-top: 0; padding-top: 0; border-top: none; }
+.pp-body summary { cursor: pointer; list-style: none; }
+.pp-body summary::-webkit-details-marker { display: none; }
+.pp-body summary::before { content: "▸ "; }
+.pp-body[open] summary::before { content: "▾ "; }
+.pp-body summary::after { content: " (ver o editar)"; font-weight: 400; color: var(--texto-suave); }
+.pp-body[open] summary::after { content: ""; }
+.pp-cuerpo .pedido-respuesta pre { max-height: 9rem; overflow: auto; }
+.pp-corto { display: none; }
+
+/* Secciones */
+.pp-hilo { list-style: none; margin: 0; padding: 0 0 0.2rem; display: flex; gap: 0.4rem; overflow-x: auto; }
+.pp-hilo li { flex: 1 0 8.5rem; }
+.pp-hilo button { width: 100%; text-align: left; border: none; background: none; padding: 0.2rem 0.1rem; display: grid; gap: 0.3rem; font: inherit; color: var(--texto); cursor: pointer; }
+.pp-hilo button:disabled { cursor: not-allowed; color: var(--texto-suave); }
+.pp-barra { height: 7px; border-radius: 999px; background: var(--linea-suave); }
+.pp-hilo .hecha .pp-barra { background: var(--texto); }
+.pp-hilo .actual .pp-barra { background: var(--acento); }
+.pp-hilo .siempre .pp-barra { height: 9px; border: 1.5px solid var(--linea); background: repeating-linear-gradient(90deg, var(--cielo) 0 10px, transparent 10px 14px); }
+.pp-nombre { font-size: 0.82rem; font-weight: 600; line-height: 1.25; }
+.pp-puntos { display: flex; gap: 0.2rem; align-items: center; font-size: 0.72rem; color: var(--texto-suave); }
+.pp-puntos i { width: 0.42rem; height: 0.42rem; border-radius: 50%; background: var(--linea-suave); }
+.pp-puntos i.visto { background: var(--texto); }
+.pp-puntos i.aca { background: var(--acento); }
+
+/* Marco: una pantalla por vez */
+.pp-marco {
+  height: clamp(24rem, calc(100vh - 14.5rem), 48rem);
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  background: var(--superficie); border: var(--borde); border-radius: var(--radio); box-shadow: var(--sombra); overflow: hidden;
+}
+.pp-marco-cabecera { padding: 0.75rem clamp(1rem, 3vw, 1.5rem); border-bottom: 2px solid var(--linea); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.4rem 1rem; }
+.pp-marco-cabecera.de-preguntas { display: grid; justify-content: stretch; gap: 0.4rem; background: color-mix(in srgb, var(--cielo) 30%, var(--superficie)); }
+.pp-marco-cabecera h2 { margin: 0; font-size: 1.2rem; }
+.pp-cuerpo { padding: clamp(1rem, 3vw, 1.5rem); overflow: auto; animation: pp-entrar 0.3s var(--ease); }
+.pp-cuerpo > .markdown:empty { display: none; }
+/* Un poco más compacto que el visor, para que cada pantalla entre sin scroll. */
+.pp-cuerpo { font-size: 0.95rem; }
+.pp-cuerpo .markdown { line-height: 1.5; }
+.pp-cuerpo .codigo pre { max-height: 11rem; overflow: auto; }
+.pp-cuerpo .diagrama { margin-block: 0.5rem; }
+.pp-cuerpo .anexo-en-linea { margin-block: 0.8rem; }
+.pp-bajada { margin: 0 0 1rem; color: var(--texto-suave); max-width: 62ch; }
+@keyframes pp-entrar { from { opacity: 0; transform: translateX(10px); } }
+.pp-pie { padding: 0.65rem clamp(1rem, 3vw, 1.5rem); border-top: 2px solid var(--linea); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.75rem; align-items: center; }
+.pp-enlace { border: none; background: none; padding: 0; font: inherit; font-weight: 700; color: var(--acento-texto); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pp-maqueta { font-size: 0.75rem; font-style: italic; color: var(--texto-suave); margin: 0.4rem 0 0; }
+.pp-respuesta:empty { display: none; }
+
+/* Preguntas: la única sección con scroll */
+.pp-progreso { height: 8px; border: 1.5px solid var(--linea); border-radius: 999px; overflow: hidden; background: var(--superficie); }
+.pp-progreso div { height: 100%; background: var(--menta); transition: width 0.3s var(--ease); }
+.pp-parte { font-family: var(--fuente-codigo); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); margin: 1.1rem 0 0.4rem; }
+.pp-parte:first-child { margin-top: 0; }
+.pp-pregunta { display: grid; gap: 0.55rem; padding: 0.7rem 0 1rem; border-bottom: 1.5px dashed var(--linea-suave); }
+.pp-pregunta-cabecera { display: grid; grid-template-columns: 1.8rem minmax(0, 1fr) auto; gap: 0.4rem; align-items: baseline; }
+.pp-n { font-family: var(--fuente-codigo); font-weight: 700; }
+.pp-pregunta-titulo { font-weight: 700; }
+.pp-intro, .pp-pista { font-size: 0.86rem; color: var(--texto-suave); }
+.pp-pista::before { content: "Pista: "; font-weight: 700; color: var(--acento-texto); }
+.pp-avance { font-family: var(--fuente-codigo); font-size: 0.72rem; font-weight: 700; border: 2px solid var(--linea); border-radius: 999px; padding: 0 0.4rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pp-pregunta.completa .pp-avance { background: var(--menta); }
+.pp-subs { display: grid; gap: 0.7rem; padding-left: 2.2rem; }
+.pp-sub { display: grid; gap: 0.3rem; }
+.pp-sub label { font-size: 0.9rem; line-height: 1.4; }
+.pp-sub-n { font-family: var(--fuente-codigo); font-size: 0.72rem; font-weight: 700; color: var(--texto-suave); margin-right: 0.25rem; }
+.pp-sub textarea { min-height: 3.4rem; }
+.pp-sub.lista textarea { border-color: var(--menta); box-shadow: 0 0 0 2px var(--menta); }
+.pp-opcional { font-size: 0.68rem; font-weight: 700; border: 1.5px dashed var(--linea); border-radius: 999px; padding: 0 0.35rem; margin-left: 0.35rem; vertical-align: 1px; }
+
+/* Check de cada pantalla y hoja de checks */
+.pp-pie-izq { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; align-items: center; min-width: 0; }
+.pp-check { display: inline-flex; gap: 0.45rem; align-items: flex-start; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
+.pp-check input { width: 1.15rem; height: 1.15rem; margin-top: 0.12rem; accent-color: var(--acento); flex: none; }
+.pp-check input:checked + span { color: var(--texto-suave); text-decoration: line-through; text-decoration-thickness: 2px; }
+.pp-hoja-boton { border: var(--borde); border-radius: 999px; background: var(--menta); color: var(--texto); font: inherit; font-weight: 700; font-size: 0.88rem; padding: 0.25rem 0.8rem; cursor: pointer; box-shadow: var(--sombra-chica); }
+.pp-hoja { width: min(34rem, calc(100% - 2rem)); max-height: calc(100% - 2rem); padding: 0; border: var(--borde); border-radius: var(--radio); background: var(--superficie); color: var(--texto); box-shadow: var(--sombra); }
+.pp-hoja::backdrop { background: color-mix(in srgb, var(--texto) 45%, transparent); }
+.pp-hoja-cabecera { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1.1rem; border-bottom: 2px solid var(--linea); background: color-mix(in srgb, var(--menta) 45%, var(--superficie)); }
+.pp-hoja-cabecera h2 { margin: 0; font-size: 1.15rem; }
+.pp-hoja-cuerpo { padding: 0.9rem 1.1rem 1.2rem; overflow: auto; }
+.pp-lista-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.pp-lista-checks li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem; align-items: start; }
+.pp-lista-checks li:has(.pp-check-auto) { grid-template-columns: auto minmax(0, 1fr) auto; font-size: 0.88rem; font-weight: 600; }
+.pp-check-auto { width: 1.15rem; height: 1.15rem; border: 2px solid var(--linea); border-radius: 4px; display: grid; place-items: center; font-size: 0.75rem; font-weight: 800; }
+.pp-check-auto.ok { background: var(--menta); }
+.pp-ir-chico { font-size: 0.85rem; }
+.pp-bloq { font-size: 0.8rem; }
+
+/* Mi perfil */
+.pp-perfil { display: grid; gap: 1.6rem; align-content: start; }
+.pp-bloque-perfil { display: grid; gap: 0.8rem; }
+.pp-bloque-perfil h2 { margin: 0; font-size: 1.25rem; }
+.pp-campo-etiqueta { display: grid; gap: 0.3rem; font-size: 0.88rem; font-weight: 600; }
+.pp-campo { font: inherit; font-weight: 400; font-size: 0.92rem; border: 2px solid var(--linea); border-radius: var(--radio-chico); padding: 0.45rem 0.6rem; background: var(--fondo); color: var(--texto); width: 100%; }
+.pp-sub.lista .pp-campo { border-color: var(--menta); box-shadow: 0 0 0 2px var(--menta); }
+.pp-dos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 0.8rem; }
+.pp-integrantes { list-style: none; margin: 0.2rem 0; padding: 0; display: grid; gap: 0.4rem; }
+.pp-integrantes li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem; align-items: center; }
+.pp-tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1rem; }
+.pp-tarjeta-ej { border: var(--borde); border-radius: var(--radio); padding: 1rem; display: grid; gap: 0.6rem; background: var(--superficie); box-shadow: var(--sombra-chica); align-content: start; }
+.pp-tarjeta-ej h3 { margin: 0; font-size: 1rem; }
+.pp-barra-avance { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 3rem; gap: 0.6rem; align-items: center; font-size: 0.82rem; }
+.pp-num { font-family: var(--fuente-codigo); font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.pp-perfil-texto { min-height: 3.4rem; }
+.pp-puntaje { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; font-weight: 400; }
+.pp-puntaje button { width: 2.4rem; height: 2.4rem; border: var(--borde); border-radius: 50%; background: var(--superficie); font: inherit; font-weight: 800; cursor: pointer; color: var(--texto); }
+.pp-puntaje button[aria-pressed="true"] { background: var(--acento); color: var(--tinta, #17140f); }
+
+@media (max-width: 600px) {
+  .pp-marco { height: max(22rem, calc(100vh - 19rem)); }
+  .pp-detalle, .pp-largo { display: none; }
+  .pp-corto { display: inline; }
+  .pp-subs { padding-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .pp-cuerpo { animation: none; } }
+</style>
+
+<main class="pp-pagina">
+  <header class="pp-cabecera">
+    <span class="pp-sobre">Propuesta · la consigna por etapas · contenido tomado de main</span>
+    <div class="pp-titulo"><h1 id="titulo"></h1><span class="pp-reloj" id="reloj"></span></div>
+    <div class="pp-fila">
+      <div class="pp-segmentado" id="selector" role="group" aria-label="Vista"></div>
+      <div class="pp-fila" style="gap:.5rem 1rem">
+        <button type="button" class="pp-hoja-boton" id="boton-hoja" aria-haspopup="dialog"></button>
+        <details class="pp-charla" id="charla-caja"><summary>De qué bloques de la charla sale</summary><div id="charla"></div></details>
+      </div>
+    </div>
+  </header>
+  <ol class="pp-hilo" id="hilo" aria-label="Secciones"></ol>
+  <section class="pp-marco" id="marco" aria-live="polite"></section>
+</main>
+
+<dialog class="pp-hoja" id="hoja" aria-labelledby="hoja-titulo">
+  <div class="pp-hoja-cabecera"><h2 id="hoja-titulo">Hoja de checks</h2><button type="button" class="pp-enlace" data-cerrar-hoja>Cerrar</button></div>
+  <div class="pp-hoja-cuerpo" id="hoja-cuerpo"></div>
+</dialog>
+
+<script>
+const DATOS = {"01-observabilidad-con-hooks":{"titulo":"Observar al agente con hooks","numero":1,"minutos":20,"charla":"\u003cdiv class=\"markdown\">\u003cblockquote>\n\u003cp>\u003cstrong>Charla:\u003c/strong> bloques 1.2.1 \u003cem>Ciclo agéntico\u003c/em> (el modelo pide, el harness\nejecuta), 1.1.3 \u003cem>Herramientas\u003c/em> y 2.1.2 \u003cem>Harness engineering\u003c/em>.\u003c/p>\n\u003c/blockquote>\n\u003c/div>","etapas":[{"nombre":"Contexto técnico","bajada":"Qué es un hook, cómo está configurado tu agente y cómo comprobar que el log graba.","pantallas":[{"titulo":"Qué es un hook","html":"\u003cdiv class=\"markdown\">\u003ch2>Qué es un hook\u003c/h2>\n\u003cp>Un hook es un comando que \u003cstrong>el harness\u003c/strong> (no el modelo) ejecuta\nautomáticamente en momentos fijos del ciclo: cuando arranca la sesión, cuando\nmandás un prompt, antes y después de cada herramienta, cuando el agente\ntermina. Es determinístico: corre siempre, no depende de que el modelo &quot;se\nacuerde&quot;.\u003c/p>\n\u003cfigure class=\"diagrama ciclo\" aria-label=\"Ciclo agéntico: vos mandás un prompt (hook UserPromptSubmit) al modelo; el modelo pide una tool (hook PreToolUse), el harness la ejecuta (hook PostToolUse) y el resultado vuelve al modelo como evidencia. Se repite hasta que el modelo ya no pide tools (hook Stop).\">\n\u003cdiv class=\"ciclo-mapa\" aria-hidden=\"true\">\n\u003cspan class=\"ciclo-bucle\">\u003cspan>↻ ciclo agéntico · se repite mientras el modelo pida tools\u003c/span>\u003c/span>\n\u003cspan class=\"ciclo-actor\" style=\"grid-area:vos\">\u003cspan class=\"ciclo-nombre\">Vos\u003c/span>\u003c/span>\n\u003cspan class=\"ciclo-flecha ciclo-der \" style=\"grid-area:fprompt\">\u003cspan>prompt\u003c/span>\u003c/span>\n\u003cspan class=\"ciclo-hook ciclo-hook-ups\" style=\"grid-area:ups\">\u003cspan class=\"ciclo-tag\">hook\u003c/span>UserPromptSubmit\u003c/span>\n\u003cspan class=\"ciclo-flecha ciclo-der \" style=\"grid-area:fentra\">\u003c/span>\n\u003cspan class=\"ciclo-actor\" style=\"grid-area:modelo\">\u003cspan class=\"ciclo-nombre\">Modelo\u003c/span>\u003cspan class=\"ciclo-detalle\">decide, no ejecuta\u003c/span>\u003c/span>\n\u003cspan class=\"ciclo-flecha ciclo-der \" style=\"grid-area:fpide\">\u003cspan>pide una tool\u003c/span>\u003c/span>\n\u003cspan class=\"ciclo-hook ciclo-hook-pre\" style=\"grid-area:pre\">\u003cspan class=\"ciclo-tag\">hook\u003c/span>PreToolUse\u003c/span>\n\u003cspan class=\"ciclo-flecha ciclo-abajo \" style=\"grid-area:fbaja\">\u003c/span>\n\u003cspan class=\"ciclo-actor\" style=\"grid-area:harness\">\u003cspan class=\"ciclo-nombre\">Harness\u003c/span>\u003cspan class=\"ciclo-detalle\">ejecuta la tool\u003c/span>\u003c/span>\n\u003cspan class=\"ciclo-flecha ciclo-izq \" style=\"grid-area:fizq\">\u003c/span>\n\u003cspan class=\"ciclo-hook ciclo-hook-post\" style=\"grid-area:post\">\u003cspan class=\"ciclo-tag\">hook\u003c/span>PostToolUse\u003c/span>\n\u003cspan class=\"ciclo-flecha ciclo-arriba ciclo-retorno\" style=\"grid-area:fevid\">\u003cspan>\u003cem class=\"ciclo-solo-movil\">↻ vuelve al modelo con el \u003c/em>resultado = evidencia\u003cem class=\"ciclo-solo-movil\">, y se repite mientras pida tools\u003c/em>\u003c/span>\u003c/span>\n\u003cspan class=\"ciclo-flecha ciclo-arriba \" style=\"grid-area:fstop\">\u003cspan>ya no pide más tools\u003c/span>\u003c/span>\n\u003cspan class=\"ciclo-hook ciclo-hook-stop\" style=\"grid-area:stop\">\u003cspan class=\"ciclo-tag\">hook\u003c/span>Stop\u003c/span>\n\u003c/div>\n\u003cfigcaption>\u003cspan>\u003ci class=\"ciclo-muestra-hook\">\u003c/i>hook: lo corre el harness siempre, en ese punto del ciclo\u003c/span>\u003cspan>\u003ci class=\"ciclo-muestra-actor\">\u003c/i>quién actúa\u003c/span>\u003c/figcaption>\n\u003c/figure>\u003c/div>","check":""},{"titulo":"Cómo está configurado cada agente","html":"\u003cdiv class=\"markdown\">\u003cp>Acá todos los hooks llaman al mismo script,\n\u003cspan class=\"enlace-repo\" title=\"../../scripts/agent-logs/log-hook.mjs\">\u003ccode>scripts/agent-logs/log-hook.mjs\u003c/code>\u003c/span>,\nque normaliza el evento y agrega una línea al log de la sesión:\n\u003cstrong>\u003ccode>logs/&lt;agente&gt;/&lt;id-de-sesión&gt;.jsonl\u003c/code>\u003c/strong> (una carpeta por agente y un\narchivo por sesión).\u003c/p>\n\u003ch2>Cómo está configurado cada agente\u003c/h2>\n\u003ctable>\n\u003cthead>\n\u003ctr>\n\u003cth>Agente\u003c/th>\n\u003cth>Archivo\u003c/th>\n\u003cth>Eventos que se registran\u003c/th>\n\u003c/tr>\n\u003c/thead>\n\u003ctbody>\u003ctr>\n\u003ctd>Claude Code\u003c/td>\n\u003ctd>\u003cspan class=\"enlace-repo\" title=\"../../.claude/settings.json\">\u003ccode>.claude/settings.json\u003c/code>\u003c/span>\u003c/td>\n\u003ctd>SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, PostToolUseFailure, SubagentStop, Stop, SessionEnd\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>Codex CLI\u003c/td>\n\u003ctd>\u003cspan class=\"enlace-repo\" title=\"../../.codex/hooks.json\">\u003ccode>.codex/hooks.json\u003c/code>\u003c/span>\u003c/td>\n\u003ctd>SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStop, Stop, SessionEnd\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>Cline (CLI o VS Code)\u003c/td>\n\u003ctd>\u003cspan class=\"enlace-repo\" title=\"../../.clinerules/hooks/\">\u003ccode>.clinerules/hooks/\u003c/code>\u003c/span> (un script por evento)\u003c/td>\n\u003ctd>TaskStart, TaskResume, UserPromptSubmit, PreToolUse, PostToolUse, TaskComplete, TaskCancel\u003c/td>\n\u003c/tr>\n\u003c/tbody>\u003c/table>\n\u003cp>Abrí el archivo de tu agente y leelo antes de seguir: es corto.\u003c/p>\n\u003c/div>","check":""},{"titulo":"Activá los hooks","html":"\u003cdiv class=\"markdown\">\u003cp>Después, activá los hooks según tu agente:\u003c/p>\n\u003cdetails>\n\u003csummary>\u003cb>Claude Code\u003c/b>\u003c/summary>\u003col>\n\u003cli>Abrí \u003ccode>claude\u003c/code> \u003cstrong>desde la raíz del repo\u003c/strong>.\u003c/li>\n\u003cli>La primera vez te va a pedir que confíes en la carpeta: aceptá.\u003c/li>\n\u003cli>Corré \u003ccode>/hooks\u003c/code> para ver los hooks cargados. Tienen que aparecer los del\nproyecto (ejecutan \u003ccode>node\u003c/code> sobre \u003ccode>scripts/agent-logs/log-hook.mjs\u003c/code>).\u003c/li>\n\u003cli>En Windows tiene que estar instalado Git for Windows (ver la guía de entorno del README).\u003c/li>\n\u003c/ol>\n\u003c/details>\u003cdetails>\n\u003csummary>\u003cb>Codex CLI\u003c/b>\u003c/summary>\u003cp>Codex tiene \u003cstrong>dos controles de confianza\u003c/strong> y los hooks del proyecto no corren\nhasta pasar los dos:\u003c/p>\n\u003col>\n\u003cli>Abrí \u003ccode>codex\u003c/code> \u003cstrong>desde la raíz del repo\u003c/strong> y, cuando pregunte, marcá el\nproyecto como \u003cstrong>confiable\u003c/strong> (trusted). Sin eso, Codex ignora todo lo que hay\nen \u003ccode>.codex/\u003c/code>. Queda registrado en \u003ccode>~/.codex/config.toml\u003c/code> (en Windows,\n\u003ccode>C:\\Users\\&lt;tu-usuario&gt;\\.codex\\config.toml\u003c/code>; en macOS/Linux, \u003ccode>~/.codex/config.toml\u003c/code>, con una ruta como \u003ccode>/ruta/absoluta/a/utn-genai-talk-exercises\u003c/code>):\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>[projects.'C:\\Users\\&lt;tu-usuario&gt;\\utn-genai-talk-exercises']\ntrust_level = &quot;trusted&quot;\u003c/code>\u003c/pre>\u003c/div>\u003c/li>\n\u003cli>Dentro de Codex corré \u003ccode>/hooks\u003c/code> y \u003cstrong>aprobá cada hook\u003c/strong> del proyecto. Si\ndespués modificás \u003ccode>.codex/hooks.json\u003c/code>, vas a tener que volver a aprobarlos.\u003c/li>\n\u003cli>En Windows los hooks de Codex usan rutas relativas al repo: abrí \u003ccode>codex\u003c/code>\nsiempre \u003cstrong>desde la raíz del repo\u003c/strong>, o los hooks no encuentran el script.\u003c/li>\n\u003cli>Los hooks vienen activados por defecto en versiones recientes. Si tu versión\nes vieja y \u003ccode>/hooks\u003c/code> no existe, actualizá Codex.\u003c/li>\n\u003c/ol>\n\u003c/details>\u003cdetails>\n\u003csummary>\u003cb>Cline (CLI o extensión de VS Code)\u003c/b>\u003c/summary>\u003cp>Abrí el CLI (\u003ccode>cline\u003c/code>) \u003cstrong>desde la raíz del repo\u003c/strong>. Para habilitar los hooks en el CLI, mirá\nla \u003ca href=\"https://docs.cline.bot/cline-cli/installation\" target=\"_blank\" rel=\"noreferrer\">guía del CLI\u003c/a>; si no están disponibles ahí,\nusá la extensión de VS Code con los pasos de abajo:\u003c/p>\n\u003col>\n\u003cli>Abrí la carpeta del repo en VS Code (el repo tiene que ser la raíz del\nworkspace).\u003c/li>\n\u003cli>En Cline: \u003cstrong>Settings → Feature Settings → Enable Hooks\u003c/strong> (en versiones\nrecientes viene activado).\u003c/li>\n\u003cli>En el panel de Cline, abrí la pestaña \u003cstrong>Hooks\u003c/strong> (ícono de balanza abajo) y\nverificá que aparezcan los hooks del workspace y estén encendidos.\u003c/li>\n\u003cli>\u003cstrong>macOS / Linux:\u003c/strong> los scripts sin extensión tienen que ser ejecutables. Si\nno aparecen, corré \u003ccode>chmod +x .clinerules/hooks/*\u003c/code>.\u003c/li>\n\u003cli>\u003cstrong>Windows:\u003c/strong> Cline usa los archivos \u003ccode>.ps1\u003c/code> de la misma carpeta.\u003c/li>\n\u003c/ol>\n\u003c/details>\n\u003c/div>","check":"Activé los hooks de mi agente"},{"titulo":"Verificá que funciona","html":"\u003cdiv class=\"markdown\">\u003ch3>Verificá que funciona\u003c/h3>\n\u003cblockquote>\n\u003cp>Los comandos \u003ccode>npm run logs:*\u003c/code> imprimen líneas largas: corrélos en una terminal\nabierta a pantalla completa (o maximizada). Si la ventana es angosta, las líneas\nquedan cortadas y cuesta leerlas.\u003c/p>\n\u003c/blockquote>\n\u003cp>Mandale al agente un mensaje trivial, por ejemplo \u003cem>&quot;¿qué hay en\npackage.json?&quot;\u003c/em>, y después:\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>npm run logs:resumen\u003c/code>\u003c/pre>\u003c/div>\u003cp>Tenés que ver una sesión con al menos un \u003ccode>UserPromptSubmit\u003c/code> y una lectura de\narchivo. Si no aparece nada, revisá los hooks de tu agente antes de seguir. Cuando funcione,\nlimpiá el log:\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>npm run logs:limpiar\u003c/code>\u003c/pre>\u003c/div>\u003cp>Este comando no borra los logs: guarda el actual y arranca uno vacío.\u003c/p>\n\u003c/div>","check":"Vi el log con un mensaje de prueba y lo limpié"}]},{"nombre":"Contexto del ejercicio","bajada":"Qué vas a observar, la regla que el agente tiene que respetar y el bug que va a arreglar.","pantallas":[{"titulo":"Objetivo","html":"\u003cdiv class=\"markdown\">\u003ch2>Objetivo\u003c/h2>\n\u003cp>En la charla dijimos que \u003cstrong>el modelo no ejecuta nada\u003c/strong>: pide una herramienta\n(nombre + argumentos) y el \u003cem>harness\u003c/em> la corre y le devuelve el resultado como\nevidencia. En este ejercicio vas a \u003cstrong>ver ese ciclo con tus propios ojos\u003c/strong>: el\nrepo ya tiene configurados \u003cem>hooks\u003c/em> que registran cada paso del agente en un\narchivo de log. Le vas a pasar un pedido concreto y después vas a responder\npreguntas \u003cstrong>usando el log como evidencia\u003c/strong>.\u003c/p>\n\u003c/div>","check":""},{"titulo":"La constitution","html":"\u003cdiv class=\"markdown\">\u003ch2>Antes de empezar\u003c/h2>\n\u003cp>Leé \u003ccode>.specify/memory/constitution.md\u003c/code>: el agente la va a\ntener que respetar y vos la vas a usar para juzgar lo que hizo.\u003c/p>\n\u003c/div>","check":"Leí la constitution"},{"titulo":"Mirá el bug","html":"\u003cdiv class=\"markdown\">\u003ch3>Antes: mirá el bug con tus propios ojos\u003c/h3>\n\u003cp>Probá crear dos sesiones superpuestas de la misma mentora. La pantalla de reserva\nno te lo va a dejar elegir, pero la API es la que tiene que hacer cumplir la regla:\nprobala directo desde acá, con estas dos llamadas:\u003c/p>\n\u003c/div>\u003caside class=\"anexo-en-linea probar-api\" aria-label=\"Probar la API\">\n\u003cp class=\"pedido-nota\">Las dos van a la misma mentora, el \u003cstrong>2026-11-04\u003c/strong> (el primer día con las 19:00 libre). Mandá la 1 y después la 2.\u003c/p>\n\u003cfigure class=\"gantt\" aria-label=\"Llamada 1 de 19:00 a 19:45, llamada 2 de 19:30 a 20:00: se pisan de 19:30 a 19:45.\">\n\u003cdiv class=\"gantt-fila\" aria-hidden=\"true\">\u003cspan class=\"gantt-etiqueta\">Llamada 1\u003c/span>\u003cdiv class=\"gantt-pista\">\u003cspan class=\"gantt-barra\" style=\"left:25%;width:37.5%\">19:00–19:45\u003c/span>\u003cspan class=\"gantt-cruce\" style=\"left:50%;width:12.5%\">\u003c/span>\u003c/div>\u003c/div>\u003cdiv class=\"gantt-fila\" aria-hidden=\"true\">\u003cspan class=\"gantt-etiqueta\">Llamada 2\u003c/span>\u003cdiv class=\"gantt-pista\">\u003cspan class=\"gantt-barra\" style=\"left:50%;width:25%\">19:30–20:00\u003c/span>\u003cspan class=\"gantt-cruce\" style=\"left:50%;width:12.5%\">\u003c/span>\u003c/div>\u003c/div>\n\u003cdiv class=\"gantt-fila\" aria-hidden=\"true\">\u003cspan>\u003c/span>\u003cdiv class=\"gantt-pista gantt-eje\">\u003cspan style=\"left:0%\">18:30\u003c/span>\u003cspan style=\"left:25%\">19:00\u003c/span>\u003cspan style=\"left:50%\">19:30\u003c/span>\u003cspan style=\"left:75%\">20:00\u003c/span>\u003cspan style=\"left:100%\">20:30\u003c/span>\u003c/div>\u003c/div>\n\u003c/figure>\n\u003cdiv class=\"pp-pedidos\">\u003cdiv class=\"pedido\">\n\u003cp class=\"pedido-titulo\">Llamada 1: Estrategia de testing (45 min) a las 19:00\u003c/p>\n\u003cdiv class=\"pedido-linea\">\u003cspan class=\"pedido-metodo\">POST\u003c/span>\u003cinput class=\"pedido-ruta\" aria-label=\"Ruta de la llamada 1\" value=\"/api/sesiones\" spellcheck=\"false\">\u003cbutton type=\"button\" class=\"boton\" data-simular='{&quot;estado&quot;:201,&quot;cuerpo&quot;:{&quot;id&quot;:&quot;b1e5…&quot;,&quot;mentoraId&quot;:&quot;8f3c2a1e-…&quot;,&quot;tipoAsesoriaId&quot;:&quot;estrategia_de_testing&quot;,&quot;colectivoId&quot;:&quot;c0e1a2b3-…&quot;,&quot;proyecto&quot;:&quot;Prueba de superposicion&quot;,&quot;contactoNombre&quot;:&quot;Ana&quot;,&quot;contactoEmail&quot;:&quot;ana@example.org&quot;,&quot;fecha&quot;:&quot;2026-11-04&quot;,&quot;horaInicio&quot;:&quot;19:00&quot;,&quot;horaFin&quot;:&quot;19:45&quot;,&quot;estado&quot;:&quot;confirmada&quot;}}'>Enviar\u003c/button>\u003c/div>\n\u003cdetails class=\"pp-body\">\u003csummary class=\"pedido-etiqueta\">Body\u003c/summary>\u003ctextarea class=\"editor-respuestas pedido-cuerpo\" spellcheck=\"false\">{\n  &quot;mentoraId&quot;: &quot;8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e01&quot;,\n  &quot;tipoAsesoriaId&quot;: &quot;estrategia_de_testing&quot;,\n  &quot;colectivoId&quot;: &quot;c0e1a2b3-0000-4000-8000-000000000001&quot;,\n  &quot;proyecto&quot;: &quot;Prueba de superposicion&quot;,\n  &quot;contactoNombre&quot;: &quot;Ana&quot;,\n  &quot;contactoEmail&quot;: &quot;ana@example.org&quot;,\n  &quot;fecha&quot;: &quot;2026-11-04&quot;,\n  &quot;horaInicio&quot;: &quot;19:00&quot;\n}\u003c/textarea>\u003c/details>\n\u003cdiv class=\"pp-respuesta\">\u003c/div>\n\u003c/div>\u003cdiv class=\"pedido\">\n\u003cp class=\"pedido-titulo\">Llamada 2: Revisión de código (30 min) a las 19:30\u003c/p>\n\u003cdiv class=\"pedido-linea\">\u003cspan class=\"pedido-metodo\">POST\u003c/span>\u003cinput class=\"pedido-ruta\" aria-label=\"Ruta de la llamada 2\" value=\"/api/sesiones\" spellcheck=\"false\">\u003cbutton type=\"button\" class=\"boton\" data-simular='{&quot;estado&quot;:201,&quot;cuerpo&quot;:{&quot;id&quot;:&quot;b1e5…&quot;,&quot;mentoraId&quot;:&quot;8f3c2a1e-…&quot;,&quot;tipoAsesoriaId&quot;:&quot;revision_de_codigo&quot;,&quot;colectivoId&quot;:&quot;c0e1a2b3-…&quot;,&quot;proyecto&quot;:&quot;Prueba de superposicion&quot;,&quot;contactoNombre&quot;:&quot;Ana&quot;,&quot;contactoEmail&quot;:&quot;ana@example.org&quot;,&quot;fecha&quot;:&quot;2026-11-04&quot;,&quot;horaInicio&quot;:&quot;19:30&quot;,&quot;horaFin&quot;:&quot;20:00&quot;,&quot;estado&quot;:&quot;confirmada&quot;}}'>Enviar\u003c/button>\u003c/div>\n\u003cdetails class=\"pp-body\">\u003csummary class=\"pedido-etiqueta\">Body\u003c/summary>\u003ctextarea class=\"editor-respuestas pedido-cuerpo\" spellcheck=\"false\">{\n  &quot;mentoraId&quot;: &quot;8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e01&quot;,\n  &quot;tipoAsesoriaId&quot;: &quot;revision_de_codigo&quot;,\n  &quot;colectivoId&quot;: &quot;c0e1a2b3-0000-4000-8000-000000000001&quot;,\n  &quot;proyecto&quot;: &quot;Prueba de superposicion&quot;,\n  &quot;contactoNombre&quot;: &quot;Ana&quot;,\n  &quot;contactoEmail&quot;: &quot;ana@example.org&quot;,\n  &quot;fecha&quot;: &quot;2026-11-04&quot;,\n  &quot;horaInicio&quot;: &quot;19:30&quot;\n}\u003c/textarea>\u003c/details>\n\u003cdiv class=\"pp-respuesta\">\u003c/div>\n\u003c/div>\u003c/div>\n\u003cp class=\"pp-maqueta\">Maqueta: las respuestas están simuladas.\u003c/p>\n\u003c/aside>\u003cdiv class=\"markdown\">\u003cp>\u003cstrong>Como ves, la API permite superponer turnos: vamos a arreglar este bug.\u003c/strong> Antes, borrá\nesas dos reservas regenerando los datos de ejemplo:\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>npm run seed\u003c/code>\u003c/pre>\u003c/div>\u003c/div>","check":"Reproduje el bug (las dos llamadas dieron 201) y corrí npm run seed"}]},{"nombre":"Qué tenés que hacer","bajada":"Pasarle el prompt al agente, leer el log y probar el arreglo.","pantallas":[{"titulo":"El pedido","html":"\u003cdiv class=\"markdown\">\u003ch3>Ahora sí: el pedido\u003c/h3>\n\u003col>\n\u003cli>Abrí una \u003cstrong>sesión nueva\u003c/strong> del agente.\u003c/li>\n\u003cli>Copiá el prompt de \u003cspan class=\"enlace-repo\" title=\"./prompt.md\">\u003ccode>prompt.md\u003c/code>\u003c/span> \u003cstrong>tal cual\u003c/strong> y mandalo.\u003c/li>\n\u003c/ol>\n\u003c/div>\u003caside class=\"anexo-en-linea\" aria-label=\"Prompt para el agente\">\u003cdiv class=\"markdown\">\u003ch1>Prompt para el agente — Ejercicio 1\u003c/h1>\n\u003cblockquote>\n\u003cp>Copiá \u003cstrong>todo\u003c/strong> el bloque de abajo y pegalo como primer mensaje en una sesión\nnueva de tu agente (Claude Code, Codex o Cline). No le agregues nada más: la\nidea es observar qué hace el agente con exactamente este pedido.\u003c/p>\n\u003c/blockquote>\n\u003chr>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar prompt\u003c/button>\u003cpre>\u003ccode>Contexto: Mentorías a Voluntad es una app donde personas mentoras donan horas\nde asesoramiento y los colectivos (fundaciones, ONGs, asambleas) reservan\nsesiones. Es un repo full stack: client/ (Vite + React + TypeScript) y server/\n(Express + TypeScript en capas: routes → services → repositories → domain),\ncon los datos en archivos JSON dentro de data/. La constitution del proyecto\nestá en .specify/memory/constitution.md y dice, entre otras cosas:\n&quot;Una mentora NO PUEDE tener dos sesiones confirmadas que se superpongan&quot;.\n\nProblema: el endpoint POST /api/sesiones solo rechaza una sesión nueva si otra\nsesión confirmada de la misma mentora, el mismo día, empieza EXACTAMENTE a la\nmisma hora. Si una mentora tiene una revisión de código de 10:00 a 11:00, hoy\nun colectivo puede reservarle otra sesión de 10:30 a 11:15 y quedan\nsuperpuestas.\n\nLo que necesito:\n1. Extraé la detección de superposición a una función pura en server/domain/,\n   por ejemplo:\n   haySuperposicion(sesiones, { mentoraId, fecha, horaInicio, horaFin }): boolean\n   Solo cuentan las sesiones con estado &quot;confirmada&quot; de la misma mentora y de\n   la misma fecha. Una sesión que termina 10:30 y otra que empieza 10:30 NO se\n   superponen. La función no hace IO.\n2. Trabajá con TDD: primero escribí los tests en\n   tests/server/domain/superposicion.test.ts y un test de la API en\n   tests/server/api/ que espere el 409; corrélos y mostrame que fallan; recién\n   después implementá.\n3. Usá haySuperposicion en el caso de uso de crear sesión (capa de servicios).\n   Si hay superposición, la API responde 409 con\n   { &quot;error&quot;: &quot;El horario se superpone con otra sesión de la mentora&quot; }.\n4. No modifiques los archivos de data/. No toques los tests existentes salvo\n   que sea imprescindible; si tenés que hacerlo, avisame cuál y por qué.\n5. Al terminar, corré `npm test` y `npm run lint` y contame el resultado.\n\nAntes de editar código, explicame en 3-4 líneas tu plan.\u003c/code>\u003c/pre>\u003c/div>\u003c/div>\u003c/aside>\u003cdiv class=\"markdown\">\u003c/div>","check":"Le pasé el prompt al agente en una sesión nueva"},{"titulo":"Mientras trabaja","html":"\u003cdiv class=\"markdown\">\u003col start=\"3\">\n\u003cli>\u003cp>Dejalo trabajar. Aprobá o rechazá los permisos que pida \u003cstrong>leyendo qué\npide\u003c/strong> (es parte de lo que vas a analizar después). No lo ayudes ni lo\ncorrijas salvo que se trabe por completo; si intervenís, anotalo.\u003c/p>\n\u003c/li>\n\u003cli>\u003cp>Mientras trabaja, en otra terminal podés mirar el log en vivo. \u003cstrong>Poné esa terminal en pantalla completa.\u003c/strong>\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode># macOS / Linux\ntail -f logs/&lt;agente&gt;/&lt;id-de-sesión&gt;.jsonl\n# Windows (PowerShell)\nGet-Content logs/&lt;agente&gt;/&lt;id-de-sesión&gt;.jsonl -Wait\u003c/code>\u003c/pre>\u003c/div>\u003c/li>\n\u003c/ol>\n\u003c/div>","check":"El agente terminó y anoté si intervine"},{"titulo":"Leer los logs","html":"\u003cdiv class=\"markdown\">\u003ch2>Paso 2 — Leer los logs\u003c/h2>\n\u003cp>En una terminal a pantalla completa:\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>npm run logs:resumen          # conteos: eventos, herramientas, comandos, archivos\nnpm run logs:timeline         # lo mismo + línea de tiempo paso a paso\u003c/code>\u003c/pre>\u003c/div>\u003cp>En la línea de tiempo cada herramienta aparece una sola vez, con su tipo de acción\n(\u003ccode>leer\u003c/code>, \u003ccode>escribir\u003c/code>, \u003ccode>ejecutar\u003c/code>, \u003ccode>buscar\u003c/code>, \u003ccode>skill\u003c/code>, \u003ccode>mcp\u003c/code>). Cuando el comando corre\nlos tests, al final de la línea se ve cómo terminó la corrida.\u003c/p>\n\u003cp>Sin opciones, el resumen muestra la \u003cstrong>última sesión con actividad\u003c/strong> (las\nsesiones vacías, que algunos agentes abren al arrancar, se saltean). Si tenés\nvarias, mirá todas con \u003ccode>npm run logs:resumen -- --todas\u003c/code>.\u003c/p>\n\u003c/div>","check":"Revisé logs:resumen y logs:timeline"},{"titulo":"Probar la app modificada","html":"\u003cdiv class=\"markdown\">\u003ch2>Paso 3 — Probar la app modificada\u003c/h2>\n\u003cp>Si la app quedó modificada, probá otra vez las 2 llamadas a la API que hiciste más\narriba y compará la respuesta con lo que habías recibido antes. Si todo salió bien,\nno debería dejar superponer el turno.\u003c/p>\n\u003cp>Al terminar, borrá las reservas de prueba con \u003ccode>npm run seed\u003c/code>.\u003c/p>\n\u003c/div>\u003caside class=\"anexo-en-linea probar-api\" aria-label=\"Probar la API\">\n\u003cp class=\"pedido-nota\">Las dos van a la misma mentora, el \u003cstrong>2026-11-04\u003c/strong> (el primer día con las 19:00 libre). Mandá la 1 y después la 2.\u003c/p>\n\u003cfigure class=\"gantt\" aria-label=\"Llamada 1 de 19:00 a 19:45, llamada 2 de 19:30 a 20:00: se pisan de 19:30 a 19:45.\">\n\u003cdiv class=\"gantt-fila\" aria-hidden=\"true\">\u003cspan class=\"gantt-etiqueta\">Llamada 1\u003c/span>\u003cdiv class=\"gantt-pista\">\u003cspan class=\"gantt-barra\" style=\"left:25%;width:37.5%\">19:00–19:45\u003c/span>\u003cspan class=\"gantt-cruce\" style=\"left:50%;width:12.5%\">\u003c/span>\u003c/div>\u003c/div>\u003cdiv class=\"gantt-fila\" aria-hidden=\"true\">\u003cspan class=\"gantt-etiqueta\">Llamada 2\u003c/span>\u003cdiv class=\"gantt-pista\">\u003cspan class=\"gantt-barra\" style=\"left:50%;width:25%\">19:30–20:00\u003c/span>\u003cspan class=\"gantt-cruce\" style=\"left:50%;width:12.5%\">\u003c/span>\u003c/div>\u003c/div>\n\u003cdiv class=\"gantt-fila\" aria-hidden=\"true\">\u003cspan>\u003c/span>\u003cdiv class=\"gantt-pista gantt-eje\">\u003cspan style=\"left:0%\">18:30\u003c/span>\u003cspan style=\"left:25%\">19:00\u003c/span>\u003cspan style=\"left:50%\">19:30\u003c/span>\u003cspan style=\"left:75%\">20:00\u003c/span>\u003cspan style=\"left:100%\">20:30\u003c/span>\u003c/div>\u003c/div>\n\u003c/figure>\n\u003cdiv class=\"pp-pedidos\">\u003cdiv class=\"pedido\">\n\u003cp class=\"pedido-titulo\">Llamada 1: Estrategia de testing (45 min) a las 19:00\u003c/p>\n\u003cdiv class=\"pedido-linea\">\u003cspan class=\"pedido-metodo\">POST\u003c/span>\u003cinput class=\"pedido-ruta\" aria-label=\"Ruta de la llamada 1\" value=\"/api/sesiones\" spellcheck=\"false\">\u003cbutton type=\"button\" class=\"boton\" data-simular='{&quot;estado&quot;:201,&quot;cuerpo&quot;:{&quot;id&quot;:&quot;b1e5…&quot;,&quot;mentoraId&quot;:&quot;8f3c2a1e-…&quot;,&quot;tipoAsesoriaId&quot;:&quot;estrategia_de_testing&quot;,&quot;colectivoId&quot;:&quot;c0e1a2b3-…&quot;,&quot;proyecto&quot;:&quot;Prueba de superposicion&quot;,&quot;contactoNombre&quot;:&quot;Ana&quot;,&quot;contactoEmail&quot;:&quot;ana@example.org&quot;,&quot;fecha&quot;:&quot;2026-11-04&quot;,&quot;horaInicio&quot;:&quot;19:00&quot;,&quot;horaFin&quot;:&quot;19:45&quot;,&quot;estado&quot;:&quot;confirmada&quot;}}'>Enviar\u003c/button>\u003c/div>\n\u003cdetails class=\"pp-body\">\u003csummary class=\"pedido-etiqueta\">Body\u003c/summary>\u003ctextarea class=\"editor-respuestas pedido-cuerpo\" spellcheck=\"false\">{\n  &quot;mentoraId&quot;: &quot;8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e01&quot;,\n  &quot;tipoAsesoriaId&quot;: &quot;estrategia_de_testing&quot;,\n  &quot;colectivoId&quot;: &quot;c0e1a2b3-0000-4000-8000-000000000001&quot;,\n  &quot;proyecto&quot;: &quot;Prueba de superposicion&quot;,\n  &quot;contactoNombre&quot;: &quot;Ana&quot;,\n  &quot;contactoEmail&quot;: &quot;ana@example.org&quot;,\n  &quot;fecha&quot;: &quot;2026-11-04&quot;,\n  &quot;horaInicio&quot;: &quot;19:00&quot;\n}\u003c/textarea>\u003c/details>\n\u003cdiv class=\"pp-respuesta\">\u003c/div>\n\u003c/div>\u003cdiv class=\"pedido\">\n\u003cp class=\"pedido-titulo\">Llamada 2: Revisión de código (30 min) a las 19:30\u003c/p>\n\u003cdiv class=\"pedido-linea\">\u003cspan class=\"pedido-metodo\">POST\u003c/span>\u003cinput class=\"pedido-ruta\" aria-label=\"Ruta de la llamada 2\" value=\"/api/sesiones\" spellcheck=\"false\">\u003cbutton type=\"button\" class=\"boton\" data-simular='{&quot;estado&quot;:409,&quot;cuerpo&quot;:{&quot;error&quot;:&quot;El horario se superpone con otra sesión de la mentora&quot;}}'>Enviar\u003c/button>\u003c/div>\n\u003cdetails class=\"pp-body\">\u003csummary class=\"pedido-etiqueta\">Body\u003c/summary>\u003ctextarea class=\"editor-respuestas pedido-cuerpo\" spellcheck=\"false\">{\n  &quot;mentoraId&quot;: &quot;8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e01&quot;,\n  &quot;tipoAsesoriaId&quot;: &quot;revision_de_codigo&quot;,\n  &quot;colectivoId&quot;: &quot;c0e1a2b3-0000-4000-8000-000000000001&quot;,\n  &quot;proyecto&quot;: &quot;Prueba de superposicion&quot;,\n  &quot;contactoNombre&quot;: &quot;Ana&quot;,\n  &quot;contactoEmail&quot;: &quot;ana@example.org&quot;,\n  &quot;fecha&quot;: &quot;2026-11-04&quot;,\n  &quot;horaInicio&quot;: &quot;19:30&quot;\n}\u003c/textarea>\u003c/details>\n\u003cdiv class=\"pp-respuesta\">\u003c/div>\n\u003c/div>\u003c/div>\n\u003cp class=\"pp-maqueta\">Maqueta: las respuestas están simuladas como si el agente ya hubiera arreglado el bug.\u003c/p>\n\u003c/aside>","check":"La segunda llamada ahora da 409"},{"titulo":"Entrega","html":"\u003cdiv class=\"markdown\">\u003ch2>Entrega\u003c/h2>\n\u003cp>Guardá con \u003cstrong>Guardar respuestas\u003c/strong> y después hacé commit y push a la rama del grupo:\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>git add -A\ngit commit -m &quot;Ejercicio 1&quot;\ngit push\u003c/code>\u003c/pre>\u003c/div>\u003cp>Por último, apretá \u003cstrong>Terminé\u003c/strong> al pie de esta página: guarda tus respuestas, habilita el tablero de \u003cstrong>Métricas\u003c/strong> (lo vas a usar desde el ejercicio 2) y te lleva al siguiente.\u003c/p>\n\u003c/div>","check":"Hice commit y push a la rama del grupo"}]}],"partes":[{"nombre":"Lo que pasó","preguntas":[{"n":1,"titulo":"El ciclo","opcional":false,"intro":"","pista":"","subs":["¿Cuántas llamadas a herramientas hizo el agente en total?","¿Qué herramienta usó más?","Agrupalas en las familias de la charla: búsqueda de código, control de versiones, validación local, navegador, servicios."],"num":1},{"n":2,"titulo":"Explorar antes de actuar","opcional":false,"intro":"","pista":"Pista: en \u003ccode>npm run logs:timeline\u003c/code> las acciones de cada turno están en orden. Un agente también puede leer archivos desde la terminal (\u003ccode>cat\u003c/code>, \u003ccode>sed\u003c/code>, \u003ccode>Get-Content\u003c/code>): esos aparecen como \u003ccode>ejecutar\u003c/code>, no en &quot;Archivos leídos&quot;.","subs":["¿Cuántas herramientas usó \u003cstrong>antes\u003c/strong> de su primera edición de archivo?","¿Qué archivos leyó?","¿Leyó la constitution que menciona el prompt?"],"num":2},{"n":4,"titulo":"Comandos de terminal","opcional":false,"intro":"","pista":"","subs":["Listá todos los comandos que ejecutó.","¿Alguno no lo pediste vos? ¿Alguno te generó dudas al aprobarlo?","Clasificá cada uno con el semáforo de la charla: verde (lectura), amarillo (validación local) o rojo (escritura o producción)."],"num":3},{"n":5,"titulo":"Errores y reintentos","opcional":false,"intro":"","pista":"","subs":["¿Alguna herramienta falló (\u003ccode>PostToolUseFailure\u003c/code> o un \u003ccode>output\u003c/code> con error)?","¿Qué hizo el agente después?"],"num":4}]},{"nombre":"Lo que pensás","preguntas":[{"n":7,"titulo":"Contexto","opcional":false,"intro":"Cada \u003ccode>output\u003c/code> del log volvió al modelo como contexto.","pista":"Pista: \u003ccode>npm run logs:resumen\u003c/code> muestra cuántos caracteres devolvió cada herramienta al modelo.","subs":["Sumá aproximadamente el tamaño de las salidas: ¿qué herramienta &quot;llenó&quot; más la ventana?","¿Había lecturas que se podían evitar? Por ejemplo: ¿leyó \u003ccode>data/sesiones.json\u003c/code> entero para entender el formato, en lugar de \u003ccode>shared/types.ts\u003c/code>?"],"num":5},{"n":9,"titulo":"Hooks como control","opcional":false,"intro":"Este hook solo \u003cem>observa\u003c/em>. Proponé \u003cstrong>un\u003c/strong> hook que \u003cem>bloquee\u003c/em> algo en este proyecto: por ejemplo, que no deje editar \u003ccode>data/\u003c/code>, o que no deje que un archivo de \u003ccode>server/domain/\u003c/code> importe \u003ccode>fs\u003c/code> o \u003ccode>express\u003c/code>.","pista":"","subs":["¿En qué evento lo pondrías?","¿Por qué tiene que ser un hook y no una instrucción en \u003ccode>AGENTS.md\u003c/code> o en la constitution?"],"num":6},{"intro":"","pista":"","opcional":false,"despuesDe":9,"n":"riesgos-hooks","titulo":"Riesgos","subs":["¿Qué riesgos encontrás a la hora de utilizar hooks en agentes de código? Pensá en casos como acciones a realizar, requests, scripts ejecutables, logs o tiempo de procesamiento, así como la gestión de recursos."],"num":7}]},{"nombre":"Para cerrar","preguntas":[{"n":"modelo","titulo":"Modelo","intro":"","pista":"","opcional":false,"subs":["¿Qué modelo usaste en este ejercicio?"],"num":""},{"n":"agente","titulo":"Agente","intro":"","pista":"","opcional":false,"subs":["¿Qué agente usaste en este ejercicio (Claude Code, Codex, Cline…)?"],"num":""}]}],"placeholder":""},"02-skill-y-mcp":{"titulo":"Escribir una skill y conectar un MCP","numero":2,"minutos":35,"charla":"\u003cdiv class=\"markdown\">\u003cblockquote>\n\u003cp>\u003cstrong>Charla:\u003c/strong> bloque 2.1.3 \u003cem>Skills\u003c/em> (el mismo pedido, eso es una skill, una\nskill por dentro, una skill no es un script, cómo el agente la encuentra,\ncuándo nace una skill) y 2.1.1 \u003cem>Context engineering\u003c/em> (las palancas: skills y\nMCP entran al contexto solo cuando se usan).\u003c/p>\n\u003cp>\u003cstrong>Requisito:\u003c/strong> ejercicio 1 hecho; los hooks siguen registrando todo, y los\nvas a usar para comprobar que la skill y el MCP se activaron.\u003c/p>\n\u003c/blockquote>\n\u003c/div>","etapas":[{"nombre":"Contexto técnico","bajada":"Qué es una skill, qué es un MCP y dónde va cada uno según tu agente.","pantallas":[{"titulo":"Skill y MCP","html":"\u003cdiv class=\"markdown\">\u003ch2>Objetivo\u003c/h2>\n\u003cp>Dos piezas del harness que se suman al agente:\u003c/p>\n\u003ctable>\n\u003cthead>\n\u003ctr>\n\u003cth>\u003c/th>\n\u003cth>Qué aporta\u003c/th>\n\u003cth>En la charla\u003c/th>\n\u003c/tr>\n\u003c/thead>\n\u003ctbody>\u003ctr>\n\u003ctd>\u003cstrong>Skill\u003c/strong>\u003c/td>\n\u003ctd>\u003cstrong>Criterio\u003c/strong>: cómo hacemos las cosas en \u003cem>este\u003c/em> repo. Escrito una vez, versionado con el código.\u003c/td>\n\u003ctd>«Documentar el criterio en el repositorio»\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>\u003cstrong>MCP\u003c/strong>\u003c/td>\n\u003ctd>\u003cstrong>Herramientas\u003c/strong> nuevas: el agente puede observar y actuar sobre algo que antes no veía (acá, un navegador).\u003c/td>\n\u003ctd>«Sumar herramientas amplía lo observable»\u003c/td>\n\u003c/tr>\n\u003c/tbody>\u003c/table>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>npm run logs:limpiar    # medí solo este ejercicio\u003c/code>\u003c/pre>\u003c/div>\u003c/div>","check":"Limpié el log para medir solo este ejercicio"},{"titulo":"El tablero de Métricas","html":"\u003caside class=\"anexo-en-linea\" aria-label=\"El tablero de Métricas\">\u003cdiv class=\"markdown\">\u003ch3>Antes de empezar: el tablero de Métricas\u003c/h3>\n\u003cp>Hasta ahora estuvimos viendo el uso del agente desde los logs, pero esto se puede\nrepresentar de una forma más visual, que facilita los ejercicios que siguen. El\ntablero de \u003cstrong>Métricas\u003c/strong> lee los mismos archivos de \u003ccode>logs/\u003c/code> y se actualiza solo:\neventos por minuto, herramientas, fallas, archivos y duración de cada acción.\nAdemás muestra \u003cstrong>tokens, modelo y costo estimado\u003c/strong>, que los hooks no mandan: salen\nde la transcripción que cada agente guarda en tu equipo. Para ver los comandos\ncompletos, con las claves tapadas, activá &quot;Mostrar comandos completos&quot;. Solo se ve\ndesde tu propia máquina.\u003c/p>\n\u003cp>\u003ca href=\"/metricas\" class=\"boton boton-enlace\" target=\"_blank\" rel=\"noreferrer\">Ver métricas\u003c/a>\u003c/p>\n\u003cp>Usalo para mirar, pero en las respuestas seguí citando el log (\u003ccode>logs:resumen\u003c/code> /\n\u003ccode>logs:timeline\u003c/code>) como evidencia.\u003c/p>\n\u003c/div>\u003c/aside>","check":"Abrí el tablero de Métricas"},{"titulo":"Dónde va la skill","html":"\u003cdiv class=\"markdown\">\u003cp>Creá la skill en la carpeta que lee tu agente:\u003c/p>\n\u003ctable>\n\u003cthead>\n\u003ctr>\n\u003cth>Agente\u003c/th>\n\u003cth>Ubicación\u003c/th>\n\u003c/tr>\n\u003c/thead>\n\u003ctbody>\u003ctr>\n\u003ctd>Claude Code\u003c/td>\n\u003ctd>\u003ccode>.claude/skills/nuevo-endpoint/SKILL.md\u003c/code>\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>Cline\u003c/td>\n\u003ctd>\u003ccode>.claude/skills/nuevo-endpoint/SKILL.md\u003c/code> (Cline lee las skills del proyecto desde \u003ccode>.claude/skills/\u003c/code>, \u003ccode>.cline/skills/\u003c/code> y \u003ccode>.clinerules/skills/\u003c/code>: usa las del repo sin copiarlas)\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>Codex\u003c/td>\n\u003ctd>\u003ccode>.agents/skills/nuevo-endpoint/SKILL.md\u003c/code>\u003c/td>\n\u003c/tr>\n\u003c/tbody>\u003c/table>\n\u003cblockquote>\n\u003cp>Mirá las skills que ya tiene el repo (por ejemplo\n\u003ccode>.claude/skills/speckit-specify/\u003c/code>) como referencia de formato.\u003c/p>\n\u003c/blockquote>\n\u003c/div>","check":""},{"titulo":"El encabezado de la skill","html":"\u003cdiv class=\"markdown\">\u003cp>Tiene que tener las dos partes que vimos en la charla:\u003c/p>\n\u003cp>\u003cstrong>Arriba, el encabezado\u003c/strong> (frontmatter YAML). Determina \u003cstrong>cuándo\u003c/strong> se activa:\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>---\nname: nuevo-endpoint\ndescription: &lt;qué trabajo hace + en qué momento usarla&gt;\n---\u003c/code>\u003c/pre>\u003c/div>\u003cp>Recordá: «Ayuda con la API» no dispara nunca. La \u003ccode>description\u003c/code> tiene que\n\u003cstrong>nombrar el trabajo y nombrar el momento\u003c/strong>, con las palabras que vos vas a\nusar al pedirlo (endpoint, ruta, API, handler, \u003ccode>server/routes\u003c/code>, Express...).\u003c/p>\n\u003c/div>","check":"Creé el SKILL.md con su encabezado"},{"titulo":"Conectar el MCP","html":"\u003cdiv class=\"markdown\">\u003ch3>B.1 Conectalo\u003c/h3>\n\u003cdetails>\n\u003csummary>\u003cb>Claude Code\u003c/b>\u003c/summary>\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>claude mcp add playwright --scope project -- npx -y @playwright/mcp@latest\u003c/code>\u003c/pre>\u003c/div>\u003cp>Esto crea \u003ccode>.mcp.json\u003c/code> en la raíz (configuración de proyecto, versionable). Al\nabrir \u003ccode>claude\u003c/code> te va a pedir aprobar el servidor del proyecto. Verificá con\n\u003ccode>/mcp\u003c/code>.\u003c/p>\n\u003c/details>\u003cdetails>\n\u003csummary>\u003cb>Codex CLI\u003c/b>\u003c/summary>\u003cp>Agregalo en \u003ccode>.codex/config.toml\u003c/code> del repo (solo se carga si el proyecto está\nmarcado como confiable, como en el ejercicio 1) o en \u003ccode>~/.codex/config.toml\u003c/code>:\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>[mcp_servers.playwright]\ncommand = &quot;npx&quot;\nargs = [&quot;-y&quot;, &quot;@playwright/mcp@latest&quot;]\u003c/code>\u003c/pre>\u003c/div>\u003cp>Verificá con \u003ccode>/mcp\u003c/code> dentro de Codex.\u003c/p>\n\u003c/details>\u003cdetails>\n\u003csummary>\u003cb>Cline\u003c/b>\u003c/summary>\u003cp>Cline no tiene configuración de MCP por proyecto. Con el CLI (\u003ccode>cline\u003c/code>), mirá cómo configurar\nMCP en la \u003ca href=\"https://docs.cline.bot/cline-cli/installation\" target=\"_blank\" rel=\"noreferrer\">guía del CLI\u003c/a>. En la extensión de VS Code,\nen el panel de Cline: \u003cstrong>MCP Servers → Configure → Configure MCP Servers\u003c/strong>, y agregá:\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>{\n  &quot;mcpServers&quot;: {\n    &quot;playwright&quot;: {\n      &quot;command&quot;: &quot;npx&quot;,\n      &quot;args&quot;: [&quot;-y&quot;, &quot;@playwright/mcp@latest&quot;],\n      &quot;disabled&quot;: false,\n      &quot;autoApprove&quot;: []\n    }\n  }\n}\u003c/code>\u003c/pre>\u003c/div>\u003c/details>\u003cblockquote>\n\u003cp>\u003cstrong>Antes de la clase\u003c/strong> (o antes de empezar este ejercicio), bajá el navegador y\nprecalentá el MCP, para que no se trabe descargando en el momento:\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>npx playwright install chromium\nnpx -y @playwright/mcp@latest --help\u003c/code>\u003c/pre>\u003c/div>\u003cp>Si Playwright no encuentra un navegador, repetí \u003ccode>npx playwright install chromium\u003c/code>.\u003c/p>\n\u003c/blockquote>\n\u003c/div>","check":"Conecté Playwright MCP y lo vi en /mcp"}]},{"nombre":"Contexto del ejercicio","bajada":"Por qué nace la skill y qué decisión de privacidad tiene el endpoint que le vas a pedir.","pantallas":[{"titulo":"El problema","html":"\u003cdiv class=\"markdown\">\u003ch3>A.1 El problema\u003c/h3>\n\u003cp>En el ejercicio 1 le explicaste al agente, dentro del prompt, varias reglas del\nproyecto: en qué capa va cada cosa, dónde van los tests, qué código HTTP\ndevolver, que no toque \u003ccode>data/\u003c/code>... Si mañana le pedís otro endpoint, \u003cstrong>se lo\nvas a tener que repetir\u003c/strong>. Ese es el momento en que nace una skill.\u003c/p>\n\u003c/div>","check":""},{"titulo":"La privacidad del endpoint","html":"\u003cdiv class=\"markdown\">\u003ch3>A.4 La privacidad del endpoint\u003c/h3>\n\u003cblockquote>\n\u003cp>\u003cstrong>Decisión de producto para este endpoint: no devuelve \u003ccode>contactoNombre\u003c/code> ni\n\u003ccode>contactoEmail\u003c/code>.\u003c/strong>\u003c/p>\n\u003cp>El pedido no lo dice a propósito: queremos ver si la skill (o la\nconstitution) alcanza para que el agente lo resuelva solo.\u003c/p>\n\u003cp>\u003cstrong>¿Por qué?\u003c/strong> El principio IV dice que los datos de contacto del colectivo\nsolo se muestran \u003cem>a la mentora de esa sesión\u003c/em>. La app no tiene login, así que\nel servidor no tiene forma de saber quién pide \u003ccode>GET /api/sesiones/:id\u003c/code>. Un\nUUID en una URL \u003cstrong>no es una credencial\u003c/strong>: se comparte, queda en el historial\ny en los logs.\u003c/p>\n\u003cp>\u003cstrong>Entonces:\u003c/strong> el endpoint devuelve la misma vista pública que\n\u003ccode>GET /api/sesiones\u003c/code> (\u003ccode>SesionPublica\u003c/code>): los ids de mentora, tipo de asesoría y\ncolectivo, el proyecto, la fecha, el horario y el estado. Revelar el contacto\n&quot;a quien corresponde&quot; es una feature en sí misma (ver la iteración 5 del\nejercicio 3).\u003c/p>\n\u003cp>Si tu agente lo devolvió, no lo corrijas a mano: mejorá la skill y repetí.\u003c/p>\n\u003c/blockquote>\n\u003c/div>","check":""}]},{"nombre":"Qué tenés que hacer","bajada":"Escribir la skill, comprobar que se dispara, conectar el navegador y usarlo.","pantallas":[{"titulo":"El criterio de la skill (1 de 2)","html":"\u003cdiv class=\"markdown\">\u003cp>\u003cstrong>Abajo, el criterio\u003c/strong> (markdown común): cómo lo hacemos \u003cem>nosotros\u003c/em>. Como\nmínimo tiene que cubrir estos puntos.\u003c/p>\n\u003cul>\n\u003cli>\u003cinput disabled=\"\" type=\"checkbox\"> \u003cstrong>Antes de escribir, preguntá.\u003c/strong>\u003cul>\n\u003cli>¿Quién lo consume: una pantalla del client, la mentora, el colectivo?\u003c/li>\n\u003cli>¿Qué pasa si falla?\u003c/li>\n\u003cli>¿Qué valida?\u003c/li>\n\u003cli>¿Devuelve algún dato personal?\u003c/li>\n\u003c/ul>\n\u003c/li>\n\u003cli>\u003cinput disabled=\"\" type=\"checkbox\"> \u003cstrong>Dónde va cada cosa\u003c/strong> (principio II).\u003cul>\n\u003cli>\u003ccode>server/routes/\u003c/code>: la ruta, solo HTTP (parsear, validar forma, mapear\nerrores a status).\u003c/li>\n\u003cli>\u003ccode>server/services/\u003c/code>: el caso de uso.\u003c/li>\n\u003cli>\u003ccode>server/repositories/\u003c/code>: el acceso a los JSON.\u003c/li>\n\u003cli>\u003ccode>server/domain/\u003c/code>: las reglas puras, sin \u003ccode>fs\u003c/code> ni \u003ccode>express\u003c/code>.\u003c/li>\n\u003cli>\u003ccode>shared/types.ts\u003c/code>: los tipos.\u003c/li>\n\u003cli>\u003ccode>client/src/api/\u003c/code>: la función de fetch, si una pantalla lo consume\n(principio VI).\u003c/li>\n\u003c/ul>\n\u003c/li>\n\u003cli>\u003cinput disabled=\"\" type=\"checkbox\"> \u003cstrong>Contrato de API\u003c/strong> (principio III).\u003cul>\n\u003cli>Todo bajo \u003ccode>/api\u003c/code>, en JSON.\u003c/li>\n\u003cli>Recursos en plural y kebab-case: \u003ccode>/api/tipos-asesoria\u003c/code>,\n\u003ccode>/api/sesiones/:id\u003c/code>.\u003c/li>\n\u003cli>Errores con cuerpo \u003ccode>{ &quot;error&quot;: &quot;&lt;mensaje en español&gt;&quot; }\u003c/code>: \u003ccode>400\u003c/code>\nvalidación · \u003ccode>404\u003c/code> no existe · \u003ccode>409\u003c/code> conflicto de estado.\u003c/li>\n\u003c/ul>\n\u003c/li>\n\u003c/ul>\n\u003c/div>","check":""},{"titulo":"El criterio de la skill (2 de 2)","html":"\u003cdiv class=\"markdown\">\u003cul>\n\u003cli>\u003cinput disabled=\"\" type=\"checkbox\"> \u003cstrong>Convenciones del dominio\u003c/strong> (principio V).\u003cul>\n\u003cli>Entidades y campos en español: \u003ccode>mentoraId\u003c/code>, \u003ccode>horaInicio\u003c/code>, \u003ccode>estado\u003c/code>.\u003c/li>\n\u003cli>IDs UUID v4 con \u003ccode>crypto.randomUUID()\u003c/code> para lo que crean los usuarios.\u003c/li>\n\u003cli>Habilidades y tipos de asesoría se identifican por su \u003cstrong>código\nsnake_case\u003c/strong>.\u003c/li>\n\u003c/ul>\n\u003c/li>\n\u003cli>\u003cinput disabled=\"\" type=\"checkbox\"> \u003cstrong>Privacidad\u003c/strong> (principio IV).\u003cul>\n\u003cli>El \u003ccode>contacto\u003c/code> de la mentora no sale \u003cstrong>nunca\u003c/strong>.\u003c/li>\n\u003cli>Los datos de contacto del colectivo, solo a quien corresponde.\u003c/li>\n\u003cli>El servicio devuelve una \u003cstrong>vista pública explícita\u003c/strong>: elegir campos, no\nhacer \u003ccode>{ ...sesion }\u003c/code>.\u003c/li>\n\u003cli>Hay un test que verifica que el dato privado \u003cstrong>no\u003c/strong> está en la respuesta.\u003c/li>\n\u003c/ul>\n\u003c/li>\n\u003cli>\u003cinput disabled=\"\" type=\"checkbox\"> \u003cstrong>TDD con supertest\u003c/strong> (principio I).\u003cul>\n\u003cli>Primero el test en \u003ccode>tests/server/api/\u003c/code> (y en \u003ccode>tests/server/domain/\u003c/code> si hay\nlógica nueva), verlo fallar y después implementar.\u003c/li>\n\u003cli>Los tests de API usan la app de Express sin levantar el puerto y un\n\u003cstrong>\u003ccode>DATA_DIR\u003c/code> temporal\u003c/strong>: nunca leen ni escriben \u003ccode>data/\u003c/code>.\u003c/li>\n\u003cli>Indicá que mire cómo lo hacen los tests existentes.\u003c/li>\n\u003c/ul>\n\u003c/li>\n\u003cli>\u003cinput disabled=\"\" type=\"checkbox\"> \u003cstrong>Nunca cerrar sin un caso borde ni sin validar.\u003c/strong>\u003cul>\n\u003cli>Al menos un caso borde: id inexistente o mal formado (\u003ccode>404\u003c/code>, igual que\n\u003ccode>GET /api/mentoras/:id\u003c/code>) o campo faltante (\u003ccode>400\u003c/code>).\u003c/li>\n\u003cli>Correr \u003ccode>npm test\u003c/code>, \u003ccode>npm run lint\u003c/code> y \u003ccode>npm run typecheck\u003c/code>.\u003c/li>\n\u003c/ul>\n\u003c/li>\n\u003c/ul>\n\u003cp>Opcional (recordá \u003cem>«una skill no es un script»\u003c/em>): si hay un paso\ndeterminístico, como chequear que el endpoint responde con el server\nlevantado, ponelo en \u003ccode>nuevo-endpoint/scripts/\u003c/code> y hacé que la skill lo invoque.\u003c/p>\n\u003c/div>","check":"Escribí el criterio de la skill"},{"titulo":"¿Se dispara?","html":"\u003cdiv class=\"markdown\">\u003ch3>A.3 ¿Se dispara?\u003c/h3>\n\u003cblockquote>\n\u003cp>\u003cstrong>Probala siempre en una sesión nueva\u003c/strong>, abierta \u003cem>después\u003c/em> de guardar el\n\u003ccode>SKILL.md\u003c/code>. En la sesión donde la escribiste el agente ya sabe que existe, y\nla prueba no vale.\u003c/p>\n\u003c/blockquote>\n\u003col>\n\u003cli>\u003cp>Sesión nueva. Preguntale al agente: \u003cstrong>&quot;¿Cuándo usarías la skill\nnuevo-endpoint?&quot;\u003c/strong> Si la respuesta no coincide con lo que querías, mejorá la\n\u003ccode>description\u003c/code>.\u003c/p>\n\u003c/li>\n\u003cli>\u003cp>Otra sesión nueva. Pedile, \u003cstrong>sin nombrar la skill\u003c/strong> y sin agregar nada más:\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar prompt\u003c/button>\u003cpre>\u003ccode>Necesito un endpoint para obtener el detalle de una sesión por su id:\nGET /api/sesiones/:id. Si no existe, 404.\u003c/code>\u003c/pre>\u003c/div>\u003c/li>\n\u003cli>\u003cp>Revisalo en el tablero de \u003cstrong>\u003ca href=\"/metricas\" target=\"_blank\" rel=\"noreferrer\">Métricas\u003c/a>\u003c/strong>:\u003c/p>\n\u003cul>\n\u003cli>La skill tiene que aparecer en \u003cstrong>Subagentes, skills y MCP\u003c/strong>. Si no aparece,\nla skill no se activó y esta parte no está terminada.\u003c/li>\n\u003cli>Anotá el \u003ccode>session\u003c/code> de esa prueba (lo ves en \u003cstrong>Sesiones recientes\u003c/strong>): lo vas\na necesitar en la pregunta 1.\u003c/li>\n\u003c/ul>\n\u003c/li>\n\u003c/ol>\n\u003cp>Si no se activó, \u003cstrong>no le digas que la use\u003c/strong>: cambiá la \u003ccode>description\u003c/code> y probá\nde nuevo en una sesión limpia. Anotá cuántos intentos te llevó.\u003c/p>\n\u003c/div>","check":"La skill se disparó sola en una sesión nueva"},{"titulo":"Verificá el endpoint","html":"\u003cdiv class=\"markdown\">\u003cp>Verificalo vos, cuando el agente haya creado \u003ccode>GET /api/sesiones/:id\u003c/code>: pedí una sesión\nexistente y una que no existe, y fijate qué campos y qué status devuelve cada una.\nAntes de ese cambio las dos dan 404, porque la ruta todavía no existe. Podés cambiar la ruta de cada llamada:\u003c/p>\n\u003c/div>\u003caside class=\"anexo-en-linea probar-api\" aria-label=\"Consultar sesiones\">\u003cdiv class=\"pp-pedidos\">\n\u003cdiv class=\"pedido\">\n\u003cp class=\"pedido-titulo\">Llamada 1: Una sesión que existe\u003c/p>\n\u003cdiv class=\"pedido-linea\">\u003cspan class=\"pedido-metodo\">GET\u003c/span>\u003cinput class=\"pedido-ruta\" aria-label=\"Ruta de la llamada 1\" value=\"/api/sesiones/3f9c…\" spellcheck=\"false\">\u003cbutton type=\"button\" class=\"boton\" data-simular='{&quot;estado&quot;:200,&quot;cuerpo&quot;:{&quot;id&quot;:&quot;3f9c…&quot;,&quot;mentoraId&quot;:&quot;8f3c2a1e-…&quot;,&quot;tipoAsesoriaId&quot;:&quot;revision_de_codigo&quot;,&quot;colectivoId&quot;:&quot;c0e1a2b3-…&quot;,&quot;proyecto&quot;:&quot;Huerta comunitaria&quot;,&quot;fecha&quot;:&quot;2026-11-09&quot;,&quot;horaInicio&quot;:&quot;18:00&quot;,&quot;horaFin&quot;:&quot;18:30&quot;,&quot;estado&quot;:&quot;confirmada&quot;}}'>Enviar\u003c/button>\u003c/div>\n\n\u003cdiv class=\"pp-respuesta\">\u003c/div>\n\u003c/div>\n\u003cdiv class=\"pedido\">\n\u003cp class=\"pedido-titulo\">Llamada 2: Una sesión que no existe\u003c/p>\n\u003cdiv class=\"pedido-linea\">\u003cspan class=\"pedido-metodo\">GET\u003c/span>\u003cinput class=\"pedido-ruta\" aria-label=\"Ruta de la llamada 2\" value=\"/api/sesiones/no-existe\" spellcheck=\"false\">\u003cbutton type=\"button\" class=\"boton\" data-simular='{&quot;estado&quot;:404,&quot;cuerpo&quot;:{&quot;error&quot;:&quot;No existe la sesión&quot;}}'>Enviar\u003c/button>\u003c/div>\n\n\u003cdiv class=\"pp-respuesta\">\u003c/div>\n\u003c/div>\n\u003cdiv class=\"pedido\">\n\u003cp class=\"pedido-titulo\">Llamada 3: El listado que ya existía\u003c/p>\n\u003cdiv class=\"pedido-linea\">\u003cspan class=\"pedido-metodo\">GET\u003c/span>\u003cinput class=\"pedido-ruta\" aria-label=\"Ruta de la llamada 3\" value=\"/api/sesiones\" spellcheck=\"false\">\u003cbutton type=\"button\" class=\"boton\" data-simular='{&quot;estado&quot;:200,&quot;cuerpo&quot;:[{&quot;id&quot;:&quot;3f9c…&quot;,&quot;mentoraId&quot;:&quot;8f3c2a1e-…&quot;,&quot;tipoAsesoriaId&quot;:&quot;revision_de_codigo&quot;,&quot;colectivoId&quot;:&quot;c0e1a2b3-…&quot;,&quot;proyecto&quot;:&quot;Huerta comunitaria&quot;,&quot;fecha&quot;:&quot;2026-11-09&quot;,&quot;horaInicio&quot;:&quot;18:00&quot;,&quot;horaFin&quot;:&quot;18:30&quot;,&quot;estado&quot;:&quot;confirmada&quot;},&quot;…&quot;]}'>Enviar\u003c/button>\u003c/div>\n\n\u003cdiv class=\"pp-respuesta\">\u003c/div>\n\u003c/div>\u003c/div>\n\u003cp class=\"pp-maqueta\">Maqueta: las respuestas están simuladas como si el agente ya hubiera creado el endpoint.\u003c/p>\n\u003c/aside>\u003cdiv class=\"markdown\">\u003c/div>","check":"Revisé el endpoint: sin contactoEmail y 404 si no existe"},{"titulo":"Usá el navegador","html":"\u003cdiv class=\"markdown\">\u003ch3>B.2 Usalo\u003c/h3>\n\u003cp>Con \u003ccode>npm run dev\u003c/code> corriendo (client en \u003ca href=\"http://localhost:5173\" target=\"_blank\" rel=\"noreferrer\">http://localhost:5173\u003c/a>, API en\n\u003ca href=\"http://localhost:3001\" target=\"_blank\" rel=\"noreferrer\">http://localhost:3001\u003c/a>; si el 5173 está ocupado, Vite usa el 5174: pasale esa URL al\nagente), pedile al agente:\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar prompt\u003c/button>\u003cpre>\u003ccode>Con el navegador, entrá a http://localhost:5173 y reservá una sesión de\nmentoría como si fueras un colectivo: filtrá las mentoras por una habilidad,\nelegí una mentora, un tipo de asesoría, un día y un horario, completá los\ndatos del colectivo (colectivo, proyecto, nombre y email de contacto) y\nconfirmá. Después verificá con el endpoint GET /api/sesiones/:id que hiciste\nantes que la sesión quedó guardada con los datos correctos. Revisá también las\nrequests de red: ¿alguna respuesta de la API incluye el email de una mentora?\nSacá una captura de la pantalla de confirmación, guardala en\nejercicios/02-skill-y-mcp/captura-confirmacion.png y contame cualquier problema\nde usabilidad o accesibilidad que encuentres (por ejemplo, ¿se puede hacer\ntodo con teclado? ¿se ve bien a 375px de ancho?). Usá el navegador en modo\nvisible (headed, no headless), así puedo ver en vivo lo que hacés.\u003c/code>\u003c/pre>\u003c/div>\u003cp>Al terminar, \u003cstrong>regenerá los datos de ejemplo\u003c/strong> para descartar la reserva que\nhizo el agente: \u003ccode>npm run seed\u003c/code> (\u003ccode>data/sesiones.json\u003c/code> no se versiona, así que\n\u003ccode>git checkout\u003c/code> no sirve acá).\u003c/p>\n\u003c/div>","check":"El agente reservó una sesión con el navegador y guardó la captura"},{"titulo":"Mirá lo que pasó","html":"\u003cdiv class=\"markdown\">\u003ch3>B.3 Mirá lo que pasó\u003c/h3>\n\u003cp>\u003ccode>npm run logs:resumen\u003c/code> muestra una sección \u003cstrong>Herramientas MCP\u003c/strong>. Las tools de\nMCP aparecen con nombres como \u003ccode>mcp__playwright__browser_navigate\u003c/code> (Claude\nCode y Codex) o \u003ccode>use_mcp_tool\u003c/code> (Cline).\u003c/p>\n\u003c/div>","check":"Revisé las herramientas MCP en el resumen"},{"titulo":"Parte C, opcional (1 de 3)","html":"\u003cdiv class=\"markdown\">\u003ch2>Parte C (opcional) — Una skill que se dispara por el archivo: códigos de habilidad\u003c/h2>\n\u003cp>En el TP \u003cem>Código a Voluntad\u003c/em> cada habilidad tiene un \u003cstrong>código único\nnormalizado\u003c/strong>, y este proyecto hereda la regla (principio V): &quot;Desarrollo Web\nReact&quot; → \u003ccode>desarrollo_web_react\u003c/code>.\u003c/p>\n\u003cp>Es el tercer camino de disparo de la charla: \u003cstrong>la extensión\u003c/strong>. Igual que \u003cem>«al\neditar un \u003ccode>.py\u003c/code> se carga la skill de nomenclatura en Python»\u003c/em>, acá queremos que\nal tocar un archivo \u003ccode>.ts\u003c/code> que maneja habilidades o tipos de asesoría se cargue\nla skill \u003ccode>codigos-de-habilidad\u003c/code>.\u003c/p>\n\u003ch3>C.1 Creá la skill\u003c/h3>\n\u003cul>\n\u003cli>Ubicación: \u003ccode>.claude/skills/codigos-de-habilidad/SKILL.md\u003c/code> (o la carpeta de\ntu agente).\u003c/li>\n\u003cli>En Claude Code, además de la \u003ccode>description\u003c/code>, el encabezado acepta el campo\n\u003ccode>paths\u003c/code> con globs de archivos que activan la skill. Es propio de Claude\nCode, no del estándar: revisá la documentación de tu versión.\u003c/li>\n\u003cli>Pensá bien el glob: ¿\u003ccode>**/*.ts\u003c/code>? ¿O solo los archivos de habilidades y tipos\nde asesoría?\u003c/li>\n\u003c/ul>\n\u003c/div>","check":""},{"titulo":"Parte C, opcional (2 de 3)","html":"\u003cdiv class=\"markdown\">\u003ch3>C.2 Separá script de criterio\u003c/h3>\n\u003cp>Recordá \u003cem>«una skill no es un script»\u003c/em>.\u003c/p>\n\u003cp>\u003cstrong>Script\u003c/strong> (\u003ccode>scripts/normalizar.mjs\u003c/code>): los pasos fijos.\u003c/p>\n\u003col>\n\u003cli>Pasar a minúsculas.\u003c/li>\n\u003cli>Sacar tildes y diéresis; \u003ccode>ñ\u003c/code> → \u003ccode>n\u003c/code>.\u003c/li>\n\u003cli>Todo lo que no sea letra o número pasa a \u003ccode>_\u003c/code>.\u003c/li>\n\u003cli>Colapsar los \u003ccode>_\u003c/code> repetidos.\u003c/li>\n\u003cli>Sacar los \u003ccode>_\u003c/code> del principio y del final.\u003c/li>\n\u003c/ol>\n\u003cp>Ejemplos: \u003ccode>&quot;  Diseño UX/UI &quot;\u003c/code> → \u003ccode>diseno_ux_ui\u003c/code> · \u003ccode>&quot;Node.js&quot;\u003c/code> → \u003ccode>node_js\u003c/code>.\u003c/p>\n\u003cp>\u003cstrong>Criterio\u003c/strong> (el \u003ccode>SKILL.md\u003c/code>): lo que hay que decidir.\u003c/p>\n\u003cul>\n\u003cli>¿Qué pasa si el código normalizado \u003cstrong>ya existe\u003c/strong>? &quot;React&quot; y &quot;react &quot;\ncolisionan: se reutiliza, no se duplica.\u003c/li>\n\u003cli>¿Y si dos habilidades distintas colapsan al mismo código? \u003ccode>&quot;C#&quot;\u003c/code> → \u003ccode>c\u003c/code>,\nigual que \u003ccode>&quot;C&quot;\u003c/code>.\u003c/li>\n\u003cli>¿Se puede cambiar el código de una habilidad que ya usan mentoras y tipos de\nasesoría?\u003c/li>\n\u003cli>¿Cuándo frenar y preguntarle al humano?\u003c/li>\n\u003c/ul>\n\u003c/div>","check":""},{"titulo":"Parte C, opcional (3 de 3)","html":"\u003cdiv class=\"markdown\">\u003ch3>C.3 Probalo sin nombrarla\u003c/h3>\n\u003cp>Pedile: \u003cem>&quot;Agregá la habilidad &#39;Accesibilidad Web (WCAG)&#39; al catálogo y\nasociala al tipo de asesoría de revisión de código.&quot;\u003c/em>\u003c/p>\n\u003cul>\n\u003cli>¿Se cargó la skill?\u003c/li>\n\u003cli>¿Corrió el script o normalizó &quot;a ojo&quot;?\u003c/li>\n\u003c/ul>\n\u003c/div>","check":"Opcional: hice la parte C"},{"titulo":"Entrega","html":"\u003cdiv class=\"markdown\">\u003ch2>Entrega\u003c/h2>\n\u003cp>Guardá con \u003cstrong>Guardar respuestas\u003c/strong> y después hacé commit y push a la rama del grupo:\u003c/p>\n\u003cdiv class=\"codigo\">\u003cbutton type=\"button\" class=\"boton-copiar\" data-copiar>Copiar\u003c/button>\u003cpre>\u003ccode>git add -A\ngit commit -m &quot;Ejercicio 2&quot;\ngit push\u003c/code>\u003c/pre>\u003c/div>\u003cp>Por último, apretá \u003cstrong>Terminé\u003c/strong> al pie de esta página: guarda tus respuestas y te lleva al ejercicio 3.\u003c/p>\n\u003c/div>","check":"Hice commit y push a la rama del grupo"}]}],"partes":[{"nombre":"La skill","preguntas":[{"n":1,"titulo":"La \u003ccode>description\u003c/code>","opcional":false,"intro":"","pista":"","subs":["Pegá tu \u003ccode>description\u003c/code> final.","¿Cuántas versiones probaste hasta que se disparó sola en una sesión nueva? Indicá el \u003ccode>session\u003c/code> del log de la prueba que funcionó.","¿Qué cambió entre la primera y la última?"],"num":1},{"n":2,"titulo":"Cuándo se cargó","opcional":false,"intro":"","pista":"","subs":["¿En qué momento de la sesión el agente cargó la skill: antes o después de leer código? Mostralo con la línea de tiempo."],"num":2},{"n":3,"titulo":"¿Siguió el criterio?","opcional":false,"intro":"","pista":"","subs":["Elegí \u003cstrong>dos\u003c/strong> reglas de tu skill y mostrá en el diff que el agente las cumplió. Por ejemplo: la capa en la que puso cada cosa, o el test con \u003ccode>DATA_DIR\u003c/code> temporal.","¿Alguna la ignoró? ¿Por qué creés que pasó?"],"num":3}]},{"nombre":"La privacidad y el contexto","preguntas":[{"n":4,"titulo":"Privacidad","opcional":false,"intro":"","pista":"","subs":["¿La respuesta de \u003ccode>GET /api/sesiones/:id\u003c/code> incluye \u003ccode>contactoEmail\u003c/code>?","Si no, ¿lo decidió por tu skill, por la constitution o por casualidad? Buscá en el log qué leyó antes de escribir el servicio.","¿Hay un test que lo verifique?","Revisá también \u003ccode>GET /api/sesiones\u003c/code>, que ya existía: ¿es coherente con tu endpoint?"],"num":4},{"n":5,"titulo":"Prompt contra skill","opcional":false,"intro":"Compará este pedido (2 líneas + skill) con el prompt del ejercicio 1 (~30 líneas).","pista":"","subs":["¿Qué parte del prompt del ejercicio 1 ya no hace falta escribir?","¿Qué parte \u003cstrong>sí\u003c/strong> sigue haciendo falta, porque es propia de cada pedido?"],"num":5},{"n":6,"titulo":"Contexto","opcional":false,"intro":"La charla dice: \u003cem>«la skill entra con su descripción y el cuerpo solo cuando se usa»\u003c/em>.","pista":"","subs":["¿Por qué eso importa para la ventana de contexto?","¿Qué pasaría si todo el criterio estuviera en \u003ccode>AGENTS.md\u003c/code> o en la constitution?"],"num":6}]},{"nombre":"El MCP conectado","preguntas":[{"n":7,"titulo":"Costo de tener MCP conectados","opcional":false,"intro":"Abrí la lista de herramientas del servidor (\u003ccode>/mcp\u003c/code> o el panel de MCP).","pista":"","subs":["¿Cuántas expone?","¿Conviene tener muchos MCP conectados todo el tiempo? ¿Qué le cuesta eso al contexto?"],"num":7}]},{"nombre":"Lo que hizo en el navegador","preguntas":[{"n":8,"titulo":"Lo que encontró","opcional":false,"intro":"","pista":"","subs":["¿Encontró algún problema real en la app usando el navegador que no se veía con los tests? Por ejemplo: de usabilidad, de accesibilidad o un dato privado en la red.","¿Qué no pudo verificar?"],"num":8},{"n":9,"titulo":"Permisos","opcional":false,"intro":"","pista":"","subs":["En el semáforo de herramientas de la charla, ¿de qué color es un navegador controlado por el agente? Tené en cuenta que en B.2 \u003cstrong>creó\u003c/strong> una sesión.","¿Qué permisos le diste?","¿Cuáles no le darías en un proyecto real, por ejemplo contra la app en producción?"],"num":9}]},{"nombre":"Las herramientas del MCP","preguntas":[{"n":10,"titulo":"Herramientas usadas","opcional":false,"intro":"","pista":"Pista: el resumen tiene una sección con el tamaño de lo que devolvió cada herramienta.","subs":["¿Qué herramientas del MCP usó el agente y cuántas veces cada una?","¿Cuál devolvió las salidas más grandes?"],"num":10},{"n":11,"titulo":"Una skill que usa el MCP","opcional":false,"intro":"Skill y MCP: uno aporta \u003cem>criterio\u003c/em>, el otro \u003cem>herramientas\u003c/em>.","pista":"","subs":["Proponé una skill para este repo que \u003cstrong>use\u003c/strong> el MCP de Playwright. Por ejemplo: &quot;verificar un flujo de reserva contra los escenarios de una spec&quot;.","Escribí solo el encabezado y 5-6 líneas de criterio."],"num":11}]},{"nombre":"La Parte C (si la hiciste)","preguntas":[{"n":12,"titulo":"La skill por archivo","opcional":true,"intro":"","pista":"","subs":["¿Se disparó la skill \u003ccode>codigos-de-habilidad\u003c/code> al editar el archivo? Mostralo con el log.","¿Qué glob usaste en \u003ccode>paths\u003c/code> y por qué no \u003ccode>**/*.ts\u003c/code>?","¿Qué decidiste dejar en el script y qué en el criterio?"],"num":12}]},{"nombre":"Para cerrar","preguntas":[{"n":"modelo","titulo":"Modelo","intro":"","pista":"","opcional":false,"subs":["¿Qué modelo usaste en este ejercicio?"],"num":""},{"n":"agente","titulo":"Agente","intro":"","pista":"","opcional":false,"subs":["¿Qué agente usaste en este ejercicio (Claude Code, Codex, Cline…)?"],"num":""}]}],"placeholder":""}};
+
+/* ── Estado (en este navegador) ── */
+function leer(clave, defecto) { try { const v = localStorage.getItem(clave); return v === null ? defecto : JSON.parse(v); } catch { return defecto; } }
+function guardar(clave, valor) { try { localStorage.setItem(clave, JSON.stringify(valor)); } catch {} }
+const PREGUNTAS = 'preguntas';
+const PERFIL = 'perfil';
+const IDS = Object.keys(DATOS);
+const nuevoProgreso = () => ({ pos: 0, alcanzada: 0, ultima: 0, respuestas: {}, checks: {} });
+const estado = {
+  vista: IDS[0],
+  porEj: Object.fromEntries(IDS.map((id) => [id, nuevoProgreso()])),
+  perfil: { nombre: '', integrantes: [], modelo: '', agente: '', intervenciones: {}, puntaje: 0, feedback: '', feedbackPorEj: {} },
+};
+for (const [id, p] of Object.entries(leer('consigna-por-etapas', {}))) if (estado.porEj[id]) estado.porEj[id] = { ...nuevoProgreso(), ...p };
+Object.assign(estado.perfil, leer('consigna-perfil', {}));
+const enPerfil = () => estado.vista === PERFIL;
+const prog = (id = estado.vista) => estado.porEj[id];
+const persistir = () => { guardar('consigna-por-etapas', estado.porEj); guardar('consigna-perfil', estado.perfil); };
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* Todas las pantallas del ejercicio, en orden, con la etapa a la que pertenecen. */
+function pantallas(ej) {
+  return ej.etapas.flatMap((e, i) => e.pantallas.map((p, j) => ({ ...p, etapa: i, j, de: e.pantallas.length })));
+}
+
+/* Avance de un ejercicio: pantallas vistas, checks tildados y cajas respondidas (sin las opcionales). */
+function avance(id) {
+  const ej = DATOS[id], p = prog(id), todas = pantallas(ej);
+  const vistas = Math.min(p.alcanzada + 1, todas.length);
+  const conCheck = todas.map((x, k) => ({ ...x, k })).filter((x) => x.check);
+  const obligatorios = conCheck.filter((x) => !x.check.startsWith('Opcional'));
+  const checks = obligatorios.filter((x) => p.checks[x.k]).length;
+  let total = 0, hechas = 0;
+  ej.partes.forEach((pt) => pt.preguntas.forEach((q) => {
+    if (q.opcional) return;
+    q.subs.forEach((_, j) => { total++; if ((p.respuestas[`${q.n}.${j}`] || '').trim()) hechas++; });
+  }));
+  return { vistas, pantallas: todas.length, checks, totalChecks: obligatorios.length, conCheck, hechas, total };
+}
+
+/* ── Ejercicio: secciones, pantallas y preguntas ── */
+function renderHilo(ej, todas) {
+  const p = prog();
+  const items = ej.etapas.map((e, i) => {
+    const suyas = todas.map((x, k) => ({ ...x, k })).filter((x) => x.etapa === i);
+    const primera = suyas[0].k;
+    const bloqueada = primera > p.alcanzada;
+    const actual = p.pos !== PREGUNTAS && todas[p.pos].etapa === i;
+    const clase = actual ? 'actual' : suyas.every((x) => x.k <= p.alcanzada) ? 'hecha' : '';
+    const puntos = suyas.map((x) => `<i class="${x.k === p.pos ? 'aca' : x.k <= p.alcanzada ? 'visto' : ''}"></i>`).join('');
+    return `<li class="${clase}"><button type="button" data-ir="${primera}" ${bloqueada ? 'disabled' : ''} ${actual ? 'aria-current="step"' : ''}><span class="pp-barra"></span><span class="pp-nombre">${bloqueada ? '🔒 ' : ''}${i + 1}. ${e.nombre}</span><span class="pp-puntos">${puntos}</span></button></li>`;
+  });
+  const { hechas, total } = avance(estado.vista);
+  items.push(`<li class="siempre ${p.pos === PREGUNTAS ? 'actual' : ''}"><button type="button" data-ir="${PREGUNTAS}"><span class="pp-barra"></span><span class="pp-nombre">✎ Preguntas · ${hechas}/${total}</span><span class="pp-puntos">siempre abierta</span></button></li>`);
+  document.getElementById('hilo').innerHTML = items.join('');
+}
+
+function casillaCheck(k, texto) {
+  const id = `check-${estado.vista}-${k}`;
+  return `<label class="pp-check" for="${id}"><input type="checkbox" id="${id}" data-check="${k}" ${prog().checks[k] ? 'checked' : ''}><span>${esc(texto)}</span></label>`;
+}
+
+function renderPantalla(ej, todas) {
+  const p = prog();
+  const x = todas[p.pos], ant = todas[p.pos - 1], sig = todas[p.pos + 1];
+  const etapa = ej.etapas[x.etapa];
+  const puntos = todas.filter((y) => y.etapa === x.etapa).map((y) => `<i class="${y.j === x.j ? 'aca' : 'visto'}"></i>`).join('');
+  const largo = !sig ? 'Ir a las preguntas' : sig.etapa !== x.etapa ? `Siguiente etapa: ${ej.etapas[sig.etapa].nombre}` : `Siguiente: ${esc(sig.titulo)}`;
+  return `
+    <div class="pp-marco-cabecera"><span class="pp-sobre">Etapa ${x.etapa + 1} · ${etapa.nombre} · ${esc(x.titulo)}</span><span class="pp-puntos">${puntos}<span>${x.j + 1} de ${x.de}</span></span></div>
+    <div class="pp-cuerpo">${x.html}</div>
+    <div class="pp-pie">
+      <div class="pp-pie-izq">${ant ? `<button type="button" class="pp-enlace" data-ir="${p.pos - 1}">← <span class="pp-largo">Anterior: ${esc(ant.titulo)}</span><span class="pp-corto">Anterior</span></button>` : ''}${x.check ? casillaCheck(p.pos, x.check) : ''}</div>
+      <button type="button" class="boton" data-siguiente><span class="pp-largo">${largo}</span><span class="pp-corto">${sig ? 'Siguiente' : 'Preguntas'}</span> →</button>
+    </div>`;
+}
+
+function cajasDePreguntas(ej, id = estado.vista) {
+  const p = prog(id);
+  return ej.partes.map((pt) => `<h3 class="pp-parte">${esc(pt.nombre)}</h3>` + pt.preguntas.map((q) => {
+    const listas = q.subs.filter((_, j) => (p.respuestas[`${q.n}.${j}`] || '').trim()).length;
+    const subs = q.subs.map((texto, j) => {
+      const idCaja = `resp-${id}-${q.n}-${j}`;
+      const valor = p.respuestas[`${q.n}.${j}`] || '';
+      const etiqueta = q.subs.length > 1 ? `<span class="pp-sub-n">${q.num}.${j + 1}</span>` : '';
+      const corta = q.n === 'modelo' || q.n === 'agente';
+      return `<div class="pp-sub ${valor.trim() ? 'lista' : ''}"><label for="${idCaja}">${etiqueta}${texto}</label>${corta
+        ? `<input id="${idCaja}" class="pp-campo" data-respuesta="${q.n}.${j}" data-ej="${id}" value="${esc(valor)}" placeholder="${q.n === 'modelo' ? 'Ej.: Sonnet, gpt-5…' : 'Ej.: Claude Code, Codex, Cline…'}">`
+        : `<textarea id="${idCaja}" class="editor-respuestas" data-respuesta="${q.n}.${j}" data-ej="${id}" placeholder="${esc(ej.placeholder || 'Con evidencia del log')}">${esc(valor)}</textarea>`}</div>`;
+    }).join('');
+    return `<div class="pp-pregunta ${listas === q.subs.length ? 'completa' : ''}" data-subs="${q.subs.length}">
+      <div class="pp-pregunta-cabecera"><span class="pp-n">${q.num ? `${q.num}.` : ''}</span><span><span class="pp-pregunta-titulo">${q.titulo}</span>${q.opcional ? '<span class="pp-opcional">opcional</span>' : ''}${q.intro && q.subs.length > 1 ? `<div class="pp-intro">${q.intro}</div>` : ''}${q.pista ? `<div class="pp-pista">${q.pista.replace(/^Pista:\s*/, '')}</div>` : ''}</span><span class="pp-avance">${listas}/${q.subs.length}</span></div>
+      <div class="pp-subs">${subs}</div>
+    </div>`;
+  }).join('')).join('');
+}
+
+function renderPreguntas(ej) {
+  const { hechas, total } = avance(estado.vista);
+  return `
+    <div class="pp-marco-cabecera de-preguntas">
+      <div class="pp-fila"><h2>Preguntas</h2><span class="pp-contador" style="font-size:.85rem;color:var(--texto-suave)">${hechas} de ${total} respondidas</span></div>
+      <div class="pp-progreso"><div style="width:${(hechas / total) * 100}%"></div></div>
+    </div>
+    <div class="pp-cuerpo">${cajasDePreguntas(ej)}</div>
+    <div class="pp-pie">
+      <div><button type="button" class="pp-enlace" data-ir="${prog().ultima}">← Volver a la consigna</button></div>
+      <button type="button" class="boton" data-guardar>Guardar respuestas</button>
+    </div>`;
+}
+
+/* ── Hoja de checks del ejercicio ── */
+function renderHoja() {
+  const id = estado.vista, ej = DATOS[id], a = avance(id), p = prog(id);
+  const porEtapa = ej.etapas.map((e, i) => {
+    const items = a.conCheck.filter((x) => x.etapa === i);
+    if (!items.length) return '';
+    return `<h3 class="pp-parte">${i + 1}. ${esc(e.nombre)}</h3><ul class="pp-lista-checks">${items.map((x) => `<li>${casillaCheck(x.k, x.check)}${x.k <= p.alcanzada ? `<button type="button" class="pp-enlace pp-ir-chico" data-ir="${x.k}" data-cerrar-hoja>Ir</button>` : '<span class="pp-bloq">🔒</span>'}</li>`).join('')}</ul>`;
+  }).join('');
+  document.getElementById('hoja-titulo').textContent = `Hoja de checks · Ejercicio ${ej.numero}`;
+  document.getElementById('hoja-cuerpo').innerHTML = `
+    ${barra('Checks', a.checks, a.totalChecks)}
+    ${porEtapa}
+    <h3 class="pp-parte">Preguntas</h3>
+    <ul class="pp-lista-checks"><li><span class="pp-check-auto ${a.hechas === a.total ? 'ok' : ''}">${a.hechas === a.total ? '✓' : ''}</span><span>Respondí las preguntas (${a.hechas} de ${a.total})</span><button type="button" class="pp-enlace pp-ir-chico" data-ir="${PREGUNTAS}" data-cerrar-hoja>Ir</button></li></ul>`;
+}
+
+/* ── Mi perfil ── */
+const barra = (nombre, n, total) => `<div class="pp-barra-avance"><span>${nombre}</span><div class="pp-progreso"><div style="width:${total ? (n / total) * 100 : 0}%"></div></div><span class="pp-num">${n}/${total}</span></div>`;
+
+function renderPerfil() {
+  const pf = estado.perfil;
+  const tarjetas = IDS.map((id) => {
+    const ej = DATOS[id], a = avance(id), r = prog(id).respuestas;
+    return `<article class="pp-tarjeta-ej">
+      <div class="pp-fila"><h3>Ejercicio ${ej.numero} · ${esc(ej.titulo)}</h3><button type="button" class="pp-enlace" data-vista="${id}">Abrir</button></div>
+      ${barra('Pantallas', a.vistas, a.pantallas)}${barra('Checks', a.checks, a.totalChecks)}${barra('Preguntas', a.hechas, a.total)}
+      <div class="pp-dos">
+        <label class="pp-campo-etiqueta">Modelo<input class="pp-campo" data-respuesta="modelo.0" data-ej="${id}" value="${esc(r['modelo.0'])}" placeholder="${esc(pf.modelo || 'Ej.: Sonnet, gpt-5…')}"></label>
+        <label class="pp-campo-etiqueta">Agente<input class="pp-campo" data-respuesta="agente.0" data-ej="${id}" value="${esc(r['agente.0'])}" placeholder="${esc(pf.agente || 'Ej.: Claude Code, Codex, Cline…')}"></label>
+      </div>
+      <label class="pp-campo-etiqueta">¿Intervinieron durante la tarea? Si sí, cuándo y por qué
+        <textarea class="editor-respuestas pp-perfil-texto" data-perfil-ej="intervenciones" data-ej="${id}">${esc(pf.intervenciones[id])}</textarea></label>
+      <label class="pp-campo-etiqueta">Feedback de este ejercicio
+        <textarea class="editor-respuestas pp-perfil-texto" data-perfil-ej="feedbackPorEj" data-ej="${id}" placeholder="Qué te sirvió, qué te trabó, qué cambiarías">${esc(pf.feedbackPorEj[id])}</textarea></label>
+    </article>`;
+  }).join('');
+  return `
+    <div class="pp-marco-cabecera"><span class="pp-sobre">Mi perfil · se guarda en este navegador</span></div>
+    <div class="pp-cuerpo pp-perfil">
+      <section class="pp-bloque-perfil">
+        <h2>Quiénes son</h2>
+        <label class="pp-campo-etiqueta">Nombre personal o del equipo<input class="pp-campo" data-perfil="nombre" value="${esc(pf.nombre)}" placeholder="Ej.: Los Hooks Felices"></label>
+        <div class="pp-campo-etiqueta">Integrantes <span class="suave">(si son un equipo)</span>
+          <ul class="pp-integrantes">${pf.integrantes.map((n, i) => `<li><input class="pp-campo" data-integrante="${i}" value="${esc(n)}" aria-label="Integrante ${i + 1}"><button type="button" class="pp-enlace" data-quitar="${i}" aria-label="Quitar a ${esc(n) || 'este integrante'}">Quitar</button></li>`).join('')}</ul>
+          <button type="button" class="pp-enlace" data-agregar-integrante>+ Agregar integrante</button>
+        </div>
+        <div class="pp-dos">
+          <label class="pp-campo-etiqueta">Modelo que usaron en general<input class="pp-campo" data-perfil="modelo" value="${esc(pf.modelo)}" placeholder="Ej.: Sonnet, gpt-5…"></label>
+          <label class="pp-campo-etiqueta">Agente que usaron en general<input class="pp-campo" data-perfil="agente" value="${esc(pf.agente)}" placeholder="Ej.: Claude Code, Codex, Cline…"></label>
+        </div>
+        <p class="pp-intro">Si en algún ejercicio usaron otro, cargalo en ese ejercicio: es la misma caja de "Para cerrar".</p>
+      </section>
+      <section class="pp-bloque-perfil"><h2>Progreso por ejercicio</h2><div class="pp-tarjetas">${tarjetas}</div></section>
+      <section class="pp-bloque-perfil">
+        <h2>Feedback</h2>
+        <div class="pp-campo-etiqueta">¿Qué tan útiles les resultaron los ejercicios?
+          <div class="pp-puntaje" role="group" aria-label="Puntaje del 1 al 5">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-puntaje="${n}" aria-pressed="${pf.puntaje === n}">${n}</button>`).join('')}<span class="suave">1 = nada · 5 = muy útiles</span></div>
+        </div>
+        <label class="pp-campo-etiqueta">Comentarios generales<textarea class="editor-respuestas pp-perfil-texto" data-perfil="feedback" placeholder="Lo que quieras contarnos sobre la charla y los ejercicios">${esc(pf.feedback)}</textarea></label>
+      </section>
+    </div>
+    <div class="pp-pie"><div></div><button type="button" class="boton" data-guardar>Guardar perfil</button></div>`;
+}
+
+/* ── Render ── */
+function render() {
+  const botones = IDS.map((id) => `<button type="button" data-vista="${id}" aria-pressed="${id === estado.vista}">Ejercicio ${DATOS[id].numero}</button>`);
+  botones.push(`<button type="button" data-vista="${PERFIL}" aria-pressed="${enPerfil()}">👤 Mi perfil</button>`);
+  document.getElementById('selector').innerHTML = botones.join('');
+  document.getElementById('hilo').hidden = enPerfil();
+  document.getElementById('charla-caja').hidden = enPerfil();
+  const botonHoja = document.getElementById('boton-hoja');
+  botonHoja.hidden = enPerfil();
+  if (enPerfil()) {
+    document.getElementById('titulo').textContent = estado.perfil.nombre ? `Mi perfil · ${estado.perfil.nombre}` : 'Mi perfil';
+    document.getElementById('reloj').hidden = true;
+    document.getElementById('marco').innerHTML = renderPerfil();
+    return;
+  }
+  const ej = DATOS[estado.vista], p = prog(), todas = pantallas(ej);
+  if (p.pos !== PREGUNTAS && p.pos >= todas.length) p.pos = 0;
+  document.getElementById('titulo').textContent = `Ejercicio ${ej.numero} · ${ej.titulo}`;
+  const reloj = document.getElementById('reloj');
+  reloj.hidden = false; reloj.textContent = `${ej.minutos}:00`;
+  document.getElementById('charla').innerHTML = ej.charla;
+  const a = avance(estado.vista);
+  botonHoja.textContent = `☑ Hoja de checks · ${a.checks}/${a.totalChecks}`;
+  renderHilo(ej, todas);
+  document.getElementById('marco').innerHTML = p.pos === PREGUNTAS ? renderPreguntas(ej) : renderPantalla(ej, todas);
+  if (document.getElementById('hoja').open) renderHoja();
+}
+
+/* ── Navegación ── */
+function ir(destino) {
+  const p = prog();
+  const total = pantallas(DATOS[estado.vista]).length;
+  if (destino === PREGUNTAS || destino >= total) { if (p.pos !== PREGUNTAS) p.ultima = p.pos; p.pos = PREGUNTAS; }
+  else if (destino >= 0 && destino <= p.alcanzada) p.pos = destino;
+  persistir(); render();
+}
+function siguiente() {
+  const p = prog();
+  if (enPerfil() || p.pos === PREGUNTAS) return;
+  p.alcanzada = Math.max(p.alcanzada, p.pos + 1);
+  ir(p.pos + 1);
+}
+
+async function copiar(boton, texto, etiqueta) {
+  try { await navigator.clipboard.writeText(texto); boton.textContent = '¡Copiado!'; }
+  catch { boton.textContent = 'No se pudo copiar'; }
+  setTimeout(() => { boton.textContent = etiqueta; }, 2000);
+}
+
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  const hoja = document.getElementById('hoja');
+  if (b.dataset.cerrarHoja !== undefined && hoja.open) hoja.close();
+  if (b.dataset.vista) { estado.vista = b.dataset.vista; render(); }
+  else if (b.id === 'boton-hoja') { renderHoja(); hoja.showModal(); }
+  else if (b.dataset.siguiente !== undefined) siguiente();
+  else if (b.dataset.ir !== undefined) ir(b.dataset.ir === PREGUNTAS ? PREGUNTAS : Number(b.dataset.ir));
+  else if (b.dataset.copiar !== undefined) copiar(b, b.nextElementSibling?.textContent ?? '', b.textContent);
+  else if (b.dataset.simular) {
+    // Respuesta simulada: el visor real manda el pedido a la API.
+    const r = JSON.parse(b.dataset.simular);
+    b.closest('.pedido').querySelector('.pp-respuesta').innerHTML = `<div class="pedido-respuesta" role="status"><span class="pedido-estado" data-ok="${r.estado < 400}">${r.estado}</span><pre>${esc(JSON.stringify(r.cuerpo, null, 2))}</pre></div>`;
+  }
+  else if (b.dataset.agregarIntegrante !== undefined) { estado.perfil.integrantes.push(''); persistir(); render(); document.querySelector(`[data-integrante="${estado.perfil.integrantes.length - 1}"]`)?.focus(); }
+  else if (b.dataset.quitar !== undefined) { estado.perfil.integrantes.splice(Number(b.dataset.quitar), 1); persistir(); render(); }
+  else if (b.dataset.puntaje) { estado.perfil.puntaje = Number(b.dataset.puntaje); persistir(); render(); }
+  else if (b.dataset.guardar !== undefined) { persistir(); const t = b.textContent; b.textContent = 'Guardado'; setTimeout(() => { b.textContent = t; }, 1500); }
+});
+
+// Checks: se tildan en la pantalla o en la hoja, y los dos lugares quedan iguales.
+document.addEventListener('change', (e) => {
+  const k = e.target.dataset && e.target.dataset.check;
+  if (k === undefined) return;
+  prog().checks[k] = e.target.checked;
+  persistir();
+  document.querySelectorAll(`[data-check="${k}"]`).forEach((c) => { c.checked = e.target.checked; });
+  const a = avance(estado.vista);
+  document.getElementById('boton-hoja').textContent = `☑ Hoja de checks · ${a.checks}/${a.totalChecks}`;
+  if (document.getElementById('hoja').open) { const foco = e.target.id; renderHoja(); document.getElementById(foco)?.focus(); }
+});
+
+// Flechas del teclado para pasar de pantalla, salvo mientras se escribe.
+document.addEventListener('keydown', (e) => {
+  if (e.target.closest('textarea, input, dialog') || e.altKey || e.metaKey || e.ctrlKey) return;
+  const p = prog();
+  if (e.key === 'ArrowRight') siguiente();
+  else if (e.key === 'ArrowLeft' && !enPerfil() && p.pos !== PREGUNTAS && p.pos > 0) ir(p.pos - 1);
+});
+
+// Lo que se escribe se guarda al toque; se actualizan los contadores sin redibujar los recuadros.
+document.addEventListener('input', (e) => {
+  const d = e.target.dataset || {};
+  const pf = estado.perfil;
+  if (d.perfil) { pf[d.perfil] = e.target.value; persistir(); if (d.perfil === 'nombre') document.getElementById('titulo').textContent = pf.nombre ? `Mi perfil · ${pf.nombre}` : 'Mi perfil'; return; }
+  if (d.perfilEj) { pf[d.perfilEj][d.ej] = e.target.value; persistir(); return; }
+  if (d.integrante !== undefined) { pf.integrantes[Number(d.integrante)] = e.target.value; persistir(); return; }
+  if (!d.respuesta) return;
+  prog(d.ej).respuestas[d.respuesta] = e.target.value;
+  persistir();
+  if (enPerfil()) return;
+  const ej = DATOS[estado.vista];
+  const { hechas, total } = avance(estado.vista);
+  e.target.closest('.pp-sub').classList.toggle('lista', !!e.target.value.trim());
+  const fila = e.target.closest('.pp-pregunta');
+  const listas = fila.querySelectorAll('.pp-sub.lista').length;
+  fila.querySelector('.pp-avance').textContent = `${listas}/${fila.dataset.subs}`;
+  fila.classList.toggle('completa', listas === Number(fila.dataset.subs));
+  document.querySelector('.pp-contador').textContent = `${hechas} de ${total} respondidas`;
+  document.querySelector('.de-preguntas .pp-progreso div').style.width = `${(hechas / total) * 100}%`;
+  renderHilo(ej, pantallas(ej));
+});
+
+render();
+</script>
+</html>

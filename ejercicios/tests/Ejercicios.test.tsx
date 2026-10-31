@@ -3,7 +3,7 @@ import { join } from "node:path"
 import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import Ejercicios from "../app/Ejercicios"
-import { armarRespuestasMd, conAnexosEnLinea, ejercicios, partirConsigna, partirPreguntas } from "../app/contenido"
+import { armarRespuestasMd, conAnexosEnLinea, ejercicios, pantallasDe, partirConsigna, partirPreguntas, type Ejercicio } from "../app/contenido"
 import { HABILITA_METRICAS } from "../app/progreso"
 import { ID_SDD } from "../app/tablero"
 import { formatearTiempo } from "../app/Temporizador"
@@ -13,6 +13,17 @@ import { renderConRuta, simularApi } from "../../tests/client/helpers"
 const ejercicio = ejercicios[0]
 const terminado = (id: string) => (JSON.parse(localStorage.getItem("ejercicios:terminados") ?? "[]") as string[]).includes(id)
 const RUTA_API = `/ejercicios-api/${ejercicio.id}/respuestas`
+
+/** Abre la consigna por etapas en una pantalla (por su título) o en las preguntas, con todo lo anterior ya visto. */
+const abrirEn = (e: Ejercicio, destino: string) => {
+  const pantallas = pantallasDe(e)
+  const pos = destino === "preguntas" ? "preguntas" : pantallas.findIndex((p) => p.titulo === destino)
+  if (pos === -1) throw new Error(`No hay una pantalla «${destino}»`)
+  localStorage.setItem(`ejercicios:etapas:${e.id}`, JSON.stringify({ pos, alcanzada: pantallas.length - 1, checks: [] }))
+}
+
+/** Mientras busca las respuestas el marco se dibuja sin editor; al llegar se vuelve a montar con él. */
+const editorListo = () => screen.findByRole("group", { name: "Guardar y terminar", hidden: true })
 
 const renderEjercicio = () =>
   renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicio.id}`, patron: "/ejercicios/*" })
@@ -76,39 +87,40 @@ describe("Ejercicios", () => {
   it("copia el prompt del ejercicio 1 literal, tal cual está en el JSON", async () => {
     const usuario = userEvent.setup()
     simularApi({ [RUTA_API]: null })
+    abrirEn(ejercicio, "El pedido")
     renderEjercicio()
-    await screen.findByLabelText("Datos de la entrega")
+    await editorListo()
 
     const lineas = ejercicio.anexos.find((a) => a.archivo === "prompt.md")!.markdown
     const prompt = lineas.slice(lineas.indexOf("```text") + 1, lineas.lastIndexOf("```")).join("\n")
 
-    await usuario.click(screen.getByRole("button", { name: "Copiar prompt" }))
+    await usuario.click(await screen.findByRole("button", { name: "Copiar prompt" }))
     expect(await navigator.clipboard.readText()).toBe(prompt)
   })
 
-  it("cada pregunta tiene su recuadro y al guardar manda las respuestas y el RESPUESTAS.md", async () => {
+  it("cada sub-pregunta tiene su caja y al guardar manda las respuestas y el RESPUESTAS.md", async () => {
     const fetchFalso = simularApi({ [RUTA_API]: null })
+    abrirEn(ejercicio, "preguntas")
     renderEjercicio()
 
-    expect(await screen.findByLabelText("Datos de la entrega")).toHaveValue(ejercicio.plantillaRespuestas.join("\n"))
-
-    await userEvent.click(screen.getByText("1. El ciclo"))
-    await userEvent.type(screen.getByLabelText("Tu respuesta a la pregunta 1"), "Listo")
-    expect(screen.getByText("Respondida", { selector: ".etiqueta" })).toBeInTheDocument()
+    await userEvent.type(await screen.findByLabelText(/¿Cuántas llamadas a herramientas hizo el agente en total\?/), "Listo")
+    expect(within(screen.getByRole("region", { name: "1. El ciclo" })).getByText("1/3")).toBeInTheDocument()
     await userEvent.click(screen.getByRole("button", { name: "Guardar respuestas" }))
 
     const [url, opciones] = fetchFalso.mock.calls.at(-1) as unknown as [string, RequestInit]
     expect(url).toBe(RUTA_API)
     expect(opciones.method).toBe("PUT")
     const cuerpo = JSON.parse(opciones.body as string)
-    expect(cuerpo.respuestas).toEqual({ 1: "Listo" })
-    expect(cuerpo.markdown).toContain("### 1. El ciclo\n\nListo")
-    expect(cuerpo.markdown).toContain("### 2. Explorar antes de actuar\n\n_Sin responder._")
+    expect(cuerpo.respuestas).toEqual({ "1.1": "Listo" })
+    expect(cuerpo.markdown).toContain("### 1. El ciclo\n\n**1.1** ¿Cuántas llamadas a herramientas hizo el agente en total?\n\nListo")
+    expect(cuerpo.markdown).toContain("**1.2** ¿Qué herramienta usó más?\n\n_Sin responder._")
+    expect(cuerpo.markdown).toContain("## Para cerrar")
   })
 
   it("“Terminé” guarda, habilita Métricas y pasa al ejercicio 2, donde aparece la invitación al tablero", async () => {
     const guardadas = { ejercicio: ejercicio.id, guardado: "2026-10-28T12:00:00Z", general: [], respuestas: {} }
     const fetchFalso = simularApi({ [RUTA_API]: guardadas, [`/ejercicios-api/${ejercicios[1].id}/respuestas`]: null })
+    abrirEn(ejercicio, "preguntas")
     renderEjercicio()
 
     expect(screen.queryByRole("link", { name: "Ver métricas" })).not.toBeInTheDocument()
@@ -116,10 +128,12 @@ describe("Ejercicios", () => {
 
     const llamadas = fetchFalso.mock.calls as unknown as [string, RequestInit | undefined][]
     expect(llamadas.some(([url, op]) => url === RUTA_API && op?.method === "PUT")).toBe(true)
-    // waitFor reintenta la aserción entera: mientras busca las respuestas, la consigna se redibuja con otro árbol.
-    await waitFor(() => expect(screen.getByRole("heading", { name: "A.3 ¿Se dispara?" })).toBeInTheDocument())
+    // El 2 arranca en su primera pantalla; la invitación al tablero está en la siguiente.
+    expect(await screen.findByRole("heading", { level: 2, name: pantallasDe(ejercicios[1])[0].titulo })).toBeInTheDocument()
     expect(terminado(HABILITA_METRICAS)).toBe(true)
-    const metricas = screen.getByRole("link", { name: "Ver métricas" })
+    await editorListo()
+    await userEvent.click(screen.getByRole("button", { name: /Siguiente/ }))
+    const metricas = await screen.findByRole("link", { name: "Ver métricas" })
     expect(metricas).toHaveAttribute("href", "/metricas")
     expect(metricas).toHaveAttribute("target", "_blank")
   })
@@ -138,6 +152,7 @@ describe("Ejercicios", () => {
     localStorage.setItem("ejercicios:terminados", JSON.stringify([ejercicios[0].id]))
     const guardadas = { ejercicio: ejercicios[1].id, guardado: "2026-10-28T12:00:00Z", general: [], respuestas: {} }
     simularApi({ [`/ejercicios-api/${ejercicios[1].id}/respuestas`]: guardadas, [`/ejercicios-api/${ID_SDD}/respuestas`]: null })
+    abrirEn(ejercicios[1], "preguntas")
     renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicios[1].id}`, patron: "/ejercicios/*" })
     await userEvent.click(await screen.findByRole("button", { name: /Terminé/ }))
 
@@ -145,8 +160,9 @@ describe("Ejercicios", () => {
     expect(screen.queryByRole("dialog", { name: "Video de introducción", hidden: true })).not.toBeInTheDocument()
   })
 
-  it("“Terminé” viaja con “Guardar respuestas”, en la barra que queda fija abajo", async () => {
+  it("“Terminé” viaja con “Guardar respuestas”, en la barra al pie de las preguntas", async () => {
     simularApi({ [RUTA_API]: null })
+    abrirEn(ejercicio, "preguntas")
     renderEjercicio()
     const barra = await screen.findByRole("group", { name: "Guardar y terminar" })
     expect(within(barra).getByRole("button", { name: "Guardar respuestas" })).toBeInTheDocument()
@@ -161,12 +177,13 @@ describe("Ejercicios", () => {
         op?.method === "PUT" ? new Response(JSON.stringify({ error: "Disco lleno" }), { status: 500 }) : new Response("null", { status: 200 }),
       ),
     )
+    abrirEn(ejercicio, "preguntas")
     renderEjercicio()
 
     await userEvent.click(await screen.findByRole("button", { name: /Terminé/ }))
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Disco lleno")
-    expect(screen.getByLabelText("Datos de la entrega")).toBeInTheDocument()
+    expect(screen.getByRole("region", { name: "1. El ciclo" })).toBeInTheDocument()
     expect(terminado(HABILITA_METRICAS)).toBe(false)
   })
 
@@ -197,8 +214,8 @@ describe("Ejercicios", () => {
       ],
       "/api/sesiones": { id: "s1" },
     })
+    abrirEn(ejercicio, "Mirá el bug")
     renderEjercicio()
-    await screen.findByLabelText("Datos de la entrega")
     const segunda = await waitFor(() => {
       const cuerpos = screen.getAllByLabelText<HTMLTextAreaElement>("Body")
       expect(cuerpos).toHaveLength(2)
@@ -210,21 +227,6 @@ describe("Ejercicios", () => {
     await userEvent.click(within(panel).getAllByRole("button", { name: "Enviar" })[1])
     expect(await within(panel).findByRole("status", { name: "Respuesta de la llamada 2" })).toHaveTextContent("200")
     expect(fetchFalso).toHaveBeenCalledWith("/api/sesiones", expect.objectContaining({ method: "POST", body: segunda.value }))
-  })
-
-  it("el ejercicio 2 consulta una sesión por id con una ruta que se puede cambiar", async () => {
-    localStorage.setItem("ejercicios:terminados", JSON.stringify([ejercicios[0].id]))
-    const fetchFalso = simularApi({ [`/ejercicios-api/${ejercicios[1].id}/respuestas`]: null, "/api/sesiones": [{ id: "s1" }], "/api/sesiones/otra": { id: "otra" } })
-    renderConRuta(<Ejercicios />, { ruta: `/ejercicios/${ejercicios[1].id}`, patron: "/ejercicios/*" })
-    await screen.findByLabelText("Datos de la entrega")
-    const ruta = await screen.findByRole("textbox", { name: "Ruta de la llamada 1" })
-    expect(ruta).toHaveValue("/api/sesiones/s1")
-    await userEvent.clear(ruta)
-    await userEvent.type(ruta, "/api/sesiones/otra")
-    const panel = screen.getByRole("complementary", { name: "Consultar sesiones" })
-    await userEvent.click(within(panel).getAllByRole("button", { name: "Enviar" })[0])
-    expect(await within(panel).findByRole("status", { name: "Respuesta de la llamada 1" })).toHaveTextContent("200")
-    expect(fetchFalso).toHaveBeenCalledWith("/api/sesiones/otra", expect.objectContaining({ method: "GET" }))
   })
 
   it("un respuestas.json con el formato anterior (un solo texto) no se pierde", async () => {
@@ -329,8 +331,18 @@ describe("Ejercicios", () => {
     }
   })
 
-  it("minimizado, el video va arriba de la barra de Guardar y Terminé, también al llegar al final de la página", async () => {
+  it("por etapas, el video minimizado queda en la cabecera, al lado de la hoja de checks, sin tapar el marco", async () => {
     renderDe(ejercicio)
+    const popup = await screen.findByRole("dialog", { name: "Video de introducción" })
+    await userEvent.click(within(popup).getByRole("button", { name: "Minimizar" }))
+    const mini = screen.getByRole("button", { name: /^Ver video de introducción/ })
+    expect(mini).toHaveClass("video-intro-mini-en-linea")
+    expect(mini.style.bottom).toBe("")
+    expect(mini.closest(".ejercicio-cabecera")).toContainElement(screen.getByRole("button", { name: /Hoja de checks/ }))
+  })
+
+  it("en la consigna corrida (ejercicio 3), minimizado, el video va arriba de la barra de Guardar y Terminé, también al final de la página", async () => {
+    renderDe(ejercicios[2])
     const popup = await screen.findByRole("dialog", { name: "Video de introducción" })
     await userEvent.click(within(popup).getByRole("button", { name: "Minimizar" }))
     const barra = (await screen.findByRole("button", { name: "Guardar respuestas" })).parentElement!
@@ -413,9 +425,11 @@ describe("Ejercicios · candado", () => {
 
 describe("Ejercicios · RESPUESTAS.md y temporizador", () => {
   it("el RESPUESTAS.md tiene los datos generales, los títulos de sección y cada respuesta", () => {
-    const md = armarRespuestasMd(ejercicio, { general: "# Ejercicio 1", porPregunta: { 7: "Mucho contexto" } })
+    const md = armarRespuestasMd(ejercicio, { general: "# Ejercicio 1", porPregunta: { "5.2": "Mucho contexto" } })
     expect(md.startsWith("# Ejercicio 1\n\n")).toBe(true)
-    expect(md).toContain("## Parte B — Lo que pensás\n\n### 7. Contexto\n\nMucho contexto")
+    expect(md).toContain("## Parte B — Lo que pensás\n\n### 5. Contexto\n\n**5.1**")
+    expect(md).toContain("**5.2** ¿Había lecturas que se podían evitar?")
+    expect(md).toContain("Mucho contexto")
   })
 
   it("formatea el tiempo restante", () => {
