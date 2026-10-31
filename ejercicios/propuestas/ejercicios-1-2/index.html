@@ -69,7 +69,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 h1, h2, h3, h4 { font-family: var(--fuente-titulos); font-weight: 800; line-height: 1.15; text-wrap: balance; margin: 0; }
-h1 { font-size: clamp(1.9rem, 4.5vw, 2.8rem); }
+h1 { font-size: clamp(1.4rem, 3.5vw, 2rem); }
 h2 { font-size: clamp(1.35rem, 3vw, 1.75rem); }
 h3 { font-size: 1.1rem; }
 p { margin: 0; }
@@ -82,14 +82,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .pagina {
   max-width: 82rem; margin: 0 auto;
-  padding-block: 1.75rem 6rem;
+  padding-block: 1rem 1rem;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid; gap: 1.5rem;
+  display: grid; gap: 1rem;
 }
 
 /* ── Cabecera y selector ─────────────────── */
-.cabecera { display: grid; gap: 0.6rem; max-width: 56rem; }
+.cabecera { display: grid; gap: 0.6rem; }
 .segmentado { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .segmentado button {
   border: var(--borde); border-radius: 999px; background: var(--superficie);
@@ -100,9 +100,26 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .titulo-ejercicio { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem 1rem; }
 .reloj { font-family: var(--fuente-codigo); font-weight: 700; border: var(--borde); border-radius: 999px; padding: 0.15rem 0.7rem; background: var(--superficie); font-variant-numeric: tabular-nums; }
 
-/* ── Disposición: etapas + panel de preguntas ── */
-.visor { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 22rem); gap: 1.75rem; align-items: start; }
-.visor.preguntas-en-grande { grid-template-columns: minmax(0, 1fr); }
+/* ── Marco: una pantalla por vez, sin scroll de página ── */
+.marco {
+  height: clamp(24rem, calc(100vh - 17.5rem), 46rem);
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  background: var(--superficie); border: var(--borde); border-radius: var(--radio); box-shadow: var(--sombra); overflow: hidden;
+}
+.marco-cabecera { padding: 0.8rem clamp(1rem, 3vw, 1.6rem) 0.7rem; border-bottom: 2px solid var(--linea); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.4rem 1rem; }
+.marco-cabecera.de-preguntas { background: color-mix(in srgb, var(--cielo) 30%, var(--superficie)); display: grid; justify-content: stretch; }
+.marco-cabecera .fila { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
+.puntos { display: flex; gap: 0.3rem; align-items: center; font-size: 0.78rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+.puntos i { width: 0.55rem; height: 0.55rem; border-radius: 50%; border: 1.5px solid var(--linea); }
+.puntos i.visto { background: var(--texto); }
+.puntos i.aca { background: var(--acento); border-color: var(--acento); transform: scale(1.25); }
+.marco-cuerpo { padding: clamp(1rem, 3vw, 1.6rem); overflow: auto; display: grid; align-content: start; gap: 1rem; animation: entrar 0.3s var(--ease); }
+.marco-cuerpo.con-scroll { padding: 0.4rem clamp(0.6rem, 2vw, 1rem) 1rem; gap: 0.25rem; }
+@keyframes entrar { from { opacity: 0; transform: translateX(10px); } }
+.marco-pie { padding: 0.7rem clamp(1rem, 3vw, 1.6rem); border-top: 2px solid var(--linea); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.75rem; align-items: center; }
+.marco-pie .izq { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.bajada { font-size: 1.02rem; max-width: 62ch; }
+@media (max-width: 600px) { .marco { height: max(22rem, calc(100vh - 20rem)); } .marco-pie .detalle-nav { display: none; } }
 
 /* Hilo de etapas */
 .hilo { list-style: none; margin: 0; padding: 0; display: flex; gap: 0.4rem; overflow-x: auto; padding-bottom: 0.25rem; }
@@ -115,24 +132,15 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .hilo .hecha .barra { background: var(--texto); }
 .hilo .actual .barra { background: var(--acento); }
 .hilo .siempre .barra { background: repeating-linear-gradient(90deg, var(--cielo) 0 10px, transparent 10px 14px); border: 1.5px solid var(--linea); height: 9px; }
+.hilo .mini-puntos { display: flex; gap: 0.2rem; }
+.hilo .mini-puntos i { width: 0.4rem; height: 0.4rem; border-radius: 50%; background: var(--linea-suave); }
+.hilo .mini-puntos i.visto { background: var(--texto); }
+.hilo .mini-puntos i.aca { background: var(--acento); }
 .hilo .nombre { font-size: 0.82rem; font-weight: 600; color: var(--texto-suave); line-height: 1.25; display: flex; gap: 0.3rem; align-items: baseline; }
 .hilo .actual .nombre, .hilo .hecha .nombre, .hilo .siempre .nombre { color: var(--texto); }
 
-.etapas { display: grid; gap: 0.8rem; min-width: 0; }
-
-/* Etapa abierta */
-.etapa {
-  background: var(--superficie); border: var(--borde); border-radius: var(--radio); box-shadow: var(--sombra);
-  padding: clamp(1rem, 3vw, 1.6rem); display: grid; gap: 1.1rem; min-width: 0;
-  animation: entrar 0.35s var(--ease);
-}
-@keyframes entrar { from { opacity: 0; transform: translateY(8px); } }
-.etapa-cabecera { display: grid; gap: 0.3rem; }
-.etapa .bajada { font-size: 1.02rem; max-width: 62ch; }
 .bloque { display: grid; gap: 0.55rem; min-width: 0; }
-.bloque + .bloque { padding-top: 1rem; border-top: 1.5px dashed var(--linea-suave); }
 .bloque ol, .bloque ul { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.35rem; }
-.siguiente-fila { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem; padding-top: 0.4rem; }
 .boton {
   border: var(--borde); border-radius: 999px; background: var(--superficie); padding: 0.5rem 1.15rem; font-weight: 700;
   box-shadow: var(--sombra-chica); transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
@@ -140,18 +148,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .boton:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--linea); }
 .boton.primario { background: var(--acento); color: #17140f; }
 
-/* Etapas plegadas: hechas y bloqueadas */
-.plegada {
-  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 0.8rem; align-items: center;
-  border: 2px solid var(--linea); border-radius: var(--radio-chico); padding: 0.6rem 0.9rem; background: var(--superficie);
-}
-.plegada .icono { width: 1.9rem; height: 1.9rem; border-radius: 50%; display: grid; place-items: center; font-weight: 800; border: 2px solid var(--linea); }
-.plegada.hecha .icono { background: var(--menta); color: var(--tinta-fija); }
-.plegada.bloqueada { border-style: dashed; background: transparent; color: var(--texto-suave); }
-.plegada.bloqueada .icono { border-style: dashed; }
-.plegada .t { font-weight: 700; color: var(--texto); }
-.plegada.bloqueada .t { color: var(--texto-suave); }
-.plegada .r { font-size: 0.86rem; color: var(--texto-suave); }
 .enlace { border: none; background: none; font-weight: 700; color: var(--acento-texto); text-decoration: underline; text-underline-offset: 3px; padding: 0; white-space: nowrap; }
 
 /* Piezas de contenido */
@@ -160,7 +156,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .cmd .comentario { color: #f3ecdc88; }
 .copiar { justify-self: end; order: -1; border: 1px solid #f3ecdc55; background: transparent; color: #f3ecdc; border-radius: 4px; font-size: 0.7rem; padding: 0.05rem 0.4rem; font-family: var(--fuente-codigo); }
 .prompt { border: var(--borde); border-radius: var(--radio-chico); background: color-mix(in srgb, var(--resaltador) 22%, var(--superficie)); padding: 0.8rem 0.9rem; display: grid; gap: 0.5rem; }
-.prompt pre { margin: 0; font-family: var(--fuente-codigo); font-size: 0.8rem; white-space: pre-wrap; max-height: 14rem; overflow-y: auto; }
+.prompt pre { margin: 0; font-family: var(--fuente-codigo); font-size: 0.8rem; white-space: pre-wrap; max-height: 10.5rem; overflow-y: auto; }
 .prompt .copiar { color: var(--texto); border-color: var(--linea); }
 .ciclo { margin: 0; font-family: var(--fuente-codigo); font-size: 0.78rem; line-height: 1.45; background: var(--superficie); border: 2px solid var(--linea); border-radius: var(--radio-chico); padding: 0.7rem; overflow-x: auto; white-space: pre; }
 .regla { border-left: 5px solid var(--acento); padding: 0.4rem 0.8rem; background: var(--acento-suave); border-radius: 0 8px 8px 0; font-weight: 600; }
@@ -189,24 +185,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .eje span:first-child { transform: none; } .eje span:last-child { transform: translateX(-100%); }
 .maqueta { font-size: 0.72rem; color: var(--texto-suave); font-style: italic; }
 
-/* ── Panel de preguntas ──────────────────── */
-.preguntas {
-  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1rem);
-  max-height: calc(100vh - 2rem); display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
-  background: var(--superficie); border: var(--borde); border-radius: var(--radio); box-shadow: var(--sombra); overflow: hidden;
-}
-.preguntas-cabecera { padding: 0.8rem 1rem 0.6rem; border-bottom: 2px solid var(--linea); background: color-mix(in srgb, var(--cielo) 30%, var(--superficie)); display: grid; gap: 0.35rem; }
-.preguntas-cabecera .fila { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
+/* ── Preguntas ───────────────────────────── */
 .progreso { height: 8px; border: 1.5px solid var(--linea); border-radius: 999px; overflow: hidden; background: var(--superficie); }
 .progreso div { height: 100%; background: var(--menta); transition: width 0.3s var(--ease); }
-.lista-preguntas { overflow-y: auto; padding: 0.4rem 0.6rem 0.8rem; display: grid; gap: 0.25rem; align-content: start; }
 .parte { font-family: var(--fuente-codigo); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); padding: 0.6rem 0.4rem 0.1rem; }
 .pregunta { border-radius: 8px; }
-.pregunta > button {
-  width: 100%; border: none; background: none; text-align: left; padding: 0.45rem 0.4rem; border-radius: 8px;
-  display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; gap: 0.4rem; align-items: baseline;
+.pregunta-cabecera {
+  padding: 0.45rem 0.4rem; display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; gap: 0.4rem; align-items: baseline;
 }
-.pregunta > button:hover { background: var(--acento-suave); }
 .pregunta .n { font-family: var(--fuente-codigo); font-weight: 700; font-size: 0.85rem; }
 .pregunta .titulo { font-weight: 700; font-size: 0.92rem; line-height: 1.3; }
 .pregunta .cuando { display: block; font-weight: 400; font-size: 0.75rem; color: var(--texto-suave); }
@@ -222,56 +208,21 @@ button { font: inherit; color: inherit; cursor: pointer; }
   font: inherit; font-size: 0.86rem; background: var(--fondo); color: var(--texto);
 }
 .opcional { font-size: 0.68rem; font-weight: 700; border: 1.5px dashed var(--linea); border-radius: 999px; padding: 0 0.35rem; margin-left: 0.25rem; vertical-align: 1px; }
-.preguntas-pie { padding: 0.6rem 0.8rem; border-top: 2px solid var(--linea); display: flex; gap: 0.5rem; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-.preguntas-pie .boton { padding: 0.3rem 0.8rem; font-size: 0.85rem; }
-
-/* Preguntas en grande (cuarta etapa) */
-.preguntas-grandes { position: static; max-height: none; }
-.preguntas-grandes .lista-preguntas { overflow: visible; padding: 0.5rem 1rem 1rem; }
-
-/* Botón flotante y hoja en celular */
-.flotante { display: none; }
-.cerrar-hoja { display: none; }
-@media (max-width: 900px) {
-  .visor { grid-template-columns: minmax(0, 1fr); }
-  .visor > .preguntas {
-    position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 20; max-height: 78vh;
-    border-radius: var(--radio) var(--radio) 0 0; border-bottom: none; box-shadow: 0 -4px 0 var(--linea);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    transform: translateY(105%); transition: transform 0.3s var(--ease);
-  }
-  .visor.hoja-abierta > .preguntas { transform: none; }
-  .visor > .preguntas .cerrar-hoja { display: inline-block; }
-  .flotante {
-    display: inline-flex; position: fixed; z-index: 19; gap: 0.5rem; align-items: center;
-    right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-    border: var(--borde); border-radius: 999px; background: var(--cielo); color: var(--tinta-fija); padding: 0.55rem 1rem; font-weight: 800; box-shadow: var(--sombra-chica);
-  }
-}
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
 <main class="pagina">
   <header class="cabecera">
     <span class="sobretitulo">Propuesta · visor de ejercicios</span>
-    <h1>La consigna por etapas</h1>
-    <p class="suave">Contexto técnico, contexto del ejercicio y qué tenés que hacer: cada etapa se abre cuando apretás <b>Siguiente</b>. Las preguntas quedan al costado desde el principio.</p>
+    <div class="titulo-ejercicio">
+      <h1 id="titulo"></h1>
+      <span class="reloj" id="reloj"></span>
+    </div>
     <div class="segmentado" id="selector-ejercicio" role="group" aria-label="Ejercicio"></div>
   </header>
 
-  <div class="titulo-ejercicio">
-    <h2 id="titulo"></h2>
-    <span class="reloj" id="reloj"></span>
-  </div>
-
-  <div class="visor" id="visor">
-    <section class="etapas" aria-label="Consigna">
-      <ol class="hilo" id="hilo" aria-label="Etapas"></ol>
-      <div id="etapas" class="etapas"></div>
-    </section>
-    <aside class="preguntas" id="preguntas" aria-labelledby="titulo-preguntas"></aside>
-  </div>
-  <button type="button" class="flotante" id="flotante" aria-controls="preguntas"></button>
+  <ol class="hilo" id="hilo" aria-label="Secciones"></ol>
+  <section class="marco" id="marco" aria-live="polite"></section>
 </main>
 
 <script>
@@ -476,10 +427,13 @@ const EJERCICIOS = {
         resumen: 'Escribir la skill, probar que se dispara, conectar el MCP y usarlo.',
         bajada: 'Dos partes. La C es opcional.',
         bloques: () => `
-          <div class="bloque"><h3>A · La skill</h3>
+          <div class="bloque"><h3>A · Escribí y probá la skill</h3>
             <ol><li>Escribí <code>nuevo-endpoint/SKILL.md</code> con encabezado y criterio.</li><li>En una <b>sesión nueva</b>, preguntale: <i>"¿Cuándo usarías la skill nuevo-endpoint?"</i></li><li>En otra sesión nueva, pedile esto <b>sin nombrar la skill</b>:</li></ol>
             ${prompt(PROMPT_2_SKILL, 'Pedido')}
-            <ol start="4"><li>Buscala en Métricas. Si no aparece, no le digas que la use: cambiá la description y probá de nuevo. Contá los intentos.</li><li>Revisá qué devuelve el endpoint:</li></ol>
+            <p class="aviso">Buscala en Métricas. Si no aparece, no le digas que la use: cambiá la description y probá de nuevo. Contá los intentos.</p>
+          </div>
+          <div class="bloque"><h3>A · Revisá el endpoint</h3>
+            <p>Cuando el agente termine, pedí una sesión que existe y una que no. Fijate qué campos devuelve.</p>
             ${panelSesion()}
           </div>
           <div class="bloque"><h3>B · El navegador</h3>
@@ -488,10 +442,8 @@ const EJERCICIOS = {
             <ol start="3"><li>Descartá la reserva que hizo el agente.</li></ol>
             ${cmd('npm run seed')}
           </div>
-          <div class="bloque"><h3>C · Opcional: una skill que se dispara por el archivo</h3>
-            <p class="suave">La skill <code>codigos-de-habilidad</code>, con un script que normaliza ("Diseño UX/UI" → <code>diseno_ux_ui</code>) y el criterio para las colisiones.</p>
-          </div>
           <div class="bloque"><h3>Entrega</h3>
+            <p class="suave">Opcional, si te sobra tiempo: la parte C, una skill <code>codigos-de-habilidad</code> que se dispara al editar un archivo.</p>
             ${cmd('git add -A\ngit commit -m "Ejercicio 2"\ngit push')}
           </div>`,
       },
@@ -522,16 +474,16 @@ const EJERCICIOS = {
 /* ── Estado ──────────────────────────────────────────────────── */
 function leer(clave, defecto) { try { const v = localStorage.getItem(clave); return v === null ? defecto : JSON.parse(v); } catch { return defecto; } }
 function guardar(clave, valor) { try { localStorage.setItem(clave, JSON.stringify(valor)); } catch {} }
-const PREGUNTAS = 3; // índice de la etapa "Preguntas"
+const PREGUNTAS = 'preguntas';
 const estado = {
   ej: '1',
   agente: 'claude',
-  hoja: false,
   api: {},
-  porEj: { 1: { actual: 0, alcanzada: 0, abierta: -1, respuestas: {} }, 2: { actual: 0, alcanzada: 0, abierta: -1, respuestas: {} } },
+  porEj: { 1: { pos: 0, alcanzada: 0, ultima: 0, respuestas: {} }, 2: { pos: 0, alcanzada: 0, ultima: 0, respuestas: {} } },
 };
-Object.assign(estado.porEj, leer('etapas-progreso', {}));
+Object.assign(estado.porEj, leer('etapas-pantallas', {}));
 const prog = () => estado.porEj[estado.ej];
+const persistir = () => guardar('etapas-pantallas', estado.porEj);
 
 /* ── Piezas ──────────────────────────────────────────────────── */
 function pestanasAgente(contenidos) {
@@ -581,43 +533,53 @@ function panelSesion() {
     <span class="maqueta">Maqueta del panel "Consultar sesiones". Fijate que no venga contactoEmail.</span></div>`;
 }
 
-/* ── Etapas ──────────────────────────────────────────────────── */
-function renderHilo(ej) {
+/* ── Pantallas: cada bloque de una etapa es una pantalla ──────── */
+function pantallasDe(ej) {
+  const lista = [];
+  ej.etapas.forEach((e, i) => {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = e.bloques();
+    [...tmp.children].forEach((bloque, j) => {
+      lista.push({ etapa: i, j, de: tmp.children.length, titulo: bloque.querySelector('h3')?.textContent || e.nombre, html: bloque.outerHTML });
+    });
+  });
+  return lista;
+}
+
+function renderHilo(ej, pantallas) {
   const p = prog();
   const items = ej.etapas.map((e, i) => {
-    const bloqueada = i > p.alcanzada;
-    const clase = i === p.actual ? 'actual' : bloqueada ? '' : 'hecha';
-    const marca = bloqueada ? '🔒' : i === p.actual ? '' : '✓';
-    return `<li class="${clase}"><button type="button" data-etapa="${i}" ${bloqueada ? 'disabled' : ''} ${i === p.actual ? 'aria-current="step"' : ''}><span class="barra"></span><span class="nombre">${marca} ${i + 1}. ${e.nombre}</span></button></li>`;
+    const suyas = pantallas.map((x, k) => ({ ...x, k })).filter((x) => x.etapa === i);
+    const primera = suyas[0].k;
+    const bloqueada = primera > p.alcanzada;
+    const actual = p.pos !== PREGUNTAS && pantallas[p.pos].etapa === i;
+    const vista = suyas.every((x) => x.k <= p.alcanzada);
+    const clase = actual ? 'actual' : vista ? 'hecha' : '';
+    const puntos = suyas.map((x) => `<i class="${x.k === p.pos ? 'aca' : x.k <= p.alcanzada ? 'visto' : ''}"></i>`).join('');
+    return `<li class="${clase}"><button type="button" data-ir="${primera}" ${bloqueada ? 'disabled' : ''} ${actual ? 'aria-current="step"' : ''}><span class="barra"></span><span class="nombre">${bloqueada ? '🔒 ' : ''}${i + 1}. ${e.nombre}</span><span class="mini-puntos">${puntos}</span></button></li>`;
   });
-  items.push(`<li class="siempre ${p.actual === PREGUNTAS ? 'actual' : ''}"><button type="button" data-etapa="${PREGUNTAS}"><span class="barra"></span><span class="nombre">✎ Preguntas · siempre abiertas</span></button></li>`);
+  const { total, hechas } = contar(ej);
+  items.push(`<li class="siempre ${p.pos === PREGUNTAS ? 'actual' : ''}"><button type="button" data-ir="${PREGUNTAS}" ${p.pos === PREGUNTAS ? 'aria-current="step"' : ''}><span class="barra"></span><span class="nombre">✎ Preguntas · ${hechas}/${total}</span><span class="mini-puntos" style="font-size:.72rem;color:var(--texto-suave)">siempre abierta</span></button></li>`);
   document.getElementById('hilo').innerHTML = items.join('');
 }
 
-function renderEtapas(ej) {
+function renderPantalla(ej, pantallas) {
   const p = prog();
-  const cont = document.getElementById('etapas');
-  if (p.actual === PREGUNTAS) {
-    cont.innerHTML = `<div class="preguntas preguntas-grandes">${panelPreguntas(ej, true)}</div>`;
-    return;
-  }
-  cont.innerHTML = ej.etapas.map((e, i) => {
-    if (i === p.actual) {
-      const sig = i === ej.etapas.length - 1 ? 'Ir a las preguntas' : `Siguiente: ${ej.etapas[i + 1].nombre}`;
-      return `<article class="etapa" aria-labelledby="etapa-${i}">
-        <div class="etapa-cabecera"><span class="sobretitulo">Etapa ${i + 1} de ${ej.etapas.length}</span><h2 id="etapa-${i}">${e.nombre}</h2><p class="bajada">${e.bajada}</p></div>
-        ${e.bloques()}
-        <div class="siguiente-fila">${i > 0 ? `<button type="button" class="enlace" data-etapa="${i - 1}">← ${ej.etapas[i - 1].nombre}</button>` : '<span></span>'}<button type="button" class="boton primario" data-siguiente="${i}">${sig} →</button></div>
-      </article>`;
-    }
-    if (i <= p.alcanzada) {
-      return `<div class="plegada hecha"><span class="icono">✓</span><div><div class="t">${i + 1}. ${e.nombre}</div><div class="r">${e.resumen}</div></div><button type="button" class="enlace" data-etapa="${i}">Ver de nuevo</button></div>`;
-    }
-    return `<div class="plegada bloqueada"><span class="icono">🔒</span><div><div class="t">${i + 1}. ${e.nombre}</div><div class="r">Se abre cuando termines «${ej.etapas[i - 1].nombre}».</div></div><span></span></div>`;
-  }).join('');
+  const x = pantallas[p.pos];
+  const etapa = ej.etapas[x.etapa];
+  const ant = pantallas[p.pos - 1];
+  const sig = pantallas[p.pos + 1];
+  const puntos = pantallas.filter((y) => y.etapa === x.etapa).map((y) => `<i class="${y.j === x.j ? 'aca' : 'visto'}"></i>`).join('');
+  return `
+    <div class="marco-cabecera"><span class="sobretitulo">Etapa ${x.etapa + 1} · ${etapa.nombre}</span><span class="puntos">${puntos}<span>${x.j + 1} de ${x.de}</span></span></div>
+    <div class="marco-cuerpo">${x.j === 0 ? `<p class="bajada">${etapa.bajada}</p>` : ''}${x.html}</div>
+    <div class="marco-pie">
+      <div class="izq">${ant ? `<button type="button" class="enlace" data-ir="${p.pos - 1}">← Anterior<span class="detalle-nav">: ${esc(ant.titulo)}</span></button>` : ''}</div>
+      <button type="button" class="boton primario" data-siguiente>${sig ? (sig.etapa !== x.etapa ? `Siguiente etapa<span class="detalle-nav">: ${ej.etapas[sig.etapa].nombre}</span>` : `Siguiente<span class="detalle-nav">: ${esc(sig.titulo)}</span>`) : 'Ir a las preguntas'} →</button>
+    </div>`;
 }
 
-/* ── Preguntas ───────────────────────────────────────────────── */
+/* ── Preguntas: la única sección con scroll ──────────────────── */
 function contar(ej) {
   const r = prog().respuestas;
   let n = 0, total = 0, hechas = 0;
@@ -629,104 +591,103 @@ function contar(ej) {
   return { total, hechas };
 }
 
-function panelPreguntas(ej, grande) {
+function renderPreguntas(ej) {
   const p = prog();
   const { total, hechas } = contar(ej);
   let n = 0;
   const lista = ej.partes.map((pt) => `<div class="parte">${esc(pt.nombre)}</div>` + pt.preguntas.map((q) => {
     n++;
     const listas = q.subs.filter((_, j) => (p.respuestas[`${n}.${j}`] || '').trim()).length;
-    const completa = listas === q.subs.length;
-    const abierta = grande || p.abierta === n;
     const cuando = q.cuando === 0 ? 'Se puede pensar desde el principio' : `Con lo de «${ej.etapas[q.cuando].nombre}»`;
     const subs = q.subs.map((texto, j) => {
       const id = `resp-${estado.ej}-${n}-${j}`;
       const valor = p.respuestas[`${n}.${j}`] || '';
       return `<div class="sub ${valor.trim() ? 'lista' : ''}"><label for="${id}"><span class="sub-n">${n}.${j + 1}</span> ${esc(texto)}</label><textarea id="${id}" data-respuesta="${n}.${j}" placeholder="Con evidencia del log">${esc(valor)}</textarea></div>`;
     }).join('');
-    return `<div class="pregunta ${completa ? 'respondida' : ''}" data-n="${n}" data-subs="${q.subs.length}">
-      <button type="button" data-pregunta="${n}" aria-expanded="${abierta}"><span class="n">${n}.</span><span class="titulo">${esc(q.titulo)}${q.opcional ? '<span class="opcional">opcional</span>' : ''}<span class="cuando">${cuando}</span></span><span class="avance">${listas}/${q.subs.length}</span></button>
-      ${abierta ? `<div class="detalle">${subs}</div>` : ''}
+    return `<div class="pregunta ${listas === q.subs.length ? 'respondida' : ''}" data-subs="${q.subs.length}">
+      <div class="pregunta-cabecera"><span class="n">${n}.</span><span class="titulo">${esc(q.titulo)}${q.opcional ? '<span class="opcional">opcional</span>' : ''}<span class="cuando">${cuando}</span></span><span class="avance">${listas}/${q.subs.length}</span></div>
+      <div class="detalle">${subs}</div>
     </div>`;
   }).join('')).join('');
-  return `<div class="preguntas-cabecera">
-      <div class="fila"><h3 id="titulo-preguntas">Preguntas</h3><span class="suave contador" style="font-size:.85rem">${hechas} de ${total} respondidas</span></div>
+  return `
+    <div class="marco-cabecera de-preguntas">
+      <div class="fila"><h2 style="font-size:1.25rem">Preguntas</h2><span class="suave contador" style="font-size:.85rem">${hechas} de ${total} respondidas</span></div>
       <div class="progreso"><div style="width:${(hechas / total) * 100}%"></div></div>
     </div>
-    <div class="lista-preguntas">${lista}</div>
-    <div class="preguntas-pie">
-      ${grande ? `<button type="button" class="enlace" data-etapa="${p.alcanzada}">← Volver a la consigna</button>` : `<button type="button" class="enlace" data-etapa="${PREGUNTAS}">Ver en grande</button>`}
-      <button type="button" class="boton cerrar-hoja" data-hoja="0">Cerrar</button>
+    <div class="marco-cuerpo con-scroll">${lista}</div>
+    <div class="marco-pie">
+      <div class="izq"><button type="button" class="enlace" data-ir="${p.ultima}">← Volver a la consigna</button></div>
       <button type="button" class="boton" data-guardar>Guardar respuestas</button>
     </div>`;
 }
 
-/* ── Render ──────────────────────────────────────────────────── */
+/* ── Render y navegación ─────────────────────────────────────── */
 function render() {
   const ej = EJERCICIOS[estado.ej];
   const p = prog();
+  const pantallas = pantallasDe(ej);
+  if (p.pos !== PREGUNTAS && p.pos >= pantallas.length) p.pos = 0;
   document.getElementById('selector-ejercicio').innerHTML = Object.keys(EJERCICIOS).map((k) => `<button type="button" data-ej="${k}" aria-pressed="${k === estado.ej}">Ejercicio ${k}</button>`).join('');
   document.getElementById('titulo').textContent = ej.titulo;
   document.getElementById('reloj').textContent = `${ej.minutos}:00`;
-  renderHilo(ej);
-  renderEtapas(ej);
-  const grande = p.actual === PREGUNTAS;
-  const visor = document.getElementById('visor');
-  visor.classList.toggle('preguntas-en-grande', grande);
-  visor.classList.toggle('hoja-abierta', estado.hoja && !grande);
-  const panel = document.getElementById('preguntas');
-  panel.hidden = grande;
-  if (!grande) panel.innerHTML = panelPreguntas(ej, false);
-  const { total, hechas } = contar(ej);
-  const flot = document.getElementById('flotante');
-  flot.hidden = grande || estado.hoja;
-  flot.textContent = `✎ Preguntas · ${hechas}/${total}`;
+  renderHilo(ej, pantallas);
+  document.getElementById('marco').innerHTML = p.pos === PREGUNTAS ? renderPreguntas(ej) : renderPantalla(ej, pantallas);
 }
 
-const persistir = () => guardar('etapas-progreso', estado.porEj);
+function ir(destino) {
+  const p = prog();
+  const total = pantallasDe(EJERCICIOS[estado.ej]).length;
+  if (destino === PREGUNTAS || destino >= total) { if (p.pos !== PREGUNTAS) p.ultima = p.pos; p.pos = PREGUNTAS; }
+  else if (destino >= 0 && destino <= p.alcanzada) p.pos = destino;
+  persistir(); render();
+}
+function siguiente() {
+  const p = prog();
+  if (p.pos === PREGUNTAS) return;
+  p.alcanzada = Math.max(p.alcanzada, p.pos + 1);
+  ir(p.pos + 1);
+}
 
 document.addEventListener('click', async (e) => {
   const b = e.target.closest('button');
   if (!b) return;
-  const p = prog();
-  const ej = EJERCICIOS[estado.ej];
-  if (b.dataset.ej) { estado.ej = b.dataset.ej; estado.hoja = false; render(); }
-  else if (b.dataset.siguiente !== undefined) {
-    const i = Number(b.dataset.siguiente);
-    const sig = i + 1 >= ej.etapas.length ? PREGUNTAS : i + 1;
-    p.alcanzada = Math.max(p.alcanzada, Math.min(sig, ej.etapas.length - 1));
-    p.actual = sig; persistir(); render();
-    document.getElementById('hilo').scrollIntoView({ block: 'start', behavior: 'smooth' });
-  }
-  else if (b.dataset.etapa !== undefined) { p.actual = Number(b.dataset.etapa); estado.hoja = false; persistir(); render(); }
+  if (b.dataset.ej) { estado.ej = b.dataset.ej; render(); }
+  else if (b.dataset.siguiente !== undefined) siguiente();
+  else if (b.dataset.ir !== undefined) ir(b.dataset.ir === PREGUNTAS ? PREGUNTAS : Number(b.dataset.ir));
   else if (b.dataset.agente) { estado.agente = b.dataset.agente; render(); }
   else if (b.dataset.api) { estado.api[b.dataset.api] = true; render(); }
-  else if (b.dataset.pregunta) { const n = Number(b.dataset.pregunta); p.abierta = p.abierta === n ? -1 : n; render(); document.getElementById(`resp-${estado.ej}-${n}-0`)?.focus(); }
-  else if (b.id === 'flotante') { estado.hoja = true; render(); }
-  else if (b.dataset.hoja !== undefined) { estado.hoja = false; render(); }
   else if (b.dataset.guardar !== undefined) { persistir(); b.textContent = 'Guardado'; setTimeout(() => { b.textContent = 'Guardar respuestas'; }, 1500); }
   else if (b.dataset.copiar !== undefined) {
     try { await navigator.clipboard.writeText(b.dataset.copiar); b.textContent = 'copiado'; }
-    catch { const pre = b.parentElement.parentElement.querySelector('pre') || b.parentElement.querySelector('pre'); const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'seleccionado'; }
+    catch { const pre = b.parentElement.parentElement.querySelector('pre') || b.parentElement.querySelector('pre'); const r = document.createRange(); r.selectNodeContents(pre); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); b.textContent = 'seleccionado'; }
     setTimeout(() => { b.textContent = 'copiar'; }, 1500);
   }
 });
 
-// Las respuestas se guardan al escribir; solo se actualizan el tilde y el contador, sin redibujar el textarea.
+// Flechas del teclado para pasar de pantalla (salvo mientras se escribe una respuesta).
+document.addEventListener('keydown', (e) => {
+  if (e.target.closest('textarea, input') || e.altKey || e.metaKey || e.ctrlKey) return;
+  const p = prog();
+  if (e.key === 'ArrowRight') siguiente();
+  else if (e.key === 'ArrowLeft' && p.pos !== PREGUNTAS && p.pos > 0) ir(p.pos - 1);
+});
+
+// Las respuestas se guardan al escribir; solo se actualizan el tilde y los contadores, sin redibujar el textarea.
 document.addEventListener('input', (e) => {
   const n = e.target.dataset && e.target.dataset.respuesta;
   if (!n) return;
   prog().respuestas[n] = e.target.value;
   persistir();
-  const { total, hechas } = contar(EJERCICIOS[estado.ej]);
+  const ej = EJERCICIOS[estado.ej];
+  const { total, hechas } = contar(ej);
   e.target.closest('.sub').classList.toggle('lista', !!e.target.value.trim());
   const fila = e.target.closest('.pregunta');
   const listas = fila.querySelectorAll('.sub.lista').length;
   fila.querySelector('.avance').textContent = `${listas}/${fila.dataset.subs}`;
   fila.classList.toggle('respondida', listas === Number(fila.dataset.subs));
-  document.querySelectorAll('.contador').forEach((el) => { el.textContent = `${hechas} de ${total} respondidas`; });
-  document.querySelectorAll('.preguntas-cabecera .progreso div').forEach((el) => { el.style.width = `${(hechas / total) * 100}%`; });
-  document.getElementById('flotante').textContent = `✎ Preguntas · ${hechas}/${total}`;
+  document.querySelector('.contador').textContent = `${hechas} de ${total} respondidas`;
+  document.querySelector('.de-preguntas .progreso div').style.width = `${(hechas / total) * 100}%`;
+  renderHilo(ej, pantallasDe(ej));
 });
 
 render();
