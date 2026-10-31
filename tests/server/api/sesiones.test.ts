@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+﻿import { readFileSync } from "node:fs"
 import { join } from "node:path"
 import { crearAppDePrueba, HUERTA_VIVA, ROCIO, sesionDePrueba, VALENTINA } from "./helpers"
 
@@ -8,7 +8,7 @@ const nueva = (extra: Record<string, unknown> = {}) => ({
   mentoraId: VALENTINA,
   tipoAsesoriaId: "revision_de_codigo",
   colectivoId: HUERTA_VIVA,
-  proyecto: "Revisar el formulario de inscripción",
+  proyecto: "Revisar el formulario de inscripciÃ³n",
   contactoNombre: "Ana",
   contactoEmail: "ana@example.org",
   fecha: LUNES,
@@ -16,24 +16,24 @@ const nueva = (extra: Record<string, unknown> = {}) => ({
   ...extra,
 })
 
-describe("API · GET /api/mentoras/:id/disponibilidad", () => {
-  it("devuelve los días con horarios libres de los próximos 14 días", async () => {
+describe("API Â· GET /api/mentoras/:id/disponibilidad", () => {
+  it("devuelve los dÃ­as con horarios libres de los prÃ³ximos 14 dÃ­as", async () => {
     const { api } = crearAppDePrueba([sesionDePrueba()])
     const res = await api.get(`/api/mentoras/${VALENTINA}/disponibilidad?tipoAsesoriaId=revision_de_codigo`)
     expect(res.status).toBe(200)
-    // Valentina atiende lunes y miércoles: 4 días en las próximas dos semanas.
+    // Valentina atiende lunes y miÃ©rcoles: 4 dÃ­as en las prÃ³ximas dos semanas.
     expect(res.body.map((d: { fecha: string }) => d.fecha)).toEqual(["2026-10-19", "2026-10-21", "2026-10-26", "2026-10-28"])
     expect(res.body[0].horarios[0]).toEqual({ inicio: "18:30", fin: "19:00" })
   })
 
-  it("devuelve una lista vacía si la mentora no tiene disponibilidad", async () => {
+  it("devuelve una lista vacÃ­a si la mentora no tiene disponibilidad", async () => {
     const { api } = crearAppDePrueba()
     const res = await api.get(`/api/mentoras/${ROCIO}/disponibilidad?tipoAsesoriaId=primeros_pasos_git`)
     expect(res.status).toBe(200)
     expect(res.body).toEqual([])
   })
 
-  it("400 si falta el tipo de asesoría o la mentora no lo ofrece; 404 si no existe", async () => {
+  it("400 si falta el tipo de asesorÃ­a o la mentora no lo ofrece; 404 si no existe", async () => {
     const { api } = crearAppDePrueba()
     expect((await api.get(`/api/mentoras/${VALENTINA}/disponibilidad`)).status).toBe(400)
     expect((await api.get(`/api/mentoras/${VALENTINA}/disponibilidad?tipoAsesoriaId=despliegue`)).status).toBe(400)
@@ -41,7 +41,7 @@ describe("API · GET /api/mentoras/:id/disponibilidad", () => {
   })
 })
 
-describe("API · GET /api/sesiones", () => {
+describe("API Â· GET /api/sesiones", () => {
   it("lista sesiones filtradas sin datos de contacto (Principio IV)", async () => {
     const { api } = crearAppDePrueba([sesionDePrueba(), sesionDePrueba({ id: "otra", fecha: "2026-10-21" })])
     const res = await api.get(`/api/sesiones?mentoraId=${VALENTINA}&fecha=${LUNES}`)
@@ -52,8 +52,8 @@ describe("API · GET /api/sesiones", () => {
   })
 })
 
-describe("API · POST /api/sesiones", () => {
-  it("crea la sesión, calcula la hora de fin y la guarda", async () => {
+describe("API Â· POST /api/sesiones", () => {
+  it("crea la sesiÃ³n, calcula la hora de fin y la guarda", async () => {
     const { api, dataDir } = crearAppDePrueba()
     const res = await api.post("/api/sesiones").send(nueva())
     expect(res.status).toBe(201)
@@ -71,27 +71,27 @@ describe("API · POST /api/sesiones", () => {
     expect(lunes.horarios.map((h: { inicio: string }) => h.inicio)).not.toContain("19:00")
   })
 
-  it("400 con datos inválidos", async () => {
+  it("400 con datos invÃ¡lidos", async () => {
     const { api } = crearAppDePrueba()
     const res = await api.post("/api/sesiones").send(nueva({ contactoEmail: "no-es-un-email" }))
     expect(res.status).toBe(400)
-    expect(res.body).toEqual({ error: "El email de contacto no es válido" })
+    expect(res.body).toEqual({ error: "El email de contacto no es vÃ¡lido" })
   })
 
-  it("400 si el JSON está mal formado", async () => {
+  it("400 si el JSON estÃ¡ mal formado", async () => {
     const { api } = crearAppDePrueba()
     const res = await api.post("/api/sesiones").set("Content-Type", "application/json").send("{mal")
     expect(res.status).toBe(400)
   })
 
-  it("400 si la fecha ya pasó o el horario está fuera de la disponibilidad", async () => {
+  it("400 si la fecha ya pasÃ³ o el horario estÃ¡ fuera de la disponibilidad", async () => {
     const { api } = crearAppDePrueba()
     expect((await api.post("/api/sesiones").send(nueva({ fecha: "2026-10-12" }))).status).toBe(400)
     expect((await api.post("/api/sesiones").send(nueva({ horaInicio: "20:45" }))).status).toBe(400)
     expect((await api.post("/api/sesiones").send(nueva({ fecha: "2026-10-20" }))).status).toBe(400)
   })
 
-  it("400 si la mentora no ofrece ese tipo de asesoría", async () => {
+  it("400 si la mentora no ofrece ese tipo de asesorÃ­a", async () => {
     const { api } = crearAppDePrueba()
     const res = await api.post("/api/sesiones").send(nueva({ tipoAsesoriaId: "despliegue" }))
     expect(res.status).toBe(400)
@@ -104,10 +104,10 @@ describe("API · POST /api/sesiones", () => {
     expect((await api.post("/api/sesiones").send(nueva({ colectivoId: "x" }))).status).toBe(404)
   })
 
-  it("409 si ya hay una sesión confirmada que empieza a la misma hora", async () => {
+  it("409 si ya hay una sesiÃ³n confirmada que empieza a la misma hora", async () => {
     const { api } = crearAppDePrueba([sesionDePrueba({ horaInicio: "19:00", horaFin: "19:30" })])
     const res = await api.post("/api/sesiones").send(nueva())
     expect(res.status).toBe(409)
-    expect(res.body).toEqual({ error: "El horario ya está reservado" })
+    expect(res.body).toEqual({ error: "El horario se superpone con otra sesión de la mentora" })
   })
 })

@@ -13,6 +13,29 @@ type ParametrosHorarios = {
   ahora: Date
 }
 
+/** Una sesión que termina a las 10:30 y otra que empieza a las 10:30 NO se superponen. */
+export function haySuperposicion(
+  sesiones: Sesion[],
+  { mentoraId, fecha, horaInicio, horaFin }: {
+    mentoraId: string
+    fecha: string
+    horaInicio: string
+    horaFin: string
+  }
+): boolean {
+  const nuevoInicio = aMinutos(horaInicio)
+  const nuevoFin = aMinutos(horaFin)
+
+  return sesiones.some(
+    (s) =>
+      s.mentoraId === mentoraId &&
+      s.fecha === fecha &&
+      s.estado === "confirmada" &&
+      aMinutos(s.horaInicio) < nuevoFin &&
+      nuevoInicio < aMinutos(s.horaFin)
+  )
+}
+
 function ocupaRango(sesion: Sesion, inicio: number, fin: number): boolean {
   return aMinutos(sesion.horaInicio) < fin && inicio < aMinutos(sesion.horaFin)
 }
