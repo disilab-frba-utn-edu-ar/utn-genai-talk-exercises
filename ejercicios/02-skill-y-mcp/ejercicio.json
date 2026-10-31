@@ -12,7 +12,7 @@
       "hasta": "### B.2 Usalo"
     },
     {
-      "desde": "### Preguntas sobre lo que hizo en el navegador",
+      "desde": "### Pregunta sobre lo que hizo en el navegador",
       "hasta": "### B.3 Mirá lo que pasó"
     },
     {
@@ -91,7 +91,7 @@
           "titulo": "Usá el navegador",
           "check": "El agente reservó una sesión con el navegador y guardó la captura",
           "desde": "### B.2 Usalo",
-          "hasta": "### Preguntas sobre lo que hizo en el navegador"
+          "hasta": "### Pregunta sobre lo que hizo en el navegador"
         },
         {
           "titulo": "Mirá lo que pasó",
@@ -367,7 +367,7 @@
     "hizo el agente: `npm run seed` (`data/sesiones.json` no se versiona, así que",
     "`git checkout` no sirve acá).",
     "",
-    "### Preguntas sobre lo que hizo en el navegador",
+    "### Pregunta sobre lo que hizo en el navegador",
     "",
     "5. **Lo que encontró.**",
     "   - ¿Encontró algún problema real en la app usando el navegador que no se",
