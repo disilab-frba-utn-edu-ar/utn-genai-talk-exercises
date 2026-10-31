@@ -1,6 +1,6 @@
 {
   "titulo": "Feature con Spec-Driven Development",
-  "duracion": "45 min",
+  "duracion": "35 min",
   "resumen": "Tomás una historia del tablero y la llevás de la spec al código con Spec Kit, con ✋ entre cada etapa.",
   "preguntas": [
     {
@@ -234,7 +234,7 @@
     "**Historia elegida:**",
     "**Carpeta de la spec:** `specs/00X-...` <!-- la 001-reservar-sesion es el ejemplo; la tuya lleva el número que le ponga Spec Kit -->"
   ],
-  "minutos": 45,
+  "minutos": 35,
   "captura": true,
   "placeholder": "Tu respuesta…"
 }

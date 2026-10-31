@@ -1,6 +1,6 @@
 {
   "titulo": "Observar al agente con hooks",
-  "duracion": "30 min",
+  "duracion": "20 min",
   "resumen": "Activás los hooks que loguean cada acción, le pasás un prompt para arreglar un bug (sesiones superpuestas) y respondés preguntas con el log.",
   "preguntas": [
     {
@@ -363,5 +363,5 @@
     "**Agente y modelo usados:** <!-- ej: Claude Code + Sonnet, Codex + gpt-5, Cline + ... -->",
     "**¿Interviniste durante la tarea?** <!-- sí/no; si sí, cuándo y por qué -->"
   ],
-  "minutos": 30
+  "minutos": 20
 }

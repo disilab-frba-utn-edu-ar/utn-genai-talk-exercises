@@ -1,6 +1,6 @@
 {
   "titulo": "Escribir una skill y conectar un MCP",
-  "duracion": "45 min",
+  "duracion": "35 min",
   "resumen": "Escribís la skill `nuevo-endpoint`, comprobás que se dispara sola y conectás Playwright MCP para que el agente reserve una sesión en el navegador.",
   "preguntas": [
     {
@@ -484,5 +484,5 @@
     "**Agente y modelo usados:**",
     "**Intentos hasta que la skill se disparó sola:**"
   ],
-  "minutos": 45
+  "minutos": 35
 }
