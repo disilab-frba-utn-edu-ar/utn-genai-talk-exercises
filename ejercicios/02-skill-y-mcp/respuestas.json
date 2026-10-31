@@ -1,6 +1,6 @@
 {
   "ejercicio": "02-skill-y-mcp",
-  "guardado": "2026-10-31T13:51:04.211Z",
+  "guardado": "2026-10-31T14:01:07.407Z",
   "general": [
     "# Ejercicio 2 — Respuestas",
     "",
@@ -84,16 +84,45 @@
       "Claude Code mitiga parte de esto difiriendo las herramientas (solo carga el nombre y trae el esquema cuando las necesita), pero igual conviene conectar el MCP por proyecto, solo donde se usa, y apagarlo cuando no hace falta. Es lo mismo que vimos en context engineering: las skills y los MCP tienen que entrar al contexto solo cuando se usan."
     ],
     "5.1": [
-      "_Pendiente: falta correr B.2 (la reserva con el navegador)._"
+      "Sí, uno real que los tests no ven, y varios menores. La reserva se hizo de punta a punta (sesión `ebc250eb-…`): filtré por \"Node.js y Express\", elegí a Marto, \"Charla de arquitectura\", el martes 3/11 de 10:00 a 11:00, completé los datos de Libros Libres y confirmé. La captura de `captura-confirmacion.png` es de una segunda corrida del mismo prompt (sesión `9fbabf27-…`, lanzada por error en paralelo): llegó a la misma mentora, tipo, día y horario, pero con Fundación Huerta Viva, y pisó la captura de la primera. Esa segunda corrida la corté antes de que terminara y su reserva también se descartó con `npm run seed`. Con `GET /api/sesiones/:id` verifiqué que se guardó con los datos correctos: mentora, tipo, colectivo, proyecto, fecha, horario y estado `confirmada`. Además el endpoint no devuelve el contacto, como pide el principio IV.",
+      "",
+      "- **Plural mal armado (problema real):** después de reservar, el botón del día pasó a decir \"martes, 3 de noviembre, **1 horarios libres**\". El `aria-label` de `client/src/components/SelectorDia.tsx:34` arma `${horarios.length} horarios libres` sin contemplar el singular. Un lector de pantalla lo lee así y los tests no lo cubren, porque solo se ve cuando a un día le queda un único horario.",
+      "- **Sin datos privados en la red:** revisé las 13 requests a `/api/*` y busqué emails en todas las respuestas (`/api/mentoras`, el detalle, `disponibilidad`, `colectivos`, `habilidades`, `tipos-asesoria`). No apareció ningún email de mentora; las mentoras exponen solo `nombre`, `pronombres`, `github` y `presentacion`. El único email que viajó fue el del propio colectivo, en la respuesta del `POST /api/sesiones` (201), y eso es aceptable porque es su propio dato.",
+      "- **Teclado:** el flujo se puede hacer entero con teclado. Elegí el día con Tab + Enter y confirmé con Tab + Enter desde el email. El foco es bien visible (outline de 3 px). Un detalle: mientras el formulario es inválido, \"Confirmar sesión\" está `disabled`, así que no recibe foco y quien navega con teclado no se entera de que existe ni de por qué no puede confirmar. Con un email inválido, el campo sí marca `aria-invalid` y anuncia \"Ingresá un email válido\" con `aria-describedby`, y eso está bien.",
+      "- **375 px:** no hay scroll horizontal de la página y las tarjetas se ven bien. Los días están en un carrusel con `overflow-x: auto` (muestra 312 px de 456), así que dos de los seis días quedan ocultos sin ninguna pista visual de que se puede deslizar.",
+      "- **Menores:** los links \"Reservar sesión\" de la lista se llaman todos igual, y en una lista de links de lector de pantalla no se distingue con quién reservás. La card de Guada tiene un `<p>` de pronombres vacío. En dev cada `GET` sale dos veces (StrictMode), no es un bug de producción."
     ],
     "5.2": [
-      "_Pendiente: falta correr B.2 (la reserva con el navegador)._"
+      "- **Lectores de pantalla reales:** vi el árbol de accesibilidad (`browser_snapshot`), no cómo lo anuncian NVDA o VoiceOver. Tampoco verifiqué el contraste de colores ni el zoom al 200 %.",
+      "- **Mobile real:** a 375 px achiqué el viewport de un Edge de escritorio. No probé el touch, el teclado virtual que tapa el formulario ni Safari de iOS.",
+      "- **Que la mentora o el colectivo se enteren:** la app no manda emails ni tiene vista de agenda para la mentora, así que no hay nada que verificar del otro lado.",
+      "- **Concurrencia:** no probé dos colectivos reservando el mismo horario a la vez. Eso lo cubren los tests de dominio de superposición, no un solo navegador.",
+      "- **Cancelar o modificar la reserva:** el flujo no tiene esa pantalla y no lo verifiqué por API.",
+      "- Al terminar corrí `npm run seed`. La sesión de prueba `c9121330-…` ahora da 404, así que se descartó."
     ],
     "6.1": [
-      "_Pendiente: falta correr B.2 (la reserva con el navegador)._"
+      "Según `npm run logs:resumen` (sesión `ebc250eb-b6b9-414e-a168-b8967bcb709c`), fueron 38 llamadas MCP en 11 herramientas:",
+      "",
+      "```text",
+      "10  browser_snapshot",
+      " 6  browser_press_key",
+      " 6  browser_evaluate",
+      " 5  browser_click",
+      " 3  browser_take_screenshot   (1 falló: quise guardar fuera del repo y el MCP solo permite escribir en el workspace)",
+      " 2  browser_navigate",
+      " 2  browser_fill_form",
+      " 1  browser_network_requests",
+      " 1  browser_network_request",
+      " 1  browser_resize",
+      " 1  browser_close",
+      "```",
+      "",
+      "`browser_snapshot` fue la más usada: es la forma de \"ver\" la página y obtener las `ref` para hacer clic. `browser_evaluate` sirvió para los chequeos que el snapshot no da: el foco visible, los emails en todas las respuestas, el overflow a 375 px y el `aria-invalid`."
     ],
     "6.2": [
-      "_Pendiente: falta correr B.2 (la reserva con el navegador)._"
+      "`browser_snapshot`, por lejos: 29.538 caracteres en 10 llamadas (~3.000 por llamada). Le siguió `browser_evaluate` con 6.894. Las de acción (`click`, `press_key`, `fill_form`, `navigate`) devuelven menos de 2.000 en total, porque Playwright MCP guarda el snapshot completo en un archivo `.playwright-mcp/*.yml` y solo devuelve el link. Para achicar el snapshot le pasé `target: \"main\"` y `depth`, y así evité el header y el footer en cada vuelta.",
+      "",
+      "Fuera del MCP, lo más pesado fue el `Read` de una captura PNG (78.604 caracteres, porque la imagen entra al contexto). Por eso conviene el snapshot (texto) antes que la captura para navegar, y la captura solo como evidencia."
     ],
     "7.1": [
       "Una skill `verificar-flujo-en-navegador`: toma los escenarios de aceptación de una spec de `specs/` y los recorre en la app con Playwright MCP, como lo haría un colectivo o una mentora. Reporta cuáles se cumplen, con evidencia (captura y requests). Cubre lo que los tests de supertest y jsdom no ven: la pantalla real, la navegación con teclado, el layout en mobile y lo que viaja por la red."
