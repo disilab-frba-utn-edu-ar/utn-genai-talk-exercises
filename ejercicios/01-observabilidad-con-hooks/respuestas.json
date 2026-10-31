@@ -1,0 +1,54 @@
+{
+  "ejercicio": "01-observabilidad-con-hooks",
+  "guardado": "2026-10-31T17:50:55.314Z",
+  "general": [
+    "# Ejercicio 1 — Respuestas"
+  ],
+  "respuestas": {
+    "1.1": [
+      "Llamó 6 veces a \"editor\", 4 veces a \"run_commands\" y 3 veces a \"read_files\".",
+      "",
+      "\"Herramientas usadas:",
+      "     6  editor",
+      "     4  run_commands",
+      "     3  read_files",
+      "\"",
+      ""
+    ],
+    "1.2": [
+      "Utilizó más \"editor\"."
+    ],
+    "2.2": [
+      "Archivos leídos:",
+      "     1  .specify/memory/constitution.md",
+      "     1  shared/types.ts",
+      "     1  server/services/sesiones.ts",
+      "     1  server/domain/horarios.ts",
+      "     1  tests/server/api/sesiones.test.ts",
+      "     1  tests/server/api/helpers.ts",
+      "     1  server/services/errores.ts",
+      "     1  server/domain/fechas.ts",
+      "     1  tests/server/domain/horarios.test.ts",
+      ""
+    ],
+    "2.1": [
+      "Herramientas usadas:",
+      "     6  editor",
+      "     4  run_commands",
+      "     3  read_files"
+    ],
+    "2.3": [
+      "Sí."
+    ],
+    "3.1": [
+      "Comandos de terminal:",
+      "  $ find /home/pc/projects/formal/utn-genai-talk-exercises/server /home/pc/projects/formal/utn-genai-talk-exercises/tests -type f | head -50",
+      "  $ cd /home/pc/projects/formal/utn-genai-talk-exercises && npx vitest run tests/server/domain/superposicion.test.ts tests/server/api/sesiones.t…",
+      "  $ cd /home/pc/projects/formal/utn-genai-talk-exercises && npm test 2>&1 | tail -25",
+      "  $ cd /home/pc/projects/formal/utn-genai-talk-exercises && npm run lint 2>&1 | tail -10",
+      "  $ cd /home/pc/projects/formal/utn-genai-talk-exercises && npm run typecheck 2>&1 | tail -10",
+      "  $ cd /home/pc/projects/formal/utn-genai-talk-exercises && git status --short && git diff --stat",
+      ""
+    ]
+  }
+}
