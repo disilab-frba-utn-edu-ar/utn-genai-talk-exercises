@@ -60,6 +60,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   background-color: var(--fondo);
   background-image: radial-gradient(var(--trama) 1.2px, transparent 1.4px);
@@ -202,31 +203,15 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .criterios { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.45rem; }
 .criterios span { border: 2px solid var(--linea); border-radius: 999px; padding: 0.05rem 0.55rem; font-size: 0.8rem; font-weight: 600; background: var(--superficie); }
 
-/* ── Variante A: asistente ────────────────── */
-.stepper { list-style: none; margin: 0; padding: 0 0 0.4rem; display: flex; gap: 0.35rem; overflow-x: auto; }
-.stepper li { flex: 1 0 7.5rem; }
-.stepper button {
-  width: 100%; text-align: left; border: none; background: none; padding: 0.3rem 0.2rem; display: grid; gap: 0.35rem;
-}
-.stepper .barra { height: 6px; border-radius: 999px; background: var(--linea-suave); }
-.stepper .hecho .barra { background: var(--linea); }
-.stepper .actual .barra { background: var(--acento); }
-.stepper .nombre { font-size: 0.82rem; font-weight: 600; color: var(--texto-suave); line-height: 1.25; }
-.stepper .actual .nombre { color: var(--texto); }
 .tarjeta {
   background: var(--superficie); border: var(--borde); border-radius: var(--radio); box-shadow: var(--sombra);
   padding: clamp(1rem, 3vw, 1.75rem); display: grid; gap: 1.2rem; min-width: 0;
 }
-.tarjeta-cabecera { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; align-items: baseline; }
-.navegacion { display: flex; justify-content: space-between; gap: 0.6rem; }
 .boton {
   border: var(--borde); border-radius: 999px; background: var(--superficie); padding: 0.45rem 1.1rem; font-weight: 700;
   box-shadow: var(--sombra-chica); transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
 }
 .boton:hover:not(:disabled) { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--linea); }
-.boton.primario { background: var(--acento); color: #17140f; }
-.boton:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
-
 /* ── Variante B: recorrido ────────────────── */
 .recorrido { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.6rem; position: relative; }
 .recorrido > li { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); gap: 1rem; position: relative; }
@@ -242,24 +227,53 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .recorrido .veras { max-width: 50.25rem; }
 @media (max-width: 720px) { .recorrido .veras { max-width: none; } .recorrido > li { grid-template-columns: 2rem minmax(0,1fr); gap: 0.6rem; } .nodo { width: 2rem; height: 2rem; font-size: 0.95rem; } .recorrido > li::before { left: calc(1rem - 1.25px); top: 2.2rem; } }
 
-/* ── Variante C: hacé / deberías ver ──────── */
-.progreso { display: grid; gap: 0.4rem; }
-.progreso-barra { height: 14px; border: var(--borde); border-radius: 999px; overflow: hidden; background: var(--superficie); }
-.progreso-barra div { height: 100%; background: var(--menta); border-right: 2.5px solid var(--linea); transition: width 0.3s var(--ease); }
-.dos-columnas { display: grid; gap: 1.5rem; }
-.fila-c {
-  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0;
-  border: var(--borde); border-radius: var(--radio); background: var(--superficie); box-shadow: var(--sombra); overflow: hidden;
+
+/* ── B1: nota plegable ────────────────────── */
+.compacto .acciones { gap: 0.4rem; }
+.compacto .accion { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.b1-linea { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; min-width: 0; }
+.chip-nota {
+  display: inline-flex; align-items: center; gap: 0.2rem; border: none; background: none; padding: 0 0.15rem;
+  font-family: var(--fuente-mano); font-size: 1.2rem; line-height: 1; color: var(--acento-texto);
+  border-bottom: 2px dashed transparent;
 }
-.fila-c > div { padding: 1.1rem 1.2rem; display: grid; gap: 0.8rem; align-content: start; min-width: 0; }
-.fila-c > div + div { border-left: var(--borde); background: color-mix(in srgb, var(--menta) 14%, var(--superficie)); }
-.fila-c .accion { grid-template-columns: minmax(0, 1fr); }
-.fila-c .nota { padding-left: 1.9rem; grid-template-columns: 2rem minmax(0, 1fr); }
-.fila-c .nota svg { transform: rotate(60deg); width: 2rem; }
-.check { display: flex; gap: 0.6rem; align-items: start; cursor: pointer; }
-.check input { width: 1.15rem; height: 1.15rem; margin-top: 0.2rem; accent-color: var(--acento); flex: none; }
-.check input:checked + span { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--texto-suave); }
-@media (max-width: 760px) { .fila-c { grid-template-columns: minmax(0, 1fr); } .fila-c > div + div { border-left: none; border-top: var(--borde); } }
+.chip-nota svg { width: 1.9rem; height: 1rem; flex: none; }
+.chip-nota:hover, .chip-nota[aria-expanded="true"] { border-bottom-color: currentColor; }
+.chip-nota .mas { font-family: var(--fuente-codigo); font-size: 0.75rem; font-weight: 700; border: 1.5px solid currentColor; border-radius: 4px; padding: 0 0.25rem; margin-left: 0.15rem; }
+.b1-nota { display: grid; grid-template-columns: 2.4rem minmax(0, 19rem); gap: 0.2rem; margin: 0.35rem 0 0.4rem 1.6rem; }
+.b1-nota > svg { width: 2.4rem; height: 2.2rem; color: var(--acento); }
+.b1-nota .nota-cuerpo { animation: abrir-nota 0.25s var(--ease); }
+@keyframes abrir-nota { from { opacity: 0; transform: translateY(-4px) rotate(-0.6deg); } }
+.todas-las-notas { justify-self: start; border: 2px solid var(--linea); border-radius: 999px; background: var(--superficie); padding: 0.1rem 0.7rem; font-size: 0.82rem; font-weight: 600; }
+
+/* ── B2: notas sueltas con flechas ────────── */
+.b2 { position: relative; display: grid; grid-template-columns: minmax(0, 30rem); align-content: start; }
+.b2 > .acciones { align-content: start; }
+.b2-texto { min-width: 0; }
+.b2-marca {
+  display: inline-grid; place-items: center; width: 1.35rem; height: 1.35rem; margin-left: 0.35rem; vertical-align: 0.05rem;
+  border: 2px solid var(--acento); border-radius: 50%; background: var(--superficie); color: var(--acento-texto);
+  font-family: var(--fuente-codigo); font-size: 0.7rem; font-weight: 700; padding: 0;
+}
+.b2-margen { position: absolute; top: 0; left: calc(30rem + 6rem); width: 17.5rem; }
+.b2-nota {
+  position: absolute; left: var(--corrido, 0); width: 16rem;
+  transform: rotate(var(--giro, 0deg)); transition: opacity 0.2s, transform 0.2s var(--ease);
+}
+.b2-nota .nota-cuerpo { transform: none; }
+.b2-nota .letra { font-family: var(--fuente-codigo); font-size: 0.72rem; font-weight: 700; border: 1.5px solid var(--tinta-fija); border-radius: 50%; width: 1.2rem; height: 1.2rem; display: inline-grid; place-items: center; margin-right: 0.3rem; vertical-align: 0.15rem; }
+.b2-flechas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; color: var(--texto-suave); }
+.b2-flechas path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 5 5; transition: opacity 0.2s, color 0.2s; }
+.b2-flechas path.activa { color: var(--acento); stroke-dasharray: none; stroke-width: 2.6; }
+.b2.hay-activo .b2-nota:not(.activa) { opacity: 0.35; }
+.b2.hay-activo .b2-flechas path:not(.activa) { opacity: 0.2; }
+.b2-nota.activa { transform: rotate(0deg) scale(1.03); z-index: 2; }
+.b2 li.activa .b2-texto { background: linear-gradient(transparent 60%, color-mix(in srgb, var(--resaltador) 70%, transparent) 60%); }
+@media (max-width: 1000px) {
+  .b2-margen { position: static; width: auto; display: grid; gap: 0.7rem; margin-top: 0.8rem; }
+  .b2-nota { position: static; width: auto; max-width: 22rem; transform: none; }
+  .b2-flechas { display: none; }
+}
 
 /* ── Inventario de preguntas ──────────────── */
 .inventario { display: grid; gap: 1.2rem; }
@@ -298,7 +312,7 @@ section { display: grid; gap: 1rem; }
     <span class="sobretitulo">Propuesta · visor de ejercicios</span>
     <h1>Ejercicios 1 y 2, paso a paso</h1>
     <p class="bajada">La consigna de cada ejercicio, partida en pasos cortos: qué hacés, qué deberías ver y qué preguntas se responden ahí. Los comandos y los tips van al costado como notas, con una flecha a la acción que los necesita.</p>
-    <p class="mano">Tres formas de mostrarlo: elegí una y comparalas con el mismo ejercicio.</p>
+    <p class="mano">Vamos con la B. Dos ajustes para que los sub-ítems queden juntos: comparalos con la original.</p>
   </header>
 
   <div class="controles" role="group" aria-label="Qué mostrar">
@@ -333,6 +347,12 @@ section { display: grid; gap: 1rem; }
 
 <script>
 const FLECHA = '<svg viewBox="0 0 52 36" fill="none" aria-hidden="true"><path d="M48 8 C 36 2, 18 4, 7 22" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M7 22 L 6 11 M7 22 L 17 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
+
+const FLECHA_CORTA = '<svg viewBox="0 0 38 20" fill="none" aria-hidden="true"><path d="M2 12 C 12 4, 24 4, 34 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M34 10 L 25 6 M34 10 L 27 16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+const FLECHA_ABAJO = '<svg viewBox="0 0 40 36" fill="none" aria-hidden="true"><path d="M6 2 C 4 16, 14 26, 34 26" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M34 26 L 25 20 M34 26 L 25 31" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+const LETRAS = 'abcdefgh';
+const GIROS = [-1.4, 1.1, -0.6, 1.6, -1];
+const CORRIDOS = ['0rem', '1.3rem', '0.4rem', '1.7rem', '0.8rem'];
 
 /* ── Contenido ───────────────────────────────────────────────── */
 const EJERCICIOS = {
@@ -552,15 +572,15 @@ const EJERCICIOS = {
 };
 
 const VARIANTES = {
-  a: { nombre: 'A · Asistente', desc: 'Un paso por pantalla, con barra de progreso arriba y Anterior / Siguiente. Las preguntas aparecen en el paso donde se juntó la evidencia.' },
-  b: { nombre: 'B · Recorrido', desc: 'Todos los pasos en una columna, unidos por una línea. Las notas van en el margen derecho con su flecha, como en un cuaderno.' },
-  c: { nombre: 'C · Hacé / Deberías ver', desc: 'Cada paso partido en dos: a la izquierda lo que hacés, con casillas para tildar; a la derecha lo que tiene que aparecer en pantalla.' },
+  b: { nombre: 'B · Original', desc: 'Cada sub-ítem ocupa una fila con su nota al lado: queda mucho espacio vacío entre sub-ítems.' },
+  b1: { nombre: 'B1 · Nota plegable', desc: 'Los sub-ítems van uno debajo del otro. El que tiene nota muestra una flecha con el título: al apretarla, la nota se abre debajo.' },
+  b2: { nombre: 'B2 · Notas sueltas', desc: 'Los sub-ítems van juntos y las notas, desordenadas en el margen. Cada flecha sale del sub-ítem y llega a su nota; al pasar el mouse se resalta el par.' },
 };
 
 /* ── Estado ──────────────────────────────────────────────────── */
 function leer(clave, defecto) { try { return localStorage.getItem(clave) || defecto; } catch { return defecto; } }
 function guardar(clave, valor) { try { localStorage.setItem(clave, valor); } catch {} }
-const estado = { ej: leer('prop-ej', '1'), variante: leer('prop-var', 'b'), paso: 0, tildes: new Set() };
+const estado = { ej: leer('prop-ej', '1'), variante: VARIANTES[leer('prop-var', 'b2')] ? leer('prop-var', 'b2') : 'b2', paso: 0, tildes: new Set() };
 
 /* ── Render de piezas ────────────────────────────────────────── */
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -613,25 +633,6 @@ function decision(d) {
 }
 
 /* ── Variantes ───────────────────────────────────────────────── */
-function varianteA(ej) {
-  const total = ej.pasos.length;
-  const p = ej.pasos[estado.paso];
-  const stepper = ej.pasos.map((s, i) => `<li class="${i < estado.paso ? 'hecho' : i === estado.paso ? 'actual' : ''}"><button type="button" data-ir="${i}" ${i === estado.paso ? 'aria-current="step"' : ''}><span class="barra"></span><span class="nombre">${i + 1}. ${esc(s.nombre)}</span></button></li>`).join('');
-  return `<ol class="stepper" aria-label="Pasos">${stepper}</ol>
-    <article class="tarjeta">
-      <div class="tarjeta-cabecera"><h2>${esc(p.nombre)}</h2><span class="sobretitulo">Paso ${estado.paso + 1} de ${total}</span></div>
-      <p class="objetivo">${p.objetivo}</p>
-      ${decision(p.decision)}
-      <ul class="acciones">${p.acciones.map((a, i) => accion(a, i, false, estado.paso)).join('')}</ul>
-      ${veras(p.veras)}
-      ${preguntasDelPaso(ej, p.preguntas)}
-      <div class="navegacion">
-        <button type="button" class="boton" data-ir="${estado.paso - 1}" ${estado.paso === 0 ? 'disabled' : ''}>← Anterior</button>
-        <button type="button" class="boton primario" data-ir="${estado.paso + 1}" ${estado.paso === total - 1 ? 'disabled' : ''}>Siguiente →</button>
-      </div>
-    </article>`;
-}
-
 function varianteB(ej) {
   return `<ol class="recorrido">${ej.pasos.map((p, k) => `
     <li><span class="nodo">${k + 1}</span><div class="cuerpo">
@@ -644,23 +645,117 @@ function varianteB(ej) {
     </div></li>`).join('')}</ol>`;
 }
 
-function varianteC(ej) {
-  const total = ej.pasos.reduce((s, p) => s + p.acciones.length, 0);
-  const hechas = [...estado.tildes].filter((t) => t.startsWith(`chk-${estado.ej}-`)).length;
-  return `<div class="progreso"><span class="suave">${hechas} de ${total} acciones hechas</span><div class="progreso-barra"><div style="width:${(hechas / total) * 100}%"></div></div></div>
-    <div class="dos-columnas">${ej.pasos.map((p, k) => `
-      <article class="fila-c">
-        <div>
-          <span class="sobretitulo">Paso ${k + 1} · Hacé</span>
-          <h3>${esc(p.nombre)}</h3>
-          <p class="objetivo">${p.objetivo}</p>
-          ${decision(p.decision)}
-          <ul class="acciones">${p.acciones.map((a, i) => accion(a, i, true, k)).join('')}</ul>
-          ${preguntasDelPaso(ej, p.preguntas)}
-        </div>
-        <div>${veras(p.veras)}</div>
-      </article>`).join('')}</div>`;
+
+function cuerpoNota(n, letra) {
+  return `<div class="nota-cuerpo">
+    ${n.titulo || letra ? `<span class="titulo-nota">${letra ? `<span class="letra">${letra}</span>` : ''}${esc(n.titulo || 'comando')}</span>` : ''}
+    ${n.t ? `<span>${esc(n.t)}</span>` : ''}
+    ${n.cmd ? `<div class="cmd"><pre>${esc(n.cmd)}</pre><button type="button" data-copiar="${esc(n.cmd)}">copiar</button></div>` : ''}
+  </div>`;
 }
+
+function recorrido(ej, acciones) {
+  return `<ol class="recorrido compacto">${ej.pasos.map((p, k) => `
+    <li><span class="nodo">${k + 1}</span><div class="cuerpo">
+      <h3>${esc(p.nombre)}</h3>
+      <p class="objetivo">${p.objetivo}</p>
+      ${decision(p.decision)}
+      ${acciones(p, k)}
+      ${veras(p.veras)}
+      ${preguntasDelPaso(ej, p.preguntas)}
+    </div></li>`).join('')}</ol>`;
+}
+
+function varianteB1(ej) {
+  return recorrido(ej, (p, k) => {
+    const items = p.acciones.map((a, i) => {
+      const id = `nota-${estado.ej}-${k}-${i}`;
+      const n = a.nota;
+      const crit = a.criterios ? `<div class="criterios">${a.criterios.map((c) => `<span>${esc(c)}</span>`).join('')}</div>` : '';
+      const chip = n ? `<button type="button" class="chip-nota" aria-expanded="false" aria-controls="${id}" data-plegar="${id}">${FLECHA_CORTA}${esc(n.titulo || 'comando')}${n.cmd ? '<span class="mas">$</span>' : ''}</button>` : '';
+      return `<li class="accion"><div style="min-width:0">
+        <div class="accion-texto"><span class="vineta">${i + 1}</span><span class="b1-linea"><span>${esc(a.t)}</span>${chip}</span></div>${crit}
+        ${n ? `<div class="b1-nota" id="${id}" hidden>${FLECHA_ABAJO}${cuerpoNota(n)}</div>` : ''}
+      </div></li>`;
+    }).join('');
+    const hayNotas = p.acciones.some((a) => a.nota);
+    return `<ul class="acciones">${items}</ul>${hayNotas ? `<button type="button" class="todas-las-notas" data-todas="${k}">Abrir todas las notas</button>` : ''}`;
+  });
+}
+
+function varianteB2(ej) {
+  return recorrido(ej, (p, k) => {
+    let n = 0;
+    const items = [], notas = [];
+    p.acciones.forEach((a, i) => {
+      const par = a.nota ? `${k}-${i}` : '';
+      const letra = a.nota ? LETRAS[n] : '';
+      const crit = a.criterios ? `<div class="criterios">${a.criterios.map((c) => `<span>${esc(c)}</span>`).join('')}</div>` : '';
+      items.push(`<li class="accion" ${par ? `data-par="${par}"` : ''}><div style="min-width:0">
+        <div class="accion-texto"><span class="vineta">${i + 1}</span><span class="b2-texto">${esc(a.t)}${par ? `<button type="button" class="b2-marca" data-ir-nota="${par}" aria-label="Ver la nota ${letra}">${letra}</button>` : ''}</span></div>${crit}
+      </div></li>`);
+      if (par) { notas.push(`<aside class="b2-nota" data-par="${par}" style="--giro:${GIROS[n % GIROS.length]}deg;--corrido:${CORRIDOS[n % CORRIDOS.length]}">${cuerpoNota(a.nota, letra)}</aside>`); n++; }
+    });
+    return `<div class="b2"><ul class="acciones">${items.join('')}</ul>${notas.length ? `<div class="b2-margen">${notas.join('')}</div><svg class="b2-flechas" aria-hidden="true"></svg>` : ''}</div>`;
+  });
+}
+
+/* Ubica las notas sueltas cerca de su sub-ítem sin que se pisen y dibuja una flecha de cada sub-ítem a su nota. */
+function acomodarB2() {
+  document.querySelectorAll('.b2').forEach((caja) => {
+    const margen = caja.querySelector('.b2-margen');
+    const svg = caja.querySelector('.b2-flechas');
+    if (!margen) return;
+    const apilado = getComputedStyle(margen).position === 'static';
+    const base = caja.getBoundingClientRect();
+    let piso = 0;
+    const tramos = [];
+    margen.querySelectorAll('.b2-nota').forEach((nota) => {
+      const marca = caja.querySelector(`[data-ir-nota="${nota.dataset.par}"]`);
+      if (apilado) { nota.style.top = ''; return; }
+      const m = marca.getBoundingClientRect();
+      const alto = nota.offsetHeight;
+      const y = Math.max(m.top - base.top - 22, piso);
+      nota.style.top = `${y}px`;
+      piso = y + alto + 14;
+      tramos.push({ par: nota.dataset.par, m, nota });
+    });
+    caja.style.minHeight = apilado ? '' : `${piso}px`;
+    if (apilado || !svg) return;
+    // Cada flecha sale recta hasta el borde de la columna de sub-ítems y recién ahí se curva: así no cruza otro texto.
+    const borde = caja.querySelector('.acciones').getBoundingClientRect().right - base.left + 14;
+    svg.innerHTML = tramos.map(({ par, m, nota }, i) => {
+      const codo = borde + i * 16;
+      const r = nota.getBoundingClientRect();
+      const x1 = m.right - base.left + 4, y1 = m.top + m.height / 2 - base.top;
+      const x2 = r.left - base.left - 6, y2 = Math.min(r.top - base.top + 22, r.bottom - base.top - 10);
+      const dx = (x2 - codo) * 0.5;
+      return `<path data-par="${par}" d="M${x1} ${y1} H ${codo} C ${codo + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}"/><path data-par="${par}" d="M${x2} ${y2} l-9 -5 M${x2} ${y2} l-9 5" style="stroke-dasharray:none"/>`;
+    }).join('');
+  });
+}
+
+function activarPar(caja, par) {
+  caja.classList.toggle('hay-activo', !!par);
+  caja.querySelectorAll('[data-par]').forEach((el) => el.classList.toggle('activa', !!par && el.dataset.par === par));
+}
+document.addEventListener('mouseover', (e) => {
+  const caja = e.target.closest('.b2');
+  if (!caja) return;
+  const el = e.target.closest('[data-par]');
+  activarPar(caja, el ? el.dataset.par : '');
+});
+document.addEventListener('mouseout', (e) => {
+  const caja = e.target.closest('.b2');
+  if (caja && !caja.contains(e.relatedTarget)) activarPar(caja, '');
+});
+document.addEventListener('focusin', (e) => {
+  const caja = e.target.closest('.b2');
+  const el = e.target.closest('[data-par]');
+  if (caja) activarPar(caja, el ? el.dataset.par : '');
+});
+window.addEventListener('resize', acomodarB2);
+document.fonts && document.fonts.ready.then(acomodarB2);
 
 /* ── Inventario ──────────────────────────────────────────────── */
 function inventario() {
@@ -696,8 +791,9 @@ function render() {
   document.getElementById('selector-ejercicio').innerHTML = Object.keys(EJERCICIOS).map((k) => `<button type="button" data-ej="${k}" aria-pressed="${k === estado.ej}">Ejercicio ${k}</button>`).join('');
   document.getElementById('selector-variante').innerHTML = Object.entries(VARIANTES).map(([k, v]) => `<button type="button" data-var="${k}" aria-pressed="${k === estado.variante}">${v.nombre}</button>`).join('');
   document.getElementById('descripcion-variante').textContent = VARIANTES[estado.variante].desc;
-  const cuerpo = { a: varianteA, b: varianteB, c: varianteC }[estado.variante](ej);
+  const cuerpo = { b: varianteB, b1: varianteB1, b2: varianteB2 }[estado.variante](ej);
   document.getElementById('vista').innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:baseline"><h2>Ejercicio ${estado.ej} · ${esc(ej.titulo)}</h2><span class="suave">${ej.minutos} min · ${ej.pasos.length} pasos</span></div>${cuerpo}`;
+  requestAnimationFrame(acomodarB2);
 }
 
 document.addEventListener('click', async (e) => {
@@ -705,19 +801,27 @@ document.addEventListener('click', async (e) => {
   if (!b) return;
   if (b.dataset.ej) { estado.ej = b.dataset.ej; estado.paso = 0; guardar('prop-ej', estado.ej); render(); }
   else if (b.dataset.var) { estado.variante = b.dataset.var; guardar('prop-var', estado.variante); render(); }
-  else if (b.dataset.ir !== undefined) { estado.paso = Number(b.dataset.ir); render(); document.getElementById('vista').scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+  else if (b.dataset.plegar) {
+    const abierta = b.getAttribute('aria-expanded') === 'true';
+    b.setAttribute('aria-expanded', String(!abierta));
+    document.getElementById(b.dataset.plegar).hidden = abierta;
+  }
+  else if (b.dataset.todas !== undefined) {
+    const cuerpo = b.closest('.cuerpo');
+    const abrir = b.textContent.startsWith('Abrir');
+    cuerpo.querySelectorAll('[data-plegar]').forEach((c) => { c.setAttribute('aria-expanded', String(abrir)); document.getElementById(c.dataset.plegar).hidden = !abrir; });
+    b.textContent = abrir ? 'Cerrar todas las notas' : 'Abrir todas las notas';
+  }
+  else if (b.dataset.irNota) {
+    const caja = b.closest('.b2');
+    activarPar(caja, b.dataset.irNota);
+    caja.querySelector(`.b2-nota[data-par="${b.dataset.irNota}"]`).scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
   else if (b.dataset.copiar !== undefined) {
     try { await navigator.clipboard.writeText(b.dataset.copiar); b.textContent = 'copiado'; }
     catch { const pre = b.previousElementSibling; const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'seleccionado'; }
     setTimeout(() => { b.textContent = 'copiar'; }, 1500);
   }
-});
-document.addEventListener('change', (e) => {
-  const id = e.target.dataset && e.target.dataset.tilde;
-  if (!id) return;
-  e.target.checked ? estado.tildes.add(id) : estado.tildes.delete(id);
-  render();
-  document.getElementById(id)?.focus();
 });
 
 render();
