@@ -13,7 +13,7 @@ type ParametrosHorarios = {
   ahora: Date
 }
 
-function ocupaRango(sesion: Sesion, inicio: number, fin: number): boolean {
+export function ocupaRango(sesion: Sesion, inicio: number, fin: number): boolean {
   return aMinutos(sesion.horaInicio) < fin && inicio < aMinutos(sesion.horaFin)
 }
 
