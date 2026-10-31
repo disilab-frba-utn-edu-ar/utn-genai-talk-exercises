@@ -77,6 +77,7 @@ implementar el código correspondiente.
 
 ## Notas para quien siga
 
-- ⚠️ El chequeo de conflicto de `POST /api/sesiones` compara solo la hora de
-  inicio exacta (T025 cubre ese caso). Las superposiciones parciales **no** se
-  detectan todavía: queda como deuda conocida (ver ejercicio 1).
+- ✅ El chequeo de conflicto de `POST /api/sesiones` ya detecta superposiciones
+  parciales (no solo la misma hora de inicio) mediante `domain/superposicion.ts`
+  (`haySuperposicion`). Ver tests en `tests/server/domain/superposicion.test.ts`
+  y `tests/server/api/sesiones.test.ts`.
