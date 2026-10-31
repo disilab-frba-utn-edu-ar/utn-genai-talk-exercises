@@ -1,0 +1,18 @@
+{
+  "nombre": "",
+  "integrantes": [],
+  "modelo": "",
+  "agente": "",
+  "puntaje": null,
+  "comentario": "",
+  "ejercicios": {
+    "01-observabilidad-con-hooks": {
+      "modelo": "Nemotron 3.5 Super VL",
+      "agente": "Cline",
+      "intervino": "",
+      "intervencion": "",
+      "feedback": ""
+    }
+  },
+  "guardado": "2026-10-31T16:11:13.250Z"
+}
