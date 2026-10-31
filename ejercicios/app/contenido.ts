@@ -6,7 +6,15 @@ import indice from "../indice.json"
  * `insertarDespuesDe`: línea exacta de la consigna debajo de la cual se muestra (si no, va en su propia sección).
  * `soloSiTerminado`: id de un ejercicio; el anexo se muestra recién cuando ese ejercicio está marcado como terminado.
  */
-export type Anexo = { titulo: string; archivo: string; insertarDespuesDe?: string; soloSiTerminado?: string; markdown: string[] }
+export type Anexo = {
+  titulo: string
+  archivo: string
+  insertarDespuesDe?: string
+  soloSiTerminado?: string
+  /** En lugar del markdown, el panel para mandar pedidos a la API (ver ProbarApi.tsx). */
+  componente?: "probar-api" | "consultar-sesiones"
+  markdown: string[]
+}
 
 type ArchivoEjercicio = {
   titulo: string
@@ -38,7 +46,7 @@ export const ejercicios: Ejercicio[] = Object.keys(archivos)
   .sort()
   .map((ruta, i) => ({ ...archivos[ruta], id: ruta.split("/")[1], numero: i + 1 }))
 
-export const introduccion = indice.introduccion.join("\n")
+export const rama = indice.rama.join("\n")
 
 export type Tramo = { tipo: "consigna" | "preguntas"; lineas: string[] }
 

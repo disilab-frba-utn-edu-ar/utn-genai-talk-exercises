@@ -111,7 +111,7 @@ function ContenidoTarjeta({ tarjeta, idTitulo }: { tarjeta: Historia | Hecha; id
       {esHistoria(tarjeta) && (
         <ul className="etiquetas" aria-label="Tamaño y recomendación">
           <li className="etiqueta">{tarjeta.tamano}</li>
-          <li className="etiqueta">{tarjeta.recomendada}</li>
+          {"recomendada" in tarjeta && <li className="etiqueta">{tarjeta.recomendada}</li>}
         </ul>
       )}
       <p className="detalle-historia">{tarjeta.historia}</p>
