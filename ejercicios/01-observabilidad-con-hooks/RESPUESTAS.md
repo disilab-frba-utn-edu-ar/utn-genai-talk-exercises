@@ -1,0 +1,142 @@
+# Ejercicio 1 — Respuestas
+
+**Nombre:** _Sin completar en Mi perfil._
+**¿Intervinieron durante la tarea?** _Sin completar en Mi perfil._
+
+## Parte A — Lo que pasó
+
+### 1. El ciclo
+
+**1.1** ¿Cuántas llamadas a herramientas hizo el agente en total?
+
+12 llamadas a herramientas
+Herramientas usadas:
+     7  Bash
+     3  Edit
+     2  Write
+
+**1.2** ¿Qué herramienta usó más?
+
+Bash (7 llamadas)
+
+**1.3** Agrupalas en las familias de la charla: búsqueda de código, control de versiones, validación local, navegador, servicios.
+
+Búsqueda de código: 3
+Control de versiones: 0
+Validación local: 4
+Navegador: 0
+Servicios: 0
+
+### 2. Explorar antes de actuar
+
+**2.1** ¿Cuántas herramientas usó **antes** de su primera edición de archivo?
+
+3 bash
+
+**2.2** ¿Qué archivos leyó?
+
+Antes de escribir leyó 11 archivos:
+.specify/memory/constitution.md
+shared/types.ts
+server/services/sesiones.ts
+server/services/errores.ts
+server/routes/sesiones.ts
+server/domain/horarios.ts
+server/domain/fechas.ts
+tests/server/domain/horarios.test.ts
+tests/server/api/helpers.ts
+tests/server/api/sesiones.test.ts
+data/tipos-asesoria.json
+
+**2.3** ¿Leyó la constitution que menciona el prompt?
+
+Si, fue lo primero que leyó
+
+### 3. Comandos de terminal
+
+**3.1** Listá todos los comandos que ejecutó.
+
+cat .specify/memory/constitution.md && ls server server/* tests/server/* shared && cat shared/types.ts
+cat server/services/sesiones.ts server/services/errores.ts server/routes/sesiones.ts server/domain/horarios.ts server/domain/fechas.ts tests/server/domain/horarios.test.ts | head -400
+cat tests/server/api/helpers.ts tests/server/api/sesiones.test.ts; cat data/tipos-asesoria.json 2>/dev/null | head -40; ls data
+npx vitest run tests/server/domain/superposicion.test.ts tests/server/api/sesiones.test.ts 2>&1 | tail -40
+npx vitest run tests/server/domain/superposicion.test.ts 2>&1 | grep -E "FAIL|Error|Tests|Test Files" | head
+npm test 2>&1 | tail -15; npm run lint 2>&1 | tail -15; npm run typecheck 2>&1 | tail -10; git status --short
+npm test 2>&1 | grep -E "FAIL" ; git stash -u -q && npm test 2>&1 | grep -E "FAIL|Tests " ; git stash pop -q && git status --short
+
+**3.2** ¿Alguno no lo pediste vos? ¿Alguno te generó dudas al aprobarlo?
+
+Si, los que no pedí son:
+npm run typecheck 
+git status --short
+git stash -u / git stash pop
+No me generaron dudas
+
+**3.3** Clasificá cada uno con el semáforo de la charla: verde (lectura), amarillo (validación local) o rojo (escritura o producción).
+
+Verde (lectura):
+
+cd "c:/Users/abril/UTN/Seminario GenAI/utn-genai-talk-exercises" && cat .specify/memory/constitution.md && ls server server/* tests/server/* shared && cat shared/types.ts
+cd "c:/Users/abril/UTN/Seminario GenAI/utn-genai-talk-exercises" && cat server/services/sesiones.ts server/services/errores.ts server/routes/sesiones.ts server/domain/horarios.ts server/domain/fechas.ts tests/server/domain/horarios.test.ts | head -400
+cd "c:/Users/abril/UTN/Seminario GenAI/utn-genai-talk-exercises" && cat tests/server/api/helpers.ts tests/server/api/sesiones.test.ts; cat data/tipos-asesoria.json 2>/dev/null | head -40; ls data
+
+
+Amarillo (validación local):
+
+cd "c:/Users/abril/UTN/Seminario GenAI/utn-genai-talk-exercises" && npx vitest run tests/server/domain/superposicion.test.ts tests/server/api/sesiones.test.ts 2>&1 | tail -40
+cd "c:/Users/abril/UTN/Seminario GenAI/utn-genai-talk-exercises" && npx vitest run tests/server/domain/superposicion.test.ts 2>&1 | grep -E "FAIL|Error|Tests|Test Files" | head
+cd "c:/Users/abril/UTN/Seminario GenAI/utn-genai-talk-exercises" && npm test 2>&1 | tail -15; npm run lint 2>&1 | tail -15; npm run typecheck 2>&1 | tail -10; git status --short
+
+
+Rojo (escritura o producción):
+
+cd "c:/Users/abril/UTN/Seminario GenAI/utn-genai-talk-exercises" && npm test 2>&1 | grep -E "FAIL" ; git stash -u -q && npm test 2>&1 | grep -E "FAIL|Tests " ; git stash pop -q && git status --short
+
+### 4. Errores y reintentos
+
+**4.1** ¿Alguna herramienta falló (`PostToolUseFailure` o un `output` con error)?
+
+PostToolUseFailure: 0
+Output con error: 4 tests (2 esperados y 2 del readme que ya fallaban antes)
+
+**4.2** ¿Qué hizo el agente después?
+
+En los primeros 2, leyó el motivo del fallo (el módulo no existía y la API devolvía 201 en vez de 409) y luego implementó los cambios.
+Después de los fallos del readme, no trató de arreglarlos porque se dió cuenta que estaban fuera del alcance del ejercicio.
+
+## Parte B — Lo que pensás
+
+### 5. Contexto
+
+**5.1** Sumá aproximadamente el tamaño de las salidas: ¿qué herramienta "llenó" más la ventana?
+
+Salida que volvió al modelo (caracteres, por herramienta):
+     43347  Bash
+Es la única herramienta que aparece como salida que volvió al modelo
+
+**5.2** ¿Había lecturas que se podían evitar? Por ejemplo: ¿leyó `data/sesiones.json` entero para entender el formato, en lugar de `shared/types.ts`?
+
+No leyó data/sesiones.json completo, leyó shared/types.ts.
+
+### 6. Hooks como control
+
+**6.1** ¿En qué evento lo pondrías?
+
+No dejar que el agente haga git push sin preguntar
+
+**6.2** ¿Por qué tiene que ser un hook y no una instrucción en `AGENTS.md` o en la constitution?
+
+Porque si fuera una instrucción, al quedarnos sin contexto, el agente puede olvidarla o ignorarla.
+
+### 7. Riesgos
+
+Como se corre sin preguntar, si alguien lo cambia y no se revisa, se va a ejecutar igual.
+Si los hooks estan mal escritos, pueden bloquear de más o de menos. Por ejemplo, bloquear todo comando que diga cierta palabra puede hacer que se bloqueen comandos necesarios.
+Si un hook tiene un error, va a fallar en cada acción.
+Si llama a un servicio externo y esta caído, el agente se va a quedar esperando o se va a trabar.
+
+## Para cerrar
+
+**Modelo:** Opus 5.5
+
+**Agente:** Claude Code

@@ -126,3 +126,30 @@ describe("API · POST /api/sesiones", () => {
     expect(res.status).toBe(201)
   })
 })
+
+describe("API · GET /api/sesiones/:id", () => {
+  it("devuelve el detalle de la sesión", async () => {
+    const sesion = sesionDePrueba()
+    const { api } = crearAppDePrueba([sesion, sesionDePrueba({ id: "otra", fecha: "2026-10-21" })])
+    const res = await api.get(`/api/sesiones/${sesion.id}`)
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({ id: sesion.id, mentoraId: VALENTINA, fecha: LUNES, horaInicio: "18:00", horaFin: "18:30" })
+  })
+
+  it("no expone los datos de contacto del colectivo (Principio IV)", async () => {
+    const sesion = sesionDePrueba()
+    const { api } = crearAppDePrueba([sesion])
+    const res = await api.get(`/api/sesiones/${sesion.id}`)
+    expect(res.body).not.toHaveProperty("contactoEmail")
+    expect(res.body).not.toHaveProperty("contactoNombre")
+    expect(JSON.stringify(res.body)).not.toContain("ana@example.org")
+  })
+
+  it("404 si la sesión no existe o el id está mal formado", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba()])
+    const inexistente = await api.get("/api/sesiones/00000000-0000-4000-8000-000000000099")
+    expect(inexistente.status).toBe(404)
+    expect(inexistente.body).toEqual({ error: "La sesión no existe" })
+    expect((await api.get("/api/sesiones/no-es-un-uuid")).status).toBe(404)
+  })
+})

@@ -10,9 +10,18 @@ import { conflicto, invalido, noEncontrado } from "./errores"
 
 /** Vista pública de una sesión: sin los datos de contacto del colectivo (Principio IV). */
 function aSesionPublica(sesion: Sesion): SesionPublica {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- se descartan a propósito
-  const { contactoNombre, contactoEmail, ...publica } = sesion
-  return publica
+  // Campo por campo: un dato privado que se agregue a Sesion no se filtra solo.
+  return {
+    id: sesion.id,
+    mentoraId: sesion.mentoraId,
+    tipoAsesoriaId: sesion.tipoAsesoriaId,
+    colectivoId: sesion.colectivoId,
+    proyecto: sesion.proyecto,
+    fecha: sesion.fecha,
+    horaInicio: sesion.horaInicio,
+    horaFin: sesion.horaFin,
+    estado: sesion.estado,
+  }
 }
 
 export function crearServicioSesiones(repos: Repositorios, reloj: () => Date) {
@@ -23,6 +32,12 @@ export function crearServicioSesiones(repos: Repositorios, reloj: () => Date) {
         .filter((s) => !filtros.mentoraId || s.mentoraId === filtros.mentoraId)
         .filter((s) => !filtros.fecha || s.fecha === filtros.fecha)
         .map(aSesionPublica)
+    },
+
+    obtener(id: string): SesionPublica {
+      const sesion = repos.sesiones.buscar(id)
+      if (!sesion) throw noEncontrado("La sesión no existe")
+      return aSesionPublica(sesion)
     },
 
     crear(datos: unknown): Sesion {
