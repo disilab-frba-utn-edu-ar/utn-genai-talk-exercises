@@ -1,0 +1,20 @@
+{
+  "nombre": "Santiago Barrios",
+  "integrantes": [
+    "Santiago Baez Duic"
+  ],
+  "modelo": "Opus 5.5, Sonnet 5.5, Haiku",
+  "agente": "Claude Code",
+  "puntaje": null,
+  "comentario": "",
+  "ejercicios": {
+    "01-observabilidad-con-hooks": {
+      "modelo": "Opus 5.5",
+      "agente": "Claude Code",
+      "intervino": "",
+      "intervencion": "",
+      "feedback": ""
+    }
+  },
+  "guardado": "2026-10-31T16:06:57.000Z"
+}

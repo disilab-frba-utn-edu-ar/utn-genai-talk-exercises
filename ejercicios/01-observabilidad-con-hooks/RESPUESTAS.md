@@ -1,0 +1,96 @@
+# Ejercicio 1 — Respuestas
+
+**Nombre:** Santiago Barrios
+**Integrantes:** Santiago Baez Duic
+**¿Intervinieron durante la tarea?** _Sin completar en Mi perfil._
+
+## Parte A — Lo que pasó
+
+### 1. El ciclo
+
+**1.1** ¿Cuántas llamadas a herramientas hizo el agente en total?
+
+12
+
+**1.2** ¿Qué herramienta usó más?
+
+bash
+
+### 2. Explorar antes de actuar
+
+**2.1** ¿Cuántas herramientas usó **antes** de su primera edición de archivo?
+
+4
+
+**2.2** ¿Qué archivos leyó?
+
+2  server/services/sesiones.ts  [editar]
+     1  tests/server/domain/superposicion.test.ts  [crear]
+     1  tests/server/api/sesiones.test.ts  [editar]
+     1  server/domain/superposicion.ts  [crear]
+
+**2.3** ¿Leyó la constitution que menciona el prompt?
+
+Si leyo la consitucion
+
+### 3. Comandos de terminal
+
+**3.1** Listá todos los comandos que ejecutó.
+
+$ cd "/home/santiago-barrios/Ing. en Sistemas de Informacion/SeminarioAI/utn-genai-talk-exercises" && cat .specify/memory/constitution.md && l…
+  $ cd "/home/santiago-barrios/Ing. en Sistemas de Informacion/SeminarioAI/utn-genai-talk-exercises" && cat server/services/sesiones.ts server/s…
+  $ cd "/home/santiago-barrios/Ing. en Sistemas de Informacion/SeminarioAI/utn-genai-talk-exercises" && ls data && grep -n -A3 '"revision_de_cod…
+  $ cd "/home/santiago-barrios/Ing. en Sistemas de Informacion/SeminarioAI/utn-genai-talk-exercises" && grep -rn "409" specs client/src | head
+  $ cd "/home/santiago-barrios/Ing. en Sistemas de Informacion/SeminarioAI/utn-genai-talk-exercises" && npx vitest run tests/server/domain/super…
+  $ cd "/home/santiago-barrios/Ing. en Sistemas de Informacion/SeminarioAI/utn-genai-talk-exercises" && npx vitest run tests/server/domain/super…
+  $ cd "/home/santiago-barrios/Ing. en Sistemas de Informacion/SeminarioAI/utn-genai-talk-exercises" && npm test 2>&1 | tail -8; npm run lint 2>…
+
+**3.2** ¿Alguno no lo pediste vos? ¿Alguno te generó dudas al aprobarlo?
+
+No pedi ninguno, no me pidio aprobaciones
+
+**3.3** Clasificá cada uno con el semáforo de la charla: verde (lectura), amarillo (validación local) o rojo (escritura o producción).
+
+_Sin responder._
+
+### 4. Errores y reintentos
+
+**4.1** ¿Alguna herramienta falló (`PostToolUseFailure` o un `output` con error)?
+
+NO veo algun error de output, si un test
+
+**4.2** ¿Qué hizo el agente después?
+
+Toco el test porque considero que era imprescindible
+
+Tuve que tocar un test existente: "409 si ya hay una sesión confirmada que empieza a la misma hora" (tests/server/api/sesiones.test.ts:107). Era imprescindible: ese caso ahora es una superposición más y devuelve el mensaje nuevo en vez de "El horario ya está reservado". Solo cambié el texto esperado; el status sigue siendo 409.
+
+No modifiqué nada en data/. El cliente ya maneja cualquier 409 en ReservaPage.tsx:87, así que no hizo falta tocarlo.
+
+## Parte B — Lo que pensás
+
+### 5. Contexto
+
+**5.1** Sumá aproximadamente el tamaño de las salidas: ¿qué herramienta "llenó" más la ventana?
+
+32313  Bash
+
+**5.2** ¿Había lecturas que se podían evitar? Por ejemplo: ¿leyó `data/sesiones.json` entero para entender el formato, en lugar de `shared/types.ts`?
+
+Si leyo el sesiones:
+{"ts":"2026-10-31T15:38:42.664Z","agent":"claude","event":"PostToolUse","session":"37186bac-c620-4a7f-b504-c9a5cf38df13","turn":"155af108-88db-4aeb-9bd3-e5f03adc58e8","toolUseId":"toolu_01WHXS8TEzkpf4KzAiXc695u","transcriptPath":"/home/santiago-barrios/.claude/projects/-home-santiago-barrios-Ing--en-Sistemas-de-Informacion-SeminarioAI-utn-genai-talk-exercises/37186bac-c620-4a7f-b504-c9a5cf38df13.jsonl","tool":"Bash","kind":"ejecutar","detail":"cd \"/home/santiago-barrios/Ing. en Sistemas de Informacion/SeminarioAI/utn-genai-talk-exercises\" && ls data && grep -n -A3 '\"revision_de_codigo\"' data/tipos-asesoria.json 2>/dev/null | head; grep -rn ","output":"{\"stdout\":\"colectivos.json\\nhabilidades.json\\nmentoras.json\\nsesiones.json\\ntipos-asesoria.json\\n3:    \\\"id\\\": \\\"revision_de_codigo\\\",\\n4-    \\\"nombre\\\": \\\"Revisión de código\\\",\\n5-    \\\"descripcion\\\": \\\"Una mirada externa sobre un PR o un módulo: legibilidad, errores y próximos pasos.\\\",\\n6-    \\\"duracionMinutos\\\": 30,\\nspecs/001-reservar-sesion/research.md:27:  - Se descartan los que se superpon… [+1100 caracteres]","outputChars":1500,"durationMs":64}
+
+### 6. Hooks como control
+
+Si pondria un prevToUse para que no edite en data/.
+
+### 7. Riesgos
+
+- Muchos hooks pueden comerte mucho contexto de la sesion
+- SI corren scripts pueden comerte mucho token en solo validaciones
+
+## Para cerrar
+
+**Modelo:** Opus 5.5
+
+**Agente:** Claude Code
