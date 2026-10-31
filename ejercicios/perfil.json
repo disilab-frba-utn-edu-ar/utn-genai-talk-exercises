@@ -5,6 +5,14 @@
   "agente": "Google Antigravity y Cline",
   "puntaje": null,
   "comentario": "Hoy a la mañana ya estuve en grupo con 3 integrantes (la branch del grupo era ejercicios/NicoLeo), pero ahora en casa lo estoy haciendo de 0 mas tranquilo para entender cosas que no habia llegado a entenderlas y practicarlas",
-  "ejercicios": {},
-  "guardado": "2026-10-31T21:50:30.905Z"
+  "ejercicios": {
+    "01-observabilidad-con-hooks": {
+      "modelo": "cline nemotron 3.5 super VL",
+      "agente": "cline",
+      "intervino": "",
+      "intervencion": "",
+      "feedback": ""
+    }
+  },
+  "guardado": "2026-10-31T23:52:48.974Z"
 }

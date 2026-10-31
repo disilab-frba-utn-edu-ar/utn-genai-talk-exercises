@@ -1,0 +1,168 @@
+{
+  "ejercicio": "01-observabilidad-con-hooks",
+  "guardado": "2026-10-31T23:52:48.994Z",
+  "general": [
+    "# Ejercicio 1 — Respuestas"
+  ],
+  "respuestas": {
+    "1.1": [
+      "Turnos: 1  ·  Llamadas a herramientas: 78  ·  Eventos registrados: 158"
+    ],
+    "1.2": [
+      "Herramientas usadas:",
+      "    38  run_commands // ésta",
+      "    26  read_files",
+      "    14  editor"
+    ],
+    "2.1": [
+      "run_commands y read_files",
+      "",
+      "la 1ra edicion de archivo fueron la creacion de los tests"
+    ],
+    "2.2": [
+      "Archivos leídos:",
+      "     6  server/services/sesiones.ts",
+      "     2  specs/001-reservar-sesion",
+      "     2  specs/001-reservar-sesion/.specify/memory/constitution.md",
+      "     2  specs/001-reservar-sesion/package.json",
+      "     2  package.json",
+      "     2  .specify/memory/constitution.md",
+      "     2  vitest.config.ts",
+      "     2  server/domain/horarios.ts",
+      "     2  server/domain/fechas.ts",
+      "     2  server/domain/mentoras.ts",
+      "     2  server/domain/validaciones.ts",
+      "     2  server/routes/sesiones.ts",
+      "     2  server/services/errores.ts",
+      "     2  tests/server/domain/horarios.test.ts",
+      "     2  tests/server/api/sesiones.test.ts",
+      "     2  tests/server/api/helpers.ts",
+      "     2  shared",
+      "     2  server/repositories/json-store.ts",
+      "     2  server/repositories/index.ts",
+      "     2  server/app.ts",
+      "     2  server/config.ts",
+      "     2  server/index.ts",
+      "     2  shared/types.ts",
+      "     2  tests/server/domain/fechas.test.ts",
+      "     2  tests/server/domain/validaciones.test.ts",
+      "     2  data/tipos-asesoria.json",
+      "     2  data/mentoras.json"
+    ],
+    "2.3": [
+      "si, fue lo 1ro que hizo (junto con leer specs/001-reservar-sesion)"
+    ],
+    "3.1": [
+      "Comandos de terminal:",
+      "  $ ls -la \"D:\\\\Desktop\\\\DSW repos npm\\\\utn-genai-talk-exercises\\\\specs\\\\001-reservar-sesion\"",
+      "  $ ls -la \"D:\\\\Desktop\\\\DSW repos npm\\\\utn-genai-talk-exercises\\\\specs\\\\001-reservar-sesion\"",
+      "  $ Get-ChildItem -Path \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\\specs\\001-reservar-sesion\" -Force",
+      "  $ Get-ChildItem -Path \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\\specs\\001-reservar-sesion\" -Force",
+      "  $ Get-ChildItem -Path \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\" -Force",
+      "  $ Get-ChildItem -Path \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\" -Force",
+      "  $ Get-ChildItem -Path \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\\server\" -Recurse -Force | Select-Object -First 50",
+      "  $ Get-ChildItem -Path \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\\server\" -Recurse -Force | Select-Object -First 50",
+      "  $ Get-ChildItem -Path \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\\tests\" -Recurse -Force | Select-Object -First 50",
+      "  $ Get-ChildItem -Path \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\\tests\" -Recurse -Force | Select-Object -First 50",
+      "  $ Get-ChildItem -Path \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\\data\" -Force",
+      "  $ Get-ChildItem -Path \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\\data\" -Force",
+      "  $ Get-ChildItem -Path \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\\shared\" -Force",
+      "  $ Get-ChildItem -Path \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\\shared\" -Force",
+      "  $ npx vitest run tests/server/domain/superposicion.test.ts 2>&1",
+      "  $ npx vitest run tests/server/domain/superposicion.test.ts 2>&1",
+      "  $ npx vitest run tests/server/domain/superposicion.test.ts 2>&1",
+      "  $ npx vitest run tests/server/domain/superposicion.test.ts 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\" && npx vitest run tests/server/domain/superposicion.test.ts 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\" && npx vitest run tests/server/domain/superposicion.test.ts 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx vitest run tests/server/domain/superposicion.test.ts 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx vitest run tests/server/domain/superposicion.test.ts 2>&1",
+      "  $ rm \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\\server\\domain\\superposicion.ts\"",
+      "  $ rm \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\\server\\domain\\superposicion.ts\"",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx vitest run tests/server/domain/superposicion.test.ts 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx vitest run tests/server/domain/superposicion.test.ts 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx vitest run tests/server/domain/superposicion.test.ts 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx vitest run tests/server/domain/superposicion.test.ts 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; node -e \"import('./data/tipos-asesoria.json').then(d => console.log(JSON.string",
+      "ify(d…",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; node -e \"import('./data/tipos-asesoria.json').then(d => console.log(JSON.string",
+      "ify(d…",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx vitest run 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx vitest run 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx vitest run --project server 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx vitest run --project server 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx eslint . 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx eslint . 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx tsc --noEmit 2>&1",
+      "  $ cd \"D:\\Desktop\\DSW repos npm\\utn-genai-talk-exercises\"; npx tsc --noEmit 2>&1"
+    ],
+    "3.2": [
+      "en realidad, el modelo estaba en modo auto-aprove-all, asi que medio que se auto aprobó todo y no hubo intervencion de mi parte"
+    ],
+    "3.3": [
+      "todos los get childitem etc... serian VERDE ya que es una ejecución, pero solo para leer un archivo",
+      "los \"npx vitest run\" solo están ejecutando test, VERDE",
+      "",
+      "CD \"ETC\"... se cambia de carpeta, VERDE",
+      "",
+      "rm \"cd...\" esta removiendo un archivo especifico, ROJO",
+      "",
+      "ls -la etc... esta leyendo archvio, VERDE"
+    ],
+    "4.1": [
+      "no que yo me haya dado cuenta"
+    ],
+    "4.2": [
+      "exactamente lo que se le pidio en el prompt, SALVO la ultima parte: se salteo completamente lo de \"decime los pasos que vas a hacer\", y simplemente se mandó a hacerlos"
+    ],
+    "5.1": [
+      "Salida que volvió al modelo (caracteres, por herramienta):",
+      "    134118  read_files",
+      "     56912  run_commands",
+      "",
+      "claraente read_files es lo que llenó mas el contexto que run_commands. Se la pasó mas leyendo archivos que escribiendo. Creo que está bien, si lo que importa es que valide mucho lo que luego escribe"
+    ],
+    "5.2": [
+      "estos son los archivos leidos:",
+      "",
+      "Archivos leídos:",
+      "     6  server/services/sesiones.ts",
+      "     2  specs/001-reservar-sesion",
+      "     2  specs/001-reservar-sesion/.specify/memory/constitution.md",
+      "     2  specs/001-reservar-sesion/package.json",
+      "     2  package.json",
+      "     2  .specify/memory/constitution.md",
+      "     2  vitest.config.ts",
+      "     2  server/domain/horarios.ts",
+      "     2  server/domain/fechas.ts",
+      "     2  server/domain/mentoras.ts",
+      "     2  server/domain/validaciones.ts",
+      "     2  server/routes/sesiones.ts",
+      "     2  server/services/errores.ts",
+      "     2  tests/server/domain/horarios.test.ts",
+      "     2  tests/server/api/sesiones.test.ts",
+      "     2  tests/server/api/helpers.ts",
+      "     2  shared",
+      "     2  server/repositories/json-store.ts",
+      "     2  server/repositories/index.ts",
+      "     2  server/app.ts",
+      "     2  server/config.ts",
+      "     2  server/index.ts",
+      "     2  shared/types.ts",
+      "     2  tests/server/domain/fechas.test.ts",
+      "     2  tests/server/domain/validaciones.test.ts",
+      "     2  data/tipos-asesoria.json",
+      "     2  data/mentoras.json",
+      "",
+      "",
+      "medio que no se si hacia falta leer el data/mentoras, capaz lo leyo para luego hacer los tests",
+      "",
+      ""
+    ],
+    "6.1": [
+      "pondria un hook que bloque el data en el momento en que el anterior hook ya existente, detecte que se esta queriendo usar la herramienta run_commands sobre el archvio data. a lo mejor esto daria un falso positivo, ya que capaz se quiere solamente leer dicho archivo usando un comando de consola. asi que no se, capaz habir que decirle tambien que al leerlo, si hace falta, solo use la herramienta read_files"
+    ],
+    "7.1": [
+      "lo que se me viene a la mente ahora mismo, son hooks que commiteen y pusheen automaticamente al repo remoto. creo que todo lo demás es de alguna forma salvable, pero una vez que ya está en el remoto ya queda en el historial de commits"
+    ]
+  }
+}

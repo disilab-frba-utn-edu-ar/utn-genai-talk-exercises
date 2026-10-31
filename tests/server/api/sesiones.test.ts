@@ -108,6 +108,26 @@ describe("API · POST /api/sesiones", () => {
     const { api } = crearAppDePrueba([sesionDePrueba({ horaInicio: "19:00", horaFin: "19:30" })])
     const res = await api.post("/api/sesiones").send(nueva())
     expect(res.status).toBe(409)
-    expect(res.body).toEqual({ error: "El horario ya está reservado" })
+    expect(res.body).toEqual({ error: "El horario se superpone con otra sesión de la mentora" })
+  })
+
+  it("409 si la nueva sesión se superpone parcialmente con una confirmada", async () => {
+    // Existente: 18:00-19:00, Nueva: 18:30-19:00 (revision_de_codigo = 30 min)
+    const { api } = crearAppDePrueba([
+      sesionDePrueba({ horaInicio: "18:00", horaFin: "19:00" }),
+    ])
+    const res = await api.post("/api/sesiones").send(nueva({ horaInicio: "18:30" }))
+    expect(res.status).toBe(409)
+    expect(res.body).toEqual({ error: "El horario se superpone con otra sesión de la mentora" })
+  })
+
+  it("201 cuando una sesión termina exactamente cuando otra empieza (no es superposición)", async () => {
+    // Existente: 18:00-18:30, Nueva: 18:30-19:00 (solo tocan en el límite, no se superponen)
+    const { api } = crearAppDePrueba([
+      sesionDePrueba({ horaInicio: "18:00", horaFin: "18:30" }),
+    ])
+    const res = await api.post("/api/sesiones").send(nueva({ horaInicio: "18:30" }))
+    expect(res.status).toBe(201)
+    expect(res.body).toMatchObject({ horaInicio: "18:30", horaFin: "19:00", estado: "confirmada" })
   })
 })
