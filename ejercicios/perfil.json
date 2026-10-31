@@ -1,0 +1,21 @@
+{
+  "nombre": "Los Skills Hooks",
+  "integrantes": [
+    "Luciano Rodriguez Vega",
+    "Facundo David Storni"
+  ],
+  "modelo": "Beam 1.0",
+  "agente": "Cline",
+  "puntaje": null,
+  "comentario": "",
+  "ejercicios": {
+    "01-observabilidad-con-hooks": {
+      "modelo": "",
+      "agente": "",
+      "intervino": "no",
+      "intervencion": "",
+      "feedback": "No nos alcanzó el tiempo para resolver bien las preguntas asi que le pedimos a Gemini que las respondiera por nosotros pasandoles los logs."
+    }
+  },
+  "guardado": "2026-10-31T17:58:54.410Z"
+}
