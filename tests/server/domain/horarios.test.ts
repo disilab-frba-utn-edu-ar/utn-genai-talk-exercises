@@ -99,3 +99,37 @@ describe("domain/horarios · estaDentroDeDisponibilidad", () => {
     expect(estaDentroDeDisponibilidad(disponibilidad, MARTES, "09:00", "09:30")).toBe(false)
   })
 })
+
+describe("domain/horarios · cupo mensual", () => {
+  const base = { disponibilidad, fecha: LUNES, ahora: ANTES }
+
+  it("no ofrece horarios si el cupo del mes está agotado", () => {
+    const sesiones = [sesion("09:00", "11:00")]
+    expect(calcularHorarios({ ...base, sesiones, duracionMinutos: 30, cupoHoras: 2 })).toEqual([])
+  })
+
+  it("no ofrece una asesoría de 60 si quedan 30 minutos, pero sí una de 30", () => {
+    // Cupo de 1 h con 30 minutos ya consumidos este mes: quedan 30.
+    const quedan30 = [sesion("09:00", "09:30", { fecha: "2026-10-12" })]
+    expect(calcularHorarios({ ...base, sesiones: quedan30, duracionMinutos: 60, cupoHoras: 1 })).toEqual([])
+    expect(inicios(calcularHorarios({ ...base, sesiones: quedan30, duracionMinutos: 30, cupoHoras: 1 }))).toContain("09:00")
+  })
+
+  it("sin cupo definido no limita", () => {
+    expect(calcularHorarios({ ...base, sesiones: [], duracionMinutos: 30 })).not.toEqual([])
+  })
+
+  it("un mes agotado no ofrece días pero el mes siguiente sí", () => {
+    const sesiones = [sesion("09:00", "11:00", { fecha: "2026-10-26" })]
+    const dias = calcularDiasDisponibles({
+      disponibilidad,
+      sesiones,
+      duracionMinutos: 30,
+      ahora: new Date(2026, 9, 26, 8, 0),
+      dias: 14,
+      cupoHoras: 2,
+    })
+    // 26/10 es lunes de octubre (agotado) y 2/11 es lunes de noviembre (con cupo propio).
+    expect(dias.map((d) => d.fecha)).toEqual(["2026-11-02"])
+  })
+})

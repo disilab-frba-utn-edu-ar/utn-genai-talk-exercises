@@ -589,6 +589,13 @@ h1 .acento {
   color: var(--texto-suave);
 }
 
+.cupo-mensual {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+
 .mentora-presentacion {
   flex: 1;
   margin: 0;

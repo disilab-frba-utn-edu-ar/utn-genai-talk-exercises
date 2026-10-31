@@ -1,5 +1,6 @@
 import type { Habilidad, MentoraPublica } from "@shared/types"
 import { Link } from "react-router"
+import CupoMensual from "./CupoMensual"
 
 type Props = {
   mentora: MentoraPublica
@@ -25,6 +26,7 @@ export default function MentoraCard({ mentora, habilidades }: Props) {
           </li>
         ))}
       </ul>
+      <CupoMensual horasRestantes={mentora.horasRestantes} />
       <Link to={`/mentoras/${mentora.id}`} className="boton mentora-accion">
         Reservar sesión <span aria-hidden="true">→</span>
       </Link>

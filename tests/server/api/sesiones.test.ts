@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
-import { crearAppDePrueba, HUERTA_VIVA, ROCIO, sesionDePrueba, VALENTINA } from "./helpers"
+import { crearAppConCupo, crearAppDePrueba, HUERTA_VIVA, ROCIO, sesionDePrueba, VALENTINA } from "./helpers"
 
 const LUNES = "2026-10-19"
 
@@ -108,6 +108,83 @@ describe("API · POST /api/sesiones", () => {
     const { api } = crearAppDePrueba([sesionDePrueba({ horaInicio: "19:00", horaFin: "19:30" })])
     const res = await api.post("/api/sesiones").send(nueva())
     expect(res.status).toBe(409)
-    expect(res.body).toEqual({ error: "El horario ya está reservado" })
+    expect(res.body).toEqual({ error: "El horario se superpone con otra sesión de la mentora" })
+  })
+
+  it("409 si la sesión nueva se superpone con una confirmada que empieza antes", async () => {
+    // Existente 18:30–19:30; la nueva (30 min) es 19:00–19:30: distinta hora de inicio.
+    const { api } = crearAppDePrueba([sesionDePrueba({ horaInicio: "18:30", horaFin: "19:30" })])
+    const res = await api.post("/api/sesiones").send(nueva())
+    expect(res.status).toBe(409)
+    expect(res.body).toEqual({ error: "El horario se superpone con otra sesión de la mentora" })
+  })
+
+  it("201 si la sesión existente termina justo cuando empieza la nueva", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba({ horaInicio: "18:30", horaFin: "19:00" })])
+    const res = await api.post("/api/sesiones").send(nueva())
+    expect(res.status).toBe(201)
+  })
+})
+
+describe("API · POST /api/sesiones · cupo mensual", () => {
+  const SIN_CUPO = { error: "No hay cupo suficiente este mes para esa asesoría" }
+  const previa = (horaInicio: string, horaFin: string, extra = {}) =>
+    sesionDePrueba({ id: `s-${horaInicio}`, fecha: "2026-10-26", horaInicio, horaFin, ...extra })
+
+  it("409 si la reserva excede el cupo y no crea la sesión", async () => {
+    // Cupo de 1 h con 1 h ya consumida en el mes.
+    const { api, dataDir } = crearAppConCupo({ [VALENTINA]: 1 }, [previa("18:00", "19:00")])
+    const res = await api.post("/api/sesiones").send(nueva())
+    expect(res.status).toBe(409)
+    expect(res.body).toEqual(SIN_CUPO)
+    expect(JSON.parse(readFileSync(join(dataDir, "sesiones.json"), "utf-8"))).toHaveLength(1)
+  })
+
+  it("201 si la reserva entra justo en lo que queda", async () => {
+    const { api } = crearAppConCupo({ [VALENTINA]: 1 }, [previa("18:00", "18:30")])
+    const res = await api.post("/api/sesiones").send(nueva())
+    expect(res.status).toBe(201)
+  })
+
+  it("las sesiones canceladas no consumen cupo", async () => {
+    const { api } = crearAppConCupo({ [VALENTINA]: 1 }, [previa("18:00", "19:00", { estado: "cancelada" })])
+    const res = await api.post("/api/sesiones").send(nueva())
+    expect(res.status).toBe(201)
+  })
+
+  it("el cupo de otro mes no se consume", async () => {
+    const { api } = crearAppConCupo({ [VALENTINA]: 1 }, [previa("18:00", "19:00", { fecha: "2026-09-28" })])
+    const res = await api.post("/api/sesiones").send(nueva())
+    expect(res.status).toBe(201)
+  })
+
+  it("un cupo de 0 horas rechaza cualquier reserva", async () => {
+    const { api } = crearAppConCupo({ [VALENTINA]: 0 })
+    const res = await api.post("/api/sesiones").send(nueva())
+    expect(res.status).toBe(409)
+    expect(res.body).toEqual(SIN_CUPO)
+  })
+
+  it("dos reservas seguidas por las últimas horas: una se confirma y la otra se rechaza", async () => {
+    const { api } = crearAppConCupo({ [VALENTINA]: 0.5 })
+    const [a, b] = await Promise.all([
+      api.post("/api/sesiones").send(nueva({ horaInicio: "19:00" })),
+      api.post("/api/sesiones").send(nueva({ horaInicio: "20:00" })),
+    ])
+    expect([a.status, b.status].sort()).toEqual([201, 409])
+  })
+
+  it("sin cupo definido no hay límite", async () => {
+    const { api } = crearAppDePrueba()
+    for (const horaInicio of ["18:00", "18:30", "19:00", "19:30", "20:00"]) {
+      expect((await api.post("/api/sesiones").send(nueva({ horaInicio }))).status).toBe(201)
+    }
+  })
+
+  it("lo agotado deja de ofrecerse en la disponibilidad del mes", async () => {
+    const { api } = crearAppConCupo({ [VALENTINA]: 1 }, [previa("18:00", "19:00")])
+    const res = await api.get(`/api/mentoras/${VALENTINA}/disponibilidad?tipoAsesoriaId=revision_de_codigo`)
+    // 26/10 y 28/10 son de octubre (agotado); como la ventana termina el 31/10 no queda ningún día.
+    expect(res.body.map((d: { fecha: string }) => d.fecha)).toEqual([])
   })
 })

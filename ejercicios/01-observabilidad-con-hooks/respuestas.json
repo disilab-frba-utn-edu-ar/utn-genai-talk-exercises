@@ -1,0 +1,110 @@
+{
+  "ejercicio": "01-observabilidad-con-hooks",
+  "guardado": "2026-10-31T13:09:28.827Z",
+  "general": [
+    "# Ejercicio 1 — Respuestas"
+  ],
+  "respuestas": {
+    "1.1": [
+      "Llamadas a herramientas: 14",
+      "urnos:",
+      "  1. +0s  <ide_opened_file>The user opened the file /home/zenitroc/Documentos/UNIVERSIDAD/utn-genai-…",
+      "       12 herramientas (ejecutar 6, escribir 6)",
+      "       +   4s  ejecutar           ls server/* tests/server/* && cat server/services/*esion* && cat tests/server/api/helpers.ts && ls server/doma…",
+      "       +   6s  ejecutar           cat server/domain/horarios.ts && grep -n \"409\\|ya está reservado\" -B12 -A6 tests/server/api/sesiones.test.ts |…",
+      "       +  11s  ejecutar           cd /home/zenitroc/Documents/UNIVERSIDAD/utn-genai-talk-exercises 2>/dev/null || cd /home/zenitroc/Documentos/U…",
+      "       +  23s  escribir (crear)   tests/server/domain/superposicion.test.ts",
+      "       +  26s  escribir (editar)  tests/server/api/sesiones.test.ts",
+      "       +  30s  ejecutar           npx vitest run tests/server/domain/superposicion.test.ts tests/server/…  → rojo: 1 falló · 13 pasaron · no compila y la regla no se cumple",
+      "       +  37s  escribir (crear)   server/domain/superposicion.ts",
+      "       +  41s  escribir (editar)  server/services/sesiones.ts",
+      "       +  42s  escribir (editar)  server/services/sesiones.ts",
+      "       +  43s  escribir (editar)  tests/server/api/sesiones.test.ts",
+      "       +  46s  ejecutar           npm test 2>&1 | tail -15; npm run lint 2>&1 | tail -15; npm run typech…  → rojo: 5 falló · 383 pasaron",
+      "       + 169s  ejecutar           npm test 2>&1 | grep -E \"FAIL|✗|×|Timed out|timed out\" | head -20  → tests: resultado no detectado",
+      "  2. +248s  <task-notification> <task-id>bdg1akhjz</task-id> <tool-use-id>toolu_012p5R45o25ZLRQhvaq2kX…",
+      "       2 herramientas (leer 1, ejecutar 1)",
+      "       + 250s  leer               /tmp/claude-1000/-home-zenitroc-Documentos-UNIVERSIDAD-utn-genai-talk-exercises/a9ed0a44-a21f-4e04-954e-821faa…",
+      "       + 253s  ejecutar           npx vitest run tests/server 2>&1 | tail -6; npx vitest run metricas/te…  → rojo: 225 pasaron",
+      "       ↳ La superposición ya se detecta: una sesión de 10:30–11:15 contra una de 10:00–11:00 devuelve 409. `npm test` no pasa del todo, por fallas de timeout en tests de…",
+      ""
+    ],
+    "1.2": [
+      "Bash, 7 veces"
+    ],
+    "1.3": [
+      "Por tipo de acción:",
+      "     7  ejecutar",
+      "     6  escribir",
+      "     1  leer",
+      "",
+      "Herramientas usadas:",
+      "     7  Bash",
+      "     4  Edit",
+      "     2  Write",
+      "     1  Read",
+      ""
+    ],
+    "2.1": [
+      "3",
+      "+   4s  ejecutar           ls server/* tests/server/* && cat server/services/*esion* && cat tests/server/api/helpers.ts && ls server/doma…",
+      "       +   6s  ejecutar           cat server/domain/horarios.ts && grep -n \"409\\|ya está reservado\" -B12 -A6 tests/server/api/sesiones.test.ts |…",
+      "       +  11s  ejecutar           cd /home/zenitroc/Documents/UNIVERSIDAD/utn-genai-talk-exercises 2>/dev/null || cd /home/zenitroc/Documentos/U…",
+      "       +  23s  escribir (crear)   tests/server/domain/superposicion.test.ts",
+      ""
+    ],
+    "2.2": [
+      "Archivos leídos:",
+      "     1  /tmp/claude-1000/-home-zenitroc-Documentos-UNIVERSIDAD-utn-genai-talk-exercises/a9ed0a44-a21f-4e04-954e-821faa2b0792/tasks/bdg1akhjz.output",
+      ""
+    ],
+    "3.1": [
+      "$ ls server/* tests/server/* && cat server/services/*esion* && cat tests/server/api/helpers.ts && ls server/domain && cat shared/types.ts",
+      "  $ cat server/domain/horarios.ts && grep -n \"409\\|ya está reservado\" -B12 -A6 tests/server/api/sesiones.test.ts | head -80; grep -rn \"ya está r…",
+      "  $ cd /home/zenitroc/Documents/UNIVERSIDAD/utn-genai-talk-exercises 2>/dev/null || cd /home/zenitroc/Documentos/UNIVERSIDAD/utn-genai-talk-exer…",
+      "  $ npx vitest run tests/server/domain/superposicion.test.ts tests/server/api/sesiones.test.ts 2>&1 | tail -40",
+      "  $ npm test 2>&1 | tail -15; npm run lint 2>&1 | tail -15; npm run typecheck 2>&1 | tail -8; git status --short",
+      "  $ npm test 2>&1 | grep -E \"FAIL|✗|×|Timed out|timed out\" | head -20",
+      "  $ npx vitest run tests/server 2>&1 | tail -6; npx vitest run metricas/tests/client 2>&1 | tail -8",
+      ""
+    ],
+    "2.3": [
+      "Turnos:",
+      "  1. +0s  <ide_opened_file>The user opened the file /home/zenitroc/Documentos/UNIVERSIDAD/utn-genai-…",
+      ""
+    ],
+    "3.2": [
+      "Una línea hizo cd a /Documents/... (con \"s\", un typo de ruta) con fallback a Documentos. Funcionó, pero fue un descuido.",
+      "Corrió npm test completo dos veces. El segundo solo servía para sacar los nombres de las fallas, y costó otros 90 s. Con tee a un archivo se evitaba"
+    ],
+    "3.3": [
+      "Verde (lectura): los tres primeros (ls, cat, grep) y el git status.",
+      "Amarillo (validación local): vitest, npm test, lint, typecheck y el grep sobre la salida de npm test. Los tests escriben en un directorio temporal, no en data/.",
+      "Rojo (escritura): ningún Bash escribió. Los 6 Write/Edit sí lo hicieron, y fueron los únicos rojos."
+    ],
+    "4.1": [
+      "ninguna herramienta falló a nivel de ejecución, así que no habría PostToolUseFailure"
+    ],
+    "4.2": [
+      "tras el rojo esperado del TDD, implementó. Tras las 5 fallas buscó los nombres con el grep. Luego corrió tests/server (225 pasaron) y metricas/tests/client por separado (siguieron fallando 3). Concluyó que no estaban relacionadas y lo informó."
+    ],
+    "5.1": [
+      "el que más llenó la ventana fue el primer Bash, con el contenido de sesiones.ts, helpers.ts, types.ts y los listados, probablemente 8–10 mil caracteres. Los npm test salieron truncados con tail, así que pesaron poco en contexto aunque tardaron mucho."
+    ],
+    "5.2": [
+      "types.ts entero, donde solo hacía falta Sesion.",
+      "horarios.ts entero, donde bastaba ocupaRango.",
+      "El segundo npm test completo, por lo que ya dije arriba.",
+      "Lo bien hecho: no leyó data/sesiones.json."
+    ],
+    "6.1": [
+      "PreToolUse, con matcher Edit|Write|Bash. Si el file_path o el comando apunta a data/ (salvo data/ temporal de tests), sale con código 2 y un mensaje. Para server/domain/, el mismo evento revisa el contenido a escribir y bloquea si trae import ... from \"fs\", \"node:fs\" o \"express\"."
+    ],
+    "6.2": [
+      "AGENTS.md y la constitution son texto que el modelo puede leer, olvidar o racionalizar cuando el contexto se llena. El hook lo ejecuta el arnés, fuera del modelo, de forma determinista. No depende de que el agente \"se acuerde\", y lo que bloquea queda registrado."
+    ],
+    "7.1": [
+      "un hook es código arbitrario. Si viene en un repo clonado (.claude/settings.json), es una vía de ataque a la cadena de suministro."
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-import { crearAppDePrueba, ROCIO, VALENTINA } from "./helpers"
+import { crearAppConCupo, crearAppDePrueba, ROCIO, sesionDePrueba, VALENTINA } from "./helpers"
 
 describe("API · catálogos", () => {
   it("GET /api/health responde ok", async () => {
@@ -58,5 +58,45 @@ describe("API · mentoras", () => {
       expect(JSON.stringify(res.body)).not.toContain("contacto")
       expect(JSON.stringify(res.body)).not.toContain("@example.org")
     }
+  })
+})
+
+describe("API · mentoras · cupo mensual", () => {
+  const consumida = (horaFin = "19:00") => sesionDePrueba({ horaInicio: "18:00", horaFin })
+
+  it("GET /api/mentoras/:id informa las horas restantes del mes", async () => {
+    const { api } = crearAppConCupo({ [VALENTINA]: 2 }, [consumida()])
+    const res = await api.get(`/api/mentoras/${VALENTINA}`)
+    expect(res.body.horasRestantes).toBe(1)
+  })
+
+  it("GET /api/mentoras informa 0 cuando se agotó y omite el dato sin cupo", async () => {
+    const { api } = crearAppConCupo({ [VALENTINA]: 1 }, [consumida()])
+    const res = await api.get("/api/mentoras")
+    const porId = (id: string) => res.body.find((m: { id: string }) => m.id === id)
+    expect(porId(VALENTINA).horasRestantes).toBe(0)
+    expect(porId(ROCIO)).not.toHaveProperty("horasRestantes")
+  })
+
+  it("las canceladas no descuentan", async () => {
+    const { api } = crearAppConCupo({ [VALENTINA]: 1 }, [sesionDePrueba({ estado: "cancelada", horaFin: "19:00" })])
+    const res = await api.get(`/api/mentoras/${VALENTINA}`)
+    expect(res.body.horasRestantes).toBe(1)
+  })
+
+  it("nunca expone el cupo total ni el contacto (Principio IV)", async () => {
+    const { api } = crearAppConCupo({ [VALENTINA]: 8 })
+    const lista = await api.get("/api/mentoras")
+    const detalle = await api.get(`/api/mentoras/${VALENTINA}`)
+    const texto = JSON.stringify([lista.body, detalle.body])
+    expect(texto).not.toContain("cupoMensualHoras")
+    expect(texto).not.toContain("contacto")
+  })
+
+  it("un cupo inválido cargado a mano se trata como sin cupo", async () => {
+    const { api } = crearAppConCupo({ [VALENTINA]: -3 })
+    const res = await api.get(`/api/mentoras/${VALENTINA}`)
+    expect(res.status).toBe(200)
+    expect(res.body).not.toHaveProperty("horasRestantes")
   })
 })

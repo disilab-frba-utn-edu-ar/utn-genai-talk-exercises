@@ -34,3 +34,7 @@ export const tipos: TipoAsesoria[] = [
 ]
 
 export const colectivos: Colectivo[] = [{ id: "c1", nombre: "Fundación Huerta Viva", tipo: "fundacion" }]
+
+export const conCupo: MentoraPublica = { ...valentina, id: "m3", nombre: "Marta Cupo", horasRestantes: 2 }
+export const conMediaHora: MentoraPublica = { ...valentina, id: "m4", nombre: "Mara Media", horasRestantes: 1.5 }
+export const sinCupo: MentoraPublica = { ...valentina, id: "m5", nombre: "Sofía Agotada", horasRestantes: 0 }

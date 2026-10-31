@@ -58,6 +58,7 @@
       },
       "domingo": null
     },
+    "cupoMensualHoras": 6,
     "contacto": {
       "email": "marto@example.org"
     }
@@ -87,6 +88,7 @@
       "sabado": null,
       "domingo": null
     },
+    "cupoMensualHoras": 2,
     "contacto": {
       "email": "lu.fernandez@example.org"
     }

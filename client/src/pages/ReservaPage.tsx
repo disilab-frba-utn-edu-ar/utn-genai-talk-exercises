@@ -3,6 +3,7 @@ import { useState, type ReactNode } from "react"
 import { Link, useNavigate, useParams } from "react-router"
 import { api, ErrorDeApi } from "../api/client"
 import { Cargando, ErrorCarga } from "../components/Estado"
+import CupoMensual from "../components/CupoMensual"
 import FormularioContacto, { type DatosContacto } from "../components/FormularioContacto"
 import SelectorDia from "../components/SelectorDia"
 import SelectorHorario from "../components/SelectorHorario"
@@ -105,6 +106,7 @@ export default function ReservaPage() {
         <p className="sobretitulo">Reservar sesión con</p>
         <h1>{mentora.nombre}</h1>
         <p className="bajada">{mentora.presentacion}</p>
+        <CupoMensual horasRestantes={mentora.horasRestantes} />
       </header>
 
       <div className="reserva">

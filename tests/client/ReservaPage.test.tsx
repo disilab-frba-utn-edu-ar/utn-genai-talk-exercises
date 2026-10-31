@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import ReservaPage from "../../client/src/pages/ReservaPage"
-import { colectivos, tipos, valentina } from "./fixtures"
+import { colectivos, conCupo, sinCupo, tipos, valentina } from "./fixtures"
 import { renderConRuta, simularApi } from "./helpers"
 
 const base = {
@@ -54,5 +54,24 @@ describe("ReservaPage", () => {
     renderReserva()
 
     expect(await screen.findByRole("heading", { name: "No encontramos esta página" })).toBeInTheDocument()
+  })
+
+  it("muestra cuántas horas le quedan a la mentora este mes", async () => {
+    simularApi({ ...base, "/api/mentoras/m1": { ...conCupo, id: "m1" } })
+    renderReserva()
+
+    expect(await screen.findByText("Le quedan 2 h este mes")).toBeInTheDocument()
+  })
+
+  it("avisa que no tiene cupo este mes y no muestra texto de cupo si no tiene límite", async () => {
+    simularApi({ ...base, "/api/mentoras/m1": { ...sinCupo, id: "m1" } })
+    const { unmount } = renderReserva()
+    expect(await screen.findByText("Sin cupo este mes")).toBeInTheDocument()
+    unmount()
+
+    simularApi(base)
+    renderReserva()
+    await screen.findByRole("heading", { name: "Valentina Ríos" })
+    expect(screen.queryByText(/cupo/i)).not.toBeInTheDocument()
   })
 })

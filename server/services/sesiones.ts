@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto"
 import type { Sesion, SesionPublica } from "@shared/types"
+import { entraEnCupo, mesDe, minutosRestantes } from "../domain/cupo"
 import { aHora, aMinutos, fechaDe } from "../domain/fechas"
 import { estaDentroDeDisponibilidad } from "../domain/horarios"
 import { puedeDar } from "../domain/mentoras"
+import { haySuperposicion } from "../domain/superposicion"
 import { validarNuevaSesion } from "../domain/validaciones"
 import type { Repositorios } from "../repositories"
 import { conflicto, invalido, noEncontrado } from "./errores"
@@ -48,16 +50,15 @@ export function crearServicioSesiones(repos: Repositorios, reloj: () => Date) {
         throw invalido("El horario está fuera de la disponibilidad de la mentora")
       }
 
-      const ocupado = repos.sesiones
-        .listar()
-        .some(
-          (s) =>
-            s.mentoraId === nueva.mentoraId &&
-            s.fecha === nueva.fecha &&
-            s.estado === "confirmada" &&
-            s.horaInicio === nueva.horaInicio,
-        )
-      if (ocupado) throw conflicto("El horario ya está reservado")
+      if (haySuperposicion(repos.sesiones.listar(), { mentoraId: nueva.mentoraId, fecha: nueva.fecha, horaInicio: nueva.horaInicio, horaFin })) {
+        throw conflicto("El horario se superpone con otra sesión de la mentora")
+      }
+
+      const sesionesDeLaMentora = repos.sesiones.listar().filter((s) => s.mentoraId === nueva.mentoraId)
+      const restantes = minutosRestantes(mentora.cupoMensualHoras, sesionesDeLaMentora, mesDe(nueva.fecha))
+      if (!entraEnCupo(restantes, tipo.duracionMinutos)) {
+        throw conflicto("No hay cupo suficiente este mes para esa asesoría")
+      }
 
       const sesion: Sesion = { id: randomUUID(), ...nueva, horaFin, estado: "confirmada" }
       repos.sesiones.agregar(sesion)

@@ -1,7 +1,7 @@
-import { cpSync, mkdtempSync, writeFileSync } from "node:fs"
+import { cpSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import type { Sesion } from "@shared/types"
+import type { Mentora, Sesion } from "@shared/types"
 import request from "supertest"
 import { createApp } from "../../../server/app"
 
@@ -23,6 +23,19 @@ export function crearAppDePrueba(sesiones: Sesion[] = [], extra: Partial<Paramet
   writeFileSync(join(dataDir, "sesiones.json"), JSON.stringify(sesiones), "utf-8")
   const app = createApp({ dataDir, reloj: () => AHORA, ...extra })
   return { app, api: request(app), dataDir }
+}
+
+/**
+ * Como `crearAppDePrueba`, pero fija el cupo mensual de las mentoras indicadas
+ * en la copia temporal de `mentoras.json` (nunca en `data/`).
+ */
+export function crearAppConCupo(cupos: Record<string, unknown>, sesiones: Sesion[] = []) {
+  const prueba = crearAppDePrueba(sesiones)
+  const archivo = join(prueba.dataDir, "mentoras.json")
+  const mentoras = JSON.parse(readFileSync(archivo, "utf-8")) as Mentora[]
+  const conCupo = mentoras.map((m) => (m.id in cupos ? { ...m, cupoMensualHoras: cupos[m.id] } : m))
+  writeFileSync(archivo, JSON.stringify(conCupo), "utf-8")
+  return prueba
 }
 
 export function sesionDePrueba(extra: Partial<Sesion> = {}): Sesion {

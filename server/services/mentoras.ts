@@ -10,16 +10,21 @@ export function crearServicioMentoras(repos: Repositorios, reloj: () => Date) {
   return {
     listar(habilidad?: string): MentoraPublica[] {
       const tipos = repos.tiposAsesoria.listar()
+      const sesiones = repos.sesiones.listar()
+      const ahora = reloj()
       return repos.mentoras
         .listar()
         .filter((m) => !habilidad || m.habilidades.includes(habilidad))
-        .map((m) => aMentoraPublica(m, tipos))
+        .map((m) =>
+          aMentoraPublica(m, tipos, sesiones.filter((s) => s.mentoraId === m.id), ahora),
+        )
     },
 
     obtener(id: string): MentoraPublica {
       const mentora = repos.mentoras.buscar(id)
       if (!mentora) throw noEncontrado("La mentora no existe")
-      return aMentoraPublica(mentora, repos.tiposAsesoria.listar())
+      const sesiones = repos.sesiones.listar().filter((s) => s.mentoraId === id)
+      return aMentoraPublica(mentora, repos.tiposAsesoria.listar(), sesiones, reloj())
     },
 
     disponibilidad(id: string, tipoAsesoriaId: string | undefined, dias = DIAS_RESERVABLES): DiaDisponible[] {
@@ -34,6 +39,7 @@ export function crearServicioMentoras(repos: Repositorios, reloj: () => Date) {
         disponibilidad: mentora.disponibilidad,
         sesiones: repos.sesiones.listar().filter((s) => s.mentoraId === id),
         duracionMinutos: tipo.duracionMinutos,
+        cupoHoras: mentora.cupoMensualHoras,
         ahora: reloj(),
         dias: Math.min(Math.max(dias, 1), DIAS_RESERVABLES),
       })

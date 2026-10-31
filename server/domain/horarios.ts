@@ -1,5 +1,6 @@
 // Cálculo de horarios libres de una mentora. Ver research.md (D3).
 import type { DiaDisponible, Disponibilidad, Horario, Sesion } from "@shared/types"
+import { entraEnCupo, mesDe, minutosRestantes } from "./cupo"
 import { aHora, aMinutos, diaSemana, fechaDe, sumarDias } from "./fechas"
 
 /** Cada cuántos minutos puede empezar una sesión. */
@@ -11,15 +12,18 @@ type ParametrosHorarios = {
   fecha: string
   duracionMinutos: number
   ahora: Date
+  /** Cupo mensual de la mentora en horas. Ausente = sin límite. */
+  cupoHoras?: number
 }
 
 function ocupaRango(sesion: Sesion, inicio: number, fin: number): boolean {
   return aMinutos(sesion.horaInicio) < fin && inicio < aMinutos(sesion.horaFin)
 }
 
-export function calcularHorarios({ disponibilidad, sesiones, fecha, duracionMinutos, ahora }: ParametrosHorarios): Horario[] {
+export function calcularHorarios({ disponibilidad, sesiones, fecha, duracionMinutos, ahora, cupoHoras }: ParametrosHorarios): Horario[] {
   const rango = disponibilidad[diaSemana(fecha)]
   if (!rango) return []
+  if (!entraEnCupo(minutosRestantes(cupoHoras, sesiones, mesDe(fecha)), duracionMinutos)) return []
 
   const confirmadas = sesiones.filter((s) => s.fecha === fecha && s.estado === "confirmada")
   const esHoy = fecha === fechaDe(ahora)

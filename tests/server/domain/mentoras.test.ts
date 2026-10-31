@@ -1,5 +1,7 @@
-import type { Mentora, TipoAsesoria } from "@shared/types"
+import type { Mentora, Sesion, TipoAsesoria } from "@shared/types"
 import { aMentoraPublica, puedeDar, tiposQuePuedeDar } from "../../../server/domain/mentoras"
+
+const AHORA = new Date(2026, 9, 18, 12, 0)
 
 const tipo = (id: string, habilidades: string[]): TipoAsesoria => ({
   id,
@@ -35,8 +37,38 @@ describe("domain/mentoras", () => {
   })
 
   it("la vista pública no incluye el contacto", () => {
-    const publica = aMentoraPublica(mentora, [tipo("a", ["testing_unitario"])])
+    const publica = aMentoraPublica(mentora, [tipo("a", ["testing_unitario"])], [], AHORA)
     expect(publica).not.toHaveProperty("contacto")
     expect(publica.tiposAsesoria).toEqual(["a"])
+  })
+
+  describe("cupo mensual", () => {
+    const sesion = (extra: Partial<Sesion> = {}): Sesion => ({
+      id: "s", mentoraId: "m1", tipoAsesoriaId: "a", colectivoId: "c", proyecto: "p",
+      contactoNombre: "n", contactoEmail: "e@example.org", fecha: "2026-10-19",
+      horaInicio: "18:00", horaFin: "19:00", estado: "confirmada", ...extra,
+    })
+    const publica = (cupo: number | undefined, sesiones: Sesion[] = []) =>
+      aMentoraPublica({ ...mentora, cupoMensualHoras: cupo }, [], sesiones, AHORA)
+
+    it("informa las horas restantes del mes y descarta el cupo total", () => {
+      const vista = publica(2, [sesion()])
+      expect(vista.horasRestantes).toBe(1)
+      expect(vista).not.toHaveProperty("cupoMensualHoras")
+    })
+
+    it("informa fracciones de hora", () => {
+      expect(publica(1.5, [sesion({ horaFin: "18:30" })]).horasRestantes).toBe(1)
+    })
+
+    it("informa 0 cuando se agotó y no cuenta las canceladas ni otros meses", () => {
+      expect(publica(1, [sesion()]).horasRestantes).toBe(0)
+      expect(publica(1, [sesion({ estado: "cancelada" })]).horasRestantes).toBe(1)
+      expect(publica(1, [sesion({ fecha: "2026-11-02" })]).horasRestantes).toBe(1)
+    })
+
+    it("no informa horas restantes si no tiene cupo definido", () => {
+      expect(publica(undefined)).not.toHaveProperty("horasRestantes")
+    })
   })
 })

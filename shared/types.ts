@@ -29,12 +29,16 @@ export type Mentora = {
   presentacion: string
   habilidades: string[]
   disponibilidad: Disponibilidad
+  /** Horas que dona por mes calendario. Ausente = sin límite. Privado: no sale por la API. */
+  cupoMensualHoras?: number
   contacto: { email: string }
 }
 
-/** Lo que la API devuelve de una mentora: nunca incluye `contacto` (Principio IV). */
-export type MentoraPublica = Omit<Mentora, "contacto"> & {
+/** Lo que la API devuelve de una mentora: nunca incluye `contacto` ni el cupo total (Principio IV). */
+export type MentoraPublica = Omit<Mentora, "contacto" | "cupoMensualHoras"> & {
   tiposAsesoria: string[]
+  /** Horas que le quedan este mes. Ausente si no tiene cupo definido; 0 = sin cupo. */
+  horasRestantes?: number
 }
 
 export type TipoColectivo = "fundacion" | "asociacion_barrial" | "ong" | "asamblea"
