@@ -188,3 +188,25 @@ describe("API · POST /api/sesiones · cupo mensual", () => {
     expect(res.body.map((d: { fecha: string }) => d.fecha)).toEqual([])
   })
 })
+
+describe("API · GET /api/sesiones/:id", () => {
+  it("devuelve la sesión sin los datos de contacto del colectivo", async () => {
+    const sesion = sesionDePrueba()
+    const { api } = crearAppDePrueba([sesion])
+    const res = await api.get(`/api/sesiones/${sesion.id}`)
+    expect(res.status).toBe(200)
+    expect(res.body.id).toBe(sesion.id)
+    expect(res.body.proyecto).toBe(sesion.proyecto)
+    expect(JSON.stringify(res.body)).not.toContain("ana@example.org")
+    expect(res.body).not.toHaveProperty("contactoEmail")
+  })
+
+  it("404 si la sesión no existe o el id está mal formado", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba()])
+    for (const id of ["no-existe", "00000000-0000-4000-8000-0000000000ff"]) {
+      const res = await api.get(`/api/sesiones/${id}`)
+      expect(res.status).toBe(404)
+      expect(res.body).toEqual({ error: "La sesión no existe" })
+    }
+  })
+})

@@ -26,6 +26,12 @@ export function crearServicioSesiones(repos: Repositorios, reloj: () => Date) {
         .map(aSesionPublica)
     },
 
+    obtener(id: string): SesionPublica {
+      const sesion = repos.sesiones.listar().find((s) => s.id === id)
+      if (!sesion) throw noEncontrado("La sesión no existe")
+      return aSesionPublica(sesion)
+    },
+
     crear(datos: unknown): Sesion {
       const validacion = validarNuevaSesion(datos)
       if (!validacion.ok) throw invalido(validacion.error)
