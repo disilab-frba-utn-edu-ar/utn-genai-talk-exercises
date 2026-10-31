@@ -1,0 +1,159 @@
+{
+  "ejercicio": "01-observabilidad-con-hooks",
+  "guardado": "2026-10-31T16:03:50.429Z",
+  "general": [
+    "# Ejercicio 1 — Respuestas"
+  ],
+  "respuestas": {
+    "1.1": [
+      "El agente hizo 53 llamadas a herramientas.",
+      "Evidencia:",
+      "Llamadas a herramientas: 53",
+      "Herramientas usadas:",
+      "    13  Read",
+      "     9  Bash",
+      "     9  Grep",
+      "     7  Edit",
+      "     3  mcp__ccd_turn__update_plan",
+      "     3  Glob",
+      "     2  mcp__ccd_turn__wrap_up",
+      "     2  Write",
+      "     2  Agent",
+      "     2  SubagentHandback",
+      "     1  Skill"
+    ],
+    "1.2": [
+      "La herramienta más usada fue Read.",
+      "Evidencia:",
+      "",
+      "Herramientas usadas:",
+      "    13  Read",
+      "     9  Bash",
+      "     9  Grep",
+      "...",
+      "",
+      ""
+    ],
+    "2.1": [
+      "Usó 11 herramientas antes de su primera edición.",
+      "",
+      "Evidencia:",
+      "Turnos:",
+      "  1. +2s  <pasted_content id=\"9832\"> Contexto: Mentorías a Voluntad es una app donde personas mentor…",
+      "       8 herramientas (leer 5, mcp 2, buscar 1)",
+      "       +  11s  mcp",
+      "       +  11s  buscar             {server,tests,shared}/**/*.ts",
+      "       +  15s  leer               server/services/sesiones.ts",
+      "       +  15s  leer               server/domain/horarios.ts",
+      "       +  16s  leer               tests/server/api/sesiones.test.ts",
+      "       +  16s  leer               tests/server/api/helpers.ts",
+      "       +  17s  leer               shared/types.ts",
+      "       +  30s  mcp",
+      "       ↳ [Estado: 1/5 · lectura hecha, esperando confirmación] Propuesta: STANDARD · implementación · una tanda → Opus medium. Sesión actual: Sonnet 5.5. Cambio de 1 fun…",
+      "  2. +265s  Reemplazá la regla vieja, y ejecutá hasta lograr el objetivo. Utilizo Sonnet 5.5 Alto",
+      "       31 herramientas (buscar 9, escribir 7, leer 6, ejecutar 4, mcp 2, otro 2, skill 1)",
+      "       + 270s  skill              ponytail:ponytail",
+      "       + 271s  mcp",
+      "       + 271s  leer               tests/server/domain/horarios.test.ts",
+      "       + 279s  escribir (crear)   tests/server/domain/superposicion.test.ts",
+      "       + 281s  escribir (editar)  tests/server/api/sesiones.test.ts",
+      "       + 290s  escribir (editar)  tests/server/api/sesiones.test.ts",
+      "       + 293s  ejecutar  "
+    ],
+    "2.2": [
+      "Archivos leídos:",
+      "     2  server/services/sesiones.ts",
+      "     2  tests/server/api/sesiones.test.ts",
+      "     1  server/domain/horarios.ts",
+      "     1  tests/server/api/helpers.ts",
+      "     1  shared/types.ts",
+      "     1  tests/server/domain/horarios.test.ts",
+      "     1  server/domain/superposicion.ts",
+      "     1  tests/server/domain/superposicion.test.ts",
+      "     1  server/services/errores.ts",
+      "     1  .specify/memory/constitution.md",
+      "     1  specs/001-reservar-sesion/contracts/api.md"
+    ],
+    "2.3": [
+      "Si",
+      "",
+      "Archivos leídos:",
+      "     2  server/services/sesiones.ts",
+      "...",
+      "     1  .specify/memory/constitution.md",
+      "     1  specs/001-reservar-sesion/contracts/api.md"
+    ],
+    "3.1": [
+      "Comandos de terminal:",
+      "  $ npx vitest run tests/server/domain/superposicion.test.ts tests/server/api/sesiones.test.ts 2>&1 | tail -40; echo \"exit=${PIPESTATUS[0]}\"",
+      "  $ npm test 2>&1 | tail -25; echo \"test=${PIPESTATUS[0]}\"; npm run lint 2>&1 | tail -15; echo \"lint=${PIPESTATUS[0]}\"; npm run typecheck 2>&1 |…",
+      "  $ npm test 2>&1 | grep -E \"FAIL|Test Files|Tests \" ; echo ---; npx vitest run metricas/tests/client 2>&1 | grep -E \"FAIL|Test Files|Tests \"",
+      "  $ npx vitest run tests/client/Navegacion.test.tsx 2>&1 | grep -E \"FAIL|Test Files|Tests |Error\" | head; git stash -u -q && npm test 2>&1 | gre…",
+      "  $ cd C:/Users/Pc/Documents/GenAI-Lab/utn-genai-talk-exercises && git status --porcelain && git diff && cat server/domain/superposicion.ts test…",
+      "  $ cd C:/Users/Pc/Documents/GenAI-Lab/utn-genai-talk-exercises && sed -n 25,65p server/services/sesiones.ts; echo ---; npm run lint 2>&1 | tail…",
+      "  $ cd C:/Users/Pc/Documents/GenAI-Lab/utn-genai-talk-exercises && grep -rn \"ya está reservado\" client/src tests/client README.md 2>/dev/null | …",
+      "  $ cd C:/Users/Pc/Documents/GenAI-Lab/utn-genai-talk-exercises && ls -a | grep -i -E \"prettier|editorconfig\"; grep -n \"prettier\" package.json; …",
+      "  $ npx vitest run tests/server 2>&1 | grep -E \"FAIL|Test Files|Tests \"; npm run lint 2>&1 | tail -3; echo \"lint=${PIPESTATUS[0]}\"; npm run type…",
+      ""
+    ],
+    "3.2": [
+      "No, tengo customizaciones a mi harness para que ejecute estas herramientas."
+    ],
+    "3.3": [
+      "Comandos de terminal:",
+      "  amarillo - $ npx vitest run tests/server/domain/superposicion.test.ts tests/server/api/sesiones.test.ts 2>&1 | tail -40; echo \"exit=${PIPESTATUS[0]}\"",
+      "  amarillo - $ npm test 2>&1 | tail -25; echo \"test=${PIPESTATUS[0]}\"; npm run lint 2>&1 | tail -15; echo \"lint=${PIPESTATUS[0]}\"; npm run typecheck 2>&1 |…",
+      "  amarillo - $ npm test 2>&1 | grep -E \"FAIL|Test Files|Tests \" ; echo ---; npx vitest run metricas/tests/client 2>&1 | grep -E \"FAIL|Test Files|Tests \"",
+      "  amarillo - $ npx vitest run tests/client/Navegacion.test.tsx 2>&1 | grep -E \"FAIL|Test Files|Tests |Error\" | head; git stash -u -q && npm test 2>&1 | gre…",
+      "  verde - $ cd C:/Users/Pc/Documents/GenAI-Lab/utn-genai-talk-exercises && git status --porcelain && git diff && cat server/domain/superposicion.ts test…",
+      "  verde - $ cd C:/Users/Pc/Documents/GenAI-Lab/utn-genai-talk-exercises && sed -n 25,65p server/services/sesiones.ts; echo ---; npm run lint 2>&1 | tail…",
+      "  verde - $ cd C:/Users/Pc/Documents/GenAI-Lab/utn-genai-talk-exercises && grep -rn \"ya está reservado\" client/src tests/client README.md 2>/dev/null | …",
+      "  verde -- $ cd C:/Users/Pc/Documents/GenAI-Lab/utn-genai-talk-exercises && ls -a | grep -i -E \"prettier|editorconfig\"; grep -n \"prettier\" package.json; …",
+      "  amarillo - $ npx vitest run tests/server 2>&1 | grep -E \"FAIL|Test Files|Tests \"; npm run lint 2>&1 | tail -3; echo \"lint=${PIPESTATUS[0]}\"; npm run type…",
+      ""
+    ],
+    "4.1": [
+      "No"
+    ],
+    "4.2": [
+      "Realizó una auditoría de los cambios y verificó el resultado, luego me propuso hacer un commit con los cambios."
+    ],
+    "5.1": [
+      "La herramienta que más contexto usó fue Read (39140 caracteres)",
+      "",
+      "Salida que volvió al modelo (caracteres, por herramienta):",
+      "     39140  Read",
+      "     14638  Bash",
+      "      5956  Grep",
+      "      3457  Agent",
+      "      1508  Glob",
+      "       430  mcp__ccd_turn__wrap_up",
+      "       210  mcp__ccd_turn__update_plan",
+      "       122  SubagentHandback",
+      "        50  Skill"
+    ],
+    "5.2": [
+      "No, leyó shared/types.ts, y solo lecturas quirúrgicas:",
+      "",
+      "Archivos leídos:",
+      "     2  server/services/sesiones.ts",
+      "     2  tests/server/api/sesiones.test.ts",
+      "     1  server/domain/horarios.ts",
+      "     1  tests/server/api/helpers.ts",
+      "     1  shared/types.ts",
+      "     1  tests/server/domain/horarios.test.ts",
+      "     1  server/domain/superposicion.ts",
+      "     1  tests/server/domain/superposicion.test.ts",
+      "     1  server/services/errores.ts",
+      "     1  .specify/memory/constitution.md",
+      "     1  specs/001-reservar-sesion/contracts/api.md",
+      ""
+    ],
+    "6.1": [
+      "En el Pre-tool use de Edit utilizaría un hook que no modifique la constitution.md ni AGENTS.md, etc."
+    ],
+    "7.1": [
+      "Un hook puede inyectar codigo malicioso que se ejecute automáticamente, y también puede forzar verificaciones extensas e innecesarias que consuman tiempo de procesamiento."
+    ]
+  }
+}
