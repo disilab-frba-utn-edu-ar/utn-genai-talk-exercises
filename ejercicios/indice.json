@@ -1,4 +1,12 @@
 {
+  "notas": [
+    "## Notas clave",
+    "",
+    "- **Abrí el agente siempre desde la raíz del repo.** Si no, no levanta los hooks ni la configuración del proyecto.",
+    "- **Si tenés licencia, usá la tuya.** Los ejercicios están preparados solo para **Claude Code**, **Codex** y **Cline** (en el CLI o en VS Code).",
+    "- **¿No ves logs?** Buscá el archivo en `logs/<agente>/`. Cada sesión del agente tiene su propio archivo: si abriste varias, tu actividad puede estar en otro.",
+    "- **Avanzá rápido.** Probá, chocate con las cosas y seguí. Ante cualquier duda, preguntanos."
+  ],
   "rama": [
     "## Antes de empezar: creen la rama del grupo",
     "",

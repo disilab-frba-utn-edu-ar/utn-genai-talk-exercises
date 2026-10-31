@@ -72,6 +72,7 @@ export const ejercicios: Ejercicio[] = Object.keys(archivos)
   .map((ruta, i) => ({ ...archivos[ruta], id: ruta.split("/")[1], numero: i + 1 }))
 
 export const rama = indice.rama.join("\n")
+export const notas = indice.notas.join("\n")
 
 export type Tramo = { tipo: "consigna" | "preguntas"; lineas: string[] }
 

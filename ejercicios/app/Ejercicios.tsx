@@ -4,7 +4,7 @@ import { Link, Route, Routes, useParams } from "react-router"
 import NoEncontradaPage from "../../client/src/pages/NoEncontradaPage"
 import Bloqueado, { Candado, ConfirmarAvance } from "./Bloqueado"
 import Consigna from "./Consigna"
-import { anexosEnLinea, anteriorDe, ejercicios, rama, type Ejercicio } from "./contenido"
+import { anexosEnLinea, anteriorDe, ejercicios, notas, rama, type Ejercicio } from "./contenido"
 import EjercicioSdd from "./EjercicioSdd"
 import "./ejercicios.css"
 import { HojaDeChecks } from "./Etapas"
@@ -110,6 +110,11 @@ function IndicePage() {
         <Link to="perfil" className="boton boton-secundario indice-perfil">
           Mi perfil <span aria-hidden="true">→</span>
         </Link>
+      </section>
+
+      {/* Lo que conviene tener presente en todos los ejercicios: siempre a la vista, antes de la rama. */}
+      <section className="tarjeta documento notas-clave" aria-label="Notas clave">
+        <Markdown texto={notas} />
       </section>
 
       <CrearRama />
