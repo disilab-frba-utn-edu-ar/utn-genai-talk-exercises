@@ -1,0 +1,22 @@
+{
+  "nombre": "Los de adelante",
+  "integrantes": [
+    "Tomás D'Andrea",
+    "Santiago D'Andrea",
+    "Pablo Alanes"
+  ],
+  "modelo": "Opus 5.5",
+  "agente": "Claude Code",
+  "puntaje": 4,
+  "comentario": "",
+  "ejercicios": {
+    "01-observabilidad-con-hooks": {
+      "modelo": "Opus 5.5",
+      "agente": "Claude Code",
+      "intervino": "no",
+      "intervencion": "",
+      "feedback": ""
+    }
+  },
+  "guardado": "2026-10-31T13:34:07.054Z"
+}

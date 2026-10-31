@@ -1,6 +1,7 @@
 // Cálculo de horarios libres de una mentora. Ver research.md (D3).
 import type { DiaDisponible, Disponibilidad, Horario, Sesion } from "@shared/types"
 import { aHora, aMinutos, diaSemana, fechaDe, sumarDias } from "./fechas"
+import { ocupaRango } from "./superposicion"
 
 /** Cada cuántos minutos puede empezar una sesión. */
 export const PASO_MINUTOS = 30
@@ -11,10 +12,6 @@ type ParametrosHorarios = {
   fecha: string
   duracionMinutos: number
   ahora: Date
-}
-
-function ocupaRango(sesion: Sesion, inicio: number, fin: number): boolean {
-  return aMinutos(sesion.horaInicio) < fin && inicio < aMinutos(sesion.horaFin)
 }
 
 export function calcularHorarios({ disponibilidad, sesiones, fecha, duracionMinutos, ahora }: ParametrosHorarios): Horario[] {
