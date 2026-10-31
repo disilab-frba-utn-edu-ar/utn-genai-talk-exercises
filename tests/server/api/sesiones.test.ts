@@ -110,4 +110,25 @@ describe("API · POST /api/sesiones", () => {
     expect(res.status).toBe(409)
     expect(res.body).toEqual({ error: "El horario ya está reservado" })
   })
+
+  it("409 si la nueva sesión empieza dentro de una confirmada (18:00-19:00 vs 18:30-19:00)", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba({ horaInicio: "18:00", horaFin: "19:00" })])
+    const res = await api.post("/api/sesiones").send(nueva({ horaInicio: "18:30" }))
+    expect(res.status).toBe(409)
+    expect(res.body).toEqual({ error: "El horario ya está reservado" })
+  })
+
+  it("409 si la nueva sesión abarca a una confirmada (18:45-19:15 vs 19:00-19:30)", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba({ horaInicio: "19:00", horaFin: "19:30" })])
+    const res = await api.post("/api/sesiones").send(nueva({ horaInicio: "18:45" }))
+    expect(res.status).toBe(409)
+    expect(res.body).toEqual({ error: "El horario ya está reservado" })
+  })
+
+  it("201 si la nueva sesión es contigua a una confirmada sin solaparse (18:00-18:30 y 18:30-19:00)", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba({ horaInicio: "18:00", horaFin: "18:30" })])
+    const res = await api.post("/api/sesiones").send(nueva({ horaInicio: "18:30" }))
+    expect(res.status).toBe(201)
+    expect(res.body).toMatchObject({ horaInicio: "18:30", horaFin: "19:00", estado: "confirmada" })
+  })
 })

@@ -48,15 +48,16 @@ export function crearServicioSesiones(repos: Repositorios, reloj: () => Date) {
         throw invalido("El horario está fuera de la disponibilidad de la mentora")
       }
 
-      const ocupado = repos.sesiones
-        .listar()
-        .some(
-          (s) =>
-            s.mentoraId === nueva.mentoraId &&
-            s.fecha === nueva.fecha &&
-            s.estado === "confirmada" &&
-            s.horaInicio === nueva.horaInicio,
-        )
+      const inicioNuevo = aMinutos(nueva.horaInicio)
+      const finNuevo = aMinutos(horaFin)
+      const ocupado = repos.sesiones.listar().some(
+        (s) =>
+          s.mentoraId === nueva.mentoraId &&
+          s.fecha === nueva.fecha &&
+          s.estado === "confirmada" &&
+          aMinutos(s.horaInicio) < finNuevo &&
+          inicioNuevo < aMinutos(s.horaFin),
+      )
       if (ocupado) throw conflicto("El horario ya está reservado")
 
       const sesion: Sesion = { id: randomUUID(), ...nueva, horaFin, estado: "confirmada" }
