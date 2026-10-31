@@ -53,6 +53,33 @@ describe("API · GET /api/sesiones", () => {
 })
 
 describe("API · POST /api/sesiones", () => {
+  it.each([
+    ["empieza durante la existente", "18:00", "19:00", "18:30"],
+    ["termina durante la existente", "19:00", "20:00", "18:30"],
+    ["queda contenida", "18:00", "20:00", "18:30"],
+    ["contiene la existente", "19:00", "19:30", "19:00"],
+  ])("409 si la nueva sesión %s", async (_caso, horaInicio, horaFin, inicioNuevo) => {
+    const existente = sesionDePrueba({ horaInicio, horaFin })
+    const { api, dataDir } = crearAppDePrueba([existente])
+    const res = await api.post("/api/sesiones").send(nueva({
+      tipoAsesoriaId: "estrategia_de_testing", horaInicio: inicioNuevo,
+    }))
+    expect(res.status).toBe(409)
+    expect(res.body).toEqual({ error: "El horario se superpone con otra sesión de la mentora" })
+    expect(JSON.parse(readFileSync(join(dataDir, "sesiones.json"), "utf-8"))).toEqual([existente])
+  })
+
+  it.each([
+    { horaInicio: "18:00", horaFin: "19:00" },
+    { horaInicio: "19:30", horaFin: "20:00" },
+    { horaInicio: "19:00", horaFin: "20:00", estado: "cancelada" as const },
+    { horaInicio: "19:00", horaFin: "20:00", fecha: "2026-10-21" },
+    { horaInicio: "19:00", horaFin: "20:00", mentoraId: ROCIO },
+  ])("permite reservar sin conflicto con %j", async (extra) => {
+    const { api } = crearAppDePrueba([sesionDePrueba(extra)])
+    expect((await api.post("/api/sesiones").send(nueva())).status).toBe(201)
+  })
+
   it("crea la sesión, calcula la hora de fin y la guarda", async () => {
     const { api, dataDir } = crearAppDePrueba()
     const res = await api.post("/api/sesiones").send(nueva())
@@ -108,6 +135,6 @@ describe("API · POST /api/sesiones", () => {
     const { api } = crearAppDePrueba([sesionDePrueba({ horaInicio: "19:00", horaFin: "19:30" })])
     const res = await api.post("/api/sesiones").send(nueva())
     expect(res.status).toBe(409)
-    expect(res.body).toEqual({ error: "El horario ya está reservado" })
+    expect(res.body).toEqual({ error: "El horario se superpone con otra sesión de la mentora" })
   })
 })

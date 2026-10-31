@@ -77,6 +77,6 @@ implementar el código correspondiente.
 
 ## Notas para quien siga
 
-- ⚠️ El chequeo de conflicto de `POST /api/sesiones` compara solo la hora de
-  inicio exacta (T025 cubre ese caso). Las superposiciones parciales **no** se
-  detectan todavía: queda como deuda conocida (ver ejercicio 1).
+- El chequeo de conflicto de `POST /api/sesiones` reutiliza la regla de
+  superposición del dominio. Los tests de API cubren superposiciones parciales,
+  contención y horarios contiguos, además del mismo inicio.

@@ -1,0 +1,43 @@
+{
+  "ejercicio": "01-observabilidad-con-hooks",
+  "guardado": "2026-10-31T17:56:58.748Z",
+  "general": [
+    "# Ejercicio 1 — Respuestas"
+  ],
+  "respuestas": {
+    "1.1": [
+      "9 llamadas 7 de terminal y 2 de apply_patch"
+    ],
+    "1.2": [
+      "Bash"
+    ],
+    "2.1": [
+      "una, bash"
+    ],
+    "2.2": [
+      ".specify/memory/constitution.md;server/services/sesiones.ts"
+    ],
+    "2.3": [
+      "si. {\"ts\":\"2026-10-31T17:36:29.363Z\",\"agent\":\"codex\",\"event\":\"PreToolUse\",\"session\":\"01a19303-9391-7812-9270-d8bb64584a16\",\"turn\":\"01a19308-9e29-7a92-afda-84533b2d8d46\",\"model\":\"gpt-6.1-sol\",\"toolUseId\":\"exec-8e015ad6-18ce-43af-9b4d-b6618c41044c\",\"transcriptPath\":\"C:\\\\Users\\\\pilar\\\\.codex\\\\sessions\\\\2026\\\\10\\\\31\\\\rollout-2026-10-31T14-30-47-01a19303-9391-7812-9270-d8bb64584a16.jsonl\",\"tool\":\"Bash\",\"kind\":\"ejecutar\",\"detail\":\"Get-Content .specify/memory/constitution.md; Get-Content specs/001-reservar-sesion/spec.md; Get-Content specs/001-reservar-sesion/plan.md; Get-Content specs/001-reservar-sesion/tasks.md; git status --\",\"input\":{\"command\":\"Get-Content .specify/memory/constitution.md; Get-Content specs/001-reservar-sesion/spec.md; Get-Content specs/001-reservar-sesion/plan.md; Get-Content specs/001-reservar-sesion/tasks.md; git status --short; rg -n \\\"solap|overlap|reserv|disponib\\\" server tests/server shared\"}}",
+      ""
+    ],
+    "3.1": [
+      "Get-Content .specify/memory/constitution.md; Get-Content server/services/sesiones.ts; Get-Content server/domain/horarios.ts; Get-Content tests/server/api/helpers.ts; Get-Content tests/server/api/sesiones.test.ts; git status --short",
+      "",
+      "npm test -- tests/server/domain/superposicion.test.ts tests/server/api/superposicion.test.ts",
+      "",
+      "npm test -- tests/server/domain/superposicion.test.ts tests/server/api/superposicion.test.ts tests/server/api/sesiones.test.ts",
+      "",
+      "npm test",
+      "",
+      "npm run typecheck",
+      "",
+      "npm run lint",
+      "",
+      "git diff --check; git diff --name-only -- data/; git status --short"
+    ],
+    "3.2": [
+      "no"
+    ]
+  }
+}
