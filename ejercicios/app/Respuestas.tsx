@@ -223,12 +223,19 @@ function Editor({ ejercicio, inicial, perfil, consigna, historia }: PropsEditor)
     )
   }
 
-  /** La sección Preguntas de la consigna por etapas: los datos de la entrega, cada pregunta con sus cajas y el cierre. */
+  /**
+   * La sección Preguntas de la consigna por etapas: los datos de la entrega, cada pregunta con sus cajas y el cierre.
+   * El texto que sigue a la última pregunta (cómo entregar) va después del cierre: es lo último que se hace.
+   */
+  const bloquesPorCajas = preguntasPorCajas(ejercicio)
+  const finPreguntas = bloquesPorCajas.findLastIndex((b) => b.tipo === "pregunta") + 1
+  const bloque = (b: (typeof bloquesPorCajas)[number], i: number) => (b.tipo === "markdown" ? <Markdown key={`t${i}`} texto={b.texto} /> : cajasDe(b))
   const preguntasPorEtapas = (
     <>
       {datosGenerales}
-      {preguntasPorCajas(ejercicio).map((b, i) => (b.tipo === "markdown" ? <Markdown key={`t${i}`} texto={b.texto} /> : cajasDe(b)))}
+      {bloquesPorCajas.slice(0, finPreguntas).map(bloque)}
       {cierreYCaptura}
+      {bloquesPorCajas.slice(finPreguntas).map((b, i) => bloque(b, finPreguntas + i))}
     </>
   )
 
