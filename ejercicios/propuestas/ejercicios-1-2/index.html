@@ -2,12 +2,12 @@
 <html lang="es">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ejercicios 1 y 2 por pasos</title>
+<title>Ejercicios 1 y 2 por etapas</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap">
 <style>
-/* Layout: misma estética del visor (papel + tinta, bordes gruesos, sombra dura). Cada paso es una fila
-   "acción | nota al margen"; la nota a mano apunta con una flecha a la acción que la necesita. */
+/* Layout: la consigna en tres etapas que se abren en orden (contexto técnico → contexto del ejercicio →
+   qué hacer) y, al costado, las preguntas siempre a mano. Estética del visor: papel, tinta, sombra dura. */
 :root {
   --fondo: #fbf6ea;
   --superficie: #fffdf7;
@@ -25,10 +25,7 @@
   --rosa: #ffb3c7;
   --tinta-fija: #17140f;
   --terminal: #17140f;
-  --terminal-texto: #f3ecdc;
   --ok: #1f8a5b;
-  --error: #b42318;
-  --nota: #fff3b0;
   --radio: 16px;
   --radio-chico: 10px;
   --borde: 2.5px solid var(--linea);
@@ -46,7 +43,7 @@
     --linea: #f3ecdc; --linea-suave: color-mix(in srgb, #f3ecdc 18%, transparent);
     --trama: color-mix(in srgb, #f3ecdc 9%, transparent);
     --acento: #ff6a4d; --acento-texto: #ff8a70; --acento-suave: color-mix(in srgb, #ff6a4d 16%, transparent);
-    --terminal: #0f0d0a; --ok: #5fd39c; --error: #ff7b6b; --nota: #ffe68a;
+    --terminal: #0f0d0a; --ok: #5fd39c;
     color-scheme: dark;
   }
 }
@@ -55,7 +52,7 @@
   --linea: #f3ecdc; --linea-suave: color-mix(in srgb, #f3ecdc 18%, transparent);
   --trama: color-mix(in srgb, #f3ecdc 9%, transparent);
   --acento: #ff6a4d; --acento-texto: #ff8a70; --acento-suave: color-mix(in srgb, #ff6a4d 16%, transparent);
-  --terminal: #0f0d0a; --ok: #5fd39c; --error: #ff7b6b; --nota: #ffe68a;
+  --terminal: #0f0d0a; --ok: #5fd39c;
   color-scheme: dark;
 }
 
@@ -71,760 +68,667 @@ body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
-.pagina {
-  max-width: 76rem;
-  margin: 0 auto;
-  padding-block: 2rem 4rem;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid;
-  gap: 2rem;
-}
-h1, h2, h3 { font-family: var(--fuente-titulos); font-weight: 800; line-height: 1.1; text-wrap: balance; margin: 0; }
-h1 { font-size: clamp(2rem, 5vw, 3.2rem); }
-h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); }
-h3 { font-size: 1.2rem; }
+h1, h2, h3, h4 { font-family: var(--fuente-titulos); font-weight: 800; line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.9rem, 4.5vw, 2.8rem); }
+h2 { font-size: clamp(1.35rem, 3vw, 1.75rem); }
+h3 { font-size: 1.1rem; }
 p { margin: 0; }
-code, .mono { font-family: var(--fuente-codigo); font-size: 0.88em; }
-.sobretitulo {
-  font-family: var(--fuente-codigo); font-size: 0.78rem; font-weight: 700;
-  letter-spacing: 0.08em; text-transform: uppercase; color: var(--acento-texto);
-}
-.suave { color: var(--texto-suave); }
+code { font-family: var(--fuente-codigo); font-size: 0.88em; background: var(--acento-suave); padding: 0 0.25rem; border-radius: 4px; }
 button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+.suave { color: var(--texto-suave); }
+.sobretitulo { font-family: var(--fuente-codigo); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--acento-texto); }
+.mano { font-family: var(--fuente-mano); font-size: 1.4rem; line-height: 1.1; color: var(--acento-texto); }
 
-/* ── Cabecera ─────────────────────────────── */
-.cabecera { display: grid; gap: 0.9rem; max-width: 52rem; }
-.cabecera .bajada { font-size: 1.08rem; max-width: 62ch; }
-.mano { font-family: var(--fuente-mano); font-size: 1.45rem; line-height: 1.1; color: var(--acento-texto); }
-
-/* ── Controles ────────────────────────────── */
-.controles {
-  display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: end;
-  padding: 1rem 1.2rem; background: var(--superficie); border: var(--borde); border-radius: var(--radio); box-shadow: var(--sombra);
+.pagina {
+  max-width: 82rem; margin: 0 auto;
+  padding-block: 1.75rem 6rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 1.5rem;
 }
-.grupo { display: grid; gap: 0.4rem; }
-.grupo > span { font-size: 0.8rem; font-weight: 600; color: var(--texto-suave); }
+
+/* ── Cabecera y selector ─────────────────── */
+.cabecera { display: grid; gap: 0.6rem; max-width: 56rem; }
 .segmentado { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .segmentado button {
   border: var(--borde); border-radius: 999px; background: var(--superficie);
-  padding: 0.35rem 0.9rem; font-weight: 600; font-size: 0.92rem;
-  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+  padding: 0.3rem 0.85rem; font-weight: 600; font-size: 0.9rem;
 }
-.segmentado button:hover { transform: translate(-1px, -1px); box-shadow: var(--sombra-chica); }
-.segmentado button[aria-pressed="true"] { background: var(--tinta-fija); color: #fbf6ea; border-color: var(--tinta-fija); }
-:root[data-theme="dark"] .segmentado button[aria-pressed="true"] { background: var(--acento); border-color: var(--acento); color: #17140f; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .segmentado button[aria-pressed="true"] { background: var(--acento); border-color: var(--acento); color: #17140f; } }
-.descripcion-variante { flex: 1 1 18rem; min-width: 0; font-size: 0.92rem; color: var(--texto-suave); }
+.segmentado button[aria-pressed="true"] { background: var(--texto); color: var(--fondo); }
 
-/* ── Piezas comunes de un paso ────────────── */
-.objetivo { font-size: 1.02rem; }
-.objetivo b { background: linear-gradient(transparent 55%, color-mix(in srgb, var(--resaltador) 70%, transparent) 55%); color: inherit; }
-.acciones { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
-.accion {
-  display: grid; grid-template-columns: minmax(0, 32rem) minmax(0, 17rem); gap: 0.5rem 1.25rem; align-items: start;
-}
-.accion-texto { display: flex; gap: 0.6rem; align-items: baseline; min-width: 0; }
-.accion-texto .vineta {
-  flex: none; width: 1.5rem; height: 1.5rem; border: 2px solid var(--linea); border-radius: 50%;
-  display: grid; place-items: center; font-size: 0.75rem; font-weight: 700; font-family: var(--fuente-codigo);
-  transform: translateY(0.2rem);
-}
-.accion.sin-nota { grid-template-columns: minmax(0, 1fr); }
+.titulo-ejercicio { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem 1rem; }
+.reloj { font-family: var(--fuente-codigo); font-weight: 700; border: var(--borde); border-radius: 999px; padding: 0.15rem 0.7rem; background: var(--superficie); font-variant-numeric: tabular-nums; }
 
-.nota {
-  position: relative; min-width: 0;
-  display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); gap: 0.2rem; align-items: start;
-}
-.nota svg { width: 2.6rem; height: 1.8rem; color: var(--acento); margin-top: 0.15rem; }
-.nota-cuerpo {
-  min-width: 0; background: var(--nota); color: var(--tinta-fija);
-  border: 2px solid var(--tinta-fija); border-radius: 4px 12px 4px 12px; padding: 0.5rem 0.65rem 0.6rem;
-  transform: rotate(-0.6deg); box-shadow: 2px 3px 0 var(--tinta-fija);
-  font-size: 0.86rem; line-height: 1.4; display: grid; gap: 0.35rem;
-}
-.nota-cuerpo .titulo-nota { font-family: var(--fuente-mano); font-size: 1.3rem; line-height: 1; }
-.cmd {
-  display: grid; gap: 0.15rem;
-  background: #17140f; color: #f3ecdc; border-radius: 6px; padding: 0.4rem 0.5rem; min-width: 0;
-}
-.cmd pre { margin: 0; font-family: var(--fuente-codigo); font-size: 0.78rem; white-space: pre; overflow-x: auto; min-width: 0; }
-.cmd button {
-  justify-self: end; order: -1; border: 1px solid #f3ecdc55; background: transparent; color: #f3ecdc; border-radius: 4px;
-  font-size: 0.7rem; padding: 0.05rem 0.35rem; font-family: var(--fuente-codigo);
-}
+/* ── Disposición: etapas + panel de preguntas ── */
+.visor { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 22rem); gap: 1.75rem; align-items: start; }
+.visor.preguntas-en-grande { grid-template-columns: minmax(0, 1fr); }
 
-@media (max-width: 720px) {
-  .accion { grid-template-columns: minmax(0, 1fr); }
-  .nota { padding-left: 1.6rem; grid-template-columns: 2rem minmax(0, 1fr); }
-  .nota svg { transform: rotate(60deg); width: 2rem; }
+/* Hilo de etapas */
+.hilo { list-style: none; margin: 0; padding: 0; display: flex; gap: 0.4rem; overflow-x: auto; padding-bottom: 0.25rem; }
+.hilo li { flex: 1 0 8.5rem; }
+.hilo button {
+  width: 100%; text-align: left; border: none; background: none; padding: 0.2rem 0.1rem; display: grid; gap: 0.3rem;
 }
+.hilo button:disabled { cursor: not-allowed; }
+.hilo .barra { height: 7px; border-radius: 999px; background: var(--linea-suave); }
+.hilo .hecha .barra { background: var(--texto); }
+.hilo .actual .barra { background: var(--acento); }
+.hilo .siempre .barra { background: repeating-linear-gradient(90deg, var(--cielo) 0 10px, transparent 10px 14px); border: 1.5px solid var(--linea); height: 9px; }
+.hilo .nombre { font-size: 0.82rem; font-weight: 600; color: var(--texto-suave); line-height: 1.25; display: flex; gap: 0.3rem; align-items: baseline; }
+.hilo .actual .nombre, .hilo .hecha .nombre, .hilo .siempre .nombre { color: var(--texto); }
 
-/* Lo que deberías ver */
-.veras { display: grid; gap: 0.45rem; min-width: 0; }
-.veras-etiqueta { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); }
-.terminal {
-  background: var(--terminal); color: var(--terminal-texto); border: var(--borde); border-radius: var(--radio-chico);
-  padding: 0.75rem 0.9rem; font-family: var(--fuente-codigo); font-size: 0.8rem; line-height: 1.55;
-  overflow-x: auto; white-space: pre; margin: 0;
-}
-.terminal .ok { color: #5fd39c; } .terminal .err { color: #ff7b6b; } .terminal .dim { color: #f3ecdc88; } .terminal .hl { color: #ffd84d; }
-.ilustrativo { font-size: 0.75rem; color: var(--texto-suave); font-style: italic; }
+.etapas { display: grid; gap: 0.8rem; min-width: 0; }
 
-.superposicion { display: grid; gap: 0.5rem; padding: 0.9rem; border: var(--borde); border-radius: var(--radio-chico); background: var(--superficie); }
-.superposicion .eje { position: relative; height: 1.2rem; font-family: var(--fuente-codigo); font-size: 0.72rem; color: var(--texto-suave); }
-.superposicion .eje span { position: absolute; transform: translateX(-50%); }
-.superposicion .eje span:first-child { transform: none; }
-.superposicion .eje span:last-child { transform: translateX(-100%); }
-.franja { position: relative; height: 2rem; }
-.franja div {
-  position: absolute; top: 0; bottom: 0; border: 2px solid var(--tinta-fija); border-radius: 6px; color: var(--tinta-fija);
-  font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; padding-inline: 0.4rem; white-space: nowrap; overflow: hidden;
-}
-.choque { position: absolute; top: -0.2rem; bottom: -0.2rem; background: repeating-linear-gradient(45deg, var(--acento) 0 4px, transparent 4px 8px); opacity: 0.55; border-radius: 4px; }
-.respuestas-api { display: flex; flex-wrap: wrap; gap: 0.5rem; font-family: var(--fuente-codigo); font-size: 0.8rem; }
-.status { border: 2px solid var(--linea); border-radius: 6px; padding: 0.1rem 0.45rem; font-weight: 700; }
-.status.mal { background: var(--acento-suave); border-color: var(--acento); color: var(--acento-texto); }
-.status.bien { color: var(--ok); border-color: var(--ok); }
-
-/* Preguntas del paso */
-.preguntas-paso { display: grid; gap: 0.6rem; padding: 0.9rem 1rem; border: 2px dashed var(--linea); border-radius: var(--radio-chico); background: color-mix(in srgb, var(--cielo) 22%, transparent); }
-.preguntas-paso h4 { margin: 0; font-family: var(--fuente-titulos); font-size: 1rem; display: flex; gap: 0.5rem; align-items: center; }
-.preguntas-paso ol { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.45rem; }
-.preguntas-paso li::marker { font-weight: 700; font-family: var(--fuente-codigo); }
-.preguntas-paso .p-titulo { font-weight: 700; }
-.etiqueta-opcional { font-size: 0.72rem; font-weight: 700; border: 1.5px solid var(--linea); border-radius: 999px; padding: 0 0.4rem; margin-left: 0.3rem; vertical-align: 1px; }
-
-.decision {
-  border: var(--borde); border-radius: var(--radio-chico); padding: 0.7rem 0.9rem;
-  background: color-mix(in srgb, var(--rosa) 35%, var(--superficie)); display: grid; gap: 0.3rem;
-}
-.criterios { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.45rem; }
-.criterios span { border: 2px solid var(--linea); border-radius: 999px; padding: 0.05rem 0.55rem; font-size: 0.8rem; font-weight: 600; background: var(--superficie); }
-
-.tarjeta {
+/* Etapa abierta */
+.etapa {
   background: var(--superficie); border: var(--borde); border-radius: var(--radio); box-shadow: var(--sombra);
-  padding: clamp(1rem, 3vw, 1.75rem); display: grid; gap: 1.2rem; min-width: 0;
+  padding: clamp(1rem, 3vw, 1.6rem); display: grid; gap: 1.1rem; min-width: 0;
+  animation: entrar 0.35s var(--ease);
 }
+@keyframes entrar { from { opacity: 0; transform: translateY(8px); } }
+.etapa-cabecera { display: grid; gap: 0.3rem; }
+.etapa .bajada { font-size: 1.02rem; max-width: 62ch; }
+.bloque { display: grid; gap: 0.55rem; min-width: 0; }
+.bloque + .bloque { padding-top: 1rem; border-top: 1.5px dashed var(--linea-suave); }
+.bloque ol, .bloque ul { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.35rem; }
+.siguiente-fila { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem; padding-top: 0.4rem; }
 .boton {
-  border: var(--borde); border-radius: 999px; background: var(--superficie); padding: 0.45rem 1.1rem; font-weight: 700;
+  border: var(--borde); border-radius: 999px; background: var(--superficie); padding: 0.5rem 1.15rem; font-weight: 700;
   box-shadow: var(--sombra-chica); transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
 }
-.boton:hover:not(:disabled) { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--linea); }
-/* ── Variante B: recorrido ────────────────── */
-.recorrido { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.6rem; position: relative; }
-.recorrido > li { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); gap: 1rem; position: relative; }
-.recorrido > li::before {
-  content: ""; position: absolute; left: calc(1.3rem - 1.25px); top: 2.8rem; bottom: -1.6rem; border-left: 2.5px dashed var(--linea);
-}
-.recorrido > li:last-child::before { display: none; }
-.nodo {
-  width: 2.6rem; height: 2.6rem; border: var(--borde); border-radius: 50%; background: var(--resaltador); color: var(--tinta-fija);
-  display: grid; place-items: center; font-family: var(--fuente-titulos); font-weight: 800; font-size: 1.15rem; position: relative; z-index: 1;
-}
-.recorrido .cuerpo { display: grid; gap: 0.9rem; min-width: 0; padding-top: 0.3rem; }
-.recorrido .veras { max-width: 50.25rem; }
-@media (max-width: 720px) { .recorrido .veras { max-width: none; } .recorrido > li { grid-template-columns: 2rem minmax(0,1fr); gap: 0.6rem; } .nodo { width: 2rem; height: 2rem; font-size: 0.95rem; } .recorrido > li::before { left: calc(1rem - 1.25px); top: 2.2rem; } }
+.boton:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--linea); }
+.boton.primario { background: var(--acento); color: #17140f; }
 
-
-/* ── B1: nota plegable ────────────────────── */
-.compacto .acciones { gap: 0.4rem; }
-.compacto .accion { grid-template-columns: minmax(0, 1fr); gap: 0; }
-.b1-linea { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; min-width: 0; }
-.chip-nota {
-  display: inline-flex; align-items: center; gap: 0.2rem; border: none; background: none; padding: 0 0.15rem;
-  font-family: var(--fuente-mano); font-size: 1.2rem; line-height: 1; color: var(--acento-texto);
-  border-bottom: 2px dashed transparent;
+/* Etapas plegadas: hechas y bloqueadas */
+.plegada {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 0.8rem; align-items: center;
+  border: 2px solid var(--linea); border-radius: var(--radio-chico); padding: 0.6rem 0.9rem; background: var(--superficie);
 }
-.chip-nota svg { width: 1.9rem; height: 1rem; flex: none; }
-.chip-nota:hover, .chip-nota[aria-expanded="true"] { border-bottom-color: currentColor; }
-.chip-nota .mas { font-family: var(--fuente-codigo); font-size: 0.75rem; font-weight: 700; border: 1.5px solid currentColor; border-radius: 4px; padding: 0 0.25rem; margin-left: 0.15rem; }
-.b1-nota { display: grid; grid-template-columns: 2.4rem minmax(0, 19rem); gap: 0.2rem; margin: 0.35rem 0 0.4rem 1.6rem; }
-.b1-nota > svg { width: 2.4rem; height: 2.2rem; color: var(--acento); }
-.b1-nota .nota-cuerpo { animation: abrir-nota 0.25s var(--ease); }
-@keyframes abrir-nota { from { opacity: 0; transform: translateY(-4px) rotate(-0.6deg); } }
-.todas-las-notas { justify-self: start; border: 2px solid var(--linea); border-radius: 999px; background: var(--superficie); padding: 0.1rem 0.7rem; font-size: 0.82rem; font-weight: 600; }
+.plegada .icono { width: 1.9rem; height: 1.9rem; border-radius: 50%; display: grid; place-items: center; font-weight: 800; border: 2px solid var(--linea); }
+.plegada.hecha .icono { background: var(--menta); color: var(--tinta-fija); }
+.plegada.bloqueada { border-style: dashed; background: transparent; color: var(--texto-suave); }
+.plegada.bloqueada .icono { border-style: dashed; }
+.plegada .t { font-weight: 700; color: var(--texto); }
+.plegada.bloqueada .t { color: var(--texto-suave); }
+.plegada .r { font-size: 0.86rem; color: var(--texto-suave); }
+.enlace { border: none; background: none; font-weight: 700; color: var(--acento-texto); text-decoration: underline; text-underline-offset: 3px; padding: 0; white-space: nowrap; }
 
-/* ── B2: notas sueltas con flechas ────────── */
-.b2 { position: relative; display: grid; grid-template-columns: minmax(0, 30rem); align-content: start; }
-.b2 > .acciones { align-content: start; }
-.b2-texto { min-width: 0; }
-.b2-marca {
-  display: inline-grid; place-items: center; width: 1.35rem; height: 1.35rem; margin-left: 0.35rem; vertical-align: 0.05rem;
-  border: 2px solid var(--acento); border-radius: 50%; background: var(--superficie); color: var(--acento-texto);
-  font-family: var(--fuente-codigo); font-size: 0.7rem; font-weight: 700; padding: 0;
+/* Piezas de contenido */
+.cmd { display: grid; gap: 0.1rem; background: var(--terminal); color: #f3ecdc; border-radius: 8px; padding: 0.5rem 0.7rem; min-width: 0; }
+.cmd pre { margin: 0; font-family: var(--fuente-codigo); font-size: 0.82rem; white-space: pre; overflow-x: auto; }
+.cmd .comentario { color: #f3ecdc88; }
+.copiar { justify-self: end; order: -1; border: 1px solid #f3ecdc55; background: transparent; color: #f3ecdc; border-radius: 4px; font-size: 0.7rem; padding: 0.05rem 0.4rem; font-family: var(--fuente-codigo); }
+.prompt { border: var(--borde); border-radius: var(--radio-chico); background: color-mix(in srgb, var(--resaltador) 22%, var(--superficie)); padding: 0.8rem 0.9rem; display: grid; gap: 0.5rem; }
+.prompt pre { margin: 0; font-family: var(--fuente-codigo); font-size: 0.8rem; white-space: pre-wrap; max-height: 14rem; overflow-y: auto; }
+.prompt .copiar { color: var(--texto); border-color: var(--linea); }
+.ciclo { margin: 0; font-family: var(--fuente-codigo); font-size: 0.78rem; line-height: 1.45; background: var(--superficie); border: 2px solid var(--linea); border-radius: var(--radio-chico); padding: 0.7rem; overflow-x: auto; white-space: pre; }
+.regla { border-left: 5px solid var(--acento); padding: 0.4rem 0.8rem; background: var(--acento-suave); border-radius: 0 8px 8px 0; font-weight: 600; }
+.aviso { font-size: 0.88rem; color: var(--texto-suave); display: flex; gap: 0.4rem; }
+.aviso::before { content: "↳"; color: var(--acento); font-weight: 700; }
+.criterios { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.criterios span { border: 2px solid var(--linea); border-radius: 999px; padding: 0 0.55rem; font-size: 0.82rem; font-weight: 600; }
+.pestanas { display: grid; gap: 0.6rem; }
+.pestanas .contenido { border: 2px solid var(--linea); border-radius: var(--radio-chico); padding: 0.8rem 0.9rem; display: grid; gap: 0.5rem; }
+
+/* Panel "Probar la API" (maqueta) */
+.api { border: var(--borde); border-radius: var(--radio-chico); padding: 0.8rem; display: grid; gap: 0.6rem; background: color-mix(in srgb, var(--cielo) 14%, var(--superficie)); }
+.api-fila { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 0.5rem; align-items: center; }
+.metodo { font-family: var(--fuente-codigo); font-weight: 700; font-size: 0.78rem; border: 2px solid var(--linea); border-radius: 6px; padding: 0 0.35rem; }
+.ruta { font-family: var(--fuente-codigo); font-size: 0.8rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mini { border: 2px solid var(--linea); border-radius: 999px; background: var(--superficie); font-size: 0.8rem; font-weight: 700; padding: 0.1rem 0.7rem; }
+.respuesta { font-family: var(--fuente-codigo); font-size: 0.78rem; grid-column: 1 / -1; display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; }
+.estado { font-weight: 700; border: 2px solid currentColor; border-radius: 6px; padding: 0 0.35rem; }
+.estado.mal { color: var(--acento-texto); } .estado.bien { color: var(--ok); }
+.gantt { display: grid; gap: 0.3rem; }
+.pista { position: relative; height: 1.5rem; }
+.pista span { position: absolute; top: 0; bottom: 0; border: 2px solid var(--tinta-fija); border-radius: 5px; font-size: 0.7rem; font-weight: 700; color: var(--tinta-fija); padding-inline: 0.3rem; display: flex; align-items: center; white-space: nowrap; overflow: hidden; }
+.pista .cruce { border: none; background: repeating-linear-gradient(45deg, var(--acento) 0 4px, transparent 4px 8px); opacity: 0.6; }
+.eje { position: relative; height: 1rem; font-family: var(--fuente-codigo); font-size: 0.68rem; color: var(--texto-suave); }
+.eje span { position: absolute; transform: translateX(-50%); }
+.eje span:first-child { transform: none; } .eje span:last-child { transform: translateX(-100%); }
+.maqueta { font-size: 0.72rem; color: var(--texto-suave); font-style: italic; }
+
+/* ── Panel de preguntas ──────────────────── */
+.preguntas {
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1rem);
+  max-height: calc(100vh - 2rem); display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  background: var(--superficie); border: var(--borde); border-radius: var(--radio); box-shadow: var(--sombra); overflow: hidden;
 }
-.b2-margen { position: absolute; top: 0; left: calc(30rem + 6rem); width: 17.5rem; }
-.b2-nota {
-  position: absolute; left: var(--corrido, 0); width: 16rem;
-  transform: rotate(var(--giro, 0deg)); transition: opacity 0.2s, transform 0.2s var(--ease);
+.preguntas-cabecera { padding: 0.8rem 1rem 0.6rem; border-bottom: 2px solid var(--linea); background: color-mix(in srgb, var(--cielo) 30%, var(--superficie)); display: grid; gap: 0.35rem; }
+.preguntas-cabecera .fila { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
+.progreso { height: 8px; border: 1.5px solid var(--linea); border-radius: 999px; overflow: hidden; background: var(--superficie); }
+.progreso div { height: 100%; background: var(--menta); transition: width 0.3s var(--ease); }
+.lista-preguntas { overflow-y: auto; padding: 0.4rem 0.6rem 0.8rem; display: grid; gap: 0.25rem; align-content: start; }
+.parte { font-family: var(--fuente-codigo); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); padding: 0.6rem 0.4rem 0.1rem; }
+.pregunta { border-radius: 8px; }
+.pregunta > button {
+  width: 100%; border: none; background: none; text-align: left; padding: 0.45rem 0.4rem; border-radius: 8px;
+  display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; gap: 0.4rem; align-items: baseline;
 }
-.b2-nota .nota-cuerpo { transform: none; }
-.b2-nota .letra { font-family: var(--fuente-codigo); font-size: 0.72rem; font-weight: 700; border: 1.5px solid var(--tinta-fija); border-radius: 50%; width: 1.2rem; height: 1.2rem; display: inline-grid; place-items: center; margin-right: 0.3rem; vertical-align: 0.15rem; }
-.b2-flechas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; color: var(--texto-suave); }
-.b2-flechas path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 5 5; transition: opacity 0.2s, color 0.2s; }
-.b2-flechas path.activa { color: var(--acento); stroke-dasharray: none; stroke-width: 2.6; }
-.b2.hay-activo .b2-nota:not(.activa) { opacity: 0.35; }
-.b2.hay-activo .b2-flechas path:not(.activa) { opacity: 0.2; }
-.b2-nota.activa { transform: rotate(0deg) scale(1.03); z-index: 2; }
-.b2 li.activa .b2-texto { background: linear-gradient(transparent 60%, color-mix(in srgb, var(--resaltador) 70%, transparent) 60%); }
-@media (max-width: 1000px) {
-  .b2-margen { position: static; width: auto; display: grid; gap: 0.7rem; margin-top: 0.8rem; }
-  .b2-nota { position: static; width: auto; max-width: 22rem; transform: none; }
-  .b2-flechas { display: none; }
+.pregunta > button:hover { background: var(--acento-suave); }
+.pregunta .n { font-family: var(--fuente-codigo); font-weight: 700; font-size: 0.85rem; }
+.pregunta .titulo { font-weight: 700; font-size: 0.92rem; line-height: 1.3; }
+.pregunta .cuando { display: block; font-weight: 400; font-size: 0.75rem; color: var(--texto-suave); }
+.pregunta .avance { font-family: var(--fuente-codigo); font-size: 0.72rem; font-weight: 700; border: 2px solid var(--linea); border-radius: 999px; padding: 0 0.4rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pregunta.respondida .avance { background: var(--menta); color: var(--tinta-fija); border-color: var(--tinta-fija); }
+.pregunta .detalle { padding: 0.1rem 0.4rem 0.8rem 2.4rem; display: grid; gap: 0.7rem; }
+.sub { display: grid; gap: 0.3rem; }
+.sub label { font-size: 0.86rem; line-height: 1.35; }
+.sub-n { font-family: var(--fuente-codigo); font-size: 0.72rem; font-weight: 700; color: var(--texto-suave); }
+.sub.lista textarea { border-color: var(--ok); }
+.pregunta textarea {
+  width: 100%; min-height: 3.2rem; resize: vertical; border: 2px solid var(--linea); border-radius: 8px; padding: 0.45rem 0.55rem;
+  font: inherit; font-size: 0.86rem; background: var(--fondo); color: var(--texto);
 }
+.opcional { font-size: 0.68rem; font-weight: 700; border: 1.5px dashed var(--linea); border-radius: 999px; padding: 0 0.35rem; margin-left: 0.25rem; vertical-align: 1px; }
+.preguntas-pie { padding: 0.6rem 0.8rem; border-top: 2px solid var(--linea); display: flex; gap: 0.5rem; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.preguntas-pie .boton { padding: 0.3rem 0.8rem; font-size: 0.85rem; }
 
-/* ── Inventario de preguntas ──────────────── */
-.inventario { display: grid; gap: 1.2rem; }
-.resumen-conteo { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-.conteo { border: var(--borde); border-radius: var(--radio-chico); padding: 0.55rem 0.9rem; background: var(--superficie); display: grid; }
-.conteo b { font-family: var(--fuente-titulos); font-size: 1.6rem; line-height: 1; font-variant-numeric: tabular-nums; }
-.conteo span { font-size: 0.8rem; color: var(--texto-suave); }
-.leyenda { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.82rem; }
-.tabla-envoltorio { overflow-x: auto; border: var(--borde); border-radius: var(--radio); background: var(--superficie); box-shadow: var(--sombra); }
-table { border-collapse: collapse; width: 100%; min-width: 46rem; font-size: 0.9rem; }
-th, td { text-align: left; vertical-align: top; padding: 0.65rem 0.8rem; border-bottom: 1.5px solid var(--linea-suave); }
-th { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); background: color-mix(in srgb, var(--resaltador) 25%, var(--superficie)); }
-tr:last-child td { border-bottom: none; }
-td.num { font-family: var(--fuente-codigo); font-weight: 700; white-space: nowrap; }
-td ul { margin: 0.25rem 0 0; padding-left: 1.1rem; color: var(--texto-suave); }
-td ul li.tachada { text-decoration: line-through; opacity: 0.7; }
-.veredicto { display: inline-block; border: 2px solid var(--tinta-fija); border-radius: 999px; padding: 0 0.55rem; font-size: 0.78rem; font-weight: 700; color: var(--tinta-fija); white-space: nowrap; }
-.v-mantener { background: var(--menta); }
-.v-recortar { background: var(--resaltador); }
-.v-fusionar { background: var(--cielo); }
-.v-sacar { background: var(--rosa); }
-.v-opcional { background: var(--superficie); color: var(--texto); border-color: var(--linea); border-style: dashed; }
-tr.sacada td:not(:last-child) { opacity: 0.6; }
+/* Preguntas en grande (cuarta etapa) */
+.preguntas-grandes { position: static; max-height: none; }
+.preguntas-grandes .lista-preguntas { overflow: visible; padding: 0.5rem 1rem 1rem; }
 
-.redundancias { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 1rem; }
-.redundancias .tarjeta { gap: 0.6rem; box-shadow: var(--sombra-chica); }
-.redundancias ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
-.redundancias li b { font-weight: 600; }
-
-section { display: grid; gap: 1rem; }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+/* Botón flotante y hoja en celular */
+.flotante { display: none; }
+.cerrar-hoja { display: none; }
+@media (max-width: 900px) {
+  .visor { grid-template-columns: minmax(0, 1fr); }
+  .visor > .preguntas {
+    position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 20; max-height: 78vh;
+    border-radius: var(--radio) var(--radio) 0 0; border-bottom: none; box-shadow: 0 -4px 0 var(--linea);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transform: translateY(105%); transition: transform 0.3s var(--ease);
+  }
+  .visor.hoja-abierta > .preguntas { transform: none; }
+  .visor > .preguntas .cerrar-hoja { display: inline-block; }
+  .flotante {
+    display: inline-flex; position: fixed; z-index: 19; gap: 0.5rem; align-items: center;
+    right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    border: var(--borde); border-radius: 999px; background: var(--cielo); color: var(--tinta-fija); padding: 0.55rem 1rem; font-weight: 800; box-shadow: var(--sombra-chica);
+  }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
 <main class="pagina">
   <header class="cabecera">
     <span class="sobretitulo">Propuesta · visor de ejercicios</span>
-    <h1>Ejercicios 1 y 2, paso a paso</h1>
-    <p class="bajada">La consigna de cada ejercicio, partida en pasos cortos: qué hacés, qué deberías ver y qué preguntas se responden ahí. Los comandos y los tips van al costado como notas, con una flecha a la acción que los necesita.</p>
-    <p class="mano">Vamos con la B. Dos ajustes para que los sub-ítems queden juntos: comparalos con la original.</p>
+    <h1>La consigna por etapas</h1>
+    <p class="suave">Contexto técnico, contexto del ejercicio y qué tenés que hacer: cada etapa se abre cuando apretás <b>Siguiente</b>. Las preguntas quedan al costado desde el principio.</p>
+    <div class="segmentado" id="selector-ejercicio" role="group" aria-label="Ejercicio"></div>
   </header>
 
-  <div class="controles" role="group" aria-label="Qué mostrar">
-    <div class="grupo"><span>Ejercicio</span><div class="segmentado" id="selector-ejercicio"></div></div>
-    <div class="grupo"><span>Variante</span><div class="segmentado" id="selector-variante"></div></div>
-    <p class="descripcion-variante" id="descripcion-variante"></p>
+  <div class="titulo-ejercicio">
+    <h2 id="titulo"></h2>
+    <span class="reloj" id="reloj"></span>
   </div>
 
-  <section id="vista" aria-live="polite"></section>
-
-  <section class="inventario" aria-labelledby="titulo-inventario">
-    <span class="sobretitulo">Preguntas</span>
-    <h2 id="titulo-inventario">Todas las preguntas de hoy y qué propongo con cada una</h2>
-    <div class="resumen-conteo" id="conteo"></div>
-    <div class="leyenda">
-      <span class="veredicto v-mantener">Mantener</span>
-      <span class="veredicto v-recortar">Recortar</span>
-      <span class="veredicto v-fusionar">Fusionar</span>
-      <span class="veredicto v-opcional">Opcional</span>
-      <span class="veredicto v-sacar">Sacar</span>
-      <span class="suave">· las sub-preguntas tachadas se van o pasan a la checklist del paso</span>
-    </div>
-    <div class="tabla-envoltorio"><table id="tabla-preguntas"></table></div>
-  </section>
-
-  <section aria-labelledby="titulo-redundancias">
-    <span class="sobretitulo">Texto que se va</span>
-    <h2 id="titulo-redundancias">Explicaciones redundantes que saco de la consigna</h2>
-    <div class="redundancias" id="redundancias"></div>
-  </section>
+  <div class="visor" id="visor">
+    <section class="etapas" aria-label="Consigna">
+      <ol class="hilo" id="hilo" aria-label="Etapas"></ol>
+      <div id="etapas" class="etapas"></div>
+    </section>
+    <aside class="preguntas" id="preguntas" aria-labelledby="titulo-preguntas"></aside>
+  </div>
+  <button type="button" class="flotante" id="flotante" aria-controls="preguntas"></button>
 </main>
 
 <script>
-const FLECHA = '<svg viewBox="0 0 52 36" fill="none" aria-hidden="true"><path d="M48 8 C 36 2, 18 4, 7 22" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M7 22 L 6 11 M7 22 L 17 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
-
-const FLECHA_CORTA = '<svg viewBox="0 0 38 20" fill="none" aria-hidden="true"><path d="M2 12 C 12 4, 24 4, 34 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M34 10 L 25 6 M34 10 L 27 16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
-const FLECHA_ABAJO = '<svg viewBox="0 0 40 36" fill="none" aria-hidden="true"><path d="M6 2 C 4 16, 14 26, 34 26" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M34 26 L 25 20 M34 26 L 25 31" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
-const LETRAS = 'abcdefgh';
-const GIROS = [-1.4, 1.1, -0.6, 1.6, -1];
-const CORRIDOS = ['0rem', '1.3rem', '0.4rem', '1.7rem', '0.8rem'];
-
 /* ── Contenido ───────────────────────────────────────────────── */
+const PROMPT_1 = `Contexto: Mentorías a Voluntad es una app donde personas mentoras donan horas
+de asesoramiento y los colectivos (fundaciones, ONGs, asambleas) reservan
+sesiones. Es un repo full stack: client/ (Vite + React + TypeScript) y server/
+(Express + TypeScript en capas: routes → services → repositories → domain),
+con los datos en archivos JSON dentro de data/. La constitution del proyecto
+está en .specify/memory/constitution.md y dice, entre otras cosas:
+"Una mentora NO PUEDE tener dos sesiones confirmadas que se superpongan".
+
+Problema: el endpoint POST /api/sesiones solo rechaza una sesión nueva si otra
+sesión confirmada de la misma mentora, el mismo día, empieza EXACTAMENTE a la
+misma hora. Si una mentora tiene una revisión de código de 10:00 a 11:00, hoy
+un colectivo puede reservarle otra sesión de 10:30 a 11:15 y quedan
+superpuestas.
+
+Lo que necesito:
+1. Extraé la detección de superposición a una función pura en server/domain/,
+   por ejemplo:
+   haySuperposicion(sesiones, { mentoraId, fecha, horaInicio, horaFin }): boolean
+   Solo cuentan las sesiones con estado "confirmada" de la misma mentora y de
+   la misma fecha. Una sesión que termina 10:30 y otra que empieza 10:30 NO se
+   superponen. La función no hace IO.
+2. Trabajá con TDD: primero escribí los tests en
+   tests/server/domain/superposicion.test.ts y un test de la API en
+   tests/server/api/ que espere el 409; corrélos y mostrame que fallan; recién
+   después implementá.
+3. Usá haySuperposicion en el caso de uso de crear sesión (capa de servicios).
+   Si hay superposición, la API responde 409 con
+   { "error": "El horario se superpone con otra sesión de la mentora" }.
+4. No modifiques los archivos de data/. No toques los tests existentes salvo
+   que sea imprescindible; si tenés que hacerlo, avisame cuál y por qué.
+5. Al terminar, corré \`npm test\` y \`npm run lint\` y contame el resultado.
+
+Antes de editar código, explicame en 3-4 líneas tu plan.`;
+
+const PROMPT_2_SKILL = `Necesito un endpoint para obtener el detalle de una sesión por su id:
+GET /api/sesiones/:id. Si no existe, 404.`;
+
+const PROMPT_2_MCP = `Con el navegador, entrá a http://localhost:5173 y reservá una sesión de
+mentoría como si fueras un colectivo: filtrá las mentoras por una habilidad,
+elegí una mentora, un tipo de asesoría, un día y un horario, completá los
+datos del colectivo (colectivo, proyecto, nombre y email de contacto) y
+confirmá. Después verificá con el endpoint GET /api/sesiones/:id que hiciste
+antes que la sesión quedó guardada con los datos correctos. Revisá también las
+requests de red: ¿alguna respuesta de la API incluye el email de una mentora?
+Sacá una captura de la pantalla de confirmación, guardala en
+ejercicios/02-skill-y-mcp/captura-confirmacion.png y contame cualquier problema
+de usabilidad o accesibilidad que encuentres (por ejemplo, ¿se puede hacer
+todo con teclado? ¿se ve bien a 375px de ancho?). Usá el navegador en modo
+visible (headed, no headless), así puedo ver en vivo lo que hacés.`;
+
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const cmd = (texto) => `<div class="cmd"><pre>${texto.split('\n').map((l) => l.includes('  #') ? `${esc(l.slice(0, l.indexOf('  #')))}<span class="comentario">${esc(l.slice(l.indexOf('  #')))}</span>` : esc(l)).join('\n')}</pre><button type="button" class="copiar" data-copiar="${esc(texto.replace(/\s+#.*$/gm, ''))}">copiar</button></div>`;
+const prompt = (texto, titulo) => `<div class="prompt"><div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem"><b>${titulo}</b><button type="button" class="copiar" data-copiar="${esc(texto)}">copiar</button></div><pre>${esc(texto)}</pre></div>`;
+
 const EJERCICIOS = {
   1: {
-    titulo: 'Observar al agente con hooks',
-    minutos: 30,
-    pasos: [
+    titulo: 'Ejercicio 1 · Observar al agente con hooks',
+    minutos: 20,
+    etapas: [
       {
-        nombre: 'Preparar y activar los hooks',
-        objetivo: 'Dejá la app corriendo y <b>el log grabando cada acción del agente</b>.',
-        acciones: [
-          { t: 'Instalá, generá los datos de ejemplo y levantá la app.', nota: { titulo: 'en su propia terminal', t: 'Dejala corriendo todo el ejercicio. En PowerShell, un comando por línea.', cmd: 'npm install\nnpm run seed\nnpm test\nnpm run dev' } },
-          { t: 'Abrí tu agente desde la raíz del repo y comprobá que los hooks estén cargados.', nota: { titulo: 'según el agente', t: 'Claude Code: /hooks · Codex: marcá el proyecto como confiable y aprobá cada hook en /hooks · Cline: Settings → Enable Hooks.' } },
-          { t: 'Mandale algo trivial ("¿qué hay en package.json?") y mirá el resumen del log.', nota: { titulo: 'terminal maximizada', t: 'Las líneas son largas: en una ventana angosta se cortan.', cmd: 'npm run logs:resumen' } },
-          { t: 'Vaciá el log para medir solo la tarea.', nota: { titulo: 'no borra nada', t: 'Archiva el log en logs/archivo/<fecha>/.', cmd: 'npm run logs:limpiar' } },
-        ],
-        veras: { tipo: 'terminal', etiqueta: 'Después del mensaje trivial', lineas: [
-          ['dim', '$ npm run logs:resumen'], ['', 'Sesión 7c1e…  agente: claude'], ['', 'Eventos      UserPromptSubmit 1 · PreToolUse 1 · PostToolUse 1 · Stop 1'], ['ok', 'Archivos leídos  package.json'],
-        ] },
+        nombre: 'Contexto técnico',
+        resumen: 'Qué es un hook, cómo activarlos en tu agente y cómo verificar que el log graba.',
+        bajada: 'El modelo no ejecuta nada: pide una herramienta y el <b>harness</b> la corre. Los hooks del repo registran cada uno de esos pasos en un log.',
+        bloques: () => `
+          <div class="bloque"><h3>Qué es un hook</h3>
+            <p>Un comando que el harness, no el modelo, ejecuta siempre en momentos fijos del ciclo. Acá todos llaman a <code>scripts/agent-logs/log-hook.mjs</code>, que escribe una línea en <code>logs/&lt;agente&gt;/&lt;sesión&gt;.jsonl</code>.</p>
+            <pre class="ciclo"> vos ──prompt──▶ [UserPromptSubmit] ──▶ modelo
+                                          │ pide una tool
+                                          ▼
+                 [PreToolUse] ──▶ harness ejecuta la tool ──▶ [PostToolUse]
+                                          │ resultado = evidencia
+                                          ▼
+                                       modelo ... ──▶ [Stop]</pre>
+          </div>
+          <div class="bloque"><h3>Activá los hooks de tu agente</h3>
+            ${pestanasAgente({
+              claude: `<p>Archivo: <code>.claude/settings.json</code></p><ol><li>Abrí <code>claude</code> desde la raíz del repo y aceptá confiar en la carpeta.</li><li>Corré <code>/hooks</code>: tienen que aparecer los del proyecto.</li></ol>`,
+              codex: `<p>Archivo: <code>.codex/hooks.json</code></p><ol><li>Abrí <code>codex</code> desde la raíz del repo y marcá el proyecto como <b>confiable</b>.</li><li>Corré <code>/hooks</code> y aprobá cada hook.</li></ol><p class="aviso">Si cambiás .codex/hooks.json, hay que volver a aprobarlos.</p>`,
+              cline: `<p>Carpeta: <code>.clinerules/hooks/</code></p><ol><li>Abrí la carpeta del repo en VS Code.</li><li>Cline → Settings → Feature Settings → <b>Enable Hooks</b>.</li><li>En la pestaña Hooks, verificá que estén encendidos.</li></ol><p class="aviso">macOS/Linux: <code>chmod +x .clinerules/hooks/*</code> si no aparecen.</p>`,
+            })}
+          </div>
+          <div class="bloque"><h3>Verificá que graba</h3>
+            <ol><li>Mandale al agente algo trivial: <i>"¿qué hay en package.json?"</i></li><li>Mirá el resumen: tiene que haber un <code>UserPromptSubmit</code> y una lectura.</li></ol>
+            ${cmd('npm run logs:resumen')}
+            <ol start="3"><li>Si funciona, arrancá un log vacío para el ejercicio.</li></ol>
+            ${cmd('npm run logs:limpiar')}
+            <p class="aviso">Usá la terminal en pantalla completa: las líneas son largas.</p>
+          </div>`,
       },
       {
-        nombre: 'Ver el bug',
-        objetivo: 'Comprobá que <b>la API acepta dos sesiones superpuestas</b> de la misma mentora.',
-        acciones: [
-          { t: 'Reservale a Valentina una estrategia de testing (45 min) a las 19:00.', nota: { titulo: 'bash, PowerShell o Postman', t: 'Los tres pedidos completos, listos para copiar, van en un desplegable debajo.', cmd: 'POST /api/sesiones\n"horaInicio": "19:00"' } },
-          { t: 'Reservale, el mismo día, una revisión de código (30 min) a las 19:30.' },
-          { t: 'Mirá el status de la segunda respuesta.' },
-          { t: 'Borrá esas reservas regenerando los datos.', nota: { titulo: 'siempre después de probar', cmd: 'npm run seed' } },
-        ],
-        veras: { tipo: 'superposicion' },
+        nombre: 'Contexto del ejercicio',
+        resumen: 'La regla de la constitution y el bug: la API deja superponer dos sesiones.',
+        bajada: 'Vas a hacer que el agente arregle un bug real. Antes, miralo con tus propios ojos.',
+        bloques: () => `
+          <div class="bloque"><h3>La regla</h3>
+            <p class="regla">"Una mentora NO PUEDE tener dos sesiones confirmadas que se superpongan."</p>
+            <p class="suave">Está en <code>.specify/memory/constitution.md</code>. Leela: la vas a usar para juzgar lo que haga el agente.</p>
+          </div>
+          <div class="bloque"><h3>El bug</h3>
+            <p>Mandá las dos reservas para Valentina. La segunda arranca antes de que termine la primera.</p>
+            ${panelSuperposicion('antes')}
+          </div>
+          <div class="bloque"><h3>Antes de seguir</h3>
+            <p>Borrá esas dos reservas regenerando los datos de ejemplo.</p>
+            ${cmd('npm run seed')}
+          </div>`,
       },
       {
-        nombre: 'Darle la tarea',
-        objetivo: 'Pasale el prompt <b>tal cual</b> y dejalo trabajar sin ayudarlo.',
-        acciones: [
-          { t: 'Abrí una sesión nueva del agente y pegá el prompt del ejercicio.' },
-          { t: 'Aprobá o rechazá cada permiso leyendo qué pide.', nota: { titulo: 'anotalo', t: 'Si tenés que intervenir, escribí cuándo y por qué: lo vas a usar en las respuestas.' } },
-          { t: 'Si querés, seguí el log en vivo mientras trabaja.', nota: { titulo: 'en otra terminal', cmd: 'tail -f logs/<agente>/<sesión>.jsonl\n# PowerShell: Get-Content … -Wait' } },
-        ],
-        veras: { tipo: 'terminal', etiqueta: 'Lo que debería hacer el agente', lineas: [
-          ['hl', '› Plan: extraigo haySuperposicion a server/domain/,'], ['hl', '  escribo los tests primero, los corro y después implemento.'], ['dim', '  …'], ['err', '✗ npm test  2 failed'], ['dim', '  …'], ['ok', '✓ npm test  all passed · npm run lint ok'],
-        ] },
-      },
-      {
-        nombre: 'Leer el log',
-        objetivo: 'Reconstruí <b>qué hizo, en qué orden y con qué evidencia</b>.',
-        acciones: [
-          { t: 'Mirá los conteos: herramientas, comandos y archivos.', nota: { titulo: 'arranca por acá', cmd: 'npm run logs:resumen' } },
-          { t: 'Mirá la línea de tiempo paso a paso.', nota: { titulo: 'tipos de acción', t: 'leer · escribir · ejecutar · buscar · skill · mcp. Las corridas de tests muestran cómo terminaron.', cmd: 'npm run logs:timeline' } },
-          { t: 'Para el detalle de un evento, buscalo en el JSONL de la sesión.', nota: { titulo: 'salidas recortadas', t: 'Cada entrada guarda 2000 caracteres. Para más, abrí el agente con AGENT_LOG_MAX_CHARS=20000.' } },
-        ],
-        veras: { tipo: 'terminal', etiqueta: 'La línea de tiempo que buscás', lineas: [
-          ['dim', '$ npm run logs:timeline'], ['', '10:02:11  leer       AGENTS.md'], ['', '10:02:14  leer       .specify/memory/constitution.md'], ['', '10:02:40  escribir   tests/server/domain/superposicion.test.ts'], ['err', '10:03:05  ejecutar   npm test               → 2 fallaron'], ['', '10:03:31  escribir   server/domain/superposicion.ts'], ['ok', '10:04:02  ejecutar   npm test               → pasaron todos'],
-        ] },
-        preguntas: [1, 2, 3, 4, 7],
-      },
-      {
-        nombre: 'Probar el arreglo',
-        objetivo: 'Verificá vos el resultado, <b>sin creerle al resumen del agente</b>.',
-        acciones: [
-          { t: 'Repetí las dos reservas del paso 2: la segunda tiene que dar 409.' },
-          { t: 'Corré tests, lint y typecheck.', nota: { titulo: 'typecheck no lo pedía el prompt', cmd: 'npm test\nnpm run lint\nnpm run typecheck' } },
-          { t: 'Revisá con git status que no haya tocado data/ ni tests existentes.' },
-          { t: 'Recorré la pantalla de reserva y regenerá los datos.', nota: { cmd: 'npm run seed' } },
-        ],
-        veras: { tipo: 'terminal', etiqueta: 'La segunda reserva, ahora', lineas: [
-          ['dim', '$ POST /api/sesiones  (revision_de_codigo, 19:30)'], ['err', '[409]'], ['', '{ "error": "El horario se superpone con otra sesión de la mentora" }'],
-        ] },
-        preguntas: [6],
-      },
-      {
-        nombre: 'Pensar y entregar',
-        objetivo: 'Dos preguntas para pensar y <b>subir todo a tu rama</b>.',
-        acciones: [
-          { t: 'Respondé las preguntas de reflexión y guardá.' },
-          { t: 'Guardá la línea de tiempo en un archivo.', nota: { titulo: 'en PowerShell', t: 'usá | Out-File -Encoding utf8 en lugar de >.', cmd: 'npm run logs:timeline > ejercicios/01-observabilidad-con-hooks/timeline.txt' } },
-          { t: 'Commiteá, subí y apretá Terminé.', nota: { cmd: 'git add -A\ngit commit -m "Ejercicio 1"\ngit push' } },
-        ],
-        veras: { tipo: 'terminal', etiqueta: 'En git status', lineas: [
-          ['ok', 'nuevo:      server/domain/superposicion.ts'], ['ok', 'nuevo:      tests/server/domain/superposicion.test.ts'], ['ok', 'modificado: server/services/sesiones.ts'], ['ok', 'nuevo:      ejercicios/01-observabilidad-con-hooks/timeline.txt'],
-        ] },
-        preguntas: [9, 10],
+        nombre: 'Qué tenés que hacer',
+        resumen: 'Pasarle el prompt al agente, leer el log y probar el arreglo.',
+        bajada: 'Tres pasos. Mientras el agente trabaja, ya podés ir mirando las preguntas del costado.',
+        bloques: () => `
+          <div class="bloque"><h3>1 · Pasale el prompt</h3>
+            <ol><li>Abrí una <b>sesión nueva</b> del agente y pegá el prompt <b>tal cual</b>.</li><li>Aprobá o rechazá cada permiso <b>leyendo qué pide</b>.</li><li>No lo ayudes salvo que se trabe; si intervenís, anotalo.</li></ol>
+            ${prompt(PROMPT_1, 'Prompt para el agente')}
+            <p class="aviso">Para seguirlo en vivo: <code>tail -f logs/&lt;agente&gt;/&lt;sesión&gt;.jsonl</code> (PowerShell: <code>Get-Content … -Wait</code>).</p>
+          </div>
+          <div class="bloque"><h3>2 · Leé el log</h3>
+            ${cmd('npm run logs:resumen    # conteos: herramientas, comandos, archivos\nnpm run logs:timeline   # línea de tiempo paso a paso')}
+            <p class="suave">En la línea de tiempo cada acción tiene su tipo (<code>leer</code>, <code>escribir</code>, <code>ejecutar</code>…) y las corridas de tests muestran cómo terminaron.</p>
+          </div>
+          <div class="bloque"><h3>3 · Probá el arreglo</h3>
+            <p>Mandá otra vez las dos reservas: la segunda tiene que dar <b>409</b>.</p>
+            ${panelSuperposicion('despues')}
+            ${cmd('npm run seed')}
+          </div>
+          <div class="bloque"><h3>Entrega</h3>
+            ${cmd('git add -A\ngit commit -m "Ejercicio 1"\ngit push')}
+          </div>`,
       },
     ],
-    preguntas: [
-      { n: 1, titulo: 'El ciclo', subs: ['¿Cuántas llamadas a herramientas hizo en total?', '¿Qué herramienta usó más?', 'Agrupalas en las familias de la charla: búsqueda de código, control de versiones, validación local, navegador, servicios.'], v: 'mantener', motivo: 'Es la primera lectura del log y arma el vocabulario del resto.', final: '¿Cuántas herramientas usó, cuál más y de qué familias son?' },
-      { n: 2, titulo: 'Explorar antes de actuar', subs: ['¿Cuántas herramientas usó antes de su primera edición?', '¿Qué archivos leyó?', '¿Leyó la constitution que menciona el prompt?'], v: 'mantener', motivo: 'Se responde mirando la timeline, rápido y con evidencia clara.', final: '¿Qué hizo antes de editar el primer archivo? ¿Leyó la constitution?' },
-      { n: 3, titulo: 'TDD de verdad', subs: ['¿Cumplió el orden test → npm test (falla) → implementación → npm test (pasa)?', '¿Falló porque no compilaba o porque la regla no se cumplía?'], v: 'mantener', motivo: 'Es la pregunta central del ejercicio.', final: '¿Respetó el orden de TDD? ¿El test falló por no compilar o por la regla?' },
-      { n: 4, titulo: 'Comandos de terminal', subs: ['~Listá todos los comandos que ejecutó.~', '¿Alguno no lo pediste? ¿Alguno te generó dudas al aprobarlo?', 'Clasificalos con el semáforo: verde, amarillo, rojo.'], v: 'recortar', motivo: 'Listar es copiar del resumen. Queda lo que pide criterio: dudas y semáforo.', final: 'Clasificá los comandos con el semáforo. ¿Alguno te hizo dudar al aprobarlo? ¿Falló alguno y qué hizo después?' },
-      { n: 5, titulo: 'Errores y reintentos', subs: ['¿Alguna herramienta falló?', '¿Qué hizo el agente después?'], v: 'fusionar', con: 4, motivo: 'Muchas veces no falla nada y queda vacía. Entra como una línea en la 4.' },
-      { n: 6, titulo: 'El resultado', subs: ['Corré test, lint y typecheck: ¿coincide con lo que dijo el agente al final?', '~¿Hizo algo prohibido (tocar data/, correr seed)?~', '~¿Modificó algún test existente? ¿Avisó?~', '¿Respetó las capas: función pura en server/domain/ y la ruta sin hablar con el repositorio?'], v: 'recortar', motivo: 'Lo prohibido y los tests tocados se verifican con git status: pasan a la checklist del paso 5.', final: '¿Lo que corriste coincide con lo que dijo el agente? ¿Respetó las capas de la constitution?' },
-      { n: 7, titulo: 'Contexto', subs: ['¿Qué herramienta llenó más la ventana de contexto?', '¿Había lecturas evitables?'], v: 'mantener', motivo: 'Conecta con context engineering y prepara el ejercicio 2.', final: '¿Qué herramienta llenó más el contexto? ¿Qué lectura se podía evitar?' },
-      { n: 8, titulo: 'Comparar', subs: ['Con alguien que usó otro agente: ¿qué diferencias de estrategia ven?'], v: 'sacar', motivo: 'Depende de otra persona y no entra en 30 minutos. Funciona mejor como puesta en común en la charla.' },
-      { n: 9, titulo: 'Hooks como control', subs: ['Proponé un hook que bloquee algo: ¿en qué evento?', '¿Por qué un hook y no una instrucción en AGENTS.md?'], v: 'mantener', motivo: 'Es la idea de harness engineering que se lleva el ejercicio.', final: 'Proponé un hook que bloquee algo. ¿En qué evento va y por qué no alcanza con AGENTS.md?' },
-      { n: 10, titulo: 'Riesgos', subs: ['~Buscá emails en tu log con grep o Select-String.~', '¿Qué datos sensibles podrían terminar en el log en un proyecto real?', '¿El log debería versionarse?'], v: 'recortar', motivo: 'La búsqueda con regex ocupa más que la pregunta y hay que darla para cada sistema. Queda la reflexión.', final: '¿Qué datos sensibles podrían quedar en el log? ¿Debería versionarse?' },
-    ],
-    redundancias: [
-      ['Objetivo', 'Tres oraciones que repiten la charla. Queda una línea por paso.'],
-      ['Descripción del proyecto y mapa del repo', 'Ya están en el índice y en el prompt.'],
-      ['Tabla de configuración de cada agente', 'Pasa a la nota del paso 1.'],
-      ['Explicación de logs:limpiar y del archivo', 'Una nota de una línea.'],
-      ['Párrafo de AGENT_LOG_MAX_CHARS y AGENT_LOG_RAW', 'Nota en "Leer el log". RAW se saca.'],
-      ['Aviso de terminal maximizada, puerto 5174, && en PowerShell', 'Notas al costado, solo donde aplican.'],
-      ['"Dejá npm run dev corriendo" y botón "Ver aplicación" duplicados', 'Una vez cada uno.'],
-      ['Pistas dentro de las preguntas', 'Se vuelven el "deberías ver" del paso.'],
+    partes: [
+      { nombre: 'Lo que pasó', preguntas: [
+        { titulo: 'El ciclo', cuando: 2, subs: ['¿Cuántas llamadas a herramientas hizo el agente en total?', '¿Qué herramienta usó más?', 'Agrupalas en las familias de la charla: búsqueda de código, control de versiones, validación local, navegador, servicios.'] },
+        { titulo: 'Explorar antes de actuar', cuando: 2, subs: ['¿Cuántas herramientas usó antes de su primera edición de archivo?', '¿Qué archivos leyó?', '¿Leyó la constitution que menciona el prompt?'] },
+        { titulo: 'TDD de verdad', cuando: 2, subs: ['¿Cumplió el orden: test → npm test (falla) → server/domain/ → npm test (pasa)?', '¿Falló porque no compila o porque la regla no se cumple?'] },
+        { titulo: 'Comandos de terminal', cuando: 2, subs: ['Listá todos los comandos que ejecutó.', '¿Alguno no lo pediste? ¿Alguno te generó dudas al aprobarlo?', 'Clasificalos con el semáforo: verde, amarillo o rojo.'] },
+        { titulo: 'Errores y reintentos', cuando: 2, subs: ['¿Alguna herramienta falló?', '¿Qué hizo el agente después?'] },
+        { titulo: 'El resultado', cuando: 2, subs: ['Corré npm test, lint y typecheck: ¿coincide con lo que dijo el agente?', '¿Hizo algo que el prompt prohibía?', '¿Modificó algún test existente? ¿Avisó?', '¿Respetó las capas de la constitution?'] },
+      ] },
+      { nombre: 'Lo que pensás', preguntas: [
+        { titulo: 'Contexto', cuando: 2, subs: ['¿Qué herramienta llenó más la ventana de contexto?', '¿Había lecturas que se podían evitar?'] },
+        { titulo: 'Comparar', opcional: true, cuando: 2, subs: ['Con alguien que usó otro agente: ¿qué diferencias de estrategia ven?'] },
+        { titulo: 'Hooks como control', cuando: 0, subs: ['Proponé un hook que bloquee algo: ¿en qué evento lo pondrías?', '¿Por qué un hook y no una instrucción en AGENTS.md?'] },
+        { titulo: 'Riesgos', cuando: 2, subs: ['¿Aparece algún email en tu log? ¿De dónde salió?', '¿Qué datos sensibles podrían terminar en el log en un proyecto real?', '¿El log debería versionarse?'] },
+      ] },
     ],
   },
   2: {
-    titulo: 'Escribir una skill y conectar un MCP',
-    minutos: 45,
-    pasos: [
+    titulo: 'Ejercicio 2 · Escribir una skill y conectar un MCP',
+    minutos: 35,
+    etapas: [
       {
-        nombre: 'Escribir la skill',
-        objetivo: 'Pasá a un archivo <b>las reglas que en el ejercicio 1 tuviste que escribir en el prompt</b>.',
-        acciones: [
-          { t: 'Vaciá el log para medir solo este ejercicio.', nota: { cmd: 'npm run logs:limpiar' } },
-          { t: 'Creá nuevo-endpoint/SKILL.md en la carpeta de skills de tu agente.', nota: { titulo: 'dónde va', t: 'Claude Code y Cline: .claude/skills/ · Codex: .agents/skills/. Usá .claude/skills/speckit-specify/ como modelo.' } },
-          { t: 'Escribí el encabezado: name y description.', nota: { titulo: '"Ayuda con la API" no dispara nunca', t: 'Nombrá el trabajo y el momento, con las palabras que vas a usar al pedirlo: endpoint, ruta, handler, server/routes.' } },
-          { t: 'Escribí el criterio. Tiene que cubrir estos siete puntos:', criterios: ['Preguntar antes', 'Capas', 'Contrato /api', 'Dominio en español', 'Privacidad', 'TDD con supertest', 'Caso borde + validar'] },
-        ],
-        veras: { tipo: 'terminal', etiqueta: '.claude/skills/nuevo-endpoint/SKILL.md', lineas: [
-          ['dim', '---'], ['hl', 'name: nuevo-endpoint'], ['hl', 'description: Crear o modificar un endpoint de la API'], ['hl', '  Express (rutas en server/routes) …'], ['dim', '---'], ['', '## Antes de escribir, preguntá'], ['', '- ¿Quién lo consume? ¿Devuelve datos personales?'], ['', '## Dónde va cada cosa'], ['dim', '…'],
-        ] },
+        nombre: 'Contexto técnico',
+        resumen: 'Qué es una skill, qué es un MCP y dónde va cada uno según tu agente.',
+        bajada: 'Dos piezas que se suman al agente: una skill le da <b>criterio</b>; un MCP le da <b>herramientas</b> nuevas.',
+        bloques: () => `
+          <div class="bloque"><h3>Skill</h3>
+            <p>Un <code>SKILL.md</code> versionado con el código. Arriba, el encabezado decide <b>cuándo</b> se activa; abajo, el criterio dice <b>cómo</b> hacemos las cosas en este repo.</p>
+            ${cmd('---\nname: nuevo-endpoint\ndescription: <qué trabajo hace + en qué momento usarla>\n---')}
+            <p class="aviso">Al contexto entra solo la descripción; el cuerpo, cuando se usa.</p>
+          </div>
+          <div class="bloque"><h3>MCP</h3>
+            <p>Un servidor que le suma herramientas al agente. Acá, <b>Playwright MCP</b>: abrir un navegador, hacer clic, completar formularios, mirar la red y sacar capturas.</p>
+            ${cmd('npx playwright install chromium   # antes de la clase\nnpx -y @playwright/mcp@latest --help')}
+          </div>
+          <div class="bloque"><h3>Dónde va cada cosa en tu agente</h3>
+            ${pestanasAgente({
+              claude: `<p>Skill: <code>.claude/skills/nuevo-endpoint/SKILL.md</code></p><p>MCP:</p>${cmd('claude mcp add playwright --scope project -- npx -y @playwright/mcp@latest')}<p class="aviso">Verificá con <code>/mcp</code>.</p>`,
+              codex: `<p>Skill: <code>.agents/skills/nuevo-endpoint/SKILL.md</code></p><p>MCP, en <code>.codex/config.toml</code>:</p>${cmd('[mcp_servers.playwright]\ncommand = "npx"\nargs = ["-y", "@playwright/mcp@latest"]')}`,
+              cline: `<p>Skill: <code>.claude/skills/nuevo-endpoint/SKILL.md</code> (Cline la lee de ahí).</p><p>MCP: panel <b>MCP Servers → Configure</b>, con <code>npx -y @playwright/mcp@latest</code>.</p>`,
+            })}
+          </div>
+          <div class="bloque"><h3>Cómo vas a comprobar que se activaron</h3>
+            <p>En el tablero de <b>Métricas</b>: la skill y el MCP aparecen en "Subagentes, skills y MCP".</p>
+            ${cmd('npm run logs:limpiar   # medí solo este ejercicio')}
+          </div>`,
       },
       {
-        nombre: '¿Se dispara sola?',
-        objetivo: 'Comprobá que el agente <b>la usa sin que se la nombres</b>.',
-        acciones: [
-          { t: 'En una sesión nueva, preguntale: "¿Cuándo usarías la skill nuevo-endpoint?"', nota: { titulo: 'siempre sesión nueva', t: 'Abierta después de guardar el SKILL.md. En la sesión donde la escribiste, la prueba no vale.' } },
-          { t: 'En otra sesión nueva, pedile el endpoint sin nombrar la skill.', nota: { titulo: 'el pedido, tal cual', cmd: 'Necesito un endpoint para obtener el detalle de una sesión\npor su id: GET /api/sesiones/:id. Si no existe, 404.' } },
-          { t: 'Buscá la skill en la línea de tiempo y anotá el session.', nota: { cmd: 'npm run logs:timeline' } },
-          { t: 'Si no aparece, no le digas que la use: cambiá la description y probá de nuevo. Contá los intentos.' },
-        ],
-        veras: { tipo: 'terminal', etiqueta: 'Se disparó', lineas: [
-          ['dim', 'Sesión 4b9d…'], ['', '11:20:03  prompt     Necesito un endpoint para…'], ['ok', '11:20:05  skill      nuevo-endpoint'], ['', '11:20:09  leer       server/routes/sesiones.ts'], ['', '11:20:30  escribir   tests/server/api/sesion-por-id.test.ts'],
-        ] },
-        preguntas: [1, 3],
+        nombre: 'Contexto del ejercicio',
+        resumen: 'Por qué nace la skill y qué decisión de privacidad tiene el endpoint.',
+        bajada: 'En el ejercicio 1 le explicaste al agente las reglas del proyecto dentro del prompt. Si mañana le pedís otro endpoint, se las vas a tener que repetir: ahí nace una skill.',
+        bloques: () => `
+          <div class="bloque"><h3>Lo que vas a construir</h3>
+            <ul><li>La skill <code>nuevo-endpoint</code>, con el criterio de este repo.</li><li>Con esa skill, el endpoint <code>GET /api/sesiones/:id</code>, pidiéndolo en dos líneas.</li><li>Con el navegador, una reserva hecha por el agente.</li></ul>
+          </div>
+          <div class="bloque"><h3>Lo que tiene que cubrir la skill</h3>
+            <div class="criterios"><span>Preguntar antes</span><span>Capas</span><span>Contrato /api</span><span>Dominio en español</span><span>Privacidad</span><span>TDD con supertest</span><span>Caso borde + validar</span></div>
+            <p class="aviso">«Ayuda con la API» no dispara nunca: la description tiene que nombrar el trabajo y el momento.</p>
+          </div>
+          <div class="bloque"><h3>Una decisión de producto</h3>
+            <p class="regla">El detalle de una sesión no devuelve contactoNombre ni contactoEmail.</p>
+            <p class="suave">La app no tiene login y un UUID en la URL no es una credencial. El pedido no lo dice a propósito: queremos ver si la skill alcanza para que el agente lo resuelva solo.</p>
+          </div>`,
       },
       {
-        nombre: 'Revisar la privacidad',
-        objetivo: 'Mirá <b>qué campos devuelve</b> el endpoint nuevo.',
-        decision: { titulo: 'Decisión de producto: el detalle no devuelve contactoNombre ni contactoEmail.', t: 'No hay login, y un UUID en la URL no es una credencial. Devuelve la misma vista pública que GET /api/sesiones. El pedido no lo dice a propósito.' },
-        acciones: [
-          { t: 'Pedí una sesión que existe y mirá los campos.', nota: { titulo: 'bash, PowerShell o Postman', t: 'Los comandos completos van en el desplegable.', cmd: 'GET /api/sesiones/<id>' } },
-          { t: 'Pedí una que no existe: tiene que dar 404.', nota: { cmd: 'GET /api/sesiones/no-existe' } },
-          { t: 'Si devuelve el email, no lo corrijas a mano: mejorá la skill y repetí.' },
-        ],
-        veras: { tipo: 'terminal', etiqueta: 'Respuesta esperada', lineas: [
-          ['ok', '[200]'], ['', '{ "id": "…", "mentoraId": "…", "tipoAsesoriaId": "revision_de_codigo",'], ['', '  "colectivoId": "…", "proyecto": "…", "fecha": "2026-11-04",'], ['', '  "horaInicio": "18:00", "horaFin": "18:30", "estado": "confirmada" }'], ['dim', '  sin contactoNombre · sin contactoEmail'], ['err', '[404] { "error": "…" }'],
-        ] },
-        preguntas: [4, 5],
-      },
-      {
-        nombre: 'Conectar el navegador',
-        objetivo: 'Sumale al agente <b>herramientas para usar un navegador</b> con Playwright MCP.',
-        acciones: [
-          { t: 'Agregá el servidor MCP de Playwright.', nota: { titulo: 'Claude Code', t: 'Codex: [mcp_servers.playwright] en .codex/config.toml · Cline: panel MCP Servers.', cmd: 'claude mcp add playwright --scope project -- npx -y @playwright/mcp@latest' } },
-          { t: 'Verificá con /mcp que aparezca y mirá cuántas herramientas expone.', nota: { titulo: 'antes de la clase', t: 'Bajá el navegador para que no se trabe en el momento.', cmd: 'npx playwright install chromium' } },
-        ],
-        veras: { tipo: 'terminal', etiqueta: '/mcp', lineas: [
-          ['ok', 'playwright · conectado'], ['', '  browser_navigate   browser_click   browser_type'], ['', '  browser_snapshot   browser_take_screenshot'], ['', '  browser_network_requests   browser_resize   …'],
-        ] },
-        preguntas: [67],
-      },
-      {
-        nombre: 'Que reserve en el navegador',
-        objetivo: 'Que el agente <b>use la app como un colectivo</b> y te cuente qué encontró.',
-        acciones: [
-          { t: 'Con npm run dev corriendo, pasale el prompt del navegador.', nota: { titulo: 'puerto ocupado', t: 'Si Vite usa el 5174, pasale esa URL.' } },
-          { t: 'Dejalo reservar, verificar con tu endpoint y sacar la captura.' },
-          { t: 'Revisá las herramientas MCP en el resumen.', nota: { cmd: 'npm run logs:resumen' } },
-          { t: 'Descartá la reserva del agente.', nota: { cmd: 'npm run seed' } },
-        ],
-        veras: { tipo: 'terminal', etiqueta: 'En el resumen', lineas: [
-          ['', 'Herramientas MCP'], ['ok', '  mcp__playwright__browser_navigate      3'], ['ok', '  mcp__playwright__browser_click         9'], ['ok', '  mcp__playwright__browser_snapshot      7'], ['', 'Archivo nuevo  ejercicios/02-skill-y-mcp/captura-confirmacion.png'],
-        ] },
-        preguntas: [8, 9, 11],
-      },
-      {
-        nombre: 'Entregar',
-        objetivo: 'Revisá que esté todo y <b>subilo a tu rama</b>.',
-        acciones: [
-          { t: 'Revisá que estén la skill, la configuración del MCP, el endpoint con sus tests y la captura.' },
-          { t: 'Commiteá, subí y apretá Terminé.', nota: { cmd: 'git add -A\ngit commit -m "Ejercicio 2"\ngit push' } },
-          { t: 'Si te sobra tiempo: la parte C, una skill que se dispara al editar un archivo.', nota: { titulo: 'opcional', t: 'Va plegada, con su propia pregunta.' } },
-        ],
-        veras: { tipo: 'terminal', etiqueta: 'En git status', lineas: [
-          ['ok', 'nuevo:      .claude/skills/nuevo-endpoint/SKILL.md'], ['ok', 'nuevo:      .mcp.json'], ['ok', 'modificado: server/routes/sesiones.ts'], ['ok', 'nuevo:      tests/server/api/sesion-por-id.test.ts'], ['ok', 'nuevo:      ejercicios/02-skill-y-mcp/captura-confirmacion.png'],
-        ] },
-        preguntas: [12],
+        nombre: 'Qué tenés que hacer',
+        resumen: 'Escribir la skill, probar que se dispara, conectar el MCP y usarlo.',
+        bajada: 'Dos partes. La C es opcional.',
+        bloques: () => `
+          <div class="bloque"><h3>A · La skill</h3>
+            <ol><li>Escribí <code>nuevo-endpoint/SKILL.md</code> con encabezado y criterio.</li><li>En una <b>sesión nueva</b>, preguntale: <i>"¿Cuándo usarías la skill nuevo-endpoint?"</i></li><li>En otra sesión nueva, pedile esto <b>sin nombrar la skill</b>:</li></ol>
+            ${prompt(PROMPT_2_SKILL, 'Pedido')}
+            <ol start="4"><li>Buscala en Métricas. Si no aparece, no le digas que la use: cambiá la description y probá de nuevo. Contá los intentos.</li><li>Revisá qué devuelve el endpoint:</li></ol>
+            ${panelSesion()}
+          </div>
+          <div class="bloque"><h3>B · El navegador</h3>
+            <ol><li>Conectá Playwright MCP (ver Contexto técnico) y fijate cuántas herramientas expone.</li><li>Con <code>npm run dev</code> corriendo, pasale esto:</li></ol>
+            ${prompt(PROMPT_2_MCP, 'Prompt para el agente')}
+            <ol start="3"><li>Descartá la reserva que hizo el agente.</li></ol>
+            ${cmd('npm run seed')}
+          </div>
+          <div class="bloque"><h3>C · Opcional: una skill que se dispara por el archivo</h3>
+            <p class="suave">La skill <code>codigos-de-habilidad</code>, con un script que normaliza ("Diseño UX/UI" → <code>diseno_ux_ui</code>) y el criterio para las colisiones.</p>
+          </div>
+          <div class="bloque"><h3>Entrega</h3>
+            ${cmd('git add -A\ngit commit -m "Ejercicio 2"\ngit push')}
+          </div>`,
       },
     ],
-    preguntas: [
-      { n: 1, titulo: 'La description', subs: ['Pegá tu description final.', '¿Cuántas versiones probaste? Indicá el session de la que funcionó.', '¿Qué cambió entre la primera y la última?'], v: 'mantener', motivo: 'Es lo que más se aprende del ejercicio.', final: 'Pegá tu description final. ¿Cuántos intentos te llevó y qué cambió entre la primera y la última?' },
-      { n: 2, titulo: 'Cuándo se cargó', subs: ['¿Cargó la skill antes o después de leer código?'], v: 'fusionar', con: 3, motivo: 'Se ve en la misma timeline que la 3: va como primera línea de esa pregunta.' },
-      { n: 3, titulo: '¿Siguió el criterio?', subs: ['Mostrá en el diff dos reglas de tu skill que cumplió.', '¿Alguna la ignoró? ¿Por qué?'], v: 'mantener', motivo: 'Une la skill con el código que salió.', final: '¿Cargó la skill antes o después de leer código? Mostrá dos reglas que cumplió y una que haya ignorado, si la hay.' },
-      { n: 4, titulo: 'Privacidad', subs: ['¿La respuesta incluye contactoEmail?', '¿Lo decidió por tu skill, por la constitution o por casualidad?', '~¿Hay un test que lo verifique?~', '~¿GET /api/sesiones es coherente con tu endpoint?~'], v: 'recortar', motivo: 'El test y la coherencia se chequean en la checklist de entrega.', final: '¿Devuelve el email? ¿Por qué: tu skill, la constitution o casualidad? Mostralo en el log.' },
-      { n: 5, titulo: 'Prompt contra skill', subs: ['¿Qué parte del prompt del ejercicio 1 ya no hace falta?', '¿Qué parte sigue haciendo falta?'], v: 'mantener', motivo: 'Es la reflexión que justifica una skill.', final: 'Compará con el prompt del ejercicio 1: ¿qué ya no hace falta escribir y qué sí?' },
-      { n: 6, titulo: 'Contexto (skill)', subs: ['¿Por qué importa que la skill entre solo cuando se usa?', '¿Qué pasaría si todo estuviera en AGENTS.md?'], v: 'fusionar', con: 7, motivo: 'La 6 y la 7 preguntan lo mismo: qué le cuesta al contexto lo que tenés cargado.' },
-      { n: 7, titulo: 'Costo de tener MCP conectados', subs: ['¿Cuántas herramientas expone?', '¿Conviene tener muchos MCP conectados? ¿Qué le cuesta al contexto?'], v: 'fusionar', con: 6, motivo: 'Se responde junto con la 6, al conectar el MCP.', final: 'El MCP expone N herramientas y la skill entra solo cuando se usa. ¿Qué le cuesta cada uno al contexto? ¿Qué pasaría con todo en AGENTS.md?' },
-      { n: 8, titulo: 'Lo que encontró', subs: ['¿Encontró un problema real que los tests no veían?', '¿Qué no pudo verificar?'], v: 'mantener', motivo: 'Muestra qué agrega observar con un navegador.', final: '¿Encontró algo que los tests no veían? ¿Qué no pudo verificar?' },
-      { n: 9, titulo: 'Permisos', subs: ['¿De qué color es un navegador controlado por el agente?', '~¿Qué permisos le diste?~', '¿Cuáles no le darías contra producción?'], v: 'recortar', motivo: '"Qué permisos le diste" se ve en el log y no agrega criterio.', final: '¿De qué color es el navegador en el semáforo? ¿Qué no le permitirías contra producción?' },
-      { n: 10, titulo: 'Herramientas usadas', subs: ['¿Qué herramientas del MCP usó y cuántas veces?', '¿Cuál devolvió las salidas más grandes?'], v: 'sacar', motivo: 'Es un conteo como la pregunta 1 del ejercicio 1, y el tablero de Métricas ya lo muestra.' },
-      { n: 11, titulo: 'Una skill que usa el MCP', subs: ['Proponé una skill que use Playwright: encabezado y 5-6 líneas de criterio.'], v: 'opcional', motivo: 'Buen cierre, pero lleva tiempo. Queda para quien termina antes.', final: 'Proponé una skill que use el MCP: el encabezado y 5-6 líneas de criterio.', opcional: true },
-      { n: 12, titulo: 'La skill por archivo (parte C)', subs: ['¿Se disparó al editar el archivo?', '¿Qué glob usaste y por qué no **/*.ts?', '¿Qué quedó en el script y qué en el criterio?'], v: 'opcional', motivo: 'Va con la parte C, que ya es opcional.', final: 'Parte C: ¿se disparó al editar? ¿Qué glob usaste y qué dejaste en el script?', opcional: true },
-    ],
-    redundancias: [
-      ['Tabla Skill vs MCP del objetivo', 'Se entiende con los pasos 1 y 4.'],
-      ['Explicación larga del frontmatter', 'Nota "Ayuda con la API no dispara nunca".'],
-      ['Checklist de criterio en prosa', 'Siete etiquetas. El detalle de cada una, plegado.'],
-      ['Recuadro de privacidad de 15 líneas', 'Dos líneas de decisión. El "por qué" largo, plegado.'],
-      ['Nota de PowerShell 5 y -SkipHttpErrorCheck', 'Dentro del desplegable de PowerShell.'],
-      ['B.3 "Mirá lo que pasó"', 'Pasa a ser una acción del paso 5.'],
-      ['Tabla de entrega', 'La reemplaza el git status esperado del último paso.'],
+    partes: [
+      { nombre: 'La skill', preguntas: [
+        { titulo: 'La description', cuando: 2, subs: ['Pegá tu description final.', '¿Cuántas versiones probaste? ¿En qué session funcionó?', '¿Qué cambió entre la primera y la última?'] },
+        { titulo: 'Cuándo se cargó', cuando: 2, subs: ['¿Cargó la skill antes o después de leer código?'] },
+        { titulo: '¿Siguió el criterio?', cuando: 2, subs: ['Mostrá en el diff dos reglas de tu skill que cumplió.', '¿Alguna la ignoró? ¿Por qué?'] },
+      ] },
+      { nombre: 'Privacidad y contexto', preguntas: [
+        { titulo: 'Privacidad', cuando: 2, subs: ['¿La respuesta incluye contactoEmail?', '¿Lo decidió por tu skill, por la constitution o por casualidad?', '¿Hay un test que lo verifique?', '¿GET /api/sesiones es coherente con tu endpoint?'] },
+        { titulo: 'Prompt contra skill', cuando: 1, subs: ['¿Qué parte del prompt del ejercicio 1 ya no hace falta escribir?', '¿Qué parte sigue haciendo falta?'] },
+        { titulo: 'Contexto', cuando: 0, subs: ['¿Por qué importa que la skill entre solo cuando se usa?', '¿Qué pasaría si todo el criterio estuviera en AGENTS.md?'] },
+      ] },
+      { nombre: 'El MCP', preguntas: [
+        { titulo: 'Costo de tener MCP conectados', cuando: 2, subs: ['¿Cuántas herramientas expone?', '¿Conviene tener muchos MCP conectados? ¿Qué le cuesta al contexto?'] },
+        { titulo: 'Lo que encontró', cuando: 2, subs: ['¿Encontró un problema real que los tests no veían?', '¿Qué no pudo verificar?'] },
+        { titulo: 'Permisos', cuando: 2, subs: ['¿De qué color es un navegador controlado por el agente?', '¿Qué permisos le diste?', '¿Cuáles no le darías contra producción?'] },
+        { titulo: 'Herramientas usadas', cuando: 2, subs: ['¿Qué herramientas del MCP usó y cuántas veces?', '¿Cuál devolvió las salidas más grandes?'] },
+        { titulo: 'Una skill que usa el MCP', cuando: 2, subs: ['Proponé una skill que use Playwright: encabezado y 5-6 líneas de criterio.'] },
+        { titulo: 'La skill por archivo', opcional: true, cuando: 2, subs: ['¿Se disparó al editar el archivo?', '¿Qué glob usaste y por qué no **/*.ts?', '¿Qué dejaste en el script y qué en el criterio?'] },
+      ] },
     ],
   },
 };
 
-const VARIANTES = {
-  b: { nombre: 'B · Original', desc: 'Cada sub-ítem ocupa una fila con su nota al lado: queda mucho espacio vacío entre sub-ítems.' },
-  b1: { nombre: 'B1 · Nota plegable', desc: 'Los sub-ítems van uno debajo del otro. El que tiene nota muestra una flecha con el título: al apretarla, la nota se abre debajo.' },
-  b2: { nombre: 'B2 · Notas sueltas', desc: 'Los sub-ítems van juntos y las notas, desordenadas en el margen. Cada flecha sale del sub-ítem y llega a su nota; al pasar el mouse se resalta el par.' },
-};
-
 /* ── Estado ──────────────────────────────────────────────────── */
-function leer(clave, defecto) { try { return localStorage.getItem(clave) || defecto; } catch { return defecto; } }
-function guardar(clave, valor) { try { localStorage.setItem(clave, valor); } catch {} }
-const estado = { ej: leer('prop-ej', '1'), variante: VARIANTES[leer('prop-var', 'b2')] ? leer('prop-var', 'b2') : 'b2', paso: 0, tildes: new Set() };
+function leer(clave, defecto) { try { const v = localStorage.getItem(clave); return v === null ? defecto : JSON.parse(v); } catch { return defecto; } }
+function guardar(clave, valor) { try { localStorage.setItem(clave, JSON.stringify(valor)); } catch {} }
+const PREGUNTAS = 3; // índice de la etapa "Preguntas"
+const estado = {
+  ej: '1',
+  agente: 'claude',
+  hoja: false,
+  api: {},
+  porEj: { 1: { actual: 0, alcanzada: 0, abierta: -1, respuestas: {} }, 2: { actual: 0, alcanzada: 0, abierta: -1, respuestas: {} } },
+};
+Object.assign(estado.porEj, leer('etapas-progreso', {}));
+const prog = () => estado.porEj[estado.ej];
 
-/* ── Render de piezas ────────────────────────────────────────── */
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-
-function nota(n) {
-  if (!n) return '';
-  return `<aside class="nota">${FLECHA}<div class="nota-cuerpo">
-    ${n.titulo ? `<span class="titulo-nota">${esc(n.titulo)}</span>` : ''}
-    ${n.t ? `<span>${esc(n.t)}</span>` : ''}
-    ${n.cmd ? `<div class="cmd"><pre>${esc(n.cmd)}</pre><button type="button" data-copiar="${esc(n.cmd)}">copiar</button></div>` : ''}
-  </div></aside>`;
+/* ── Piezas ──────────────────────────────────────────────────── */
+function pestanasAgente(contenidos) {
+  const nombres = { claude: 'Claude Code', codex: 'Codex CLI', cline: 'Cline' };
+  return `<div class="pestanas"><div class="segmentado" role="group" aria-label="Agente">${Object.keys(contenidos).map((k) => `<button type="button" data-agente="${k}" aria-pressed="${k === estado.agente}">${nombres[k]}</button>`).join('')}</div>
+    <div class="contenido">${contenidos[estado.agente]}</div></div>`;
 }
 
-function accion(a, i, conCheck, idPaso) {
-  const id = `chk-${estado.ej}-${idPaso}-${i}`;
-  const texto = conCheck
-    ? `<label class="check" for="${id}"><input type="checkbox" id="${id}" data-tilde="${id}" ${estado.tildes.has(id) ? 'checked' : ''}><span>${esc(a.t)}</span></label>`
-    : `<div class="accion-texto"><span class="vineta">${i + 1}</span><span>${esc(a.t)}</span></div>`;
-  const crit = a.criterios ? `<div class="criterios">${a.criterios.map((c) => `<span>${esc(c)}</span>`).join('')}</div>` : '';
-  return `<li class="accion ${a.nota ? '' : 'sin-nota'}"><div style="min-width:0">${texto}${crit}</div>${nota(a.nota)}</li>`;
-}
+const RESERVAS = [
+  { titulo: 'Estrategia de testing a las 19:00', ini: 19 * 60, fin: 19 * 60 + 45 },
+  { titulo: 'Revisión de código a las 19:30', ini: 19 * 60 + 30, fin: 20 * 60 },
+];
+const DESDE = 18 * 60 + 30, HASTA = 20 * 60 + 30;
+const pct = (m) => ((m - DESDE) / (HASTA - DESDE)) * 100;
+const hora = (m) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
 
-function veras(v) {
-  if (v.tipo === 'superposicion') {
-    const pos = (h) => ((h - 18.5) / 2) * 100; // eje de 18:30 a 20:30
-    return `<div class="veras"><span class="veras-etiqueta">Lo que deberías ver</span>
-      <div class="superposicion" role="img" aria-label="Dos sesiones de Valentina: 19:00 a 19:45 y 19:30 a 20:00, se pisan de 19:30 a 19:45">
-        <div class="eje">${[18.5, 19, 19.5, 20, 20.5].map((h) => `<span style="left:${pos(h)}%">${Math.floor(h)}:${h % 1 ? '30' : '00'}</span>`).join('')}</div>
-        <div class="franja"><div style="left:${pos(19)}%;width:${pos(19.75) - pos(19)}%;background:var(--cielo)">Testing · 45 min</div></div>
-        <div class="franja"><div style="left:${pos(19.5)}%;width:${pos(20) - pos(19.5)}%;background:var(--rosa)">Revisión · 30 min</div><span class="choque" style="left:${pos(19.5)}%;width:${pos(19.75) - pos(19.5)}%"></span></div>
-        <div class="respuestas-api"><span class="status bien">1ª → 201</span><span class="status mal">2ª → 201 · debería ser 409</span></div>
-      </div></div>`;
-  }
-  const lineas = v.lineas.map(([c, t]) => `<span class="${c}">${esc(t)}</span>`).join('\n');
-  return `<div class="veras"><span class="veras-etiqueta">Lo que deberías ver · ${esc(v.etiqueta)}</span><pre class="terminal">${lineas}</pre><span class="ilustrativo">Ejemplo ilustrativo: en tu corrida cambian los ids, las horas y los nombres.</span></div>`;
-}
-
-function preguntasDelPaso(ej, ids) {
-  if (!ids || !ids.length) return '';
-  const items = ids.map((id) => {
-    const p = id === 67 ? ej.preguntas.find((q) => q.n === 7) : ej.preguntas.find((q) => q.n === id);
-    const titulo = id === 67 ? 'Contexto: skill y MCP' : p.titulo;
-    return `<li><span class="p-titulo">${esc(titulo)}.</span>${p.opcional ? '<span class="etiqueta-opcional">opcional</span>' : ''} ${esc(p.final)}</li>`;
+function panelSuperposicion(momento) {
+  const filas = RESERVAS.map((r, i) => {
+    const clave = `${momento}-${i}`;
+    const st = i === 0 || momento === 'antes' ? 201 : 409;
+    const cuerpo = st === 409 ? '{ "error": "El horario se superpone con otra sesión de la mentora" }' : '{ "id": "…", "estado": "confirmada", … }';
+    const clase = st === 409 ? 'bien' : i === 1 ? 'mal' : '';
+    return `<div class="api-fila"><span class="metodo">POST</span><span class="ruta">/api/sesiones · ${esc(r.titulo)}</span><button type="button" class="mini" data-api="${clave}">${estado.api[clave] ? 'Reenviar' : 'Enviar'}</button>
+      ${estado.api[clave] ? `<div class="respuesta"><span class="estado ${clase}">${st}</span><span>${esc(cuerpo)}</span></div>` : ''}</div>`;
   }).join('');
-  return `<div class="preguntas-paso"><h4>✎ Respondé con lo que acabás de ver</h4><ol>${items}</ol></div>`;
-}
-
-function decision(d) {
-  return d ? `<div class="decision"><b>${esc(d.titulo)}</b><span class="suave">${esc(d.t)}</span></div>` : '';
-}
-
-/* ── Variantes ───────────────────────────────────────────────── */
-function varianteB(ej) {
-  return `<ol class="recorrido">${ej.pasos.map((p, k) => `
-    <li><span class="nodo">${k + 1}</span><div class="cuerpo">
-      <h3>${esc(p.nombre)}</h3>
-      <p class="objetivo">${p.objetivo}</p>
-      ${decision(p.decision)}
-      <ul class="acciones">${p.acciones.map((a, i) => accion(a, i, false, k)).join('')}</ul>
-      ${veras(p.veras)}
-      ${preguntasDelPaso(ej, p.preguntas)}
-    </div></li>`).join('')}</ol>`;
-}
-
-
-function cuerpoNota(n, letra) {
-  return `<div class="nota-cuerpo">
-    ${n.titulo || letra ? `<span class="titulo-nota">${letra ? `<span class="letra">${letra}</span>` : ''}${esc(n.titulo || 'comando')}</span>` : ''}
-    ${n.t ? `<span>${esc(n.t)}</span>` : ''}
-    ${n.cmd ? `<div class="cmd"><pre>${esc(n.cmd)}</pre><button type="button" data-copiar="${esc(n.cmd)}">copiar</button></div>` : ''}
+  const ambas = estado.api[`${momento}-0`] && estado.api[`${momento}-1`];
+  const nota = !ambas ? '' : momento === 'antes'
+    ? '<p class="mano">Las dos dieron 201: la API deja superponer turnos. Ese es el bug.</p>'
+    : '<p class="mano">La segunda da 409: el agente lo arregló.</p>';
+  return `<div class="api">
+    <div class="gantt" role="img" aria-label="Llamada 1 de 19:00 a 19:45, llamada 2 de 19:30 a 20:00: se pisan de 19:30 a 19:45">
+      ${RESERVAS.map((r, i) => `<div class="pista"><span style="left:${pct(r.ini)}%;width:${pct(r.fin) - pct(r.ini)}%;background:${i ? 'var(--rosa)' : 'var(--cielo)'}">${hora(r.ini)}–${hora(r.fin)}</span>${i ? `<span class="cruce" style="left:${pct(RESERVAS[1].ini)}%;width:${pct(RESERVAS[0].fin) - pct(RESERVAS[1].ini)}%"></span>` : ''}</div>`).join('')}
+      <div class="eje">${[0, 1, 2, 3, 4].map((k) => `<span style="left:${k * 25}%">${hora(DESDE + k * 30)}</span>`).join('')}</div>
+    </div>
+    ${filas}${nota}
+    <span class="maqueta">Maqueta: en el visor es el panel "Probar la API" que ya existe.</span>
   </div>`;
 }
 
-function recorrido(ej, acciones) {
-  return `<ol class="recorrido compacto">${ej.pasos.map((p, k) => `
-    <li><span class="nodo">${k + 1}</span><div class="cuerpo">
-      <h3>${esc(p.nombre)}</h3>
-      <p class="objetivo">${p.objetivo}</p>
-      ${decision(p.decision)}
-      ${acciones(p, k)}
-      ${veras(p.veras)}
-      ${preguntasDelPaso(ej, p.preguntas)}
-    </div></li>`).join('')}</ol>`;
+function panelSesion() {
+  const filas = [
+    ['existe', '/api/sesiones/3f9c…', 200, '{ "id": "3f9c…", "mentoraId": "…", "proyecto": "…", "fecha": "…", "horaInicio": "18:00", "estado": "confirmada" }'],
+    ['no-existe', '/api/sesiones/no-existe', 404, '{ "error": "…" }'],
+  ];
+  return `<div class="api">${filas.map(([k, ruta, st, cuerpo]) => `<div class="api-fila"><span class="metodo">GET</span><span class="ruta">${ruta}</span><button type="button" class="mini" data-api="sesion-${k}">Enviar</button>
+    ${estado.api[`sesion-${k}`] ? `<div class="respuesta"><span class="estado ${st === 200 ? 'bien' : ''}">${st}</span><span>${esc(cuerpo)}</span></div>` : ''}</div>`).join('')}
+    <span class="maqueta">Maqueta del panel "Consultar sesiones". Fijate que no venga contactoEmail.</span></div>`;
 }
 
-function varianteB1(ej) {
-  return recorrido(ej, (p, k) => {
-    const items = p.acciones.map((a, i) => {
-      const id = `nota-${estado.ej}-${k}-${i}`;
-      const n = a.nota;
-      const crit = a.criterios ? `<div class="criterios">${a.criterios.map((c) => `<span>${esc(c)}</span>`).join('')}</div>` : '';
-      const chip = n ? `<button type="button" class="chip-nota" aria-expanded="false" aria-controls="${id}" data-plegar="${id}">${FLECHA_CORTA}${esc(n.titulo || 'comando')}${n.cmd ? '<span class="mas">$</span>' : ''}</button>` : '';
-      return `<li class="accion"><div style="min-width:0">
-        <div class="accion-texto"><span class="vineta">${i + 1}</span><span class="b1-linea"><span>${esc(a.t)}</span>${chip}</span></div>${crit}
-        ${n ? `<div class="b1-nota" id="${id}" hidden>${FLECHA_ABAJO}${cuerpoNota(n)}</div>` : ''}
-      </div></li>`;
-    }).join('');
-    const hayNotas = p.acciones.some((a) => a.nota);
-    return `<ul class="acciones">${items}</ul>${hayNotas ? `<button type="button" class="todas-las-notas" data-todas="${k}">Abrir todas las notas</button>` : ''}`;
+/* ── Etapas ──────────────────────────────────────────────────── */
+function renderHilo(ej) {
+  const p = prog();
+  const items = ej.etapas.map((e, i) => {
+    const bloqueada = i > p.alcanzada;
+    const clase = i === p.actual ? 'actual' : bloqueada ? '' : 'hecha';
+    const marca = bloqueada ? '🔒' : i === p.actual ? '' : '✓';
+    return `<li class="${clase}"><button type="button" data-etapa="${i}" ${bloqueada ? 'disabled' : ''} ${i === p.actual ? 'aria-current="step"' : ''}><span class="barra"></span><span class="nombre">${marca} ${i + 1}. ${e.nombre}</span></button></li>`;
   });
+  items.push(`<li class="siempre ${p.actual === PREGUNTAS ? 'actual' : ''}"><button type="button" data-etapa="${PREGUNTAS}"><span class="barra"></span><span class="nombre">✎ Preguntas · siempre abiertas</span></button></li>`);
+  document.getElementById('hilo').innerHTML = items.join('');
 }
 
-function varianteB2(ej) {
-  return recorrido(ej, (p, k) => {
-    let n = 0;
-    const items = [], notas = [];
-    p.acciones.forEach((a, i) => {
-      const par = a.nota ? `${k}-${i}` : '';
-      const letra = a.nota ? LETRAS[n] : '';
-      const crit = a.criterios ? `<div class="criterios">${a.criterios.map((c) => `<span>${esc(c)}</span>`).join('')}</div>` : '';
-      items.push(`<li class="accion" ${par ? `data-par="${par}"` : ''}><div style="min-width:0">
-        <div class="accion-texto"><span class="vineta">${i + 1}</span><span class="b2-texto">${esc(a.t)}${par ? `<button type="button" class="b2-marca" data-ir-nota="${par}" aria-label="Ver la nota ${letra}">${letra}</button>` : ''}</span></div>${crit}
-      </div></li>`);
-      if (par) { notas.push(`<aside class="b2-nota" data-par="${par}" style="--giro:${GIROS[n % GIROS.length]}deg;--corrido:${CORRIDOS[n % CORRIDOS.length]}">${cuerpoNota(a.nota, letra)}</aside>`); n++; }
-    });
-    return `<div class="b2"><ul class="acciones">${items.join('')}</ul>${notas.length ? `<div class="b2-margen">${notas.join('')}</div><svg class="b2-flechas" aria-hidden="true"></svg>` : ''}</div>`;
-  });
-}
-
-/* Ubica las notas sueltas cerca de su sub-ítem sin que se pisen y dibuja una flecha de cada sub-ítem a su nota. */
-function acomodarB2() {
-  document.querySelectorAll('.b2').forEach((caja) => {
-    const margen = caja.querySelector('.b2-margen');
-    const svg = caja.querySelector('.b2-flechas');
-    if (!margen) return;
-    const apilado = getComputedStyle(margen).position === 'static';
-    const base = caja.getBoundingClientRect();
-    let piso = 0;
-    const tramos = [];
-    margen.querySelectorAll('.b2-nota').forEach((nota) => {
-      const marca = caja.querySelector(`[data-ir-nota="${nota.dataset.par}"]`);
-      if (apilado) { nota.style.top = ''; return; }
-      const m = marca.getBoundingClientRect();
-      const alto = nota.offsetHeight;
-      const y = Math.max(m.top - base.top - 22, piso);
-      nota.style.top = `${y}px`;
-      piso = y + alto + 14;
-      tramos.push({ par: nota.dataset.par, m, nota });
-    });
-    caja.style.minHeight = apilado ? '' : `${piso}px`;
-    if (apilado || !svg) return;
-    // Cada flecha sale recta hasta el borde de la columna de sub-ítems y recién ahí se curva: así no cruza otro texto.
-    const borde = caja.querySelector('.acciones').getBoundingClientRect().right - base.left + 14;
-    svg.innerHTML = tramos.map(({ par, m, nota }, i) => {
-      const codo = borde + i * 16;
-      const r = nota.getBoundingClientRect();
-      const x1 = m.right - base.left + 4, y1 = m.top + m.height / 2 - base.top;
-      const x2 = r.left - base.left - 6, y2 = Math.min(r.top - base.top + 22, r.bottom - base.top - 10);
-      const dx = (x2 - codo) * 0.5;
-      return `<path data-par="${par}" d="M${x1} ${y1} H ${codo} C ${codo + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}"/><path data-par="${par}" d="M${x2} ${y2} l-9 -5 M${x2} ${y2} l-9 5" style="stroke-dasharray:none"/>`;
-    }).join('');
-  });
-}
-
-function activarPar(caja, par) {
-  caja.classList.toggle('hay-activo', !!par);
-  caja.querySelectorAll('[data-par]').forEach((el) => el.classList.toggle('activa', !!par && el.dataset.par === par));
-}
-document.addEventListener('mouseover', (e) => {
-  const caja = e.target.closest('.b2');
-  if (!caja) return;
-  const el = e.target.closest('[data-par]');
-  activarPar(caja, el ? el.dataset.par : '');
-});
-document.addEventListener('mouseout', (e) => {
-  const caja = e.target.closest('.b2');
-  if (caja && !caja.contains(e.relatedTarget)) activarPar(caja, '');
-});
-document.addEventListener('focusin', (e) => {
-  const caja = e.target.closest('.b2');
-  const el = e.target.closest('[data-par]');
-  if (caja) activarPar(caja, el ? el.dataset.par : '');
-});
-window.addEventListener('resize', acomodarB2);
-document.fonts && document.fonts.ready.then(acomodarB2);
-
-/* ── Inventario ──────────────────────────────────────────────── */
-function inventario() {
-  const filas = [];
-  let conteo = '';
-  for (const [n, ej] of Object.entries(EJERCICIOS)) {
-    const subs = ej.preguntas.reduce((s, p) => s + p.subs.length, 0);
-    const quedan = ej.preguntas.filter((p) => p.final && !p.opcional).length;
-    const opcionales = ej.preguntas.filter((p) => p.opcional).length;
-    conteo += `<div class="conteo"><b>${ej.preguntas.length} → ${quedan}</b><span>Ejercicio ${n}: preguntas obligatorias${opcionales ? ` (+${opcionales} opcionales)` : ''}</span></div>`;
-    conteo += `<div class="conteo"><b>${subs}</b><span>Ejercicio ${n}: sub-preguntas hoy</span></div>`;
-    filas.push(`<tr><th colspan="4">Ejercicio ${n} · ${esc(ej.titulo)} · ${ej.minutos} min</th></tr>`);
-    for (const p of ej.preguntas) {
-      const subsHtml = p.subs.map((s) => s.startsWith('~') ? `<li class="tachada">${esc(s.slice(1, -1))}</li>` : `<li>${esc(s)}</li>`).join('');
-      const etiqueta = { mantener: 'Mantener', recortar: 'Recortar', fusionar: `Fusionar con ${p.con}`, sacar: 'Sacar', opcional: 'Opcional' }[p.v];
-      filas.push(`<tr class="${p.v === 'sacar' ? 'sacada' : ''}">
-        <td class="num">${n}.${p.n}</td>
-        <td><b>${esc(p.titulo)}</b><ul>${subsHtml}</ul></td>
-        <td><span class="veredicto v-${p.v}">${etiqueta}</span><div class="suave" style="margin-top:.35rem;font-size:.85rem">${esc(p.motivo)}</div></td>
-        <td>${p.final ? esc(p.final) : '<span class="suave">—</span>'}</td>
-      </tr>`);
-    }
+function renderEtapas(ej) {
+  const p = prog();
+  const cont = document.getElementById('etapas');
+  if (p.actual === PREGUNTAS) {
+    cont.innerHTML = `<div class="preguntas preguntas-grandes">${panelPreguntas(ej, true)}</div>`;
+    return;
   }
-  document.getElementById('conteo').innerHTML = conteo;
-  document.getElementById('tabla-preguntas').innerHTML = `<thead><tr><th>#</th><th>Pregunta actual</th><th>Propuesta</th><th>Cómo queda</th></tr></thead><tbody>${filas.join('')}</tbody>`;
-  document.getElementById('redundancias').innerHTML = Object.entries(EJERCICIOS).map(([n, ej]) => `
-    <div class="tarjeta"><h3>Ejercicio ${n}</h3><ul>${ej.redundancias.map(([q, d]) => `<li><b>${esc(q)}</b>: ${esc(d)}</li>`).join('')}</ul></div>`).join('');
+  cont.innerHTML = ej.etapas.map((e, i) => {
+    if (i === p.actual) {
+      const sig = i === ej.etapas.length - 1 ? 'Ir a las preguntas' : `Siguiente: ${ej.etapas[i + 1].nombre}`;
+      return `<article class="etapa" aria-labelledby="etapa-${i}">
+        <div class="etapa-cabecera"><span class="sobretitulo">Etapa ${i + 1} de ${ej.etapas.length}</span><h2 id="etapa-${i}">${e.nombre}</h2><p class="bajada">${e.bajada}</p></div>
+        ${e.bloques()}
+        <div class="siguiente-fila">${i > 0 ? `<button type="button" class="enlace" data-etapa="${i - 1}">← ${ej.etapas[i - 1].nombre}</button>` : '<span></span>'}<button type="button" class="boton primario" data-siguiente="${i}">${sig} →</button></div>
+      </article>`;
+    }
+    if (i <= p.alcanzada) {
+      return `<div class="plegada hecha"><span class="icono">✓</span><div><div class="t">${i + 1}. ${e.nombre}</div><div class="r">${e.resumen}</div></div><button type="button" class="enlace" data-etapa="${i}">Ver de nuevo</button></div>`;
+    }
+    return `<div class="plegada bloqueada"><span class="icono">🔒</span><div><div class="t">${i + 1}. ${e.nombre}</div><div class="r">Se abre cuando termines «${ej.etapas[i - 1].nombre}».</div></div><span></span></div>`;
+  }).join('');
 }
 
-/* ── Controles ───────────────────────────────────────────────── */
+/* ── Preguntas ───────────────────────────────────────────────── */
+function contar(ej) {
+  const r = prog().respuestas;
+  let n = 0, total = 0, hechas = 0;
+  ej.partes.forEach((pt) => pt.preguntas.forEach((q) => {
+    n++;
+    if (q.opcional) return;
+    q.subs.forEach((_, j) => { total++; if ((r[`${n}.${j}`] || '').trim()) hechas++; });
+  }));
+  return { total, hechas };
+}
+
+function panelPreguntas(ej, grande) {
+  const p = prog();
+  const { total, hechas } = contar(ej);
+  let n = 0;
+  const lista = ej.partes.map((pt) => `<div class="parte">${esc(pt.nombre)}</div>` + pt.preguntas.map((q) => {
+    n++;
+    const listas = q.subs.filter((_, j) => (p.respuestas[`${n}.${j}`] || '').trim()).length;
+    const completa = listas === q.subs.length;
+    const abierta = grande || p.abierta === n;
+    const cuando = q.cuando === 0 ? 'Se puede pensar desde el principio' : `Con lo de «${ej.etapas[q.cuando].nombre}»`;
+    const subs = q.subs.map((texto, j) => {
+      const id = `resp-${estado.ej}-${n}-${j}`;
+      const valor = p.respuestas[`${n}.${j}`] || '';
+      return `<div class="sub ${valor.trim() ? 'lista' : ''}"><label for="${id}"><span class="sub-n">${n}.${j + 1}</span> ${esc(texto)}</label><textarea id="${id}" data-respuesta="${n}.${j}" placeholder="Con evidencia del log">${esc(valor)}</textarea></div>`;
+    }).join('');
+    return `<div class="pregunta ${completa ? 'respondida' : ''}" data-n="${n}" data-subs="${q.subs.length}">
+      <button type="button" data-pregunta="${n}" aria-expanded="${abierta}"><span class="n">${n}.</span><span class="titulo">${esc(q.titulo)}${q.opcional ? '<span class="opcional">opcional</span>' : ''}<span class="cuando">${cuando}</span></span><span class="avance">${listas}/${q.subs.length}</span></button>
+      ${abierta ? `<div class="detalle">${subs}</div>` : ''}
+    </div>`;
+  }).join('')).join('');
+  return `<div class="preguntas-cabecera">
+      <div class="fila"><h3 id="titulo-preguntas">Preguntas</h3><span class="suave contador" style="font-size:.85rem">${hechas} de ${total} respondidas</span></div>
+      <div class="progreso"><div style="width:${(hechas / total) * 100}%"></div></div>
+    </div>
+    <div class="lista-preguntas">${lista}</div>
+    <div class="preguntas-pie">
+      ${grande ? `<button type="button" class="enlace" data-etapa="${p.alcanzada}">← Volver a la consigna</button>` : `<button type="button" class="enlace" data-etapa="${PREGUNTAS}">Ver en grande</button>`}
+      <button type="button" class="boton cerrar-hoja" data-hoja="0">Cerrar</button>
+      <button type="button" class="boton" data-guardar>Guardar respuestas</button>
+    </div>`;
+}
+
+/* ── Render ──────────────────────────────────────────────────── */
 function render() {
   const ej = EJERCICIOS[estado.ej];
+  const p = prog();
   document.getElementById('selector-ejercicio').innerHTML = Object.keys(EJERCICIOS).map((k) => `<button type="button" data-ej="${k}" aria-pressed="${k === estado.ej}">Ejercicio ${k}</button>`).join('');
-  document.getElementById('selector-variante').innerHTML = Object.entries(VARIANTES).map(([k, v]) => `<button type="button" data-var="${k}" aria-pressed="${k === estado.variante}">${v.nombre}</button>`).join('');
-  document.getElementById('descripcion-variante').textContent = VARIANTES[estado.variante].desc;
-  const cuerpo = { b: varianteB, b1: varianteB1, b2: varianteB2 }[estado.variante](ej);
-  document.getElementById('vista').innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:baseline"><h2>Ejercicio ${estado.ej} · ${esc(ej.titulo)}</h2><span class="suave">${ej.minutos} min · ${ej.pasos.length} pasos</span></div>${cuerpo}`;
-  requestAnimationFrame(acomodarB2);
+  document.getElementById('titulo').textContent = ej.titulo;
+  document.getElementById('reloj').textContent = `${ej.minutos}:00`;
+  renderHilo(ej);
+  renderEtapas(ej);
+  const grande = p.actual === PREGUNTAS;
+  const visor = document.getElementById('visor');
+  visor.classList.toggle('preguntas-en-grande', grande);
+  visor.classList.toggle('hoja-abierta', estado.hoja && !grande);
+  const panel = document.getElementById('preguntas');
+  panel.hidden = grande;
+  if (!grande) panel.innerHTML = panelPreguntas(ej, false);
+  const { total, hechas } = contar(ej);
+  const flot = document.getElementById('flotante');
+  flot.hidden = grande || estado.hoja;
+  flot.textContent = `✎ Preguntas · ${hechas}/${total}`;
 }
+
+const persistir = () => guardar('etapas-progreso', estado.porEj);
 
 document.addEventListener('click', async (e) => {
   const b = e.target.closest('button');
   if (!b) return;
-  if (b.dataset.ej) { estado.ej = b.dataset.ej; estado.paso = 0; guardar('prop-ej', estado.ej); render(); }
-  else if (b.dataset.var) { estado.variante = b.dataset.var; guardar('prop-var', estado.variante); render(); }
-  else if (b.dataset.plegar) {
-    const abierta = b.getAttribute('aria-expanded') === 'true';
-    b.setAttribute('aria-expanded', String(!abierta));
-    document.getElementById(b.dataset.plegar).hidden = abierta;
+  const p = prog();
+  const ej = EJERCICIOS[estado.ej];
+  if (b.dataset.ej) { estado.ej = b.dataset.ej; estado.hoja = false; render(); }
+  else if (b.dataset.siguiente !== undefined) {
+    const i = Number(b.dataset.siguiente);
+    const sig = i + 1 >= ej.etapas.length ? PREGUNTAS : i + 1;
+    p.alcanzada = Math.max(p.alcanzada, Math.min(sig, ej.etapas.length - 1));
+    p.actual = sig; persistir(); render();
+    document.getElementById('hilo').scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
-  else if (b.dataset.todas !== undefined) {
-    const cuerpo = b.closest('.cuerpo');
-    const abrir = b.textContent.startsWith('Abrir');
-    cuerpo.querySelectorAll('[data-plegar]').forEach((c) => { c.setAttribute('aria-expanded', String(abrir)); document.getElementById(c.dataset.plegar).hidden = !abrir; });
-    b.textContent = abrir ? 'Cerrar todas las notas' : 'Abrir todas las notas';
-  }
-  else if (b.dataset.irNota) {
-    const caja = b.closest('.b2');
-    activarPar(caja, b.dataset.irNota);
-    caja.querySelector(`.b2-nota[data-par="${b.dataset.irNota}"]`).scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }
+  else if (b.dataset.etapa !== undefined) { p.actual = Number(b.dataset.etapa); estado.hoja = false; persistir(); render(); }
+  else if (b.dataset.agente) { estado.agente = b.dataset.agente; render(); }
+  else if (b.dataset.api) { estado.api[b.dataset.api] = true; render(); }
+  else if (b.dataset.pregunta) { const n = Number(b.dataset.pregunta); p.abierta = p.abierta === n ? -1 : n; render(); document.getElementById(`resp-${estado.ej}-${n}-0`)?.focus(); }
+  else if (b.id === 'flotante') { estado.hoja = true; render(); }
+  else if (b.dataset.hoja !== undefined) { estado.hoja = false; render(); }
+  else if (b.dataset.guardar !== undefined) { persistir(); b.textContent = 'Guardado'; setTimeout(() => { b.textContent = 'Guardar respuestas'; }, 1500); }
   else if (b.dataset.copiar !== undefined) {
     try { await navigator.clipboard.writeText(b.dataset.copiar); b.textContent = 'copiado'; }
-    catch { const pre = b.previousElementSibling; const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'seleccionado'; }
+    catch { const pre = b.parentElement.parentElement.querySelector('pre') || b.parentElement.querySelector('pre'); const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'seleccionado'; }
     setTimeout(() => { b.textContent = 'copiar'; }, 1500);
   }
 });
 
+// Las respuestas se guardan al escribir; solo se actualizan el tilde y el contador, sin redibujar el textarea.
+document.addEventListener('input', (e) => {
+  const n = e.target.dataset && e.target.dataset.respuesta;
+  if (!n) return;
+  prog().respuestas[n] = e.target.value;
+  persistir();
+  const { total, hechas } = contar(EJERCICIOS[estado.ej]);
+  e.target.closest('.sub').classList.toggle('lista', !!e.target.value.trim());
+  const fila = e.target.closest('.pregunta');
+  const listas = fila.querySelectorAll('.sub.lista').length;
+  fila.querySelector('.avance').textContent = `${listas}/${fila.dataset.subs}`;
+  fila.classList.toggle('respondida', listas === Number(fila.dataset.subs));
+  document.querySelectorAll('.contador').forEach((el) => { el.textContent = `${hechas} de ${total} respondidas`; });
+  document.querySelectorAll('.preguntas-cabecera .progreso div').forEach((el) => { el.style.width = `${(hechas / total) * 100}%`; });
+  document.getElementById('flotante').textContent = `✎ Preguntas · ${hechas}/${total}`;
+});
+
 render();
-inventario();
 </script>
 </html>
