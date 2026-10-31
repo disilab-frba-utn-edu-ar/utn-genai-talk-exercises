@@ -1885,11 +1885,13 @@
   justify-content: center;
 }
 
+.notas-clave,
 .crear-rama {
   max-width: var(--ancho-lectura);
   margin: 0 auto var(--espacio-seccion);
 }
 
+.notas-clave .markdown h2,
 .crear-rama .markdown h2 {
   margin-top: 0;
 }
@@ -2380,10 +2382,6 @@
 /* Herramientas del ejercicio en la cabecera: la hoja de checks y Mi perfil. */
 .ejercicio-herramientas .chip {
   text-decoration: none;
-}
-
-.indice-perfil {
-  margin-top: 1rem;
 }
 
 /* ── Mi perfil ──────────────────────────────────────────── */

@@ -95,6 +95,20 @@ describe("calcularMetricas: KPIs y sesiones", () => {
     expect(m.sesiones[0].enCurso).toBe(false)
   })
 
+  it("las sesiones de Cline (conv_<timestamp>_<sufijo>) tienen ids distintos y el modelo-objeto se lee como texto", () => {
+    // Los logs viejos guardaron el modelo de Cline tal cual llegó: un objeto.
+    const modelo = { provider: "anthropic", slug: "claude-sonnet-4-5" } as unknown as string
+    const tres: EntradaLog[] = [
+      { ts: "2026-10-27T17:00:00Z", agent: "cline", event: "UserPromptSubmit", session: "conv_1793056320037_odixwv2", prompt: "x", model: modelo },
+      { ts: "2026-10-27T17:01:00Z", agent: "cline", event: "UserPromptSubmit", session: "conv_1793057116227_tezfyvt", prompt: "y", model: modelo },
+      { ts: "2026-10-27T17:02:00Z", agent: "cline", event: "UserPromptSubmit", session: "conv_1793452699001", prompt: "z", model: modelo },
+    ]
+    const m = calcular(tres)
+    expect(m.sesiones.map((s) => s.id).sort()).toEqual(["1793452699001", "odixwv2", "tezfyvt"])
+    expect(m.sesiones.map((s) => s.modelos)).toEqual([["claude-sonnet-4-5"], ["claude-sonnet-4-5"], ["claude-sonnet-4-5"]])
+    expect(calcular(tres, { sesion: "odixwv2" }).kpis.sesiones).toBe(1)
+  })
+
   it("ignora entradas sin fecha válida", () => {
     expect(calcular([{ event: "PreToolUse", tool: "Bash" }, { ts: "no-es-fecha", agent: "claude" }]).vacio).toBe(true)
   })
@@ -447,7 +461,7 @@ describe("calcularMetricas: tokens, modelos y costo", () => {
 
   it("los filtros de agente, sesión y ventana también valen para los tokens", () => {
     expect(calcular(TODAS, { agente: "codex" }, AHORA, USOS).tokens.total).toEqual({ entrada: 900, salida: 170, cacheLectura: 1800, cacheEscritura: 0 })
-    expect(calcular(TODAS, { sesion: "17615844" }, AHORA, USOS).tokens.total?.entrada).toBe(4000)
+    expect(calcular(TODAS, { sesion: "1761584400000" }, AHORA, USOS).tokens.total?.entrada).toBe(4000)
     expect(calcular(TODAS, { ventanaMin: 8 }, AHORA, USOS).tokens.total).toEqual({ entrada: 10, salida: 20, cacheLectura: 0, cacheEscritura: 0 })
   })
 

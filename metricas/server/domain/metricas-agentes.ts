@@ -116,7 +116,25 @@ function contar<T>(items: T[], clave: (item: T) => string): ConteoMetrica[] {
   return [...mapa.entries()].map(([nombre, n]) => ({ nombre, n })).sort((a, b) => b.n - a.n || a.nombre.localeCompare(b.nombre))
 }
 
-const idCorto = (sesion: string) => sesion.slice(0, 8)
+/**
+ * Id corto de la sesión para mostrar y filtrar. Los UUID de Claude y Codex se distinguen por el principio.
+ * Los de Cline (<timestamp>, conv_<timestamp> o conv_<timestamp>_<sufijo>) comparten el principio: se
+ * usa el último tramo, entero.
+ */
+function idCorto(sesion: string) {
+  const ultimo = sesion.split("_").at(-1)!
+  return sesion.includes("_") || /^\d+$/.test(sesion) ? ultimo : sesion.slice(0, 8)
+}
+
+/** El modelo como texto. Los logs viejos de Cline lo traen como objeto ({ provider, slug }). */
+export function modeloDeLog(valor: unknown): string | undefined {
+  if (typeof valor === "string") return valor || undefined
+  if (valor && typeof valor === "object") {
+    const { slug, id, modelId } = valor as Record<string, unknown>
+    return [slug, id, modelId].find((v): v is string => typeof v === "string" && v !== "")
+  }
+  return undefined
+}
 const esPre = (e: Evento) => e.evento === "PreToolUse" && !!e.tool
 const esPost = (e: Evento) => e.evento === "PostToolUse" || e.evento === "PostToolUseFailure"
 const esPrompt = (e: Evento) => e.evento === "UserPromptSubmit" || (e.evento === "TaskStart" && e.prompt !== undefined)
@@ -136,7 +154,7 @@ function normalizarEntradas(entradas: EntradaLog[]): Evento[] {
     const agente = entrada.agent as AgenteLog
     if (Number.isNaN(t) || !AGENTES.includes(agente)) continue
     const evento = EVENTOS_VIEJOS[String(entrada.event)] ?? String(entrada.event)
-    eventos.push({ ...entrada, t, evento, agente, clave: `${agente}:${entrada.session ?? "sin-sesion"}` })
+    eventos.push({ ...entrada, model: modeloDeLog(entrada.model), t, evento, agente, clave: `${agente}:${entrada.session ?? "sin-sesion"}` })
   }
   return eventos.sort((a, b) => a.t - b.t)
 }

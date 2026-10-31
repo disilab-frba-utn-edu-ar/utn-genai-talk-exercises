@@ -16,8 +16,7 @@
       "hasta": "### B.3 Mirá lo que pasó"
     },
     {
-      "desde": "### Preguntas sobre las herramientas del MCP",
-      "hasta": "---"
+      "desde": "### Preguntas sobre las herramientas del MCP"
     }
   ],
   "etapas": [
@@ -98,11 +97,6 @@
           "check": "Revisé las herramientas MCP en el resumen",
           "desde": "### B.3 Mirá lo que pasó",
           "hasta": "### Preguntas sobre las herramientas del MCP"
-        },
-        {
-          "titulo": "Entrega",
-          "check": "Hice commit y push a la rama del grupo",
-          "desde": "## Entrega"
         }
       ]
     }
@@ -396,19 +390,13 @@
     "     spec\".",
     "   - Escribí solo el encabezado y 5-6 líneas de criterio.",
     "",
-    "---",
-    "",
-    "## Entrega",
-    "",
-    "Guardá con **Guardar respuestas** y después hacé commit y push a la rama del grupo:",
+    "**Cuando termines de responder:** guardá con **Guardar respuestas**, hacé commit y push a la rama del grupo y apretá **Terminé** al pie (te lleva al ejercicio 3).",
     "",
     "```bash",
     "git add -A",
     "git commit -m \"Ejercicio 2\"",
     "git push",
     "```",
-    "",
-    "Por último, apretá **Terminé** al pie de esta página: guarda tus respuestas y te lleva al ejercicio 3.",
     ""
   ],
   "anexos": [
@@ -416,7 +404,6 @@
       "titulo": "El tablero de Métricas",
       "archivo": "metricas",
       "insertarDespuesDe": "> vas a usar para comprobar que la skill y el MCP se activaron.",
-      "soloSiTerminado": "01-observabilidad-con-hooks",
       "markdown": [
         "### Antes de empezar: el tablero de Métricas",
         "",

@@ -87,6 +87,15 @@ describe("log-hook: Cline (nombres tolerantes donde la doc no los confirma)", ()
     expect(JSON.parse(stdout)).toEqual({ cancel: false })
   })
 
+  it("el modelo que llega como objeto ({ provider, slug }) se guarda como texto", () => {
+    const { entrada } = registrar("cline", {
+      taskId: "k3",
+      hookName: "prompt_submit",
+      userPromptSubmit: { prompt: "hola", model: { provider: "anthropic", slug: "claude-sonnet-4-5" } },
+    })
+    expect(entrada.model).toBe("claude-sonnet-4-5")
+  })
+
   it("un payload sin ningún campo nuevo sigue funcionando (compatibilidad)", () => {
     const { entrada } = registrar("cline", { taskId: "k2", hookName: "prompt_submit", userPromptSubmit: { prompt: "hola" } })
     expect(entrada).toMatchObject({ event: "UserPromptSubmit", prompt: "hola" })

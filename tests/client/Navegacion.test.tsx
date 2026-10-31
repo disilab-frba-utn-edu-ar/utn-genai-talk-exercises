@@ -1,10 +1,9 @@
 import { readFileSync } from "node:fs"
-import { act, render, screen, within } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter } from "react-router"
 import App from "../../client/src/App"
 import { ejercicios } from "../../ejercicios/app/contenido"
-import { HABILITA_METRICAS, marcarTerminado } from "../../ejercicios/app/progreso"
 import setup from "../../ejercicios/setup.json"
 import { habilidades, valentina } from "./fixtures"
 import { simularApi } from "./helpers"
@@ -20,13 +19,11 @@ function renderApp(ruta: string) {
 
 describe("Navegación principal", () => {
   it.each(["/", "/ejercicios", "/ejercicios/01-observabilidad-con-hooks", "/no-existe"])(
-    "%s: el link a Métricas aparece recién cuando se terminó el ejercicio 1",
+    "%s: Mi perfil y Métricas están en el menú desde el principio, sin terminar ningún ejercicio",
     async (ruta) => {
       renderApp(ruta)
       const nav = await screen.findByRole("navigation", { name: "Principal" })
-      expect(within(nav).queryByRole("link", { name: "Métricas" })).not.toBeInTheDocument()
-
-      act(() => marcarTerminado(HABILITA_METRICAS))
+      expect(within(nav).getByRole("link", { name: "Mi perfil" })).toHaveAttribute("href", "/ejercicios/perfil")
       expect(within(nav).getByRole("link", { name: "Métricas" })).toHaveAttribute("href", "/metricas")
     },
   )
@@ -61,6 +58,13 @@ describe("Navegación principal", () => {
     expect(within(nav).getByRole("link", { name: "Mentoras" })).not.toHaveAttribute("aria-current")
   })
 
+  it("en Mi perfil se marca Mi perfil y no Ejercicios", async () => {
+    renderApp("/ejercicios/perfil")
+    const nav = await screen.findByRole("navigation", { name: "Principal" })
+    expect(within(nav).getByRole("link", { name: "Mi perfil" })).toHaveAttribute("aria-current", "page")
+    expect(within(nav).getByRole("link", { name: "Ejercicios" })).not.toHaveAttribute("aria-current")
+  })
+
   it("desde el inicio se llega a Ejercicios", async () => {
     renderApp("/")
     const nav = await screen.findByRole("navigation", { name: "Principal" })
@@ -78,6 +82,10 @@ describe("Ejercicios (índice)", () => {
     }
     const enlaces = screen.getAllByRole("link", { name: /Ver consigna/ })
     expect(enlaces.map((a) => a.getAttribute("href"))).toEqual([`/ejercicios/${ejercicios[0].id}`])
+    // Antes del 1, el paso 0: completar el perfil, con la misma tarjeta.
+    const paso0 = screen.getAllByRole("article")[0]
+    expect(within(paso0).getByRole("heading", { name: "Completá tu perfil" })).toBeInTheDocument()
+    expect(within(paso0).getByRole("link", { name: /Completar perfil/ })).toHaveAttribute("href", "/ejercicios/perfil")
     expect(screen.getByText("Se habilita al terminar el ejercicio 1")).toBeInTheDocument()
     expect(screen.getByText("Se habilita al terminar el ejercicio 2")).toBeInTheDocument()
   })
@@ -95,7 +103,7 @@ describe("Ejercicios (índice)", () => {
     localStorage.setItem("ejercicios:terminados", JSON.stringify([ejercicios[0].id]))
     renderApp("/ejercicios")
     await screen.findByRole("heading", { name: ejercicios[0].titulo })
-    const tarjetas = screen.getAllByRole("article")
+    const tarjetas = screen.getAllByRole("article").slice(1) // la primera es el paso 0
     expect(within(tarjetas[0]).getByRole("img", { name: "Terminado" })).toHaveTextContent("✓")
     expect(within(tarjetas[1]).queryByRole("img", { name: "Terminado" })).not.toBeInTheDocument()
   })

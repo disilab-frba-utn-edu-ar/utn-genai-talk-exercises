@@ -19,7 +19,7 @@ import {
 import ConsignaPorEtapas from "./Etapas"
 import Markdown from "./Markdown"
 import { conEjercicio, delEjercicio, type Perfil } from "./perfil"
-import { HABILITA_METRICAS, marcarTerminado, publicarRespondidas } from "./progreso"
+import { marcarTerminado, publicarRespondidas } from "./progreso"
 import { ID_SDD, tituloPrincipal, useTablero } from "./tablero"
 
 type Estado = { tipo: "editando" } | { tipo: "guardando" } | { tipo: "guardado"; hora: string } | { tipo: "error"; mensaje: string }
@@ -81,7 +81,7 @@ function Editor({ ejercicio, inicial, perfil, consigna, historia }: PropsEditor)
   const conDatosGenerales = plantillaConCampos(ejercicio) || inicial.general.trim() !== ejercicio.plantillaRespuestas.join("\n").trim()
   const respondidas = contarRespondidas(ejercicio, datos.porPregunta)
   const siguiente = siguienteDe(ejercicio)
-  const descripcionTerminar = `Guarda tus respuestas${ejercicio.id === HABILITA_METRICAS ? ", habilita Métricas" : ""} y ${
+  const descripcionTerminar = `Guarda tus respuestas y ${
     siguiente ? `pasa al ejercicio ${siguiente.numero}.` : ejercicio.id === ID_SDD ? "cierra la actividad con Rocco." : "vuelve al índice."
   }`
 
@@ -223,12 +223,19 @@ function Editor({ ejercicio, inicial, perfil, consigna, historia }: PropsEditor)
     )
   }
 
-  /** La sección Preguntas de la consigna por etapas: los datos de la entrega, cada pregunta con sus cajas y el cierre. */
+  /**
+   * La sección Preguntas de la consigna por etapas: los datos de la entrega, cada pregunta con sus cajas y el cierre.
+   * El texto que sigue a la última pregunta (cómo entregar) va después del cierre: es lo último que se hace.
+   */
+  const bloquesPorCajas = preguntasPorCajas(ejercicio)
+  const finPreguntas = bloquesPorCajas.findLastIndex((b) => b.tipo === "pregunta") + 1
+  const bloque = (b: (typeof bloquesPorCajas)[number], i: number) => (b.tipo === "markdown" ? <Markdown key={`t${i}`} texto={b.texto} /> : cajasDe(b))
   const preguntasPorEtapas = (
     <>
       {datosGenerales}
-      {preguntasPorCajas(ejercicio).map((b, i) => (b.tipo === "markdown" ? <Markdown key={`t${i}`} texto={b.texto} /> : cajasDe(b)))}
+      {bloquesPorCajas.slice(0, finPreguntas).map(bloque)}
       {cierreYCaptura}
+      {bloquesPorCajas.slice(finPreguntas).map((b, i) => bloque(b, finPreguntas + i))}
     </>
   )
 

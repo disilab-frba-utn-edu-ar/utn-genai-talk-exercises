@@ -4,7 +4,6 @@ import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/re
 import userEvent from "@testing-library/user-event"
 import Ejercicios from "../app/Ejercicios"
 import { armarRespuestasMd, conAnexosEnLinea, ejercicios, pantallasDe, partirConsigna, partirPreguntas, type Ejercicio } from "../app/contenido"
-import { HABILITA_METRICAS } from "../app/progreso"
 import { ID_SDD } from "../app/tablero"
 import { formatearTiempo } from "../app/Temporizador"
 import { videosIntro } from "../app/videos"
@@ -104,7 +103,7 @@ describe("Ejercicios", () => {
     renderEjercicio()
 
     await userEvent.type(await screen.findByLabelText(/¿Cuántas llamadas a herramientas hizo el agente en total\?/), "Listo")
-    expect(within(screen.getByRole("region", { name: "1. El ciclo" })).getByText("1/3")).toBeInTheDocument()
+    expect(within(screen.getByRole("region", { name: "1. El ciclo" })).getByText("1/2")).toBeInTheDocument()
     await userEvent.click(screen.getByRole("button", { name: "Guardar respuestas" }))
 
     const [url, opciones] = fetchFalso.mock.calls.at(-1) as unknown as [string, RequestInit]
@@ -117,7 +116,7 @@ describe("Ejercicios", () => {
     expect(cuerpo.markdown).toContain("## Para cerrar")
   })
 
-  it("“Terminé” guarda, habilita Métricas y pasa al ejercicio 2, donde aparece la invitación al tablero", async () => {
+  it("“Terminé” guarda, marca el 1 como terminado y pasa al ejercicio 2, donde aparece la invitación al tablero", async () => {
     const guardadas = { ejercicio: ejercicio.id, guardado: "2026-10-28T12:00:00Z", general: [], respuestas: {} }
     const fetchFalso = simularApi({ [RUTA_API]: guardadas, [`/ejercicios-api/${ejercicios[1].id}/respuestas`]: null })
     abrirEn(ejercicio, "preguntas")
@@ -130,7 +129,7 @@ describe("Ejercicios", () => {
     expect(llamadas.some(([url, op]) => url === RUTA_API && op?.method === "PUT")).toBe(true)
     // El 2 arranca en su primera pantalla; la invitación al tablero está en la siguiente.
     expect(await screen.findByRole("heading", { level: 2, name: pantallasDe(ejercicios[1])[0].titulo })).toBeInTheDocument()
-    expect(terminado(HABILITA_METRICAS)).toBe(true)
+    expect(terminado(ejercicio.id)).toBe(true)
     await editorListo()
     await userEvent.click(screen.getByRole("button", { name: /Siguiente/ }))
     const metricas = await screen.findByRole("link", { name: "Ver métricas" })
@@ -184,7 +183,7 @@ describe("Ejercicios", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Disco lleno")
     expect(screen.getByRole("region", { name: "1. El ciclo" })).toBeInTheDocument()
-    expect(terminado(HABILITA_METRICAS)).toBe(false)
+    expect(terminado(ejercicio.id)).toBe(false)
   })
 
   it("el último ejercicio cierra la actividad con Rocco", async () => {

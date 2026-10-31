@@ -1,10 +1,9 @@
-import { Link, NavLink, Outlet } from "react-router"
-import { HABILITA_METRICAS, useTerminado } from "../../../ejercicios/app/progreso"
+import { Link, NavLink, Outlet, useMatch } from "react-router"
 import UtnLogo from "./UtnLogo"
 
 export default function Layout() {
-  // Métricas aparece en el menú recién cuando se termina el ejercicio 1: primero se aprende a leer el log.
-  const metricasHabilitadas = useTerminado(HABILITA_METRICAS)
+  // Mi perfil vive dentro de /ejercicios: ahí solo se marca Mi perfil, no también Ejercicios.
+  const enPerfil = useMatch("/ejercicios/perfil") !== null
   return (
     <div className="pagina">
       <a href="#contenido" className="saltar">
@@ -33,8 +32,11 @@ export default function Layout() {
           <NavLink to="/" end>
             Mentoras
           </NavLink>
-          <NavLink to="/ejercicios">Ejercicios</NavLink>
-          {metricasHabilitadas && <NavLink to="/metricas">Métricas</NavLink>}
+          <NavLink to="/ejercicios" end={enPerfil}>
+            Ejercicios
+          </NavLink>
+          <NavLink to="/ejercicios/perfil">Mi perfil</NavLink>
+          <NavLink to="/metricas">Métricas</NavLink>
         </nav>
         <p className="encabezado-lema">Horas de experiencia donadas a colectivos que construyen software</p>
       </header>

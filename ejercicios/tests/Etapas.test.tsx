@@ -128,15 +128,15 @@ describe("Etapas · preguntas", () => {
     expect(tituloPantalla()).toHaveTextContent(pantallasDe(primero)[1].titulo)
   })
 
-  it("una caja por sub-pregunta: «El ciclo» tiene tres, con su avance", async () => {
+  it("una caja por sub-pregunta: «El ciclo» tiene dos, con su avance", async () => {
     localStorage.setItem(`ejercicios:etapas:${primero.id}`, JSON.stringify({ pos: "preguntas", alcanzada: 0, checks: [] }))
     await abrir()
     const ciclo = screen.getByRole("region", { name: "1. El ciclo" })
     const cajas = within(ciclo).getAllByRole("textbox")
-    expect(cajas).toHaveLength(3)
-    expect(within(ciclo).getByText("0/3")).toBeInTheDocument()
+    expect(cajas).toHaveLength(2)
+    expect(within(ciclo).getByText("0/2")).toBeInTheDocument()
     await userEvent.type(cajas[1], "Bash")
-    expect(within(ciclo).getByText("1/3")).toBeInTheDocument()
+    expect(within(ciclo).getByText("1/2")).toBeInTheDocument()
     expect(pestana(/^Preguntas/)).toHaveTextContent("1/")
   })
 

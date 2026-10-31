@@ -101,7 +101,9 @@ function normalize(payload) {
   // Id de la llamada: empareja cada PreToolUse con su PostToolUse (hay llamadas en paralelo).
   // Claude y Codex mandan tool_use_id; Cline no lo documenta, así que probamos varios nombres.
   const toolUseId = primerDefinido(payload.tool_use_id, nested.toolUseId, nested.toolCallId, nested.callId, nested.id)
-  const model = primerDefinido(payload.model, payload.modelId, nested.model, nested.modelId, nested.taskMetadata?.model)
+  // Cline manda el modelo como objeto ({ provider, slug }): se guarda solo el id, como en los demás agentes.
+  const modelo = primerDefinido(payload.model, payload.modelId, nested.model, nested.modelId, nested.taskMetadata?.model)
+  const model = typeof modelo === "object" ? primerDefinido(modelo.slug, modelo.id, modelo.modelId) : modelo
 
   // Solo lo importante: la llamada (con su input adelgazado) se guarda en PreToolUse y
   // el resultado en PostToolUse sin repetir el input, con un extracto corto de la salida.

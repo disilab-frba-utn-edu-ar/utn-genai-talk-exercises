@@ -5,8 +5,6 @@ import { useSyncExternalStore } from "react"
 const CLAVE = "ejercicios:terminados"
 const CAMBIO = "ejercicios:progreso"
 
-/** Métricas muestra lo mismo que los logs, más fácil de leer: se habilita al terminar el ejercicio 1. */
-export const HABILITA_METRICAS = "01-observabilidad-con-hooks"
 /** El ejercicio 3 se habilita al terminar el 2. */
 export const HABILITA_SDD = "02-skill-y-mcp"
 

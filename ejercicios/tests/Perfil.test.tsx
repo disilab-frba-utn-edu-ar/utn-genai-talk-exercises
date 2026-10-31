@@ -26,7 +26,7 @@ describe("Mi perfil", () => {
   it("se llega desde el índice de ejercicios", async () => {
     simularApi({ [RUTA_PERFIL]: null, ...sinRespuestas })
     renderConRuta(<Ejercicios />, { ruta: "/ejercicios", patron: "/ejercicios/*" })
-    await userEvent.click(screen.getByRole("link", { name: /Mi perfil/ }))
+    await userEvent.click(screen.getByRole("link", { name: /Completar perfil/ }))
     expect(await screen.findByRole("heading", { level: 1, name: "Mi perfil" })).toBeInTheDocument()
   })
 

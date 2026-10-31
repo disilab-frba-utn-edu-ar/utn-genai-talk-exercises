@@ -4,7 +4,7 @@ import { Link, Route, Routes, useParams } from "react-router"
 import NoEncontradaPage from "../../client/src/pages/NoEncontradaPage"
 import Bloqueado, { Candado, ConfirmarAvance } from "./Bloqueado"
 import Consigna from "./Consigna"
-import { anexosEnLinea, anteriorDe, ejercicios, rama, type Ejercicio } from "./contenido"
+import { anexosEnLinea, anteriorDe, ejercicios, notas, rama, type Ejercicio } from "./contenido"
 import EjercicioSdd from "./EjercicioSdd"
 import "./ejercicios.css"
 import { HojaDeChecks } from "./Etapas"
@@ -83,6 +83,25 @@ function TarjetaEjercicio({ ejercicio: e }: { ejercicio: Ejercicio }) {
   )
 }
 
+/** El paso 0, con la misma tarjeta que los ejercicios: los datos del perfil van en la entrega de cada uno. */
+function TarjetaPerfil() {
+  return (
+    <article className="tarjeta mentora">
+      <div>
+        <p className="sobretitulo">Paso 0</p>
+        <h2 className="mentora-nombre">Completá tu perfil</h2>
+      </div>
+      <p className="mentora-presentacion">Nombre, integrantes, modelo y agente: van en la entrega de cada ejercicio.</p>
+      <ul className="etiquetas" aria-label="Duración">
+        <li className="etiqueta">2 min</li>
+      </ul>
+      <Link to="perfil" className="boton mentora-accion">
+        Completar perfil <span aria-hidden="true">→</span>
+      </Link>
+    </article>
+  )
+}
+
 const CLAVE_RAMA = "ejercicios:rama-creada"
 
 /** Cómo crear la rama del grupo; se oculta (en este navegador) al confirmar que ya la crearon. */
@@ -107,14 +126,17 @@ function IndicePage() {
           <span className="acento">Ejercicios</span>
         </h1>
         <p className="bajada">Hacelos en orden: cada uno usa lo que armaste en el anterior.</p>
-        <Link to="perfil" className="boton boton-secundario indice-perfil">
-          Mi perfil <span aria-hidden="true">→</span>
-        </Link>
+      </section>
+
+      {/* Lo que conviene tener presente en todos los ejercicios: siempre a la vista, antes de la rama. */}
+      <section className="tarjeta documento notas-clave" aria-label="Notas clave">
+        <Markdown texto={notas} />
       </section>
 
       <CrearRama />
 
       <section className="grilla grilla-ejercicios" aria-label="Ejercicios">
+        <TarjetaPerfil />
         {ejercicios.map((e) => (
           <TarjetaEjercicio key={e.id} ejercicio={e} />
         ))}
