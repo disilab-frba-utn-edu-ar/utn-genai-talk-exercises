@@ -52,6 +52,25 @@ describe("API · GET /api/sesiones", () => {
   })
 })
 
+describe("API · GET /api/sesiones/:id", () => {
+  it("devuelve la sesión encontrada sin datos de contacto (Principio IV)", async () => {
+    const sesion = sesionDePrueba()
+    const { api } = crearAppDePrueba([sesion])
+    const res = await api.get(`/api/sesiones/${sesion.id}`)
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({ id: sesion.id, proyecto: sesion.proyecto })
+    expect(res.body).not.toHaveProperty("contactoNombre")
+    expect(res.body).not.toHaveProperty("contactoEmail")
+  })
+
+  it("404 si la sesión no existe", async () => {
+    const { api } = crearAppDePrueba()
+    const res = await api.get("/api/sesiones/no-existe")
+    expect(res.status).toBe(404)
+    expect(res.body).toEqual({ error: "La sesión no existe" })
+  })
+})
+
 describe("API · POST /api/sesiones", () => {
   it("crea la sesión, calcula la hora de fin y la guarda", async () => {
     const { api, dataDir } = crearAppDePrueba()
