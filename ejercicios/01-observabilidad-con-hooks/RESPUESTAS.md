@@ -1,0 +1,184 @@
+# Ejercicio 1 — Respuestas
+
+**Nombre:** Pablo Koval
+**¿Intervinieron durante la tarea?** _Sin completar en Mi perfil._
+
+## Parte A — Lo que pasó
+
+### 1. El ciclo
+
+**1.1** ¿Cuántas llamadas a herramientas hizo el agente en total?
+
+49.
+Llamadas a herramientas: 49
+
+**1.2** ¿Qué herramienta usó más?
+
+Usó principalmente "run_commands"
+Herramientas usadas:
+    30  run_commands
+    10  read_files
+     9  editor
+
+### 2. Explorar antes de actuar
+
+**2.1** ¿Cuántas herramientas usó **antes** de su primera edición de archivo?
+
+Usó 13 herramientas antes de la primera edición de archivo.
+Turnos:
+  1. +2s  (sin prompt registrado)
+       49 herramientas (ejecutar 30, leer 10, escribir 9)
+       +   2s  leer               .specify/memory/constitution.md
+       +   2s  leer               server/domain
+       +   3s  leer               tests/server
+       +   4s  ejecutar           ls -la /home/pablo/utn-genai-talk-exercises/server/
+       +   6s  ejecutar           ls -la /home/pablo/utn-genai-talk-exercises/tests/server/
+       +   8s  ejecutar           ls -la /home/pablo/utn-genai-talk-exercises/server/domain/ 2>/dev/null || echo 'directory not found'
+       +  13s  leer               server/domain/fechas.ts · server/domain/horarios.ts · server/domain/mentoras.ts · server/domain/validaciones.t…
+       +  13s  leer               tests/server/domain · tests/server/api
+       +  15s  ejecutar           ls -la /home/pablo/utn-genai-talk-exercises/tests/server/domain/ && ls -la /home/pablo/utn-genai-talk-exercise…
+       +  16s  ejecutar           ls -la /home/pablo/utn-genai-talk-exercises/server/services/
+       +  17s  ejecutar           ls -la /home/pablo/utn-genai-talk-exercises/server/routes/
+       +  20s  leer               tests/server/domain/fechas.test.ts · tests/server/domain/horarios.test.ts · tests/server/domain/mentoras.test.…
+       +  24s  leer               tests/server/api/helpers.ts · shared/types.ts
+
+**2.2** ¿Qué archivos leyó?
+
+Abrió 19 archivos distintos
+Archivos leídos:
+     3  server/services/sesiones.ts
+     1  .specify/memory/constitution.md
+     1  server/domain
+     1  tests/server
+     1  server/domain/fechas.ts
+     1  server/domain/horarios.ts
+     1  server/domain/mentoras.ts
+     1  server/domain/validaciones.ts
+     1  tests/server/domain
+     1  tests/server/api
+     1  tests/server/domain/fechas.test.ts
+     1  tests/server/domain/horarios.test.ts
+     1  tests/server/domain/mentoras.test.ts
+     1  tests/server/domain/validaciones.test.ts
+     1  tests/server/api/sesiones.test.ts
+     1  server/routes/sesiones.ts
+     1  tests/server/api/helpers.ts
+     1  shared/types.ts
+     1  tests/server/domain/superposicion.test.ts
+
+**2.3** ¿Leyó la constitution que menciona el prompt?
+
+Si la leyó
++   2s  leer               .specify/memory/constitution.md
+
+### 3. Comandos de terminal
+
+**3.1** Listá todos los comandos que ejecutó.
+
+Comandos de terminal:
+  $ ls -la /home/pablo/utn-genai-talk-exercises/server/
+  $ ls -la /home/pablo/utn-genai-talk-exercises/tests/server/
+  $ ls -la /home/pablo/utn-genai-talk-exercises/server/domain/ 2>/dev/null || echo 'directory not found'
+  $ ls -la /home/pablo/utn-genai-talk-exercises/tests/server/domain/ && ls -la /home/pablo/utn-genai-talk-exercises/tests/server/api/
+  $ ls -la /home/pablo/utn-genai-talk-exercises/server/services/
+  $ ls -la /home/pablo/utn-genai-talk-exercises/server/routes/
+  $ cd /home/pablo/utn-genai-talk-exercises && npm test -- --testPathPattern=superposicion 2>&1
+  $ ["cd /home/pablo/utn-genai-talk-exercises && cat package.json | grep -A 10 '"scripts"'"]
+  $ cat /home/pablo/utn-genai-talk-exercises/package.json | grep -A 10 'scripts'
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run --testPathPattern=superposicion 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run 2>&1 | head -30
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/domain/superposicion 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/domain/superposicion 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/domain/superposicion 2>&1
+  $ cat /home/pablo/utn-genai-talk-exercises/server/services/sesiones.ts
+  $ cat > /tmp/fix.py << 'EOF' import re with open('/home/pablo/utn-genai-talk-exercises/server/services/sesiones.ts', 'r') as f: content = f.re…
+  $ cat /home/pablo/utn-genai-talk-exercises/server/services/sesiones.ts
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/domain/superposicion 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/api/sesiones 2>&1
+  $ {"commands":["cat > /home/pablo/utn-genai-talk-exercises/server/services/sesiones.ts << 'ENDOFFILE'\nimport { randomUUID } from \"node:crypt…
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/api/sesiones 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npm test 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/domain 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/api 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npm run lint 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npm run typecheck 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npm run typecheck 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run --project server 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && echo '=== Lint ===' && npm run lint 2>&1 && echo '=== Typecheck ===' && npm run typecheck 2>&1 &&…
+
+**3.2** ¿Alguno no lo pediste vos? ¿Alguno te generó dudas al aprobarlo?
+
+no
+
+**3.3** Clasificá cada uno con el semáforo de la charla: verde (lectura), amarillo (validación local) o rojo (escritura o producción).
+
+Verde:
+$ ls -la /home/pablo/utn-genai-talk-exercises/server/
+  $ ls -la /home/pablo/utn-genai-talk-exercises/tests/server/
+  $ ls -la /home/pablo/utn-genai-talk-exercises/server/domain/ 2>/dev/null || echo 'directory not found'
+  $ ls -la /home/pablo/utn-genai-talk-exercises/tests/server/domain/ && ls -la /home/pablo/utn-genai-talk-exercises/tests/server/api/
+  $ ls -la /home/pablo/utn-genai-talk-exercises/server/services/
+  $ ls -la /home/pablo/utn-genai-talk-exercises/server/routes/
+ $ cat /home/pablo/utn-genai-talk-exercises/package.json | grep -A 10 'scripts'
+$ cat /home/pablo/utn-genai-talk-exercises/server/services/sesiones.ts
+Amarillo:
+$ cd /home/pablo/utn-genai-talk-exercises && npx vitest run --testPathPattern=superposicion 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run 2>&1 | head -30
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/domain/superposicion 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/domain/superposicion 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/domain/superposicion 2>&1
+$ cd /home/pablo/utn-genai-talk-exercises && npm test -- --testPathPattern=superposicion 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/domain/superposicion 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/api/sesiones 2>&1
+$ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/api/sesiones 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npm test 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/domain 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run tests/server/api 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npm run lint 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npm run typecheck 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npm run typecheck 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run 2>&1
+  $ cd /home/pablo/utn-genai-talk-exercises && npx vitest run --project server 2>&1
+Rojo:
+  $ cd /home/pablo/utn-genai-talk-exercises && echo '=== Lint ===' && npm run lint 2>&1 && echo '=== Typecheck ===' && npm run typecheck 2>&1 &&…
+  $ {"commands":["cat > /home/pablo/utn-genai-talk-exercises/server/services/sesiones.ts << 'ENDOFFILE'\nimport { randomUUID } from \"node:crypt…
+  $ cat > /tmp/fix.py << 'EOF' import re with open('/home/pablo/utn-genai-talk-exercises/server/services/sesiones.ts', 'r') as f: content = f.re…
+
+### 4. Errores y reintentos
+
+**4.1** ¿Alguna herramienta falló (`PostToolUseFailure` o un `output` con error)?
+
+No
+
+**4.2** ¿Qué hizo el agente después?
+
+-
+
+## Parte B — Lo que pensás
+
+### 5. Contexto
+
+**5.1** Sumá aproximadamente el tamaño de las salidas: ¿qué herramienta "llenó" más la ventana?
+
+La herramienta que mas llenó la ventana fue "read_files"
+Salida que volvió al modelo (caracteres, por herramienta):
+     54183  read_files
+
+**5.2** ¿Había lecturas que se podían evitar? Por ejemplo: ¿leyó `data/sesiones.json` entero para entender el formato, en lugar de `shared/types.ts`?
+
+No hizo lecturas innecesarias
+
+### 6. Hooks como control
+
+Podria hacerse un hook en el evento preToolUse que haga un exit al detectar la ruta de data/.
+
+### 7. Riesgos
+
+A la hora de llamar a hooks que hagan requests o llamadas externas, una alucinación podria causar el filtrado de información sensible.
+
+## Para cerrar
+
+**Modelo:** Nemotron 3.5 Lightning
+
+**Agente:** Cline
