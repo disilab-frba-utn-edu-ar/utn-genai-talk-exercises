@@ -5,6 +5,14 @@
   "agente": "Claude Code",
   "puntaje": null,
   "comentario": "",
-  "ejercicios": {},
-  "guardado": "2026-10-31T15:17:04.357Z"
+  "ejercicios": {
+    "01-observabilidad-con-hooks": {
+      "modelo": "Opus 5.5",
+      "agente": "Claude code",
+      "intervino": "",
+      "intervencion": "",
+      "feedback": ""
+    }
+  },
+  "guardado": "2026-10-31T16:19:23.764Z"
 }
