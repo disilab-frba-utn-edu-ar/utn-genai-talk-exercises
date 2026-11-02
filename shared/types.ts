@@ -60,10 +60,29 @@ export type Sesion = {
   horaInicio: string
   horaFin: string
   estado: EstadoSesion
+  motivoCancelacion?: string
+  /** Instante de la cancelación, en ISO 8601. Ver specs/003-cancelar-sesion/data-model.md */
+  canceladaEn?: string
 }
 
-/** Lo que los listados públicos devuelven de una sesión: sin datos de contacto (Principio IV). */
-export type SesionPublica = Omit<Sesion, "contactoNombre" | "contactoEmail">
+/** Vista pública base de una sesión: sin datos de contacto (Principio IV) ni de cancelación. */
+export type SesionPublica = Omit<Sesion, "contactoNombre" | "contactoEmail" | "motivoCancelacion" | "canceladaEn">
+
+/** Lo que el listado público devuelve: tampoco el id, que es la credencial del enlace de la sesión. */
+export type SesionListada = Omit<SesionPublica, "id">
+
+export type RazonNoCancelable = "ya_cancelada" | "ya_ocurrio" | "fuera_de_plazo"
+
+export type Cancelacion = { permitida: true } | { permitida: false; razon: RazonNoCancelable; mensaje: string }
+
+/** Lo que ve quien tiene el enlace de la sesión: incluye el motivo y si se puede cancelar. */
+export type SesionDetalle = SesionPublica & {
+  motivoCancelacion?: string
+  canceladaEn?: string
+  cancelacion: Cancelacion
+}
+
+export type CambioSesion = { estado: "cancelada"; motivo?: string }
 
 export type NuevaSesion = Pick<
   Sesion,

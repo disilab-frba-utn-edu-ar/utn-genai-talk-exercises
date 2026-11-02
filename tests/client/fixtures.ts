@@ -1,4 +1,4 @@
-import type { Colectivo, Habilidad, MentoraPublica, TipoAsesoria } from "@shared/types"
+import type { Colectivo, Habilidad, MentoraPublica, SesionDetalle, TipoAsesoria } from "@shared/types"
 
 export const habilidades: Habilidad[] = [
   { id: "desarrollo_web_react", titulo: "Desarrollo Web React", descripcion: "" },
@@ -34,3 +34,16 @@ export const tipos: TipoAsesoria[] = [
 ]
 
 export const colectivos: Colectivo[] = [{ id: "c1", nombre: "Fundación Huerta Viva", tipo: "fundacion" }]
+
+export const sesionDetalle: SesionDetalle = {
+  id: "s1",
+  mentoraId: "m1",
+  tipoAsesoriaId: "revision_de_codigo",
+  colectivoId: "c1",
+  proyecto: "Revisar el formulario de inscripción",
+  fecha: "2026-10-19",
+  horaInicio: "18:00",
+  horaFin: "18:30",
+  estado: "confirmada",
+  cancelacion: { permitida: true },
+}

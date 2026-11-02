@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
-import { crearAppDePrueba, HUERTA_VIVA, ROCIO, sesionDePrueba, VALENTINA } from "./helpers"
+import { AHORA_AR, crearAppDePrueba, HUERTA_VIVA, ROCIO, sesionDePrueba, VALENTINA } from "./helpers"
 
 const LUNES = "2026-10-19"
 
@@ -50,12 +50,35 @@ describe("API · GET /api/sesiones", () => {
     expect(res.body[0]).not.toHaveProperty("contactoEmail")
     expect(res.body[0]).not.toHaveProperty("contactoNombre")
   })
+
+  it("no expone el id (es la credencial del enlace) ni los datos de cancelación", async () => {
+    const { api } = crearAppDePrueba([
+      sesionDePrueba(),
+      sesionDePrueba({
+        id: "00000000-0000-4000-8000-000000000002",
+        horaInicio: "19:00",
+        horaFin: "19:30",
+        estado: "cancelada",
+        motivoCancelacion: "Se suspendió",
+        canceladaEn: "2026-10-17T15:00:00.000Z",
+      }),
+    ])
+    const res = await api.get(`/api/sesiones?mentoraId=${VALENTINA}&fecha=${LUNES}`)
+    expect(res.status).toBe(200)
+    expect(res.body).toHaveLength(2)
+    for (const sesion of res.body) {
+      expect(sesion).not.toHaveProperty("id")
+      expect(sesion).not.toHaveProperty("motivoCancelacion")
+      expect(sesion).not.toHaveProperty("canceladaEn")
+    }
+    expect(JSON.stringify(res.body)).not.toContain("Se suspendió")
+  })
 })
 
 describe("API · GET /api/sesiones/:id", () => {
   it("devuelve el detalle de la sesión", async () => {
     const sesion = sesionDePrueba()
-    const { api } = crearAppDePrueba([sesion, sesionDePrueba({ id: "otra" })])
+    const { api } = crearAppDePrueba([sesion, sesionDePrueba({ id: "otra" })], { reloj: () => AHORA_AR })
     const res = await api.get(`/api/sesiones/${sesion.id}`)
     expect(res.status).toBe(200)
     expect(res.body).toEqual({
@@ -68,6 +91,20 @@ describe("API · GET /api/sesiones/:id", () => {
       horaInicio: "18:00",
       horaFin: "18:30",
       estado: "confirmada",
+      cancelacion: { permitida: true },
+    })
+  })
+
+  it("una sesión cancelada incluye el motivo, el momento de cancelación y por qué no se puede cancelar", async () => {
+    const sesion = sesionDePrueba({ estado: "cancelada", motivoCancelacion: "Se suspendió", canceladaEn: "2026-10-17T15:00:00.000Z" })
+    const { api } = crearAppDePrueba([sesion], { reloj: () => AHORA_AR })
+    const res = await api.get(`/api/sesiones/${sesion.id}`)
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({
+      estado: "cancelada",
+      motivoCancelacion: "Se suspendió",
+      canceladaEn: "2026-10-17T15:00:00.000Z",
+      cancelacion: { permitida: false, razon: "ya_cancelada", mensaje: "La sesión ya estaba cancelada" },
     })
   })
 
@@ -165,5 +202,166 @@ describe("API · POST /api/sesiones", () => {
     ])
     const res = await api.post("/api/sesiones").send(nueva())
     expect(res.status).toBe(201)
+  })
+})
+
+describe("API · PATCH /api/sesiones/:id", () => {
+  const MIERCOLES = "2026-10-21"
+  // Miércoles 18:00 en Argentina: 78 h después de AHORA_AR.
+  const aCancelar = () => sesionDePrueba({ fecha: MIERCOLES, horaInicio: "18:00", horaFin: "18:30" })
+  const conSesion = () => crearAppDePrueba([aCancelar()], { reloj: () => AHORA_AR })
+  const leerGuardadas = (dataDir: string) => JSON.parse(readFileSync(join(dataDir, "sesiones.json"), "utf-8"))
+  const horariosDelMiercoles = async (api: ReturnType<typeof crearAppDePrueba>["api"]) => {
+    const res = await api.get(`/api/mentoras/${VALENTINA}/disponibilidad?tipoAsesoriaId=revision_de_codigo`)
+    return res.body.find((d: { fecha: string }) => d.fecha === MIERCOLES).horarios.map((h: { inicio: string }) => h.inicio)
+  }
+
+  it("cancela sin motivo y registra el momento de la cancelación", async () => {
+    const { api, dataDir } = conSesion()
+    const res = await api.patch(`/api/sesiones/${aCancelar().id}`).send({ estado: "cancelada" })
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({
+      id: aCancelar().id,
+      estado: "cancelada",
+      canceladaEn: AHORA_AR.toISOString(),
+      cancelacion: { permitida: false, razon: "ya_cancelada" },
+    })
+    expect(res.body).not.toHaveProperty("motivoCancelacion")
+    expect(res.body).not.toHaveProperty("contactoNombre")
+    expect(res.body).not.toHaveProperty("contactoEmail")
+    expect(leerGuardadas(dataDir)[0]).toMatchObject({ estado: "cancelada", canceladaEn: AHORA_AR.toISOString() })
+  })
+
+  it("guarda el motivo recortado y el GET posterior lo muestra", async () => {
+    const { api, dataDir } = conSesion()
+    const res = await api.patch(`/api/sesiones/${aCancelar().id}`).send({ estado: "cancelada", motivo: "  No llegamos con el relevamiento  " })
+    expect(res.status).toBe(200)
+    expect(leerGuardadas(dataDir)[0].motivoCancelacion).toBe("No llegamos con el relevamiento")
+
+    const detalle = await api.get(`/api/sesiones/${aCancelar().id}`)
+    expect(detalle.body).toMatchObject({ estado: "cancelada", motivoCancelacion: "No llegamos con el relevamiento" })
+  })
+
+  it("el horario cancelado vuelve a ofrecerse", async () => {
+    const { api } = conSesion()
+    expect(await horariosDelMiercoles(api)).not.toContain("18:00")
+    await api.patch(`/api/sesiones/${aCancelar().id}`).send({ estado: "cancelada" })
+    expect(await horariosDelMiercoles(api)).toContain("18:00")
+  })
+
+  it("400 con un cuerpo inválido, sin modificar la sesión", async () => {
+    const casos: [unknown, string][] = [
+      [{ estado: "confirmada" }, "Solo se puede cambiar el estado a cancelada"],
+      [{ motivo: "x" }, "Solo se puede cambiar el estado a cancelada"],
+      [{ estado: "cancelada", fecha: "2026-10-22" }, "Solo se puede enviar el estado y el motivo"],
+      [{ estado: "cancelada", motivo: 3 }, "El motivo debe ser un texto"],
+      [{ estado: "cancelada", motivo: "a".repeat(501) }, "El motivo puede tener hasta 500 caracteres"],
+    ]
+    const { api, dataDir } = conSesion()
+    const antes = leerGuardadas(dataDir)
+    for (const [cuerpo, error] of casos) {
+      const res = await api.patch(`/api/sesiones/${aCancelar().id}`).send(cuerpo as object)
+      expect(res.status).toBe(400)
+      expect(res.body).toEqual({ error })
+    }
+    const sinCuerpo = await api.patch(`/api/sesiones/${aCancelar().id}`)
+    expect(sinCuerpo.status).toBe(400)
+    expect(sinCuerpo.body).toEqual({ error: "El cuerpo de la solicitud debe ser un objeto JSON" })
+    expect(leerGuardadas(dataDir)).toEqual(antes)
+  })
+
+  it("400 con JSON mal formado, antes de buscar la sesión (aunque no exista)", async () => {
+    const { api, dataDir } = conSesion()
+    const antes = leerGuardadas(dataDir)
+    for (const id of [aCancelar().id, "00000000-0000-4000-8000-000000000099"]) {
+      const res = await api.patch(`/api/sesiones/${id}`).set("Content-Type", "application/json").send("{mal")
+      expect(res.status).toBe(400)
+      expect(res.body).toEqual({ error: "El cuerpo de la solicitud no es JSON válido" })
+    }
+    expect(leerGuardadas(dataDir)).toEqual(antes)
+  })
+
+  it("404 si la sesión no existe, aunque el contenido del cuerpo sea inválido", async () => {
+    const { api, dataDir } = conSesion()
+    const antes = leerGuardadas(dataDir)
+    for (const id of ["00000000-0000-4000-8000-000000000099", "no-es-un-uuid"]) {
+      for (const cuerpo of [{ estado: "cancelada" }, { estado: "confirmada" }]) {
+        const res = await api.patch(`/api/sesiones/${id}`).send(cuerpo)
+        expect(res.status).toBe(404)
+        expect(res.body).toEqual({ error: "La sesión no existe" })
+      }
+    }
+    expect(leerGuardadas(dataDir)).toEqual(antes)
+  })
+})
+
+describe("API · PATCH /api/sesiones/:id fuera de plazo (409)", () => {
+  const leerGuardadas = (dataDir: string) => JSON.parse(readFileSync(join(dataDir, "sesiones.json"), "utf-8"))
+  const cancelar = (api: ReturnType<typeof crearAppDePrueba>["api"], id: string) =>
+    api.patch(`/api/sesiones/${id}`).send({ estado: "cancelada", motivo: "No podemos ir" })
+
+  it("409 si faltan menos de 24 horas, sin modificar la sesión", async () => {
+    // AHORA_AR es el domingo 18/10 a las 12:00: la sesión empieza 23 h 59 min después.
+    const sesion = sesionDePrueba({ fecha: "2026-10-19", horaInicio: "11:59", horaFin: "12:29" })
+    const { api, dataDir } = crearAppDePrueba([sesion], { reloj: () => AHORA_AR })
+    const antes = leerGuardadas(dataDir)
+    const res = await cancelar(api, sesion.id)
+    expect(res.status).toBe(409)
+    expect(res.body).toEqual({ error: "Solo se puede cancelar hasta 24 horas antes del inicio de la sesión" })
+    expect(leerGuardadas(dataDir)).toEqual(antes)
+  })
+
+  it("con exactamente 24 horas de anticipación todavía se puede cancelar", async () => {
+    const sesion = sesionDePrueba({ fecha: "2026-10-21", horaInicio: "18:00", horaFin: "18:30" })
+    const { api } = crearAppDePrueba([sesion], { reloj: () => new Date("2026-10-20T18:00:00-03:00") })
+    const res = await cancelar(api, sesion.id)
+    expect(res.status).toBe(200)
+    expect(res.body.estado).toBe("cancelada")
+  })
+
+  it("409 si la sesión ya empezó", async () => {
+    const sesion = sesionDePrueba({ fecha: "2026-10-18", horaInicio: "11:00", horaFin: "11:30" })
+    const { api, dataDir } = crearAppDePrueba([sesion], { reloj: () => AHORA_AR })
+    const antes = leerGuardadas(dataDir)
+    const res = await cancelar(api, sesion.id)
+    expect(res.status).toBe(409)
+    expect(res.body).toEqual({ error: "La sesión ya ocurrió y no se puede cancelar" })
+    expect(leerGuardadas(dataDir)).toEqual(antes)
+  })
+
+  it("409 si ya estaba cancelada, conservando el motivo y el momento originales", async () => {
+    const sesion = sesionDePrueba({
+      fecha: "2026-10-21",
+      estado: "cancelada",
+      motivoCancelacion: "Se suspendió",
+      canceladaEn: "2026-10-17T15:00:00.000Z",
+    })
+    const { api, dataDir } = crearAppDePrueba([sesion], { reloj: () => AHORA_AR })
+    const antes = leerGuardadas(dataDir)
+    const res = await cancelar(api, sesion.id)
+    expect(res.status).toBe(409)
+    expect(res.body).toEqual({ error: "La sesión ya estaba cancelada" })
+    expect(leerGuardadas(dataDir)).toEqual(antes)
+    expect(leerGuardadas(dataDir)[0]).toMatchObject({ motivoCancelacion: "Se suspendió", canceladaEn: "2026-10-17T15:00:00.000Z" })
+  })
+
+  it("el GET de una sesión a menos de 24 horas explica por qué no se puede cancelar", async () => {
+    const sesion = sesionDePrueba({ fecha: "2026-10-19", horaInicio: "11:59", horaFin: "12:29" })
+    const { api } = crearAppDePrueba([sesion], { reloj: () => AHORA_AR })
+    const res = await api.get(`/api/sesiones/${sesion.id}`)
+    expect(res.body.cancelacion).toEqual({
+      permitida: false,
+      razon: "fuera_de_plazo",
+      mensaje: "Solo se puede cancelar hasta 24 horas antes del inicio de la sesión",
+    })
+  })
+
+  it("dos cancelaciones seguidas: la primera cancela y la segunda ve que ya estaba cancelada", async () => {
+    const sesion = sesionDePrueba({ fecha: "2026-10-21", horaInicio: "18:00", horaFin: "18:30" })
+    const { api, dataDir } = crearAppDePrueba([sesion], { reloj: () => AHORA_AR })
+    const [primera, segunda] = await Promise.all([cancelar(api, sesion.id), cancelar(api, sesion.id)])
+    expect([primera.status, segunda.status].sort()).toEqual([200, 409])
+    expect([primera, segunda].find((r) => r.status === 409)!.body).toEqual({ error: "La sesión ya estaba cancelada" })
+    expect(leerGuardadas(dataDir).filter((s: { estado: string }) => s.estado === "cancelada")).toHaveLength(1)
   })
 })

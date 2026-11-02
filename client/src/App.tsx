@@ -3,10 +3,10 @@ import Ejercicios from "../../ejercicios/app/Ejercicios"
 import { SddPage } from "../../ejercicios/app/Setup"
 import Metricas from "../../metricas/app/Metricas"
 import Layout from "./components/Layout"
-import ConfirmacionPage from "./pages/ConfirmacionPage"
 import InicioPage from "./pages/InicioPage"
 import NoEncontradaPage from "./pages/NoEncontradaPage"
 import ReservaPage from "./pages/ReservaPage"
+import SesionPage from "./pages/SesionPage"
 
 export default function App() {
   return (
@@ -14,7 +14,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<InicioPage />} />
         <Route path="mentoras/:id" element={<ReservaPage />} />
-        <Route path="confirmacion" element={<ConfirmacionPage />} />
+        <Route path="sesiones/:id" element={<SesionPage />} />
         <Route path="spec-driven-development" element={<SddPage />} />
         <Route path="ejercicios/*" element={<Ejercicios />} />
         <Route path="metricas" element={<Metricas />} />

@@ -1,5 +1,6 @@
 // Único lugar del cliente que hace fetch (Principio VI).
 import type {
+  CambioSesion,
   Colectivo,
   DiaDisponible,
   ErrorApi,
@@ -7,6 +8,7 @@ import type {
   MentoraPublica,
   NuevaSesion,
   Sesion,
+  SesionDetalle,
   TipoAsesoria,
 } from "@shared/types"
 
@@ -49,4 +51,7 @@ export const api = {
       `/mentoras/${encodeURIComponent(mentoraId)}/disponibilidad?tipoAsesoriaId=${encodeURIComponent(tipoAsesoriaId)}`,
     ),
   crearSesion: (datos: NuevaSesion) => pedir<Sesion>("/sesiones", { method: "POST", body: JSON.stringify(datos) }),
+  sesion: (id: string) => pedir<SesionDetalle>(`/sesiones/${encodeURIComponent(id)}`),
+  cancelarSesion: (id: string, cambio: CambioSesion) =>
+    pedir<SesionDetalle>(`/sesiones/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(cambio) }),
 }

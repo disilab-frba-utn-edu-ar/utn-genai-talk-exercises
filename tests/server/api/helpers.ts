@@ -8,6 +8,9 @@ import { createApp } from "../../../server/app"
 /** "Ahora" fijo para los tests: domingo 18/10/2026 al mediodía. */
 export const AHORA = new Date(2026, 9, 18, 12, 0)
 
+/** El mismo domingo al mediodía, pero en hora de Argentina: no depende de la zona de la máquina. */
+export const AHORA_AR = new Date("2026-10-18T12:00:00-03:00")
+
 // IDs de data/ usados en los tests.
 export const VALENTINA = "8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e01" // lunes y miércoles 18 a 21 · react, testing, accesibilidad
 export const ROCIO = "8f3c2a1e-4b5d-4c6e-9f70-1a2b3c4d5e06" // sin disponibilidad

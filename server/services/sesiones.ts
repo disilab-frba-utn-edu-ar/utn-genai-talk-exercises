@@ -1,10 +1,11 @@
 import { randomUUID } from "node:crypto"
-import type { Sesion, SesionPublica } from "@shared/types"
+import type { Cancelacion, Sesion, SesionDetalle, SesionListada, SesionPublica } from "@shared/types"
+import { evaluarCancelacion, MENSAJES_CANCELACION } from "../domain/cancelacion"
 import { aHora, aMinutos, fechaDe } from "../domain/fechas"
 import { estaDentroDeDisponibilidad } from "../domain/horarios"
 import { puedeDar } from "../domain/mentoras"
 import { haySuperposicion } from "../domain/superposicion"
-import { validarNuevaSesion } from "../domain/validaciones"
+import { validarCancelacion, validarNuevaSesion } from "../domain/validaciones"
 import type { Repositorios } from "../repositories"
 import { conflicto, invalido, noEncontrado } from "./errores"
 
@@ -23,20 +24,70 @@ function aSesionPublica(sesion: Sesion): SesionPublica {
   }
 }
 
+/** Vista del listado público: tampoco el id, que es la credencial del enlace de la sesión. */
+function aSesionListada(sesion: Sesion): SesionListada {
+  return {
+    mentoraId: sesion.mentoraId,
+    tipoAsesoriaId: sesion.tipoAsesoriaId,
+    colectivoId: sesion.colectivoId,
+    proyecto: sesion.proyecto,
+    fecha: sesion.fecha,
+    horaInicio: sesion.horaInicio,
+    horaFin: sesion.horaFin,
+    estado: sesion.estado,
+  }
+}
+
+/** Lo que ve quien tiene el enlace: la vista pública, los datos de cancelación y si se puede cancelar. */
+function aSesionDetalle(sesion: Sesion, ahora: Date): SesionDetalle {
+  const evaluacion = evaluarCancelacion(sesion, ahora)
+  const cancelacion: Cancelacion = evaluacion.permitida
+    ? { permitida: true }
+    : { permitida: false, razon: evaluacion.razon, mensaje: MENSAJES_CANCELACION[evaluacion.razon] }
+  return {
+    ...aSesionPublica(sesion),
+    ...(sesion.motivoCancelacion !== undefined && { motivoCancelacion: sesion.motivoCancelacion }),
+    ...(sesion.canceladaEn !== undefined && { canceladaEn: sesion.canceladaEn }),
+    cancelacion,
+  }
+}
+
 export function crearServicioSesiones(repos: Repositorios, reloj: () => Date) {
   return {
-    listar(filtros: { mentoraId?: string; fecha?: string }): SesionPublica[] {
+    listar(filtros: { mentoraId?: string; fecha?: string }): SesionListada[] {
       return repos.sesiones
         .listar()
         .filter((s) => !filtros.mentoraId || s.mentoraId === filtros.mentoraId)
         .filter((s) => !filtros.fecha || s.fecha === filtros.fecha)
-        .map(aSesionPublica)
+        .map(aSesionListada)
     },
 
-    obtener(id: string): SesionPublica {
+    obtener(id: string): SesionDetalle {
       const sesion = repos.sesiones.buscar(id)
       if (!sesion) throw noEncontrado("La sesión no existe")
-      return aSesionPublica(sesion)
+      return aSesionDetalle(sesion, reloj())
+    },
+
+    /** Lee, evalúa y escribe sin `await` intermedio: dos cancelaciones simultáneas se serializan (research D8). */
+    cancelar(id: string, datos: unknown): SesionDetalle {
+      const sesion = repos.sesiones.buscar(id)
+      if (!sesion) throw noEncontrado("La sesión no existe")
+      const validacion = validarCancelacion(datos)
+      if (!validacion.ok) throw invalido(validacion.error)
+
+      const ahora = reloj()
+      const evaluacion = evaluarCancelacion(sesion, ahora)
+      if (!evaluacion.permitida) throw conflicto(MENSAJES_CANCELACION[evaluacion.razon])
+
+      const { motivo } = validacion.valor
+      const cancelada: Sesion = {
+        ...sesion,
+        estado: "cancelada",
+        canceladaEn: ahora.toISOString(),
+        ...(motivo && { motivoCancelacion: motivo }),
+      }
+      repos.sesiones.actualizar(cancelada)
+      return aSesionDetalle(cancelada, ahora)
     },
 
     crear(datos: unknown): Sesion {

@@ -33,6 +33,14 @@ export function aHora(minutos: number): string {
   return `${pad(Math.floor(minutos / 60))}:${pad(minutos % 60)}`
 }
 
+/**
+ * El instante en que empieza `fecha` `hora` en Argentina. Argentina usa UTC−3 fijo, sin
+ * horario de verano, así que el resultado no depende de la zona horaria del proceso.
+ */
+export function instanteEnArgentina(fecha: string, hora: string): Date {
+  return new Date(`${fecha}T${hora}:00-03:00`)
+}
+
 export function esFechaValida(fecha: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return false
   return fechaDe(aDate(fecha)) === fecha

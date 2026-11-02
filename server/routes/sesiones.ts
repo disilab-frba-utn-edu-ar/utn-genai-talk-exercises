@@ -18,5 +18,9 @@ export function rutasSesiones(sesiones: ReturnType<typeof crearServicioSesiones>
     res.status(201).json(sesiones.crear(req.body))
   })
 
+  router.patch("/:id", (req, res) => {
+    res.json(sesiones.cancelar(req.params.id, req.body))
+  })
+
   return router
 }

@@ -11,7 +11,7 @@ Base: `/api` · JSON · errores `{ "error": "<mensaje>" }`.
 | `GET /api/mentoras?habilidad=<codigo>` | `200 MentoraPublica[]` (filtradas si viene `habilidad`) | |
 | `GET /api/mentoras/:id` | `200 MentoraPublica` | `404` mentora inexistente |
 | `GET /api/mentoras/:id/disponibilidad?tipoAsesoriaId=<id>&dias=14` | `200 { fecha, horarios: Horario[] }[]` — solo días con horarios libres, desde hoy | `400` falta `tipoAsesoriaId` o la mentora no da ese tipo · `404` mentora o tipo inexistente |
-| `GET /api/sesiones?mentoraId=&fecha=` | `200 SesionPublica[]` — sin `contactoNombre` ni `contactoEmail` (Principio IV) | |
+| `GET /api/sesiones?mentoraId=&fecha=` | `200 SesionListada[]` — sin `contactoNombre` ni `contactoEmail` (Principio IV). Desde la 003 tampoco incluye `id`, que es la credencial del enlace de la sesión (ver [003 contracts/api.md](../../003-cancelar-sesion/contracts/api.md)) | |
 | `POST /api/sesiones` | `201 Sesion` | `400` validación · `404` mentora/tipo/colectivo inexistente · `409` horario ocupado |
 
 `dias` es opcional (por defecto 14, máximo 14).

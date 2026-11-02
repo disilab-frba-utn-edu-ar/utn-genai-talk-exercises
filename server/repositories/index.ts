@@ -28,6 +28,7 @@ export function crearRepositorios(dataDir: string) {
       listar: () => sesiones.leer(),
       buscar: (id: string) => sesiones.leer().find((s) => s.id === id),
       agregar: (sesion: Sesion) => sesiones.escribir([...sesiones.leer(), sesion]),
+      actualizar: (sesion: Sesion) => sesiones.escribir(sesiones.leer().map((s) => (s.id === sesion.id ? sesion : s))),
     },
   }
 }

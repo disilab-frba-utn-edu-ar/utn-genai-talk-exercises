@@ -1,4 +1,3 @@
-import type { Colectivo, MentoraPublica, Sesion, TipoAsesoria } from "@shared/types"
 import { useState, type ReactNode } from "react"
 import { Link, useNavigate, useParams } from "react-router"
 import { api, ErrorDeApi } from "../api/client"
@@ -10,13 +9,7 @@ import SelectorTipo from "../components/SelectorTipo"
 import { fechaLarga } from "../formato"
 import { useCarga } from "../hooks/useCarga"
 import NoEncontradaPage from "./NoEncontradaPage"
-
-export type EstadoConfirmacion = {
-  sesion: Sesion
-  mentora: MentoraPublica
-  tipo: TipoAsesoria
-  colectivo: Colectivo
-}
+import type { EstadoSesionPage } from "./SesionPage"
 
 function Paso({ numero, titulo, children }: { numero: number; titulo: string; children: ReactNode }) {
   return (
@@ -79,9 +72,8 @@ export default function ReservaPage() {
     setErrorEnvio(null)
     try {
       const sesion = await api.crearSesion({ mentoraId: mentora.id, tipoAsesoriaId: tipo.id, fecha, horaInicio, ...datos })
-      const colectivo = colectivos.find((c) => c.id === sesion.colectivoId)!
-      const estado: EstadoConfirmacion = { sesion, mentora, tipo, colectivo }
-      navigate("/confirmacion", { state: estado })
+      const estado: EstadoSesionPage = { recienReservada: true }
+      navigate(`/sesiones/${sesion.id}`, { state: estado })
     } catch (error) {
       const mensaje = error instanceof Error ? error.message : "No pudimos confirmar la sesión"
       if (error instanceof ErrorDeApi && error.status === 409) {

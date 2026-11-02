@@ -476,6 +476,21 @@ h1 .acento {
   box-shadow: 0 0 0 var(--linea);
 }
 
+/* Acción destructiva (cancelar una sesión): rojo con texto claro, contraste > 4.5:1. */
+.boton-peligro {
+  background: var(--error);
+  color: var(--invertido);
+  box-shadow: var(--sombra-chica);
+}
+
+.boton-peligro:hover:not(:disabled) {
+  box-shadow: 5px 5px 0 var(--linea);
+}
+
+.boton-peligro:active:not(:disabled) {
+  box-shadow: 0 0 0 var(--linea);
+}
+
 .boton-grande {
   width: 100%;
   min-height: 3.25rem;
@@ -867,6 +882,20 @@ h1 .acento {
   font-weight: 600;
 }
 
+/* Explica por qué no se puede hacer algo, sin que sea un error del usuario. */
+.aviso-info {
+  width: 100%;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 2.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--cielo);
+  box-shadow: var(--sombra-chica);
+  color: var(--texto);
+  font-weight: 600;
+  text-align: left;
+}
+
 /* ── Estados ────────────────────────────────────────────── */
 
 .estado {
@@ -974,15 +1003,104 @@ h1 .acento {
   overflow-wrap: anywhere;
 }
 
-.confirmacion-id {
+.copiar-enlace {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+  text-align: left;
+}
+
+.copiar-enlace label {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.copiar-enlace-fila {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.copiar-enlace input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.65rem 0.8rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+  font-family: var(--fuente-codigo);
+  font-size: 0.875rem;
+}
+
+.copiar-enlace input:focus-visible {
+  outline-offset: 1px;
+}
+
+.copiar-enlace-mensaje {
+  min-height: 1.25rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.copiar-enlace-aviso {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--resaltador);
+  color: var(--texto);
+  font-weight: 600;
+}
+
+@media (max-width: 30rem) {
+  .copiar-enlace-fila {
+    flex-direction: column;
+  }
+}
+
+/* ── Cancelación ────────────────────────────────────────── */
+
+.cancelacion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1.25rem 1.35rem;
+  text-align: left;
+}
+
+.cancelacion h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.cancelacion p {
+  margin: 0;
+}
+
+.campo-ayuda {
   margin: 0;
   font-size: 0.8125rem;
   color: var(--texto-suave);
-  overflow-wrap: anywhere;
+  text-align: right;
 }
 
-.confirmacion-id code {
-  color: var(--texto);
+.cancelacion-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.cancelacion-resultado {
+  margin: 0;
+  font-weight: 600;
+}
+
+.cancelacion-resultado:empty {
+  display: none;
 }
 
 /* ── Animaciones ────────────────────────────────────────── */

@@ -1,4 +1,13 @@
-import { aHora, aMinutos, diaSemana, esFechaValida, esHoraValida, fechaDe, sumarDias } from "../../../server/domain/fechas"
+import {
+  aHora,
+  aMinutos,
+  diaSemana,
+  esFechaValida,
+  esHoraValida,
+  fechaDe,
+  instanteEnArgentina,
+  sumarDias,
+} from "../../../server/domain/fechas"
 
 describe("domain/fechas", () => {
   it("devuelve el día de la semana de una fecha", () => {
@@ -27,5 +36,13 @@ describe("domain/fechas", () => {
     expect(esHoraValida("09:00")).toBe(true)
     expect(esHoraValida("24:00")).toBe(false)
     expect(esHoraValida("9:00")).toBe(false)
+  })
+
+  it("interpreta una fecha y hora en hora de Argentina (UTC−3)", () => {
+    expect(instanteEnArgentina("2026-10-19", "18:00").toISOString()).toBe("2026-10-19T21:00:00.000Z")
+  })
+
+  it("cruza al día siguiente en UTC cuando corresponde", () => {
+    expect(instanteEnArgentina("2026-10-19", "22:30").toISOString()).toBe("2026-10-20T01:30:00.000Z")
   })
 })
