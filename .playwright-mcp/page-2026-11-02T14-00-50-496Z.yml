@@ -1,0 +1,62 @@
+- generic [ref=e3]:
+  - link "Saltar al contenido" [ref=e4] [cursor=pointer]:
+    - /url: "#contenido"
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - link "UTN FRBA (abre en otra pestaña)" [ref=e7] [cursor=pointer]:
+        - /url: https://www.frba.utn.edu.ar
+        - generic [aria-hidden] [ref=e10]:
+          - text: UTN
+          - strong [ref=e11]: FRBA
+      - link [ref=e14] [cursor=pointer]:
+        - /url: /
+        - generic [aria-hidden] [ref=e15]: ›
+        - generic [ref=e16]:
+          - text: Mentorías
+          - emphasis [ref=e17]: a Voluntad
+    - navigation "Principal" [ref=e18]:
+      - link "Mentoras" [ref=e19] [cursor=pointer]:
+        - /url: /
+      - link "Ejercicios" [ref=e20] [cursor=pointer]:
+        - /url: /ejercicios
+      - link "Mi perfil" [ref=e21] [cursor=pointer]:
+        - /url: /ejercicios/perfil
+      - link "Métricas" [ref=e22] [cursor=pointer]:
+        - /url: /metricas
+  - main [ref=e23]:
+    - region [ref=e213]:
+      - generic [aria-hidden] [ref=e214]: ✓
+      - heading "¡Sesión confirmada!" [level=1] [ref=e215]
+      - paragraph [ref=e216]: Guardá estos datos y el código de la sesión. Ese horario ya quedó reservado con Camila Sosa.
+      - generic [ref=e217]:
+        - generic [ref=e218]:
+          - term [ref=e219]: Mentora
+          - definition [ref=e220]: Camila Sosa
+        - generic [ref=e221]:
+          - term [ref=e222]: Asesoría
+          - definition [ref=e223]: Estrategia de testing (45 min)
+        - generic [ref=e224]:
+          - term [ref=e225]: Día
+          - definition [ref=e226]: jueves, 5 de noviembre
+        - generic [ref=e227]:
+          - term [ref=e228]: Horario
+          - definition [ref=e229]: 15:00 a 15:45
+        - generic [ref=e230]:
+          - term [ref=e231]: Colectivo
+          - definition [ref=e232]: Libros Libres
+        - generic [ref=e233]:
+          - term [ref=e234]: Proyecto
+          - definition [ref=e235]: Queremos armar una estrategia de testing para el catálogo online de la biblioteca popular
+        - generic [ref=e236]:
+          - term [ref=e237]: Contacto
+          - definition [ref=e238]: Ana Gómez · ana.gomez@libroslibres.org
+      - paragraph [ref=e239]:
+        - text: "Código de la sesión:"
+        - code [ref=e240]: a888a9c5-0818-46e6-9b9c-db071a285dc7
+      - link "Volver al inicio" [ref=e241] [cursor=pointer]:
+        - /url: /
+  - contentinfo [ref=e36]:
+    - generic [ref=e37]:
+      - text: Parte del ecosistema
+      - strong [ref=e38]: Código a Voluntad
+    - generic [ref=e39]: Proyecto de práctica · UTN FRBA

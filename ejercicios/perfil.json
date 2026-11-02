@@ -1,0 +1,18 @@
+{
+  "nombre": "",
+  "integrantes": [],
+  "modelo": "",
+  "agente": "",
+  "puntaje": null,
+  "comentario": "",
+  "ejercicios": {
+    "01-observabilidad-con-hooks": {
+      "modelo": "opus 5.5",
+      "agente": "claude",
+      "intervino": "",
+      "intervencion": "",
+      "feedback": ""
+    }
+  },
+  "guardado": "2026-10-31T17:55:01.540Z"
+}

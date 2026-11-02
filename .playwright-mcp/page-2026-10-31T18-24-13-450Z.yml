@@ -1,0 +1,62 @@
+- generic [ref=e3]:
+  - link "Saltar al contenido" [ref=e4] [cursor=pointer]:
+    - /url: "#contenido"
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - link "UTN FRBA (abre en otra pestaña)" [ref=e7] [cursor=pointer]:
+        - /url: https://www.frba.utn.edu.ar
+        - generic [aria-hidden] [ref=e10]:
+          - text: UTN
+          - strong [ref=e11]: FRBA
+      - link [ref=e14] [cursor=pointer]:
+        - /url: /
+        - generic [aria-hidden] [ref=e15]: ›
+        - generic [ref=e16]:
+          - text: Mentorías
+          - emphasis [ref=e17]: a Voluntad
+    - navigation "Principal" [ref=e18]:
+      - link "Mentoras" [ref=e19] [cursor=pointer]:
+        - /url: /
+      - link "Ejercicios" [ref=e20] [cursor=pointer]:
+        - /url: /ejercicios
+      - link "Mi perfil" [ref=e21] [cursor=pointer]:
+        - /url: /ejercicios/perfil
+      - link "Métricas" [ref=e22] [cursor=pointer]:
+        - /url: /metricas
+  - main [ref=e23]:
+    - region [ref=e216]:
+      - generic [aria-hidden] [ref=e217]: ✓
+      - heading "¡Sesión confirmada!" [level=1] [ref=e218]
+      - paragraph [ref=e219]: Guardá estos datos y el código de la sesión. Ese horario ya quedó reservado con Valentina Ríos.
+      - generic [ref=e220]:
+        - generic [ref=e221]:
+          - term [ref=e222]: Mentora
+          - definition [ref=e223]: Valentina Ríos
+        - generic [ref=e224]:
+          - term [ref=e225]: Asesoría
+          - definition [ref=e226]: Revisión de código (30 min)
+        - generic [ref=e227]:
+          - term [ref=e228]: Día
+          - definition [ref=e229]: lunes, 2 de noviembre
+        - generic [ref=e230]:
+          - term [ref=e231]: Horario
+          - definition [ref=e232]: 20:00 a 20:30
+        - generic [ref=e233]:
+          - term [ref=e234]: Colectivo
+          - definition [ref=e235]: Fundación Huerta Viva
+        - generic [ref=e236]:
+          - term [ref=e237]: Proyecto
+          - definition [ref=e238]: Queremos revisar el formulario de inscripción de la huerta antes de publicarlo
+        - generic [ref=e239]:
+          - term [ref=e240]: Contacto
+          - definition [ref=e241]: Ana Gómez · ana@huertaviva.org
+      - paragraph [ref=e242]:
+        - text: "Código de la sesión:"
+        - code [ref=e243]: 54e690a1-ff15-47cb-9e36-5ad2372cf99c
+      - link "Volver al inicio" [ref=e244] [cursor=pointer]:
+        - /url: /
+  - contentinfo [ref=e36]:
+    - generic [ref=e37]:
+      - text: Parte del ecosistema
+      - strong [ref=e38]: Código a Voluntad
+    - generic [ref=e39]: Proyecto de práctica · UTN FRBA

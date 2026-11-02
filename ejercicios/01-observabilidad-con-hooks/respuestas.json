@@ -1,0 +1,54 @@
+{
+  "ejercicio": "01-observabilidad-con-hooks",
+  "guardado": "2026-10-31T17:55:01.551Z",
+  "general": [
+    "# Ejercicio 1 — Respuestas"
+  ],
+  "respuestas": {
+    "1.1": [
+      "13"
+    ],
+    "1.2": [
+      "de bash/ejecutar"
+    ],
+    "2.1": [
+      "4"
+    ],
+    "2.2": [
+      "server/domain/horarios.ts tests/server/domain/horarios.test.ts tests/server/api/sesiones.test.ts tests/server/api/helpers.ts"
+    ],
+    "2.3": [
+      "no, me equivoque de prompt y le mande el del video, igual hizo la tarea."
+    ],
+    "3.1": [
+      " $ ls server/domain tests/server/domain && grep -rn -i \"solap\\|overlap\" server shared --include=*.ts | head -30",
+      "  $ cat server/domain/horarios.ts tests/server/domain/horarios.test.ts",
+      "  $ ls server/services server/repositories tests/server/api && cat server/services/*.ts server/domain/validaciones.ts server/domain/fechas.ts",
+      "  $ cat tests/server/api/sesiones.test.ts tests/server/api/helpers.ts && grep -n \"tipo\\|duracion\\|disponibilidad\" -i data/tipos*.json data/mento…",
+      "  $ npx vitest run tests/server 2>&1 | grep -E \"✓|×|FAIL|Tests|expected|is not a function\" | head -30",
+      "  $ npm test 2>&1 | grep -E \"×|FAIL|Tests|Test Files\" ; npm run lint 2>&1 | tail -5; npm run typecheck 2>&1 | tail -5",
+      "  $ git stash -q && npx vitest run tests/client/Navegacion.test.tsx 2>&1 | grep -E \"Tests|AssertionError\" | head -3; git stash pop -q && git sta…"
+    ],
+    "3.2": [
+      "ninguno le pedi. hizo lo que debio con el prompt."
+    ],
+    "4.1": [
+      "no"
+    ],
+    "4.2": [
+      "nada"
+    ],
+    "5.1": [
+      "editar"
+    ],
+    "5.2": [
+      "si, mucho estaba en el constitucion"
+    ],
+    "6.1": [
+      "pre-commit"
+    ],
+    "7.1": [
+      "pushear keys, datos locales"
+    ]
+  }
+}

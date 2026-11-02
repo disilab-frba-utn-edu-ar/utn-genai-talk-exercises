@@ -1,0 +1,86 @@
+- generic [ref=f1e3]:
+  - link "Saltar al contenido" [ref=f1e4] [cursor=pointer]:
+    - /url: "#contenido"
+  - banner [ref=f1e5]:
+    - generic [ref=f1e6]:
+      - link "UTN FRBA (abre en otra pestaña)" [ref=f1e7] [cursor=pointer]:
+        - /url: https://www.frba.utn.edu.ar
+      - link [ref=f1e11] [cursor=pointer]:
+        - /url: /
+        - generic [aria-hidden] [ref=f1e12]: ›
+        - generic [ref=f1e13]:
+          - text: Mentorías
+          - emphasis [ref=f1e14]: a Voluntad
+    - navigation "Principal" [ref=f1e15]:
+      - link "Mentoras" [ref=f1e16] [cursor=pointer]:
+        - /url: /
+      - link "Ejercicios" [ref=f1e17] [cursor=pointer]:
+        - /url: /ejercicios
+      - link "Mi perfil" [ref=f1e18] [cursor=pointer]:
+        - /url: /ejercicios/perfil
+      - link "Métricas" [ref=f1e19] [cursor=pointer]:
+        - /url: /metricas
+  - main [ref=f1e20]:
+    - generic [ref=f1e27]:
+      - link "Todas las mentoras" [ref=f1e28] [cursor=pointer]:
+        - /url: /
+        - text: ← Todas las mentoras
+      - generic [ref=f1e29]:
+        - paragraph [ref=f1e30]: // Reservar sesión con
+        - heading "Valentina Ríos" [level=1] [ref=f1e31]
+        - paragraph [ref=f1e32]: Frontend hace 8 años. Me encanta ayudar a equipos chicos a ordenar sus componentes y empezar a testear.
+      - generic [ref=f1e33]:
+        - region [ref=f1e34]:
+          - heading "¿Qué tipo de ayuda necesitan?" [level=2] [ref=f1e35]:
+            - generic [aria-hidden] [ref=f1e36]: "1"
+            - text: ¿Qué tipo de ayuda necesitan?
+          - group "Tipo de asesoría" [ref=f1e37]:
+            - generic [ref=f1e39] [cursor=pointer]:
+              - 'radio "Revisión de código 30 min Una mirada externa sobre un PR o un módulo: legibilidad, errores y próximos pasos." [checked] [ref=f1e40]'
+              - generic [ref=f1e41]: Revisión de código
+              - generic [ref=f1e42]: 30 min
+              - generic [ref=f1e43]: "Una mirada externa sobre un PR o un módulo: legibilidad, errores y próximos pasos."
+            - generic [ref=f1e44] [cursor=pointer]:
+              - radio "Estrategia de testing 45 min Qué testear, cómo y con qué herramientas para no romper lo que funciona." [ref=f1e45]
+              - generic [ref=f1e46]: Estrategia de testing
+              - generic [ref=f1e47]: 45 min
+              - generic [ref=f1e48]: Qué testear, cómo y con qué herramientas para no romper lo que funciona.
+            - generic [ref=f1e49] [cursor=pointer]:
+              - radio "Auditoría de accesibilidad 30 min Recorrer la app con teclado y lector de pantalla y priorizar arreglos." [ref=f1e50]
+              - generic [ref=f1e51]: Auditoría de accesibilidad
+              - generic [ref=f1e52]: 30 min
+              - generic [ref=f1e53]: Recorrer la app con teclado y lector de pantalla y priorizar arreglos.
+        - region [ref=f1e54]:
+          - heading "¿Qué día?" [level=2] [ref=f1e55]:
+            - generic [aria-hidden] [ref=f1e56]: "2"
+            - text: ¿Qué día?
+          - group "Días con lugar" [ref=f1e57]:
+            - button "lunes, 2 de noviembre, 3 horarios libres" [active] [pressed] [ref=f1e58] [cursor=pointer]:
+              - generic [ref=f1e59]: lun
+              - generic [ref=f1e60]: "2"
+              - generic [ref=f1e61]: nov
+            - button "miércoles, 4 de noviembre, 4 horarios libres" [ref=f1e62] [cursor=pointer]:
+              - generic [ref=f1e63]: mié
+              - generic [ref=f1e64]: "4"
+              - generic [ref=f1e65]: nov
+            - button "lunes, 9 de noviembre, 5 horarios libres" [ref=f1e66] [cursor=pointer]:
+              - generic [ref=f1e67]: lun
+              - generic [ref=f1e68]: "9"
+              - generic [ref=f1e69]: nov
+            - button "miércoles, 11 de noviembre, 6 horarios libres" [ref=f1e70] [cursor=pointer]:
+              - generic [ref=f1e71]: mié
+              - generic [ref=f1e72]: "11"
+              - generic [ref=f1e73]: nov
+        - region [ref=f1e74]:
+          - heading "¿A qué hora? · lunes, 2 de noviembre" [level=2] [ref=f1e75]:
+            - generic [aria-hidden] [ref=f1e76]: "3"
+            - text: ¿A qué hora? · lunes, 2 de noviembre
+          - group "Horarios libres" [ref=f1e77]:
+            - button "18:00 – 18:30" [ref=f1e78] [cursor=pointer]
+            - button "18:30 – 19:00" [ref=f1e79] [cursor=pointer]
+            - button "20:30 – 21:00" [ref=f1e80] [cursor=pointer]
+  - contentinfo [ref=f1e23]:
+    - generic [ref=f1e24]:
+      - text: Parte del ecosistema
+      - strong [ref=f1e25]: Código a Voluntad
+    - generic [ref=f1e26]: Proyecto de práctica · UTN FRBA

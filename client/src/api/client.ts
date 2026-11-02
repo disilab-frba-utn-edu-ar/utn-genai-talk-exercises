@@ -7,6 +7,7 @@ import type {
   MentoraPublica,
   NuevaSesion,
   Sesion,
+  SesionPublica,
   TipoAsesoria,
 } from "@shared/types"
 
@@ -48,5 +49,6 @@ export const api = {
     pedir<DiaDisponible[]>(
       `/mentoras/${encodeURIComponent(mentoraId)}/disponibilidad?tipoAsesoriaId=${encodeURIComponent(tipoAsesoriaId)}`,
     ),
+  sesion: (id: string) => pedir<SesionPublica>(`/sesiones/${encodeURIComponent(id)}`),
   crearSesion: (datos: NuevaSesion) => pedir<Sesion>("/sesiones", { method: "POST", body: JSON.stringify(datos) }),
 }

@@ -52,6 +52,50 @@ describe("API · GET /api/sesiones", () => {
   })
 })
 
+describe("API · GET /api/sesiones/:id", () => {
+  const ID = "00000000-0000-4000-8000-000000000001"
+
+  it("devuelve el detalle de la sesión", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba(), sesionDePrueba({ id: "otra", fecha: "2026-10-21" })])
+    const res = await api.get(`/api/sesiones/${ID}`)
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual({
+      id: ID,
+      mentoraId: VALENTINA,
+      tipoAsesoriaId: "revision_de_codigo",
+      colectivoId: HUERTA_VIVA,
+      proyecto: "Revisar el formulario de inscripción",
+      fecha: LUNES,
+      horaInicio: "18:00",
+      horaFin: "18:30",
+      estado: "confirmada",
+    })
+  })
+
+  it("no devuelve los datos de contacto del colectivo (Principio IV)", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba()])
+    const res = await api.get(`/api/sesiones/${ID}`)
+    expect(res.status).toBe(200)
+    expect(res.body).not.toHaveProperty("contactoNombre")
+    expect(res.body).not.toHaveProperty("contactoEmail")
+    expect(JSON.stringify(res.body)).not.toContain("@example.org")
+  })
+
+  it("404 si la sesión no existe", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba()])
+    const res = await api.get("/api/sesiones/00000000-0000-4000-8000-000000000099")
+    expect(res.status).toBe(404)
+    expect(res.body).toEqual({ error: "La sesión no existe" })
+  })
+
+  it("404 si el id está mal formado", async () => {
+    const { api } = crearAppDePrueba([sesionDePrueba()])
+    const res = await api.get("/api/sesiones/no-es-un-uuid")
+    expect(res.status).toBe(404)
+    expect(res.body).toEqual({ error: "La sesión no existe" })
+  })
+})
+
 describe("API · POST /api/sesiones", () => {
   it("crea la sesión, calcula la hora de fin y la guarda", async () => {
     const { api, dataDir } = crearAppDePrueba()
